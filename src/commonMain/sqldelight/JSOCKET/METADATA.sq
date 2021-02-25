@@ -1,0 +1,16 @@
+table_metadata:
+CREATE TABLE IF NOT EXISTS MetaData
+(VALUE_NAME TEXT PRIMARY KEY,
+ VALUE_VALUE INTEGER as Int NOT NULL);
+
+insert_metadata:
+REPLACE INTO MetaData (VALUE_NAME, VALUE_VALUE) VALUES (?, ?);
+
+clear_metadata:
+DELETE FROM MetaData;
+
+select_all_metadata:
+SELECT * FROM MetaData;
+
+select_metadata:
+SELECT VALUE_VALUE FROM MetaData WHERE VALUE_NAME = ?;

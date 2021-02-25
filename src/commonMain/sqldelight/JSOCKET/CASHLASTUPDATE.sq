@@ -1,0 +1,66 @@
+table_lastupdate:
+CREATE TABLE IF NOT EXISTS CashLastUpdate
+(CASH_SUM TEXT PRIMARY KEY,
+LAST_UPDATE TEXT  NOT NULL,
+LAST_USE TEXT NOT NULL,
+IS_TEMP INTEGER as Int NOT NULL
+CHECK (length(CASH_SUM) < 20
+ AND length(LAST_UPDATE) < 20
+ AND length(LAST_USE) < 20
+ AND (IS_TEMP BETWEEN 0 AND 1)
+));
+
+index_lastupdate:
+CREATE INDEX ICashLastUpdate ON CashLastUpdate(LAST_USE ASC);
+
+trigger_delete_lastupdate:
+CREATE TRIGGER TCashLastUpdate_DELETE
+AFTER DELETE ON CashLastUpdate
+FOR EACH ROW
+BEGIN
+DELETE FROM CashData WHERE CASH_SUM = old.CASH_SUM;
+END;
+
+trigger_insert_lastupdate:
+CREATE TRIGGER TCashLastUpdate_Insert
+AFTER INSERT ON CashLastUpdate
+FOR EACH ROW
+BEGIN
+DELETE FROM CashLastUpdate  WHERE CASH_SUM = new.CASH_SUM
+AND ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM) = 0);
+END;
+
+trigger_control_count_cash:
+CREATE TRIGGER TControlCountsCash
+AFTER INSERT ON CashLastUpdate
+FOR EACH ROW WHEN
+(SELECT count(*) FROM CashData)>(SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA')
+BEGIN
+DELETE FROM CashLastUpdate WHERE CASH_SUM =
+(SELECT CASH_SUM FROM CashLastUpdate WHERE LAST_USE =
+(SELECT min(CAST(LAST_USE AS INTEGER)) FROM CashLastUpdate)
+LIMIT 1);
+DELETE FROM CashData WHERE CASH_SUM NOT IN (SELECT CASH_SUM FROM CashLastUpdate);
+END;
+
+insert_lastupdate:
+REPLACE INTO CashLastUpdate
+(CASH_SUM, LAST_UPDATE, LAST_USE, IS_TEMP)
+VALUES
+(?, ?, ?, ?);
+
+update_last_use_lastupdate:
+UPDATE CashLastUpdate SET LAST_USE = ? WHERE CASH_SUM = ?;
+
+clear_lastupdate:
+DELETE FROM CashLastUpdate;
+
+select_lastupdate:
+SELECT LAST_UPDATE FROM CashLastUpdate WHERE CASH_SUM = ?;
+
+delete_lastupdate:
+DELETE FROM CashLastUpdate WHERE CASH_SUM = ?;
+
+select_last_lastupdate:
+SELECT CASH_SUM FROM CashLastUpdate WHERE LAST_USE =
+(SELECT min(CAST(LAST_USE AS INTEGER)) FROM CashLastUpdate) LIMIT 1;

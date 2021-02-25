@@ -1,0 +1,48 @@
+table_big_avatars:
+CREATE TABLE IF NOT EXISTS BigAvatars
+(OBJECTS_ID TEXT PRIMARY KEY,
+TIME_ADDED TEXT NOT NULL,
+IS_TEMP INTEGER as Int NOT NULL,
+SMALL_AVATAR_SIZE INTEGER as Int NOT NULL,
+AVATAR BLOB  NOT NULL,
+CHECK (
+length(OBJECTS_ID)=18
+AND length(TIME_ADDED) < 20
+AND (IS_TEMP BETWEEN 0 AND 1)));
+
+trigger_control_count_big_avatars:
+CREATE TRIGGER TControlCountsBigAvatars
+AFTER INSERT ON BigAvatars
+FOR EACH ROW WHEN
+(SELECT count(*) FROM BigAvatars)>
+(SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')
+BEGIN
+DELETE FROM BigAvatars WHERE OBJECTS_ID NOT IN
+(SELECT OBJECTS_ID FROM BigAvatars ORDER BY CAST(TIME_ADDED AS INTEGER) DESC
+LIMIT (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS'));
+END;
+
+index_big_avatars:
+CREATE INDEX IBigAvatars_TIME_ADDED ON BigAvatars(TIME_ADDED);
+
+insert_big_avatars:
+REPLACE INTO BigAvatars
+(OBJECTS_ID, TIME_ADDED, IS_TEMP, SMALL_AVATAR_SIZE, AVATAR)
+VALUES
+(?, ?, ?, ?, ?);
+
+select_big_avatars:
+SELECT * FROM BigAvatars WHERE OBJECTS_ID = ?;
+
+select_count_big_avatars:
+SELECT count(*) FROM BigAvatars;
+
+select_last_big_avatars:
+SELECT OBJECTS_ID FROM BigAvatars WHERE TIME_ADDED =
+(SELECT min(CAST(TIME_ADDED AS INTEGER)) FROM BigAvatars) LIMIT 1;
+
+delete_big_avatars:
+DELETE FROM BigAvatars WHERE OBJECTS_ID = ?;
+
+clear_big_avatars:
+DELETE FROM BigAvatars;
