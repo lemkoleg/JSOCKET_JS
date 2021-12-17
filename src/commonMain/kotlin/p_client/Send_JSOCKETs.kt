@@ -55,7 +55,7 @@ class Send_JSOCKETs {
                     myJSocket.setValue(Listener.OutJSOCKETs.remove(myJSocket.just_do_it_label)!!)
                     if (myJSocket.content != null && myJSocket.just_do_it_successfull == "0"
                             && myJSocket.content!!.isNotEmpty()) {
-                        if (Commands[myJSocket.just_do_it]!!.isDeserialized_answer) {
+                        if (Commands[myJSocket.just_do_it]!!.) {
                             myJSocket.deserialized_ANSWERS_TYPES()
                         }
                         if (Commands[myJSocket.just_do_it]!!.blobIsAvavtar && myJSocket.value_par4.trim().isNotEmpty()) {

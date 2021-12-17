@@ -412,7 +412,6 @@ object Sqlite_service : CoroutineScope {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @DangerousInternalIoApi
     @ExperimentalTime
     @ExperimentalIoApi
@@ -576,7 +575,6 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @KtorExperimentalAPI
     @DangerousInternalIoApi
     @InternalAPI
     @ExperimentalIoApi
@@ -672,7 +670,7 @@ object Sqlite_service : CoroutineScope {
                                 val MyANSWER_TYPE: ANSWER_TYPE = l_MyJSocket.ANSWER_TYPEs!!.removeFirst()
                                 val comm = KCommands(MyANSWER_TYPE)
                                 if (comm.getCOMMANDS_ID() != 0) {
-                                    val c = Command(comm, false)
+                                    val c = Command(comm)
                                     Commands[c.commands_id] = c
                                 } else {
                                     val meta = KMetaData(MyANSWER_TYPE)
@@ -694,7 +692,7 @@ object Sqlite_service : CoroutineScope {
             Connection.createStatement().SELECT_ALL_COMMANDS()
         }
         rs.forEach {
-            val c = Command(it, false)
+            val c = Command(it)
             Commands[c.commands_id] = c
         }
         rs.clear()
@@ -1172,8 +1170,7 @@ object Sqlite_service : CoroutineScope {
             WriteExceptionIntoFile(ex, "Sqlite_service.InitMesseges")
         }
     }
-
-    @KtorExperimentalAPI
+    
     @ExperimentalTime
     @DangerousInternalIoApi
     @InternalAPI

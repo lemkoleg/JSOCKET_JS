@@ -5,7 +5,6 @@
  */
 package Tables
 
-import com.soywiz.korio.lang.substr
 import p_jsocket.ANSWER_TYPE
 import kotlin.js.JsName
 
@@ -33,192 +32,256 @@ class KMessege{
 
     @JsName("getCHATS_ID")
     fun getCHATS_ID():String{
-        return answerType.IDENTIFICATOR_1?:""
-    }
-
-    @JsName("getMESSEGES_ID")
-    fun getMESSEGES_ID():Long{
-        return answerType.LONG_1?:0L
-    }
-
-    @JsName("getMESSEGES_CHATS_COUNT")
-    fun getMESSEGES_CHATS_COUNT():Long{
-        return answerType.LONG_4?:0L
-    }
-
-    @JsName("getMESSEGES_OWNER")
-    fun getMESSEGES_OWNER():String{
-        return answerType.IDENTIFICATOR_2?:""
-    }
-
-    @JsName("getMESSEGES_ANSWER")
-    fun getMESSEGES_ANSWER():Long{
-        return answerType.LONG_2?:0L
-    }
-
-    @JsName("getMESSEGES_ADRESSER")
-    fun getMESSEGES_ADRESSER():String{
-        return answerType.IDENTIFICATOR_4?:""
-    }
-
-    @JsName("getOBJECTS_LINK")
-    fun getOBJECTS_LINK():String{
-        return answerType.IDENTIFICATOR_5?:""
-    }
-
-    @JsName("getMESSEGE_TEXT")
-    fun getMESSEGE_TEXT():String{
-        return answerType.STRING_5?:""
-    }
-
-    @JsName("getMESSEGES_AVATAR")
-    fun getMESSEGES_AVATAR():ByteArray?{
-        return answerType.BLOB_1
-    }
-
-    @JsName("getMESSEGES_LIKES")
-    fun getMESSEGES_LIKES():Int{
-        return answerType.INTEGER_1?:0
-    }
-
-    @JsName("getMESSEGES_DISLIKES")
-    fun getMESSEGES_DISLIKES():Int{
-        return answerType.INTEGER_2?:0
-    }
-
-    @JsName("getNOT_DELIVERIED")
-    fun getNOT_DELIVERIED():Int{
-        return answerType.INTEGER_3?:0
-    }
-
-    @JsName("getNOT_READED")
-    fun getNOT_READED():Int{
-        return answerType.INTEGER_4?:0
-    }
-
-    @JsName("getMESSEGES_ACCESS")
-    fun getMESSEGES_ACCESS():String{
-        return answerType.STRING_1?.substring(0, 1)?:""
-    }
-
-    @JsName("getMESSEGES_TYPE")
-    fun getMESSEGES_TYPE():String{
-        return answerType.STRING_1?.substring(1, 2)?:""
-    }
-
-    @JsName("getDATE_ADDING")
-    fun getDATE_ADDING():Long{
-        return answerType.LONG_3?:0L
-    }
-
-    @JsName("getLAST_UPDATING_DATE")
-    fun getLAST_UPDATING_DATE():Long{
-        return answerType.LONG_5?:0L
-    }
-
-    @JsName("getOBJECTS_LINK_SUBSCRIBE")
-    fun getOBJECTS_LINK_SUBSCRIBE():String{
-        return answerType.STRING_2?:""
-    }
-
-    @JsName("getOBJECTS_LINK_SMALL_AVATAR")
-    fun getOBJECTS_LINK_SMALL_AVATAR():ByteArray?{
-        return answerType.BLOB_2
+        return answerType.IDENTIFICATOR_11?:""
     }
 
     @JsName("setCHATS_ID")
     fun setCHATS_ID(v:String){
-        answerType.IDENTIFICATOR_1 = v
+        answerType.IDENTIFICATOR_11 = v
     }
 
-    @JsName("setMESSEGES_ID")
-    fun setMESSEGES_ID(v:Long){
-        answerType.LONG_1 = v
+    @JsName("getMESSEGES_COUNT")
+    fun getMESSEGES_COUNT():Long{
+        return answerType.LONG_12?:0L
     }
 
-    @JsName("setMESSEGES_CHATS_COUNT")
-    fun setMESSEGES_CHATS_COUNT(v:Long){
-        answerType.LONG_4 = v
+    @JsName("setMESSEGES_COUNT")
+    fun setMESSEGES_COUNT(v:Long){
+        answerType.LONG_12 = v
+    }
+
+    @JsName("getMESSEGES_OWNER")
+    fun getMESSEGES_OWNER():String{
+        return answerType.IDENTIFICATOR_12?:""
     }
 
     @JsName("setMESSEGES_OWNER")
     fun setMESSEGES_OWNER(v:String){
-        answerType.IDENTIFICATOR_2 = v.trim()
+        answerType.IDENTIFICATOR_12 = v
     }
 
-    @JsName("setMESSEGES_ANSWER")
-    fun setMESSEGES_ANSWER(v:Long){
-        answerType.LONG_2 = v
+    @JsName("getMESSEGES_ADRESSER")
+    fun getMESSEGES_ADRESSER():String{
+        return answerType.IDENTIFICATOR_13?:""
     }
 
     @JsName("setMESSEGES_ADRESSER")
-    fun setMESSEGES_ADRESSER(v:String){
-        answerType.IDENTIFICATOR_4 = v.trim()
+    fun setMESSEGES_ADRESSER(v:String?){
+        answerType.IDENTIFICATOR_13 = v?:""
     }
 
-    @JsName("setOBJECTS_LINK")
-    fun setOBJECTS_LINK(v:String){
-        answerType.IDENTIFICATOR_5 = v.trim()
+    @JsName("getMESSEGES_ANSWER")
+    fun getMESSEGES_ANSWER():Long{
+        return answerType.LONG_14?:0L
     }
 
-    @JsName("setMESSEGE_TEXT")
-    fun setMESSEGE_TEXT(v:String){
-       answerType.STRING_5 = v.trim()
+    @JsName("setMESSEGES_ANSWER")
+    fun setMESSEGES_ANSWER(v:Long?){
+        answerType.LONG_14 = v?:0L
+    }
+
+    @JsName("getOBJECT_ID")
+    fun getOBJECTS_ID():String{
+        return answerType.IDENTIFICATOR_5?:""
+    }
+
+    @JsName("setOBJECT_ID")
+    fun setOBJECTS_ID(v:String?){
+        answerType.IDENTIFICATOR_5 = v?:""
+    }
+
+    @JsName("getMESSEGE_START_TEXT")
+    fun getMESSEGE_START_TEXT():String{
+        return answerType.STRING_11?:""
+    }
+
+    @JsName("setMESSEGE_START_TEXT")
+    fun setMESSEGE_START_TEXT(v:String?){
+        answerType.STRING_11 = v?:""
+    }
+
+    @JsName("getMESSEGE_FULL_TEXT")
+    fun getMESSEGE_FULL_TEXT():String{
+        return answerType.STRING_14?:""
+    }
+
+    @JsName("setMESSEGE_FULL_TEXT")
+    fun setMESSEGE_FULL_TEXT(v:String?){
+        answerType.STRING_14 = v?:""
+    }
+
+    @JsName("getADDING_DATE")
+    fun getADDING_DATE():Long{
+        return answerType.LONG_11?:0L
+    }
+
+    @JsName("setADDING_DATE")
+    fun setADDING_DATE(v:Long){
+        answerType.LONG_11 = v
+    }
+
+    @JsName("getPERIOD_FOR")
+    fun getPERIOD_FOR():Long{
+        return answerType.LONG_13?:0L
+    }
+
+    @JsName("setPERIOD_FOR")
+    fun setPERIOD_FOR(v:Long){
+        answerType.LONG_13 = v
+    }
+
+    @JsName("getMESSEGES_TYPE")
+    fun getMESSEGES_TYPE():String?{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.isEmpty()){
+           return null
+        }
+        return answerType.STRING_12!!.substring(0, 1)
+    }
+
+    @JsName("getMESSEGES_ACCESS")
+    fun getMESSEGES_ACCESS():String?{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.length < 2){
+            return null
+        }
+        return answerType.STRING_12?.substring(1, 2)?:""
+    }
+
+    @JsName("getMESSEGES_STATUS")
+    fun getMESSEGES_STATUS():String?{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.length < 3){
+            return null
+        }
+        return answerType.STRING_12?.substring(2, 3)?:""
+    }
+
+    @JsName("getHAVE_A_FULL_TEXT")
+    fun getHAVE_A_FULL_TEXT():String?{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.length < 4){
+            return null
+        }
+        return answerType.STRING_12?.substring(3, 4)?:""
+    }
+
+    @JsName("getHAVE_ANSWER")
+    fun getHAVE_ANSWER():String?{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.length < 5){
+            return null
+        }
+        return answerType.STRING_12?.substring(4, 5)?:""
+    }
+
+    @JsName("getOBJECT_TYPE")
+    fun getOBJECT_TYPE():String{
+        if(answerType.STRING_12 == null || answerType.STRING_12!!.length < 6){
+            return ""
+        }
+        return answerType.STRING_12!!.substring(5, 6)
+    }
+
+    @JsName("setMESSEGES_TYPE_ACCESS_STATUS_HAVEFULLTEXT_HAVEANSWER_OBJECTTYPE")
+    fun setMESSEGES_TYPE_ACCESS_STATUS_HAVEFULLTEXT_HAVEANSWER_OBJECTTYPE(v:String){
+        answerType.STRING_12 = v
+    }
+
+    @JsName("getNOT_DELIVERIED")
+    fun getNOT_DELIVERIED():Int{
+        return answerType.INTEGER_13?:0
+    }
+
+    @JsName("setNOT_DELIVERIED")
+    fun setNOT_DELIVERIED(v:Int?){
+        answerType.INTEGER_13 = v?:0
+    }
+
+    @JsName("getNOT_READED")
+    fun getNOT_READED():Int{
+        return answerType.INTEGER_14?:0
+    }
+
+    @JsName("setNOT_READED")
+    fun setNOT_READED(v:Int?){
+        answerType.INTEGER_14 = v?:0
+    }
+
+    @JsName("getCOST")
+    fun getCOST():Int{
+        return answerType.INTEGER_11?:0
+    }
+
+    @JsName("setCOST")
+    fun setCOST(v:Int?){
+        answerType.INTEGER_11 = v?:0
+    }
+
+    @JsName("getCOST_TYPE")
+    fun getCOST_TYPE():Int{
+        return answerType.INTEGER_12?:0
+    }
+
+    @JsName("setCOST_TYPE")
+    fun setCOST_TYPE(v:Int?){
+        answerType.INTEGER_12 = v?:0
+    }
+
+    @JsName("getLAST_CHANGED")
+    fun getLAST_CHANGED():Long{
+        return answerType.LONG_15?:0L
+    }
+
+    @JsName("setLAST_CHANGED")
+    fun setLAST_CHANGED(v:Long?){
+        answerType.LONG_15 = v?:0L
+    }
+
+    @JsName("getANSWER_OBJECT_AVATAR")
+    fun getANSWER_OBJECT_AVATAR():ByteArray?{
+        return answerType.BLOB_1
+    }
+
+    @JsName("setANSWER_OBJECT_AVATAR")
+    fun setANSWER_OBJECT_AVATAR(v:ByteArray?){
+        answerType.BLOB_1 = v
+    }
+
+    @JsName("getOBJECT_AVATAR")
+    fun getOBJECT_AVATAR():ByteArray?{
+        return answerType.BLOB_2
+    }
+
+    @JsName("setOBJECT_AVATAR")
+    fun setOBJECT_AVATAR(v:ByteArray?){
+        answerType.BLOB_2 = v
+    }
+
+    @JsName("getMESSEGES_AVATAR")
+    fun getMESSEGES_AVATAR():ByteArray?{
+        return answerType.BLOB_3
     }
 
     @JsName("setMESSEGES_AVATAR")
     fun setMESSEGES_AVATAR(v:ByteArray?){
-        answerType.BLOB_1 = v
+        answerType.BLOB_3 = v
     }
 
-    @JsName("setMESSEGES_LIKES")
-    fun setMESSEGES_LIKES(v:Int){
-        answerType.INTEGER_1 = v
+    @JsName("getIS_UPDATE_BLOB")
+    fun getIS_UPDATE_BLOB():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 2){
+            return "0"
+        }
+        return answerType.STRING_20!!.substring(1, 2)
     }
 
-    @JsName("setMESSEGES_DISLIKES")
-    fun setMESSEGES_DISLIKES(v:Int){
-       answerType.INTEGER_2 = v
+    @JsName("getRECORD_TYPE")
+    fun getRECORD_TYPE():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
+            return ""
+        }
+        return answerType.STRING_20!!.substring(7, 8)
     }
 
-    @JsName("setNOT_DELIVERIED")
-    fun setNOT_DELIVERIED(v:Int){
-        answerType.INTEGER_3 = v
-    }
-
-    @JsName("setNOT_READED")
-    fun setNOT_READED(v:Int){
-        answerType.INTEGER_4 = v
-    }
-
-    @JsName("setMESSEGES_ACCESS")
-    fun setMESSEGES_ACCESS(v:String){
-        answerType.STRING_1 = v.substring(0, 1)+answerType.STRING_1?.substr(1)
-    }
-
-    @JsName("setMESSEGES_TYPE")
-    fun setMESSEGES_TYPE(v:String){
-        answerType.STRING_1 = answerType.STRING_1?.substring(0, 1) + v.substring(0, 1)+answerType.STRING_1?.substr(2)
-    }
-
-    @JsName("setDATE_ADDING")
-    fun setDATE_ADDING(v:Long){
-        answerType.LONG_3 = v
-    }
-
-    @JsName("setLAST_UPDATING_DATE")
-    fun setLAST_UPDATING_DATE(v:Long){
-        answerType.LONG_5 = v
-    }
-
-    @JsName("setOBJECTS_LINK_SUBSCRIBE")
-    fun setOBJECTS_LINK_SUBSCRIBE(v:String){
-        answerType.STRING_2 = v.trim()
-    }
-
-    @JsName("setOBJECTS_LINK_SMALL_AVATAR")
-    fun setOBJECTS_LINK_SMALL_AVATAR(v:ByteArray?){
-        answerType.BLOB_2 = v
+    @JsName("setSTRING_20")
+    fun setSTRING_20(v:String?){
+        answerType.STRING_20 = v?:""
     }
 
     @JsName("UpdateMessege")

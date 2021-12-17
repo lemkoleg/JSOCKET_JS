@@ -6,16 +6,17 @@ import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.lang.Thread_sleep
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import p_client.InitJsocket
 import p_client.Jsocket
 import p_client.myLang
-import kotlin.test.Test
 import kotlin.time.ExperimentalTime
+
+
+
 
 
 const val maxTimeSpanForWaitOutPut = 2000L
@@ -23,14 +24,22 @@ const val maxTimeSpanForWaitOutPut = 2000L
 class SampleTests {
     @ExperimentalUnsignedTypes
     @KorioExperimentalApi
-    @KtorExperimentalAPI
     @DangerousInternalIoApi
     @InternalAPI
     @ExperimentalTime
     @ExperimentalStdlibApi
-    @Test
     @io.ktor.utils.io.core.ExperimentalIoApi
     fun testMe() = run < Unit > {
+
+        val h: HASH = HASH()
+
+        val m: String = h.getMD5String("AUF")
+        val p: String = h.getMD5String("AUF")
+        val ll = 24354678876543L
+
+        val g: Long = h.getNewCoockiLong(m)
+        println(g)
+
 
         GlobalScope.launch {
 

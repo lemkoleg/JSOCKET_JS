@@ -9,8 +9,7 @@ import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KSaveMedia
 import Tables.KSendMedia
 import com.soywiz.korio.experimental.KorioExperimentalApi
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import io.ktor.utils.io.core.ExperimentalIoApi
 import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import lib_exceptions.exc_error_on_create_Client_File_Service
@@ -36,16 +35,16 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     @ExperimentalIoApi
     @ExperimentalStdlibApi
     private var jsocket: Jsocket = lJsocket
-    private val MySend_JSOCKETs: Send_JSOCKETs? = Send_JSOCKETs()
+    private val MySend_JSOCKETs: Send_JSOCKETs = Send_JSOCKETs()
 
     private var connection: Connection? = null
     private var clientFileService: ClientFileService? = null
     private var curCommand: Command? = null
 
 
+    @OptIn(KtorExperimentalAPI::class)
     @KorioExperimentalApi
     @ExperimentalUnsignedTypes
-    @KtorExperimentalAPI
     @ExperimentalIoApi
     @ExperimentalTime
     suspend fun execute() {
@@ -103,10 +102,9 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////   
+    ////////////////////////////////////////////////////////////////////////////////
     @KorioExperimentalApi
     @ExperimentalTime
-    @KtorExperimentalAPI
     @ExperimentalIoApi
     private suspend fun update_account() {
         try {
@@ -117,7 +115,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                     return
                 }
             } else {
-                jsocket.value_par7 = jsocket.value_par7.trim().toUpperCase()
+                jsocket.value_par7 = jsocket.value_par7.trim().uppercase()
             }
             val h = HASH()
             var p = ""
@@ -125,7 +123,9 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                 jsocket.value_par8 = h.getMD5String(jsocket.value_par8.trim())
                 p = jsocket.value_par8
             }
-            if (jsocket.just_do_it == 1011000010 || jsocket.just_do_it == 1011000026) {
+            if (jsocket.just_do_it == 1011000010  // RESTORE_PASSWORD
+                || jsocket.just_do_it == 1011000026 // INSERT_ACCOUNT
+            ) {
                 if (jsocket.value_par9.trim().isNotEmpty()) {
                     if (jsocket.value_par8.trim().isEmpty()) {
                         jsocket.just_do_it_successfull.equals("3", true)
@@ -207,7 +207,6 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @ExperimentalUnsignedTypes
     @ExperimentalTime
     @ExperimentalIoApi
@@ -263,7 +262,6 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @ExperimentalUnsignedTypes
     @ExperimentalTime
     @ExperimentalIoApi
@@ -290,9 +288,6 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                 return
             }
             jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, connection, true)
-            if (jsocket.just_do_it_successfull != "0") {
-                return
-            }
 
             if (jsocket.just_do_it_successfull != "0") {
                 return

@@ -4,19 +4,15 @@ package p_jsocket
 
 import CrossPlatforms.MyCondition
 import CrossPlatforms.WriteExceptionIntoFile
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.Lock
+import io.ktor.util.*
 import io.ktor.utils.io.core.*
-import io.ktor.utils.io.core.internal.ChunkBuffer
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
+import io.ktor.utils.io.core.internal.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import lib_exceptions.*
 import p_client.myConnectionsCoocki
 import kotlin.coroutines.CoroutineContext
-import kotlin.experimental.xor
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -34,35 +30,31 @@ const val FIELDS_SIZE = 1024 * 5
 val Commands: MutableMap<Int, Command> = mutableMapOf(
         1011000010 to Command(
                 1011000010, "9", "111010001410000000000000000000",
-                "202000111222000020000012222202222000000000000000000000000000",
-                true
+                "202000111222000020000012222202222000000000000000000000000000"
         ), // RESTORE_PASSWORD
         1011000026 to Command(
                 1011000026, "9", "111010001410000000000000000000",
-                "202000111222000020002212222202222000000000000000000000000000",
-                true
+                "202000111222000020002212222202222000000000000000000000000000"
         ), // INSERT_ACCOUNT
         1011000027 to Command(
                 1011000027, "2", "111011001410000000000000000000",
-                "202000111222000000000011222202022000000000000000000000000000",
-                true
+                "202000111222000000000011222202022000000000000000000000000000"
         ),// CONNECT_ACCOUNT
         1011000049 to Command(
                 1011000049, "2", "011000000000000000000000000000",
-                "002000111222000000000020022002022000000000000000000000000000",
-                true
+                "002000111222000000000020022002022000000000000000000000000000"
         ), // RE_SEND_MAIL_CONFIRM_CODE
         1011000061 to Command(
                 1011000061, "3", "011011001401000000000000000000",
-                "112000111220000000000000022202022000000000000000000000000000",
-                true
+                "112000111220000000000000022202022000000000000000000000000000"
         ), // SELECT_COMMANDS
         1011000069 to Command(
                 1011000069, "5", "111100101000010000000000000000",
-                "102000111220000000000000022202220000000000000000000000000000",
-                true
+                "102000111220000000000000022202220000000000000000000000000000"
         )// QUIT FROM CLIENT
 )
+
+val MetaData: MutableMap<String, Long> = mutableMapOf()
 
 @ExperimentalTime
 @JsName("FIELDS_SUBSCRIBE")
@@ -82,7 +74,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         13 to JSOCKET_Subscribe(  fields_number = 13, fields_name = "value_id2",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
         14 to JSOCKET_Subscribe(  fields_number = 14, fields_name = "value_id3",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
         15 to JSOCKET_Subscribe(  fields_number = 15, fields_name = "value_id4",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        16 to JSOCKET_Subscribe(  fields_number = 16, fields_name = "value_id5",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
+        16 to JSOCKET_Subscribe(  fields_number = 16, fields_name = "value_id5",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
         17 to JSOCKET_Subscribe(  fields_number = 17, fields_name = "value_par1",             fields_size =  120,  fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
         18 to JSOCKET_Subscribe(  fields_number = 18, fields_name = "value_par2",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
         19 to JSOCKET_Subscribe(  fields_number = 19, fields_name = "value_par3",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
@@ -96,7 +88,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         27 to JSOCKET_Subscribe(  fields_number = 27, fields_name = "last_notice_update",     fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
         28 to JSOCKET_Subscribe(  fields_number = 28, fields_name = "last_metadata_update",   fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
         29 to JSOCKET_Subscribe(  fields_number = 29, fields_name = "request_profile",        fields_size = 30,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        30 to JSOCKET_Subscribe(  fields_number = 30, fields_name = "request_size",           fields_size = 4,     fields_size_is_perminent = false, fields_type = 1, fields_crypted = 1, serialied = false, check_suming = false),
+        30 to JSOCKET_Subscribe(  fields_number = 30, fields_name = "request_size",           fields_size = 8,     fields_size_is_perminent = false, fields_type = 1, fields_crypted = 1, serialied = false, check_suming = false),
         31 to JSOCKET_Subscribe(  fields_number = 31, fields_name = "version",                fields_size = 5,     fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
         32 to JSOCKET_Subscribe(  fields_number = 32, fields_name = "last_date_of_update",    fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
         33 to JSOCKET_Subscribe(  fields_number = 33, fields_name = "db_massage",             fields_size = 500,   fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
@@ -272,7 +264,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
     var request_profile: String = ""
 
     @JsName("request_size")
-    var request_size: Int = 0
+    var request_size: Long = 0
 
     @JsName("version")
     var version: String? = "00001"
@@ -286,16 +278,18 @@ open class JSOCKET() : Closeable, CoroutineScope {
     @JsName("content")
     var content: ByteArray? = null
 
-    @DangerousInternalIoApi
     @JsName("bb")
     var bb: ByteReadPacket? = null
 
-    @InternalAPI
+    @OptIn(InternalAPI::class)
     val lock = Lock()
 
     private var start_position = 0
+    private var reverse_start_position = 0
     private var md5String: String = ""
+    private var reverseMD5String: String = ""
     private lateinit var md5LongArray: LongArray
+    private lateinit var reverseMD5LongArray: LongArray
 
     @ExperimentalStdlibApi
     private var h: HASH? = null
@@ -315,9 +309,9 @@ open class JSOCKET() : Closeable, CoroutineScope {
     private var crypt = false
     private var currentCommand: Command? = null
 
-    @DangerousInternalIoApi
-    @InternalAPI
-    @ExperimentalTime
+    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class,
+        io.ktor.utils.io.core.internal.DangerousInternalIoApi::class
+    )
     override fun close() {
         try {
             condition.cDestroy()
@@ -340,8 +334,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
 
-    @InternalAPI
-    @ExperimentalTime
+    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class)
     @JsName("set_value")
     fun set_value(myJsocketClass: JSOCKET) {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
@@ -384,13 +377,12 @@ open class JSOCKET() : Closeable, CoroutineScope {
         this.ANSWER_TYPEs = myJsocketClass.ANSWER_TYPEs
     }
 
-    @KtorExperimentalAPI
-    @DangerousInternalIoApi
-    @InternalAPI
-    @ExperimentalTime
+    @OptIn(DangerousInternalIoApi::class, io.ktor.util.InternalAPI::class, kotlin.time.ExperimentalTime::class)
     @JsName("serialize")
     fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): BytePacketBuilder? {
+
         bbCONTENT_SIZE = BytePacketBuilder(0, ChunkBuffer.Pool)
+
         if (h == null) h = HASH()
         if (just_do_it_label == 0L) {
             throw exc_just_do_it_is_null()
@@ -410,8 +402,8 @@ open class JSOCKET() : Closeable, CoroutineScope {
             check_sum = 0L
         }
         md5String = ""
-        object_extension = object_extension.trim().toLowerCase()
-        value_par7 = value_par7.trim().toUpperCase()
+        object_extension = object_extension.trim().lowercase()
+        value_par7 = value_par7.trim().uppercase()
         start_position = 0
         crypt = currentCommand!!.isCrypt
 
@@ -434,9 +426,12 @@ open class JSOCKET() : Closeable, CoroutineScope {
         nature_connection_coocki = connection_coocki
         if (connection_coocki != 0L) {
             md5String = h!!.getNewMD5String(connection_coocki, just_do_it_label)
+            reverseMD5String = h!!.getReverseMD5String(md5String)
             connection_coocki = h!!.getNewCoockiLong(md5String)
             md5LongArray = h!!.getNewMD5longArray(md5String)
+            reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
             start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
+            reverse_start_position = reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
         }
         ////////////////////////////////////////////////////////////////////////////////
         return try {
@@ -489,6 +484,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                             if (subJSOCKET.fields_size_is_perminent && s.length != subJSOCKET.fields_size) {
                                 throw exc_field_of_socket_is_empty(x, s.length)
                             }
+
                             bbb = s.encodeToByteArray()
                             nameField_length = bbb.size
                             while (nameField_length > subJSOCKET.fields_size) {
@@ -517,7 +513,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                             } else {
                                 bbCONTENT_SIZE!!.writeInt(x)
                                 bbCONTENT_SIZE!!.writeInt(4)
-                                setInt(int_value, crypt, lcraete_check_sum)
+                                bbCONTENT_SIZE!!.writeInt(int_value)
                             }
                         }
                         2 -> {
@@ -557,7 +553,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                                     setBytes(
                                             content!!,
                                             content!!.size,
-                                            crypt && !currentCommand!!.DontCryptContent,
+                                            crypt && currentCommand!!.cryptContent,
                                             lcraete_check_sum
                                     )
                                 }
@@ -577,16 +573,13 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     /////////////////////////////////////////////////////////////////////////////////
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
-    @InternalAPI
-    @ExperimentalTime
+    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class)
     @JsName("create_check_sum")
     fun create_check_sum(check_fields_lendth: Boolean) {
         if (h == null) h = HASH()
         var lcraete_check_sum: Boolean
         check_sum = 0L
-        value_par7 = value_par7.trim().toUpperCase()
+        value_par7 = value_par7.trim().uppercase()
         if (just_do_it_label == 0L) {
             throw exc_just_do_it_is_null()
         }
@@ -725,6 +718,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                 if (bb!!.remaining >= 4) {
                     recordSize = bb!!.readInt()
                     record = ByteReadPacket(bb!!.readBytes(recordSize))
+                    answer_type = ANSWER_TYPE()
                 } else {
                     break@loopChSum
                 }
@@ -770,7 +764,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                     println("nswer_type.STRING_8 ${answer_type.STRING_8}")
                     println("nswer_type.STRING_9 ${answer_type.STRING_9}")
                     println("nswer_type.STRING_10 ${answer_type.STRING_10}")*/
-                    answer_type = ANSWER_TYPE()
+
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
                     nameField_length = record.readInt()
@@ -818,11 +812,9 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
-    @InternalAPI
-    @ExperimentalTime
+    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class,
+        io.ktor.utils.io.core.internal.DangerousInternalIoApi::class
+    )
     @JsName("deserialize")
     fun deserialize(
             lbb: ByteReadPacket,
@@ -834,7 +826,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
         try {
             bbCONTENT_SIZE = BytePacketBuilder(0, ChunkBuffer.Pool)
             if (h == null) h = HASH()
-            request_size = lbb.remaining.toInt()
+            request_size = lbb.remaining
             bb = lbb
             md5String = ""
             start_position = 0
@@ -887,8 +879,11 @@ open class JSOCKET() : Closeable, CoroutineScope {
                         throw exc_user_coocki_not_equal_db_coocki(connection_id, connection_coocki, just_do_it_label)
                     }
                 }
+                reverseMD5String = h!!.getReverseMD5String(md5String)
                 md5LongArray = h!!.getNewMD5longArray(md5String)
+                reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
                 start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
+                reverse_start_position = reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
             }
             ////////////////////////////////////////////////////////////////////////////////
             //val nameFields = this::class.members.asSequence().associateBy { it.name }
@@ -917,14 +912,14 @@ open class JSOCKET() : Closeable, CoroutineScope {
                             getStringField(subJSOCKET, nameField_length, crypt)
                         }
                         1 -> {
-                            getIntField(subJSOCKET, crypt)
+                            subJSOCKET.setFieldsValue(this, bb!!.readInt())
                         }
                         2 -> {
                             getLongField(subJSOCKET, crypt)
                         }
                         3 -> bb!!.discardExact(nameField_length)
                         4 -> {
-                            getBytesField(subJSOCKET, nameField_length, crypt && !currentCommand!!.DontCryptContent)
+                            getBytesField(subJSOCKET, nameField_length, crypt && currentCommand!!.cryptContent)
                         }
                         else -> {
                             bb!!.discardExact(nameField_length)
@@ -963,18 +958,6 @@ open class JSOCKET() : Closeable, CoroutineScope {
         }
     }
 
-    @DangerousInternalIoApi
-    private fun setInt(input_int: Int, crypt: Boolean, lc_craete_check_sum: Boolean) {
-        if (lc_craete_check_sum) {
-            check_sum = h!!.getCheckSumFromLong(input_int.toLong(), check_sum)
-        }
-        if (crypt) {
-            bbCONTENT_SIZE!!.writeInt((input_int.toLong() xor md5LongArray[start_position]).toInt())
-            getNewStartPosition()
-        } else {
-            bbCONTENT_SIZE!!.writeInt(input_int)
-        }
-    }
 
     @DangerousInternalIoApi
     private fun setLong(input_long: Long, crypt: Boolean, lc_craete_check_sum: Boolean) {
@@ -982,7 +965,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
             check_sum = h!!.getCheckSumFromLong(input_long, check_sum)
         }
         if (crypt) {
-            bbCONTENT_SIZE!!.writeLong(input_long xor md5LongArray[start_position])
+            bbCONTENT_SIZE!!.writeLong(input_long xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
             getNewStartPosition()
         } else {
             bbCONTENT_SIZE!!.writeLong(input_long)
@@ -997,7 +980,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
         if (size < 8) {
             for (x in 0 until size) {
                 bbCONTENT_SIZE!!.writeByte(
-                        (input_bytes.readByte() xor md5String.substring(start_position, start_position + 1)[0].toByte())
+                        (input_bytes.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
                 )
                 getNewStartPosition()
             }
@@ -1005,13 +988,13 @@ open class JSOCKET() : Closeable, CoroutineScope {
         }
         var x = 0
         while (x + 8 <= size) {
-            bbCONTENT_SIZE!!.writeLong(input_bytes.readLong() xor md5LongArray[start_position])
+            bbCONTENT_SIZE!!.writeLong(input_bytes.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
             getNewStartPosition()
             x += 8
         }
         while (x < size) {
             bbCONTENT_SIZE!!.writeByte(
-                    (input_bytes.readByte() xor md5String.substring(start_position, start_position + 1)[0].toByte())
+                    (input_bytes.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
             )
             x += 1
             getNewStartPosition()
@@ -1046,24 +1029,13 @@ open class JSOCKET() : Closeable, CoroutineScope {
     @ExperimentalTime
     private fun getLongField(field: JSOCKET_Subscribe, crypt: Boolean) {
         if (crypt) {
-            field.setFieldsValue(this, bb!!.readLong() xor md5LongArray[start_position])
+            field.setFieldsValue(this, bb!!.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
             getNewStartPosition()
         } else {
             field.setFieldsValue(this, bb!!.readLong())
         }
     }
 
-    @InternalAPI
-    @DangerousInternalIoApi
-    @ExperimentalTime
-    private fun getIntField(field: JSOCKET_Subscribe, crypt: Boolean) {
-        if (crypt) {
-            field.setFieldsValue(this, bb!!.readInt().toLong() xor md5LongArray[start_position])
-            getNewStartPosition()
-        } else {
-            field.setFieldsValue(this, bb!!.readInt())
-        }
-    }
 
     @DangerousInternalIoApi
     private fun getCryptBytes(size: Int): ByteArray? {
@@ -1072,19 +1044,19 @@ open class JSOCKET() : Closeable, CoroutineScope {
         var x = 0
         if (size < 8) {
             while (x < size) {
-                lbb.writeByte((bb!!.readByte() xor md5String.substring(start_position, start_position + 1)[0].toByte()))
+                lbb.writeByte((bb!!.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte())
                 getNewStartPosition()
                 x += 1
             }
             return lbb.build().readBytes()
         }
         while (x + 8 <= size) {
-            lbb.writeLong(bb!!.readLong() xor md5LongArray[start_position])
+            lbb.writeLong(bb!!.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
             x += 8
             getNewStartPosition()
         }
         while (x < size) {
-            lbb.writeByte((bb!!.readByte() xor md5String.substring(start_position, start_position + 1)[0].toByte()))
+            lbb.writeByte((bb!!.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte())
             getNewStartPosition()
             x += 1
         }
@@ -1093,10 +1065,8 @@ open class JSOCKET() : Closeable, CoroutineScope {
 
     ////////////////////////////////////////////////////////////////////////////////
     private fun getNewStartPosition() {
-        start_position++
-        if (start_position > 15) {
-            start_position = 0
-        }
+        start_position = (start_position + 1) and 0x0000000F
+        reverse_start_position = (reverse_start_position xor start_position) and 0x0000000F
     }
 
     private fun getNewStartPositionIfSkipBytes(size_of_skip: Int) {
@@ -1120,5 +1090,9 @@ open class JSOCKET() : Closeable, CoroutineScope {
                 y -= 1
             }
         }
+    }
+
+    fun getmd5LongArray():LongArray {
+        return md5LongArray
     }
 }

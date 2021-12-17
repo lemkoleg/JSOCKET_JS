@@ -107,7 +107,7 @@ constructor(
         27 -> { j: JSOCKET, v: Any? -> j.last_notice_update = (v as Long?)?:0L}
         28 -> { j: JSOCKET, v: Any? -> j.last_metadata_update = (v as Long?)?:0L}
         29 -> { j: JSOCKET, v: Any? -> j.request_profile = (v as String?)?:""}
-        30 -> { j: JSOCKET, v: Any? -> j.request_size = (v as Int?)?:0}
+        30 -> { j: JSOCKET, v: Any? -> j.request_size = (v as Long?)?:0}
         31 -> { j: JSOCKET, v: Any? -> j.version = (v as String?)?:""}
         32 -> { j: JSOCKET, v: Any? -> j.last_date_of_update = (v as Long?)?:0L}
         33 -> { j: JSOCKET, v: Any? -> j.db_massage = (v as String?)?:""}

@@ -1,0 +1,1 @@
+webmake -ignore-errors "E:\MyIntellijIDEA\JSOCKET\build\js\packages\JSOCKET\kotlin\JSOCKET.js" "E:\MyIntellijIDEA\JSOCKET\build\distributions\JSOCKET.js"

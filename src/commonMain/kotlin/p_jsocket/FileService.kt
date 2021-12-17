@@ -18,9 +18,9 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.stream.asVfsFile
 import com.soywiz.korio.stream.openAsync
-import io.ktor.util.InternalAPI
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
-import io.ktor.utils.io.errors.IOException
+import io.ktor.util.*
+import io.ktor.utils.io.core.internal.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import lib_exceptions.*
 import kotlin.coroutines.CoroutineContext
@@ -71,6 +71,12 @@ class FileService(): CoroutineScope {
     private var IsDownloaded = false
     private val IsTryAgain = false
     private var myFile: MyFile? = null
+    private var md5LongArray: LongArray? = null
+    private var reverseMD5LongArray: LongArray? = null
+    private var md5String: String? = ""
+    private var reverseMD5String: String?  = ""
+    private var start_position = 0
+    private var reverse_start_position = 0
 
     @ExperimentalUnsignedTypes
     constructor(
@@ -88,7 +94,7 @@ class FileService(): CoroutineScope {
         this.fIleName = DeleteSymbols(lFIleName)
         this.OpenMode = mode
         ExpectedFIleSize = lExpectedFIleSize
-        fileExtension = DeleteSymbols(lFIleExtension).toLowerCase()
+        fileExtension = DeleteSymbols(lFIleExtension).lowercase()
         this.TempPath = if (mode != 1) {
             "Temp".plus(slash)
         } else {
@@ -126,7 +132,7 @@ class FileService(): CoroutineScope {
             if (extension.trim().isEmpty()) {
                 throw exc_error_on_create_file_name("")
             }
-            extension.toLowerCase()
+            extension.lowercase()
         } catch (ex: Exception) {
             throw exc_error_on_create_file_name(ex.message)
         }
@@ -203,8 +209,23 @@ class FileService(): CoroutineScope {
     @ExperimentalStdlibApi
     @InternalAPI
     @JsName("send_chunk_of_file")
-    suspend fun send_chunk_of_file(number_of_chunk: Int, conn: Connection) {
+    suspend fun send_chunk_or_full_of_file(number_of_chunk: Int,
+                                           send_full_file: Boolean,
+                                           conn: Connection,
+                                           lmd5LongArray:LongArray,
+                                           lreverseMD5LongArray:LongArray,
+                                           lmd5String: String,
+                                           lreverseMD5String: String) {
+
+        md5LongArray = lmd5LongArray;
+        md5String   = lmd5String;
+        reverseMD5LongArray = lreverseMD5LongArray;
+        reverseMD5String   = lreverseMD5String
+        start_position = (md5String!!.substring(md5String!!.length - 1, md5String!!.length)).toInt(16)
+        reverse_start_position = (reverseMD5String!!.substring(reverseMD5String!!.length - 1, md5String!!.length)).toInt(16)
+
         SendedBytes = number_of_chunk * CHUNK_SIZE
+
         if (OpenMode != 1) {
             throw exc_wrong_operation_for_open_mode()
         }

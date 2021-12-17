@@ -7,7 +7,6 @@
 
 package Tables
 import atomic.AtomicLong
-import com.soywiz.korio.lang.substr
 import io.ktor.util.InternalAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +40,10 @@ class KChat : CoroutineScope {
     @InternalAPI
     constructor(ans : ANSWER_TYPE, isAddSqLite: Boolean){
         answerType = ans
-        setGlobalLastUpdatingDate(getLAST_UPDATING_DATE())
+        setGlobalLastUpdatingDate(getLAST_UPDATE())
         if(isAddSqLite) {
             val m = this
-            ChatContext.launch {Sqlite_service.InsertChat(m) }
+            ChatContext.launch {Sqlite_service.InsertChat(m)}
         }
     }
 
@@ -55,36 +54,50 @@ class KChat : CoroutineScope {
 
     @JsName("getANSWER_TYPE")
     fun isUpdateChatBlob():String{
-        return if(answerType.LONG_10!! < 10L){
-            "0"
-        } else {
-            answerType.LONG_10.toString().substring(1,2)
+        if(answerType.STRING_20 == null || answerType.STRING_20?.length!! < 2){
+           return "0"
         }
+        return answerType.STRING_20?.substring(1,2)?:"0"
     }
 
     @JsName("getCHATS_ID")
     fun getCHATS_ID():String{
-        return answerType.IDENTIFICATOR_1?:""
+        return answerType.IDENTIFICATOR_5?:""
     }
 
-    @JsName("getCHATS_OWNER")
-    fun getCHATS_OWNER():String{
-        return answerType.IDENTIFICATOR_2?:""
-    }
-
-    @JsName("getLAST_MESSEGES_ID")
-    fun getLAST_MESSEGES_ID():Long{
-        return answerType.LONG_1?:0L
-    }
-
-    @JsName("getCHATS_OPPONENT")
-    fun getCHATS_OPPONENT():String{
-        return answerType.IDENTIFICATOR_3?:""
+    @JsName("setCHATS_ID")
+    fun setCHATS_ID(v:String){
+        answerType.IDENTIFICATOR_5 = v
     }
 
     @JsName("getMESSEGES_COUNT")
     fun getMESSEGES_COUNT():Long{
-        return answerType.LONG_2?:0L
+        return answerType.LONG_5?:0L
+    }
+
+    @JsName("setMESSEGES_COUNT")
+    fun setMESSEGES_COUNT(v:Long?){
+        answerType.LONG_5 = v?:0L
+    }
+
+    @JsName("getCOUNT_OF_MEMBERS")
+    fun getCOUNT_OF_MEMBERS():Long{
+        return answerType.LONG_8?:0L
+    }
+
+    @JsName("setCOUNT_OF_MEMBERS")
+    fun setCOUNT_OF_MEMBERS(v:Long){
+        answerType.LONG_8 = v
+    }
+
+    @JsName("getCHATS_OWNER")
+    fun getCHATS_OWNER():String{
+        return answerType.IDENTIFICATOR_7?:""
+    }
+
+    @JsName("setCHATS_OWNER")
+    fun getCHATS_OWNER(v:String){
+        answerType.IDENTIFICATOR_7 = v
     }
 
     @JsName("getCHATS_NAME")
@@ -92,113 +105,156 @@ class KChat : CoroutineScope {
         return answerType.STRING_5?:""
     }
 
-    @JsName("getCHATS_SMALL_AVATAR")
-    fun getCHATS_SMALL_AVATAR():ByteArray?{
-        return answerType.BLOB_1
+    @JsName("setCHATS_NAME")
+    fun setCHATS_NAME(v:String?){
+        answerType.STRING_5 = v?:""
+    }
+
+    @JsName("getAVATAR_ID")
+    fun getAVATAR_ID():String{
+        return answerType.IDENTIFICATOR_6?:""
+    }
+
+    @JsName("setAVATAR_ID")
+    fun getAVATAR_ID(v:String?){
+        answerType.IDENTIFICATOR_6 = v?:""
     }
 
     @JsName("getCHATS_PROFILE")
-    fun getCHATS_PROFILE():String{
-        return answerType.STRING_1?:""
-    }
-
-    @JsName("getCHATS_ACCESS")
-    fun getCHATS_ACCESS():String{
-        return answerType.STRING_2?.substring(0, 1)?:""
+    fun setCHATS_PROFILE():String?{
+        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 5){
+            return null
+        }
+        return answerType.STRING_7!!.substring(0, 5)
     }
 
     @JsName("getCHATS_TYPE")
-    fun getCHATS_TYPE():String{
-        return answerType.STRING_2?.substring(1, 2)?:""
+    fun setCHATS_TYPE():String?{
+        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 6){
+            return null
+        }
+        return answerType.STRING_7!!.substring(5, 6)
+    }
+
+    @JsName("getCHATS_ACCESS")
+    fun setCHATS_ACCESS():String?{
+        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 7){
+            return null
+        }
+        return answerType.STRING_7!!.substring(6, 7)
     }
 
     @JsName("getCHATS_STATUS")
-    fun getCHATS_STATUS():String{
-        return answerType.STRING_2?.substring(2, 3)?:""
+    fun setCHATS_STATUS():String?{
+        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 8){
+            return null
+        }
+        return answerType.STRING_7!!.substring(7, 8)
     }
 
-    @JsName("getLAST_UPDATING_DATE")
-    fun getLAST_UPDATING_DATE():Long{
-        return answerType.LONG_3?:0L
+    @JsName("setCHATS_PROFILE_TYPE_ACCESS_STATUS")
+    fun setCHATS_PROFILE_TYPE_ACCESS_STATUS(v:String){
+        answerType.STRING_7 = v
+    }
+
+    @JsName("getADDING_DATE")
+    fun getADDING_DATE():Long{
+        return answerType.LONG_4?:0L
+    }
+
+    @JsName("setADDING_DATE")
+    fun setADDING_DATE(v:Long){
+        answerType.LONG_4 = v
+    }
+
+    @JsName("getBALANCE")
+    fun getBALANCE():Long{
+        return answerType.LONG_9?:0L
+    }
+
+    @JsName("setBALANCE")
+    fun setBALANCE(v:Long?){
+        answerType.LONG_9 = v?:0L
+    }
+
+    @JsName("getDATE_CLOSED")
+    fun getDATE_CLOSED():Long{
+        return answerType.LONG_6?:0L
+    }
+
+    @JsName("setDATE_CLOSED")
+    fun setDATE_CLOSED(v:Long){
+        answerType.LONG_6 = v
     }
 
     @JsName("getCHATS_SUBSCRIBE")
     fun getCHATS_SUBSCRIBE():String{
-        return answerType.STRING_4?:""
+        return answerType.STRING_8?:""
     }
 
-    @JsName("setCHATS_ID")
-    fun setCHATS_ID(v:String){
-       answerType.IDENTIFICATOR_1 = v.trim()
+    @JsName("s")
+    fun setCHATS_SUBSCRIBE(v:String?){
+        answerType.STRING_8 = v?:""
     }
 
-    @JsName("setCHATS_OWNER")
-    fun setCHATS_OWNER(v:String){
-        answerType.IDENTIFICATOR_2 = v.trim()
+    @JsName("getLAST_UPDATE")
+    fun getLAST_UPDATE():Long{
+        return answerType.LONG_7?:0L
     }
 
-    @JsName("setLAST_MESSEGES_ID")
-    fun setLAST_MESSEGES_ID(v:Long){
-        answerType.LONG_1 = v
+    @JsName("setLAST_UPDATE")
+    fun setLAST_UPDATE(v:Long){
+        answerType.LONG_7 = v
     }
 
-    @JsName("setCHATS_OPPONENT")
-    fun setCHATS_OPPONENT(v:String){
-        answerType.IDENTIFICATOR_3 = v.trim()
+    @JsName("getCHATS_AVATAR")
+    fun getCHATS_AVATAR():ByteArray?{
+        return answerType.BLOB_1
     }
 
-    @JsName("setMESSEGES_COUNT")
-    fun setMESSEGES_COUNT(v:Long){
-        answerType.LONG_2 = v
-    }
-
-    @JsName("setCHATS_NAME")
-    fun setCHATS_NAME(v:String){
-        answerType.STRING_5 = v.trim()
-    }
-
-    @JsName("setCHATS_SMALL_AVATAR")
-    fun setCHATS_SMALL_AVATAR(v:ByteArray?){
+    @JsName("setCHATS_AVATAR")
+    fun getCHATS_AVATAR(v:ByteArray?){
         answerType.BLOB_1 = v
     }
 
-    @JsName("setCHATS_PROFILE")
-    fun setCHATS_PROFILE(v:String){
-        answerType.STRING_1 = v.trim()
+    @JsName("getCONNECTION_ID")
+    fun getCONNECTION_ID():Long{
+        return answerType.LONG_10?:0L
     }
 
-    @JsName("setCHATS_ACCESS")
-    fun setCHATS_ACCESS(v:String){
-        answerType.STRING_2 = v.substring(0, 1)+answerType.STRING_2?.substr(1)
+    @JsName("setCONNECTION_ID")
+    fun getCHATS_AVATAR(v:Long){
+        answerType.LONG_10 = v
     }
 
-    @JsName("setCHATS_TYPE")
-    fun setCHATS_TYPE(v:String){
-        answerType.STRING_2 = answerType.STRING_2?.substring(0, 1) + v.substring(0, 1)+answerType.STRING_2?.substr(2)
+    @JsName("getIS_UPDATE_BLOB")
+    fun getIS_UPDATE_BLOB():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 2){
+            return "0"
+        }
+        return answerType.STRING_20!!.substring(1, 2)
     }
 
-    @JsName("setCHATS_STATUS")
-    fun setCHATS_STATUS(v:String){
-        answerType.STRING_2 = answerType.STRING_2?.substring(0, 2) + v.substring(0, 1)+answerType.STRING_2?.substr(3)
+    @JsName("getRECORD_TYPE")
+    fun getRECORD_TYPE():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
+            return ""
+        }
+        return answerType.STRING_20!!.substring(7, 8)
     }
 
-    @JsName("setLAST_UPDATING_DATE")
-    fun setLAST_UPDATING_DATE(v:Long){
-        answerType.LONG_3 = v
-        setGlobalLastUpdatingDate(getLAST_UPDATING_DATE())
+    @JsName("setSTRING_20")
+    fun setSTRING_20(v:String?){
+        answerType.STRING_20 = v?:""
     }
 
-    @JsName("setCHATS_SUBSCRIBE")
-    fun setCHATS_SUBSCRIBE(v:String){
-        answerType.STRING_4 = v
-    }
 
     @ExperimentalStdlibApi
     @InternalAPI
     @JsName("UpdateChat")
     fun UpdateChat(lANSWER_TYPE: ANSWER_TYPE, isAddSqLite: Boolean) {
         answerType.setValue(lANSWER_TYPE)
-        setGlobalLastUpdatingDate(lANSWER_TYPE.LONG_3 ?: 0L)
+        setGlobalLastUpdatingDate(lANSWER_TYPE.LONG_7 ?: 0L)
         if(isAddSqLite){
             ChatContext.launch {Sqlite_service.InsertChat(this@KChat)}
         }
@@ -207,7 +263,7 @@ class KChat : CoroutineScope {
     @JsName("InsertMessege")
     fun InsertMessege(m: KMessege) {
         if (m.getCHATS_ID() == getCHATS_ID()) {
-            MESSEGES[m.getMESSEGES_CHATS_COUNT()] = m
+            MESSEGES[m.getMESSEGES_COUNT()] = m
         }
     }
 
@@ -219,12 +275,12 @@ class KChat : CoroutineScope {
     @JsName("InsertNewMessege")
     fun InsertNewMessege(m: KMessege) {
         if (m.getCHATS_ID() == getCHATS_ID()) {
-            if (MESSEGES.containsKey(m.getMESSEGES_CHATS_COUNT())) {
+            if (MESSEGES.containsKey(m.getMESSEGES_COUNT())) {
                 ChatContext.launch {m.UpdateMessege(m.getANSWER_TYPE())}
             } else {
                 ChatContext.launch {Sqlite_service.InsertMessege(m)}
             }
-            MESSEGES[m.getMESSEGES_CHATS_COUNT()] = m
+            MESSEGES[m.getMESSEGES_COUNT()] = m
         }
     }
 

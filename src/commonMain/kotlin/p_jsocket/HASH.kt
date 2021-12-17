@@ -322,17 +322,12 @@ class HASH {
     @KtorExperimentalAPI
     @JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
-            var TokenLong: Long
             var newStringMD5 = ""
             val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
 ////diapazone for 18 digits UnsignedLong: 16345785d8a0001 - de0b6b3a763ffff (15 chars)//////////////////
-            for (x in 0..14) {
-                newStringMD5 =
-                        newStringMD5.plus(
-                                getXorHexSymbolFrom2HexSymbols(md5Hex.substring(x, x + 1), md5Hex.substring(x + 15, x + 15 + 1))
-                        )
-            }
-            TokenLong = newStringMD5.toLong(16)
+        val stringMD5String1: Long = md5Hex.substring(0, 15).toLong(16)
+        val stringMD5String2: Long = md5Hex.substring(15, 30).toLong(16)
+        var TokenLong: Long = stringMD5String1 xor stringMD5String2
             if (TokenLong > 999999999999999999L) {
                 newStringMD5 = "ddf".plus(
                         newStringMD5.substring(3)
@@ -340,6 +335,9 @@ class HASH {
                 TokenLong = newStringMD5.toLong(16)
             }
             if (TokenLong < 100000000000000001L) {
+                if(TokenLong < 72057594037927936L){
+                    TokenLong += TokenLong;
+                }
                 newStringMD5 = "164".plus(
                         newStringMD5.substring(3)
                 )
@@ -354,23 +352,23 @@ class HASH {
     ////////////////////////////////////////////////////////////////////////////////
     @JsName("getNewCoockiLong")
     fun getNewCoockiLong(stringMD5: String): Long {
-            var TokenLong: Long
+        val stringMD5String1: Long = stringMD5.substring(0, 15).toLong(16)
+        val stringMD5String2: Long = stringMD5.substring(15, 30).toLong(16)
+
+            var TokenLong: Long = stringMD5String1 xor stringMD5String2
             var newStringMD5 = ""
-            for (x in 0..14) {
-                newStringMD5 = newStringMD5.plus(
-                        getXorHexSymbolFrom2HexSymbols(
-                                stringMD5.substring(x, x + 1), stringMD5.substring(x + 15, x + 15 + 1)
-                        )
-                )
-            }
-            TokenLong = newStringMD5.toLong(16)
             if (TokenLong > 999999999999999999L) {
+                newStringMD5 = TokenLong.toString(16)
                 newStringMD5 = "ddf".plus(
                         newStringMD5.substring(3, 15)
                 )
                 TokenLong = newStringMD5.toLong(16)
             }
             if (TokenLong < 100000000000000001L) {
+                if(TokenLong < 72057594037927936L){
+                    TokenLong += TokenLong;
+                }
+                newStringMD5 = TokenLong.toString(16)
                 newStringMD5 = "164".plus(other = newStringMD5.substring(3, 15))
                 TokenLong = newStringMD5.toLong(16)
             }
@@ -381,7 +379,6 @@ class HASH {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @JsName("getNewMD5String")
     fun getNewMD5String(l_token: Long, time: Long): String {
         return getMD5String(l_token.toString().plus(other = time.toString()))
@@ -399,11 +396,17 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @KtorExperimentalAPI
     @ExperimentalStdlibApi
     @JsName("getMD5String")
     fun getMD5String(input_string: String): String {
         return input_string.encodeToByteArray().md5().hexUpper
+
+    }
+
+    @ExperimentalStdlibApi
+    @JsName("getReverseMD5String")
+    fun getReverseMD5String(input_string: String): String {
+        return input_string.reversed()
 
     }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -415,6 +418,14 @@ class HASH {
         }
         return l
 }
+    @JsName("getReverseMD5longArray")
+    fun getReverseMD5longArray(reverseMD5String: String): LongArray {
+        val l = LongArray(16)
+        for (x in 0..15) {
+            l[x] = reverseMD5String.substring(x, x + 15).toLong(16)
+        }
+        return l
+    }
 ////////////////////////////////////////////////////////////////////////////////
     @JsName("getCheckSumFromByteArray")
      fun getCheckSumFromByteArray(data: ByteArray, checksum: Long): Long {

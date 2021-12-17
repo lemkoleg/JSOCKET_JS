@@ -1,18 +1,18 @@
-val kotlinVersion = "1.4.30"
-val ktorVersion = "1.5.1"
-val reactiveVersion = "1.1.20"
-val KlockVersion = "2.0.6"
-val KorimVersion = "2.0.7"
-val KorioVersion = "2.0.8"
-val KryptoVersion = "2.0.6"
-val SQLDelightVersion = "1.4.4"
-val AlaSQLVersion = "0.6.5"
+val kotlinVersion = "1.6.10"
+val ktorVersion = "1.6.7"
+val reactiveVersion = "1.2.1"
+val KlockVersion = "2.2.2"
+val KorimVersion = "2.2.2"
+val KorioVersion = "2.2.1"
+val KryptoVersion = "2.2.0"
+val SQLDelightVersion = "1.5.3"
+val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
 val Fingerprintjs2Version = "2.1.4"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.4.30"
-    id("com.squareup.sqldelight")  version "1.4.4"
+    id("org.jetbrains.kotlin.multiplatform") version "1.6.10"
+    id("com.squareup.sqldelight")  version "1.5.1"
 }
 
 buildscript {
@@ -22,7 +22,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath ("com.squareup.sqldelight:gradle-plugin:1.4.4")
+        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.1")
     }
 
 
@@ -86,6 +86,11 @@ kotlin {
             }
         }
     }*/
+    sourceSets {
+        all {
+            languageSettings.optIn("JSOCKET")
+        }
+    }
 
     sourceSets["commonMain"].dependencies {
         implementation ( kotlin("stdlib-jdk8", kotlinVersion))
