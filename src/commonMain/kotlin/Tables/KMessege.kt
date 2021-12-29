@@ -75,6 +75,26 @@ class KMessege{
         return answerType.LONG_14?:0L
     }
 
+    @JsName("getMESSEGE_ANSWER_START_TEXT")
+    fun getMESSEGE_ANSWER_START_TEXT():String{
+        return answerType.STRING_13?:""
+    }
+
+    @JsName("setMESSEGE_ANSWER_START_TEXT")
+    fun setMESSEGE_ANSWER_START_TEXT(v:String?){
+        answerType.STRING_13 = v?:""
+    }
+
+    @JsName("getMESSEGE_ANSWER_OBJECT_START_TEXT")
+    fun getMESSEGE_ANSWER_OBJECT_START_TEXT():String{
+        return answerType.STRING_15?:""
+    }
+
+    @JsName("setMESSEGE_ANSWER_OBJECT_START_TEXT")
+    fun setMESSEGE_ANSWER_OBJECT_START_TEXT(v:String?){
+        answerType.STRING_15 = v?:""
+    }
+
     @JsName("setMESSEGES_ANSWER")
     fun setMESSEGES_ANSWER(v:Long?){
         answerType.LONG_14 = v?:0L
@@ -233,10 +253,62 @@ class KMessege{
         answerType.LONG_15 = v?:0L
     }
 
+    @JsName("getOBJECT_LINK")
+    fun getOBJECT_LINK():String{
+        return answerType.STRING_8?:""
+    }
+
+    @JsName("setOBJECT_LINK")
+    fun setOBJECT_LINK(v:String?){
+        answerType.STRING_8 = v?:""
+    }
+
+    @JsName("getOBJECT_AVATAR_LINK")
+    fun getOBJECT_AVATAR_LINK():String{
+        return answerType.STRING_18?:""
+    }
+
+    @JsName("setOBJECT_AVATAR_LINK")
+    fun setOBJECT_AVATAR_LINK(v:String?){
+        answerType.STRING_18 = v?:""
+    }
+
+    @JsName("getOBJECT_SERVER")
+    fun getOBJECT_SERVER():String{
+        return answerType.STRING_6?:""
+    }
+
+    @JsName("setOBJECT_SERVER")
+    fun setOBJECT_SERVER(v:String?){
+        answerType.STRING_6 = v?:""
+    }
+
+    @JsName("getOBJECT_AVATAR_SERVER")
+    fun getOBJECT_AVATAR_SERVER():String{
+        return answerType.STRING_16?:""
+    }
+
+    @JsName("setOBJECT_AVATAR_SERVER")
+    fun setOBJECT_AVATAR_SERVER(v:String?){
+        answerType.STRING_16 = v?:""
+    }
+
+    @JsName("getORIGINAL_AVATAR_SIZE")
+    fun getORIGINAL_AVATAR_SIZE():String{
+        return answerType.STRING_17?:"0"
+    }
+
+    @JsName("setORIGINAL_AVATAR_SIZE")
+    fun setORIGINAL_AVATAR_SIZE(v: String?){
+        answerType.STRING_17 = v?.trim()?:"0"
+    }
+    
+
     @JsName("getANSWER_OBJECT_AVATAR")
     fun getANSWER_OBJECT_AVATAR():ByteArray?{
         return answerType.BLOB_1
     }
+    
 
     @JsName("setANSWER_OBJECT_AVATAR")
     fun setANSWER_OBJECT_AVATAR(v:ByteArray?){

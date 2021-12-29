@@ -207,15 +207,46 @@ class KChat : CoroutineScope {
         answerType.LONG_7 = v
     }
 
-    @JsName("getCHATS_AVATAR")
-    fun getCHATS_AVATAR():ByteArray?{
+    @JsName("getAVATAR_LINK")
+    fun getAVATAR_LINK():String{
+        return answerType.STRING_18?:""
+    }
+
+    @JsName("setAVATAR_LINK")
+    fun setAVATAR_LINK(v:String?){
+        answerType.STRING_18 = v?:""
+    }
+
+    @JsName("getAVATAR_SERVER")
+    fun getAVATAR_SERVER():String{
+        return answerType.STRING_16?:""
+    }
+
+    @JsName("setAVATAR_SERVER")
+    fun setAVATAR_SERVER(v:String?){
+        answerType.STRING_16 = v?:""
+    }
+
+    @JsName("getORIGINAL_AVATAR_SIZE")
+    fun getORIGINAL_AVATAR_SIZE():String{
+        return answerType.STRING_17?:"0"
+    }
+
+    @JsName("setORIGINAL_AVATAR_SIZE")
+    fun setORIGINAL_AVATAR_SIZE(v: String?){
+        answerType.STRING_17 = v?.trim()?:"0"
+    }
+
+    @JsName("getAVATAR")
+    fun getAVATAR():ByteArray?{
         return answerType.BLOB_1
     }
 
-    @JsName("setCHATS_AVATAR")
-    fun getCHATS_AVATAR(v:ByteArray?){
+    @JsName("setAVATAR")
+    fun setAVATAR(v:ByteArray?){
         answerType.BLOB_1 = v
     }
+
 
     @JsName("getCONNECTION_ID")
     fun getCONNECTION_ID():Long{
@@ -226,6 +257,7 @@ class KChat : CoroutineScope {
     fun getCHATS_AVATAR(v:Long){
         answerType.LONG_10 = v
     }
+
 
     @JsName("getIS_UPDATE_BLOB")
     fun getIS_UPDATE_BLOB():String{

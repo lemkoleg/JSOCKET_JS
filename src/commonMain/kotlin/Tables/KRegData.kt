@@ -53,6 +53,25 @@ class KRegData  {
         answerType.STRING_6 = v.trim()
     }
 
+    @JsName("getACCOUNT_ID")
+    fun getACCOUNT_ID():String{
+        return answerType.IDENTIFICATOR_1?:""
+    }
+
+    @JsName("setACCOUNT_ID")
+    fun setACCOUNT_ID(v: String?){
+        answerType.IDENTIFICATOR_1 = v?.trim()?:""
+    }
+
+    @JsName("getACCOUNT_NAME")
+    fun getACCOUNT_NAME():String{
+        return answerType.STRING_1?:""
+    }
+
+    @JsName("setACCOUNT_NAME")
+    fun setACCOUNT_NAME(v: String?){
+        answerType.STRING_1 = v?.trim()?:""
+    }
 
     @JsName("getACCOUNT_PROFILE")
     fun getACCOUNT_PROFILE():String{
@@ -84,6 +103,36 @@ class KRegData  {
         answerType.STRING_5 = v.trim()
     }
 
+    @JsName("getAVATAR_ID")
+    fun getAVATAR_ID():String{
+        return answerType.IDENTIFICATOR_2?:""
+    }
+
+    @JsName("setAVATAR_ID")
+    fun setAVATARID(v: String?){
+        answerType.IDENTIFICATOR_2 = v?.trim()?:""
+    }
+
+    @JsName("getAVATAR_LINK")
+    fun getAVATAR_LINK():String{
+        return answerType.STRING_18?:""
+    }
+
+    @JsName("setAVATAR_LINK")
+    fun setAVATAR_LINK(v:String?){
+        answerType.STRING_18 = v?:""
+    }
+
+    @JsName("getAVATAR_SERVER")
+    fun getAVATAR_SERVER():String{
+        return answerType.STRING_16?:""
+    }
+
+    @JsName("setAVATAR_SERVER")
+    fun setAVATAR_SERVER(v:String?){
+        answerType.STRING_16 = v?:""
+    }
+
     @JsName("getORIGINAL_AVATAR_SIZE")
     fun getORIGINAL_AVATAR_SIZE():String{
         return answerType.STRING_17?:"0"
@@ -92,26 +141,6 @@ class KRegData  {
     @JsName("setORIGINAL_AVATAR_SIZE")
     fun setORIGINAL_AVATAR_SIZE(v: String?){
         answerType.STRING_17 = v?.trim()?:"0"
-    }
-
-    @JsName("getAVATAR_SERVER")
-    fun getAVATAR_SERVER():String{
-        return answerType.STRING_18?:""
-    }
-
-    @JsName("setAVATAR_SERVER")
-    fun setAVATAR_SERVER(v: String?){
-        answerType.STRING_18 = v?.trim()?:""
-    }
-
-    @JsName("getAVATAR_LINK")
-    fun getAVATAR_LINK():String{
-        return answerType.STRING_19?:""
-    }
-
-    @JsName("setAVATAR_LINK")
-    fun setAVATAR_LINK(v: String?){
-        answerType.STRING_19 = v?.trim()?:""
     }
 
     @JsName("getBALANCE_OF_CHATS")
@@ -152,5 +181,26 @@ class KRegData  {
     @JsName("getAVATAR_3")
     fun getAVATAR_3(v:ByteArray?){
         answerType.BLOB_3 = v
+    }
+
+    @JsName("getIS_UPDATE_BLOB")
+    fun getIS_UPDATE_BLOB():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 2){
+            return "0"
+        }
+        return answerType.STRING_20!!.substring(1, 2)
+    }
+
+    @JsName("getRECORD_TYPE")
+    fun getRECORD_TYPE():String{
+        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
+            return ""
+        }
+        return answerType.STRING_20!!.substring(7, 8)
+    }
+
+    @JsName("setSTRING_20")
+    fun setSTRING_20(v:String?){
+        answerType.STRING_20 = v?:""
     }
 }
