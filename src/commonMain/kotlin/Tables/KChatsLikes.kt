@@ -92,12 +92,12 @@ class KChatsLikes {
         answerType.LONG_9 = v
     }
 
-    @JsName("getFIRST_MESS_COUNT")
+    @JsName("getLAST_DATE_DELIVERED")
     fun getLAST_DATE_DELIVERED():Long{
         return answerType.LONG_10?:0L
     }
 
-    @JsName("setFIRST_MESS_COUNT")
+    @JsName("setLAST_DATE_DELIVERED")
     fun setLAST_DATE_DELIVERED(v:Long){
         answerType.LONG_10 = v
     }
@@ -161,68 +161,6 @@ class KChatsLikes {
     fun getAVATAR_ID(v:String?){
         answerType.IDENTIFICATOR_2 = v?:""
     }
-
-    @JsName("getAVATAR_LINK")
-    fun getAVATAR_LINK():String{
-        return answerType.STRING_18?:""
-    }
-
-    @JsName("setAVATAR_LINK")
-    fun setAVATAR_LINK(v:String?){
-        answerType.STRING_18 = v?:""
-    }
-
-    @JsName("getAVATAR_SERVER")
-    fun getAVATAR_SERVER():String{
-        return answerType.STRING_16?:""
-    }
-
-    @JsName("setAVATAR_SERVER")
-    fun setAVATAR_SERVER(v:String?){
-        answerType.STRING_16 = v?:""
-    }
-
-    @JsName("getORIGINAL_AVATAR_SIZE")
-    fun getORIGINAL_AVATAR_SIZE():String{
-        return answerType.STRING_17?:"0"
-    }
-
-    @JsName("setORIGINAL_AVATAR_SIZE")
-    fun setORIGINAL_AVATAR_SIZE(v: String?){
-        answerType.STRING_17 = v?.trim()?:"0"
-    }
-
-    @JsName("getAVATAR")
-    fun getAVATAR():ByteArray?{
-        return answerType.BLOB_1
-    }
-
-    @JsName("setAVATAR")
-    fun setAVATAR(v:ByteArray?){
-        answerType.BLOB_1 = v
-    }
-
-    @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB():String{
-        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 2){
-            return "0"
-        }
-        return answerType.STRING_20!!.substring(1, 2)
-    }
-
-    @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE():String{
-        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
-            return ""
-        }
-        return answerType.STRING_20!!.substring(7, 8)
-    }
-
-    @JsName("setSTRING_20")
-    fun setSTRING_20(v:String?){
-        answerType.STRING_20 = v?:""
-    }
-
 
 
 }

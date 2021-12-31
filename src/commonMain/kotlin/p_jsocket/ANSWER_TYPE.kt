@@ -1020,6 +1020,193 @@ class ANSWER_TYPE(){
         BLOB_10 = MyANSWER_TYPE.BLOB_10
     }
 
+    @JsName("merge")
+    fun merge(v :ANSWER_TYPE? ){
+        if(v == null ){
+            return
+        }
+
+        if(v.IDENTIFICATOR_1 != null && v.IDENTIFICATOR_1!!.isNotEmpty()){
+            this.IDENTIFICATOR_1 = v.IDENTIFICATOR_1
+        }
+
+        if(v.IDENTIFICATOR_2 != null && v.IDENTIFICATOR_2!!.isNotEmpty()){
+            this.IDENTIFICATOR_2 = v.IDENTIFICATOR_2
+        }
+
+        if(v.IDENTIFICATOR_3 != null && v.IDENTIFICATOR_3!!.isNotEmpty()){
+            this.IDENTIFICATOR_3 = v.IDENTIFICATOR_3
+        }
+
+        if(v.IDENTIFICATOR_4 != null && v.IDENTIFICATOR_4!!.isNotEmpty()){
+            this.IDENTIFICATOR_4 = v.IDENTIFICATOR_4
+        }
+
+        if(v.IDENTIFICATOR_5 != null && v.IDENTIFICATOR_5!!.isNotEmpty()){
+            this.IDENTIFICATOR_5 = v.IDENTIFICATOR_5
+        }
+
+        if(v.IDENTIFICATOR_6 != null && v.IDENTIFICATOR_6!!.isNotEmpty()){
+            this.IDENTIFICATOR_6 = v.IDENTIFICATOR_6
+        }
+
+
+        if(v.IDENTIFICATOR_19 != null && v.IDENTIFICATOR_19!!.isNotEmpty()){
+            this.IDENTIFICATOR_19 = v.IDENTIFICATOR_19
+        }
+
+        if(v.IDENTIFICATOR_20 != null && v.IDENTIFICATOR_20!!.isNotEmpty()){
+            this.IDENTIFICATOR_20 = v.IDENTIFICATOR_20
+        }
+
+
+        if(v.LONG_1 != null){
+            this.LONG_1 = v.LONG_1
+        }
+
+        if(v.LONG_2 != null){
+            this.LONG_2 = v.LONG_2
+        }
+
+        if(v.LONG_3 != null){
+            this.LONG_3 = v.LONG_3
+        }
+
+        if(v.LONG_4 != null){
+            this.LONG_4 = v.LONG_4
+        }
+
+        if(v.STRING_1 != null && v.STRING_1!!.isNotEmpty()){
+            this.STRING_1 = v.STRING_1
+        }
+
+        if(v.STRING_2 != null && v.STRING_2!!.isNotEmpty()){
+            this.STRING_2 = v.STRING_2
+        }
+
+        if(v.STRING_3 != null && v.STRING_3!!.isNotEmpty()){
+            this.STRING_3 = v.STRING_3
+        }
+
+        if(v.STRING_4 != null && v.STRING_4!!.isNotEmpty()){
+            this.STRING_4 = v.STRING_4
+        }
+
+        if(v.STRING_20 != null && v.STRING_20!!.isNotEmpty()){
+            this.STRING_20 = v.STRING_20
+        }
+
+        if(getIS_UPDATE_BLOB1() == "1"){
+            this.BLOB_1 = v.BLOB_1
+        }
+
+        if(getIS_UPDATE_BLOB2() == "2"){
+            this.BLOB_2 = v.BLOB_2
+        }
+
+        if(getIS_UPDATE_BLOB3() == "3"){
+            this.BLOB_3 = v.BLOB_3
+        }
+        
+    }
+
+    @JsName("getIS_UPDATE_BLOB1")
+    fun getIS_UPDATE_BLOB1():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 2){
+            return "0"
+        }
+        return this.STRING_20!!.substring(1, 2)
+    }
+
+    @JsName("getIS_UPDATE_BLOB2")
+    fun getIS_UPDATE_BLOB2():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
+            return "0"
+        }
+        return this.STRING_20!!.substring(2, 3)
+    }
+
+    @JsName("getIS_UPDATE_BLOB3")
+    fun getIS_UPDATE_BLOB3():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 4){
+            return "0"
+        }
+        return this.STRING_20!!.substring(3, 4)
+    }
+
+    @JsName("getRECORD_TYPE")
+    fun getRECORD_TYPE():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 8){
+            return ""
+        }
+        return this.STRING_20!!.substring(7, 8)
+    }
+
+    @JsName("getAVATAR_LINK")
+    fun getAVATAR_LINK():String{
+        return this.STRING_18?:""
+    }
+
+    @JsName("setAVATAR_LINK")
+    fun setAVATAR_LINK(v:String?){
+        this.STRING_18 = v?:""
+    }
+
+    @JsName("getAVATAR_SERVER")
+    fun getAVATAR_SERVER():String{
+        return this.STRING_16?:""
+    }
+
+    @JsName("setAVATAR_SERVER")
+    fun setAVATAR_SERVER(v:String?){
+        this.STRING_16 = v?:""
+    }
+
+    @JsName("getORIGINAL_AVATAR_SIZE")
+    fun getORIGINAL_AVATAR_SIZE():String{
+        return this.STRING_17?:"0"
+    }
+
+    @JsName("setORIGINAL_AVATAR_SIZE")
+    fun setORIGINAL_AVATAR_SIZE(v: String?){
+        this.STRING_17 = v?.trim()?:"0"
+    }
+
+    @JsName("getAVATAR1")
+    fun getAVATAR1():ByteArray?{
+        return this.BLOB_1
+    }
+
+    @JsName("setAVATAR1")
+    fun setAVATAR1(v:ByteArray?){
+        this.BLOB_1 = v
+    }
+
+    @JsName("getAVATAR2")
+    fun getAVATAR2():ByteArray?{
+        return this.BLOB_2
+    }
+
+    @JsName("setAVATAR2")
+    fun setAVATAR2(v:ByteArray?){
+        this.BLOB_2 = v
+    }
+
+    @JsName("getAVATAR3")
+    fun getAVATAR3():ByteArray?{
+        return this.BLOB_3
+    }
+
+    @JsName("setAVATAR3")
+    fun setAVATAR3(v:ByteArray?){
+        this.BLOB_3 = v
+    }
+
+    @JsName("setSTRING_20")
+    fun setSTRING_20(v:String?){
+        this.STRING_20 = v?:""
+    }
+
     @JsName("get_BLOB_1_size")
     fun get_BLOB_1_size(): Int {
         return BLOB_1?.size ?: 0
@@ -1182,13 +1369,11 @@ class ANSWER_TYPE(){
         if (IDENTIFICATOR_16!!.isEmpty()) IDENTIFICATOR_16 = "000000000000000000"
         if (IDENTIFICATOR_17!!.isEmpty()) IDENTIFICATOR_17 = "000000000000000000"
         if (IDENTIFICATOR_18!!.isEmpty()) IDENTIFICATOR_18 = "000000000000000000"
-        if (IDENTIFICATOR_19!!.isEmpty()) IDENTIFICATOR_19 = "000000000000000000"
-        if (IDENTIFICATOR_20!!.isEmpty()) IDENTIFICATOR_20 = "000000000000000000"
         IDENTIFICATORS = IDENTIFICATOR_1 + IDENTIFICATOR_2 + IDENTIFICATOR_3 +
         IDENTIFICATOR_4 + IDENTIFICATOR_5 + IDENTIFICATOR_6 +IDENTIFICATOR_7 +
         IDENTIFICATOR_8 + IDENTIFICATOR_9 + IDENTIFICATOR_10 +
         IDENTIFICATOR_11 + IDENTIFICATOR_12 + IDENTIFICATOR_13 +
         IDENTIFICATOR_14 + IDENTIFICATOR_15 + IDENTIFICATOR_16 +IDENTIFICATOR_17 +
-        IDENTIFICATOR_18 + IDENTIFICATOR_19 + IDENTIFICATOR_20
+        IDENTIFICATOR_18
     }
 }

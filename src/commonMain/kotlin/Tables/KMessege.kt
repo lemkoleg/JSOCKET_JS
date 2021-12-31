@@ -335,27 +335,6 @@ class KMessege{
         answerType.BLOB_3 = v
     }
 
-    @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB():String{
-        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 2){
-            return "0"
-        }
-        return answerType.STRING_20!!.substring(1, 2)
-    }
-
-    @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE():String{
-        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
-            return ""
-        }
-        return answerType.STRING_20!!.substring(7, 8)
-    }
-
-    @JsName("setSTRING_20")
-    fun setSTRING_20(v:String?){
-        answerType.STRING_20 = v?:""
-    }
-
     @JsName("UpdateMessege")
     fun UpdateMessege(lANSWER_TYPE: ANSWER_TYPE) {
         answerType.setValue(lANSWER_TYPE)

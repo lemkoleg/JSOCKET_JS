@@ -51,21 +51,4 @@ class KMetaData {
         answerType.LONG_2 = v?:0L
     }
 
-    @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB(v:String?){
-        answerType.STRING_20 = v?:""
-    }
-
-    @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE():String{
-        if(answerType.STRING_20 == null || answerType.STRING_20!!.length < 8){
-            return ""
-        }
-        return answerType.STRING_20!!.substring(7, 8)
-    }
-
-    @JsName("setSTRING_20")
-    fun setSTRING_20(v:String?){
-        answerType.STRING_20 = v?:""
-    }
 }
