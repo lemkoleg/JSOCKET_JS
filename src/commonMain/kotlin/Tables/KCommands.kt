@@ -23,8 +23,8 @@ class KCommands {
     }
 
     @JsName("getCOMMANDS_ID")
-    fun getCOMMANDS_ID():Long{
-        return answerType.LONG_1?:0
+    fun getCOMMANDS_ID():Int{
+        return (answerType.LONG_1?:0) as Int
     }
 
     @JsName("setCOMMANDS_ID")

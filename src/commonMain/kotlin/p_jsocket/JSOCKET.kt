@@ -1074,21 +1074,17 @@ open class JSOCKET() : Closeable, CoroutineScope {
         if (size_of_skip < 8) {
             while (y > 0) {
                 getNewStartPosition()
-                y -= 1
+                y--
             }
             return
         }
-        var x = 8L
-        while (x <= size_of_skip) {
+        while (y >= 8) {
             getNewStartPosition()
-            x += 8
             y -= 8
         }
-        if (y > 0) {
-            while (y > 0) {
-                getNewStartPosition()
-                y -= 1
-            }
+        while (y > 0) {
+            getNewStartPosition()
+            y--
         }
     }
 

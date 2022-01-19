@@ -102,14 +102,25 @@ class KChatsLikes {
         answerType.LONG_10 = v
     }
 
+    @JsName("getLAST_MESS_DATE_DELIVERED")
+    fun getLAST_MESS_DATE_DELIVERED():Long{
+        return answerType.LONG_11?:0L
+    }
+
+    @JsName("setLAST_MESS_DATE_DELIVERED")
+    fun setLAST_MESS_DATE_DELIVERED(v:Long){
+        answerType.LONG_11 = v
+    }
+    
+
     @JsName("getLAST_READED_MESS_ID")
     fun getLAST_READED_MESS_ID():Long{
-        return answerType.LONG_11?:0L
+        return answerType.LONG_12?:0L
     }
 
     @JsName("setLAST_READED_MESS_ID")
     fun setLAST_READED_MESS_ID(v:Long){
-        answerType.LONG_11 = v
+        answerType.LONG_12 = v
     }
 
     @JsName("getBALANCE")
@@ -158,8 +169,20 @@ class KChatsLikes {
     }
 
     @JsName("setAVATAR_ID")
-    fun getAVATAR_ID(v:String?){
+    fun setAVATAR_ID(v:String?){
         answerType.IDENTIFICATOR_2 = v?:""
+    }
+
+    fun merge(v :KChatsLikes? ){
+        if(v == null ){
+            return
+        }
+        answerType.merge(v.answerType)
+
+        if(v.getANSWER_TYPE().getIS_UPDATE_BLOB() == "1"){
+            setAVATAR_ID(v.getAVATAR_ID())
+        }
+
     }
 
 

@@ -203,26 +203,6 @@ class KMessege{
         answerType.STRING_12 = v
     }
 
-    @JsName("getNOT_DELIVERIED")
-    fun getNOT_DELIVERIED():Int{
-        return answerType.INTEGER_13?:0
-    }
-
-    @JsName("setNOT_DELIVERIED")
-    fun setNOT_DELIVERIED(v:Int?){
-        answerType.INTEGER_13 = v?:0
-    }
-
-    @JsName("getNOT_READED")
-    fun getNOT_READED():Int{
-        return answerType.INTEGER_14?:0
-    }
-
-    @JsName("setNOT_READED")
-    fun setNOT_READED(v:Int?){
-        answerType.INTEGER_14 = v?:0
-    }
-
     @JsName("getCOST")
     fun getCOST():Int{
         return answerType.INTEGER_11?:0

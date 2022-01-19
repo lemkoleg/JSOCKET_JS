@@ -1096,43 +1096,27 @@ class ANSWER_TYPE(){
             this.STRING_20 = v.STRING_20
         }
 
-        if(getIS_UPDATE_BLOB1() == "1"){
+        if(getIS_UPDATE_BLOB() == "1"){
             this.BLOB_1 = v.BLOB_1
-        }
-
-        if(getIS_UPDATE_BLOB2() == "2"){
             this.BLOB_2 = v.BLOB_2
+            this.BLOB_3 = v.BLOB_3
+            setAVATAR_LINK(v.getAVATAR_LINK())
+            setAVATAR_SERVER(v.getAVATAR_SERVER())
+            setORIGINAL_AVATAR_SIZE(v.getORIGINAL_AVATAR_SIZE())
         }
 
-        if(getIS_UPDATE_BLOB3() == "3"){
-            this.BLOB_3 = v.BLOB_3
-        }
+
         
     }
 
-    @JsName("getIS_UPDATE_BLOB1")
-    fun getIS_UPDATE_BLOB1():String{
+    @JsName("getIS_UPDATE_BLOB")
+    fun getIS_UPDATE_BLOB():String{
         if(this.STRING_20 == null || this.STRING_20!!.length < 2){
             return "0"
         }
         return this.STRING_20!!.substring(1, 2)
     }
 
-    @JsName("getIS_UPDATE_BLOB2")
-    fun getIS_UPDATE_BLOB2():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
-            return "0"
-        }
-        return this.STRING_20!!.substring(2, 3)
-    }
-
-    @JsName("getIS_UPDATE_BLOB3")
-    fun getIS_UPDATE_BLOB3():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 4){
-            return "0"
-        }
-        return this.STRING_20!!.substring(3, 4)
-    }
 
     @JsName("getRECORD_TYPE")
     fun getRECORD_TYPE():String{
