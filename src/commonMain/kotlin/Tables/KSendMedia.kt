@@ -16,7 +16,7 @@ import kotlin.js.JsName
  *
  * @author User
  */
-@JsName("SendMedia")
+@JsName("KSendMedia")
 class KSendMedia  {
 
     private val answerType:ANSWER_TYPE

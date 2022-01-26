@@ -22,7 +22,7 @@ import kotlin.js.JsName
  * @author User
  */
 @InternalAPI
-@JsName("Chat")
+@JsName("KChat")
 class KChat : CoroutineScope {
 
     val MESSEGES: MutableMap<Long?, KMessege?> = mutableMapOf()
@@ -145,9 +145,12 @@ class KChat : CoroutineScope {
         return answerType.STRING_7!!.substring(7, 8)
     }
 
-    @JsName("setCHATS_PROFILE_TYPE_ACCESS_STATUS")
-    fun setCHATS_PROFILE_TYPE_ACCESS_STATUS(v:String){
-        answerType.STRING_7 = v
+    @JsName("setPROFILE_LINE")
+    fun setPROFILE_LINE(l_chats_profile: String,
+                        l_chats_type: String,
+                        l_chats_access: String,
+                        l_chats_status: String){
+        answerType.STRING_7 = l_chats_profile + l_chats_type + l_chats_access + l_chats_status
     }
 
     @JsName("getADDING_DATE")
@@ -180,16 +183,6 @@ class KChat : CoroutineScope {
         answerType.LONG_6 = v
     }
 
-    @JsName("getCHATS_SUBSCRIBE")
-    fun getCHATS_SUBSCRIBE():String{
-        return answerType.STRING_8?:""
-    }
-
-    @JsName("setCHATS_SUBSCRIBE")
-    fun setCHATS_SUBSCRIBE(v:String?){
-        answerType.STRING_8 = v?:""
-    }
-
     @JsName("getLAST_UPDATE")
     fun getLAST_UPDATE():Long{
         return answerType.LONG_7?:0L
@@ -208,6 +201,13 @@ class KChat : CoroutineScope {
     @JsName("setCONNECTION_ID")
     fun getCONNECTION_ID(v:Long){
         answerType.LONG_10 = v
+    }
+
+    fun merge(v :KChat? ){
+        if(v == null ){
+            return
+        }
+        answerType.merge(v.answerType)
     }
 
 
@@ -238,7 +238,7 @@ class KChat : CoroutineScope {
     fun InsertNewMessege(m: KMessege) {
         if (m.getCHATS_ID() == getCHATS_ID()) {
             if (MESSEGES.containsKey(m.getMESSEGES_COUNT())) {
-                ChatContext.launch {m.UpdateMessege(m.getANSWER_TYPE())}
+                ChatContext.launch { MESSEGES[m.getMESSEGES_COUNT()]!!.merge(m)}
             } else {
                 ChatContext.launch {Sqlite_service.InsertMessege(m)}
             }

@@ -4,24 +4,24 @@ CREATE TABLE IF NOT EXISTS Chats
  MESSEGES_COUNT INTEGER DEFAULT "0" NOT NULL,  --LONG_5
  COUNT_OF_MEMBERS INTEGER DEFAULT "0" NOT NULL,--LONG_8
  CHATS_OWNER TEXT NOT NULL,                    --IDENTIFICATOR_7
+ CHATS_TWINS TEXT NOT NULL,                    --IDENTIFICATOR_8
  CHATS_NAME TEXT,                              --STRING_5
  AVATAR_ID TEXT,                               --IDENTIFICATOR_6
  CHATS_PROFILE TEXT NOT NULL,                  --STRING_7.substring(0, 5)
- CHATS_ACCESS TEXT NOT NULL,                   --STRING_7.substring(6, 7)
  CHATS_TYPE TEXT NOT NULL,                     --STRING_7.substring(5, 6)
+ CHATS_ACCESS TEXT NOT NULL,                   --STRING_7.substring(6, 7)
  CHATS_STATUS TEXT NOT NULL,                   --STRING_7.substring(7, 8)
  ADDING_DATE TEXT NOT NULL,                    --LONG_4
  BALANCE INTEGER NOT NULL,                     --LONG_9
  DATE_CLOSED INTEGER NOT NULL,                 --LONG_6
- CHATS_SUBSCRIBE TEXT,                         --STRING_8
+ CHATS_SUBSCRIBE TEXT,                         --STRING_14
  LAST_UPDATE INTEGER NOT NULL,                 --LONG_7
  ORIGINAL_AVATAR_SIZE TEXT,                    --STRING_17
  AVATAR_SERVER TEXT,                           --STRING_16
  AVATAR_LINK TEXT,                             --STRING_18
  AVATAR BLOB,
  CONNECTION_ID INTEGER NOT NULL,               --LONG_10
- IS_UPDATE_BLOB TEXT DEFAULT "0" NOT NULL,
- STRING_20 TEXT,
+ STRING_20 TEXT NOT NULL,
 CHECK (length(CHATS_ID) = 18
 AND length(CHATS_OWNER) = 18
 AND length(CHATS_PROFILE) = 5
@@ -33,7 +33,7 @@ AND length(DATE_CLOSED) < 19
 trigger_Avatar_Update:
 CREATE TRIGGER TChats_Avatar_Update
 AFTER UPDATE ON Chats
-FOR EACH ROW WHEN new.AVATAR IS NULL AND new.IS_UPDATE_BLOB = '0'
+FOR EACH ROW WHEN new.AVATAR IS NULL AND substr(new.STRING_20, 1, 2) = '0'
 BEGIN
 UPDATE Chats SET AVATAR = old.AVATAR
 WHERE rowid = new.rowid;
@@ -45,12 +45,14 @@ AFTER DELETE ON Chats
 FOR EACH ROW
 BEGIN
 DELETE FROM Messeges  WHERE CHATS_ID = old.CHATS_ID;
+DELETE FROM ChatsLikes WHERE CHATS_ID = old.CHATS_ID;
+DELETE FROM ChatsCostTypes WHERE CHATS_ID = old.CHATS_ID;
 END;
 
 trigger_control_count_chats:
 CREATE TRIGGER TControlCountsChats
 AFTER INSERT ON Chats
-FOR EACH ROW WHEN
+WHEN
 (SELECT count(*) FROM Chats) > (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS')
 BEGIN
 DELETE FROM Chats WHERE CHATS_ID NOT IN
@@ -64,6 +66,7 @@ REPLACE INTO Chats
   MESSEGES_COUNT,
   COUNT_OF_MEMBERS,
   CHATS_OWNER,
+  CHATS_TWINS,
   CHATS_NAME,
   AVATAR_ID,
   CHATS_PROFILE,
@@ -79,7 +82,6 @@ REPLACE INTO Chats
   AVATAR_SERVER,
   AVATAR,
   CONNECTION_ID,
-  IS_UPDATE_BLOB,
   STRING_20)
 VALUES 
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);

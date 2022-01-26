@@ -1,0 +1,63 @@
+table_chats_cost_types:
+CREATE TABLE IF NOT EXISTS ChatsCostTypes
+(CHATS_ID TEXT NOT NULL,                               --IDENTIFICATOR_5
+ COST_ID TEXT NOT NULL,                                --STRING_6
+ TYPES_OWNER TEXT NOT NULL,                            --IDENTIFICATOR_7
+ AVATAR_ID TEXT,                                       --IDENTIFICATOR_6
+ START_TEXT TEXT,                                      --STRING_5
+ HAVE_FULL_TEXT TEXT NOT NULL,                         --STRING_7.substring(4, 5)
+ TYPES_TYPE TEXT NOT NULL,                             --STRING_7.substring(0, 1)
+ TYPES_ACCESS TEXT NOT NULL,                           --STRING_7.substring(1, 2)
+ TYPES_STATUS TEXT NOT NULL,                           --STRING_7.substring(2, 3)
+ HAVE_MESSEGES TEXT NOT NULL,                          --STRING_7.substring(3, 4)
+ FULL_TEXT TEXT,                                       --STRING_14
+ AVATAR_LINK TEXT,                                     --STRING_18
+ AVATAR_SERVER TEXT,                                   --STRING_16
+ ORIGINAL_AVATAR_SIZE TEXT,                            --STRING_17
+ STRING_20 TEXT NOT NULL,
+ AVATAR BLOB,
+
+ CHECK (length(CHATS_ID) = 18
+ AND length(TYPES_OWNER) = 18
+ AND length(COST_ID) = 4
+),
+PRIMARY KEY (CHATS_ID, COST_ID));
+
+insert_chats_cost_types:
+REPLACE INTO ChatsCostTypes
+( CHATS_ID,
+  COST_ID ,
+  TYPES_OWNER,
+  AVATAR_ID,
+  START_TEXT,
+  HAVE_FULL_TEXT,
+  TYPES_TYPE,
+  TYPES_ACCESS,
+  TYPES_STATUS,
+  HAVE_MESSEGES,
+  FULL_TEXT,
+  AVATAR_LINK,
+  AVATAR_SERVER,
+  ORIGINAL_AVATAR_SIZE,
+  STRING_20,
+  AVATAR)
+VALUES
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+select_chat_cost_types:
+SELECT * FROM ChatsCostTypes WHERE CHATS_ID = ? ;
+
+clear_chats_cost_types:
+DELETE FROM ChatsCostTypes;
+
+delete_chat_cost_types:
+DELETE FROM ChatsCostTypes WHERE CHATS_ID = ?;
+
+trigger_Avatar_Update:
+CREATE TRIGGER TChatsCostTypes_Avatar_Update
+AFTER UPDATE ON ChatsCostTypes
+FOR EACH ROW WHEN new.AVATAR IS NULL AND substr(new.STRING_20, 1, 2) = '0'
+BEGIN
+UPDATE ChatsCostTypes SET AVATAR = old.AVATAR
+WHERE rowid = new.rowid;
+END;

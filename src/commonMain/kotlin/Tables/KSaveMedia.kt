@@ -23,7 +23,7 @@ import kotlin.js.JsName
  *
  * @author User
  */
-@JsName("SaveMedia")
+@JsName("KSaveMedia")
 class KSaveMedia {
 
     private val answerType:ANSWER_TYPE

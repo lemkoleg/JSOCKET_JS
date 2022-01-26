@@ -5,7 +5,7 @@ package Tables
 import p_jsocket.ANSWER_TYPE
 import kotlin.js.JsName
 
-@JsName("RegData")
+@JsName("KRegData")
 class KRegData  {
 
     private val answerType:ANSWER_TYPE

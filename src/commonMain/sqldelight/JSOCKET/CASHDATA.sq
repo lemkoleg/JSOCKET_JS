@@ -12,16 +12,16 @@ CREATE TABLE IF NOT EXISTS CashData
  IDENTIFICATOR_8 TEXT DEFAULT "000000000000000000" NOT NULL,
  IDENTIFICATOR_9 TEXT DEFAULT "000000000000000000" NOT NULL,
  IDENTIFICATOR_10 TEXT DEFAULT "000000000000000000" NOT NULL,
- INTEGER_1 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_2 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_3 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_4 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_5 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_6 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_7 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_8 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_9 INTEGER as Int DEFAULT 0 NOT NULL,
- INTEGER_10 INTEGER as Int DEFAULT 0 NOT NULL,
+ INTEGER_1 INTEGER,
+ INTEGER_2 INTEGER,
+ INTEGER_3 INTEGER,
+ INTEGER_4 INTEGER,
+ INTEGER_5 INTEGER,
+ INTEGER_6 INTEGER,
+ INTEGER_7 INTEGER,
+ INTEGER_8 INTEGER,
+ INTEGER_9 INTEGER,
+ INTEGER_10 INTEGER,
  LONG_1 TEXT DEFAULT "0" NOT NULL,
  LONG_2 TEXT DEFAULT "0" NOT NULL,
  LONG_3 TEXT DEFAULT "0" NOT NULL,
@@ -104,72 +104,10 @@ CREATE TRIGGER TCashData_BLOB_3
        WHERE rowid = new.rowid;
        END;
 
-trigger_cashdata_blob_4:
-CREATE TRIGGER TCashData_BLOB_4
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_4 IS NULL AND SUBSTR(new.LONG_10,5,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_4 = old.BLOB_4
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_5:
-CREATE TRIGGER TCashData_BLOB_5
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_5 IS NULL AND SUBSTR(new.LONG_10,6,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_5 = old.BLOB_5
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_6:
-CREATE TRIGGER TCashData_BLOB_6
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_6 IS NULL AND SUBSTR(new.LONG_10,7,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_6 = old.BLOB_6
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_7:
-CREATE TRIGGER TCashData_BLOB_7
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_7 IS NULL AND SUBSTR(new.LONG_10,8,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_7 = old.BLOB_7
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_8:
-CREATE TRIGGER TCashData_BLOB_8
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_8 IS NULL AND SUBSTR(new.LONG_10,9,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_8 = old.BLOB_8
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_9:
-CREATE TRIGGER TCashData_BLOB_9
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_9 IS NULL AND SUBSTR(new.LONG_10,10,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_9 = old.BLOB_9
-       WHERE rowid = new.rowid;
-       END;
-
-trigger_cashdata_blob_10:
-CREATE TRIGGER TCashData_BLOB_10
-       AFTER UPDATE ON CashData
-       FOR EACH ROW WHEN new.BLOB_10 IS NULL AND SUBSTR(new.LONG_10,11,1) = '0'
-       BEGIN
-       UPDATE CashData SET BLOB_10 = old.BLOB_10
-       WHERE rowid = new.rowid;
-       END;
 
 trigger_cashdata_deleting_records:
 CREATE TRIGGER TCashData_DeletingRecord
-       AFTER UPDATE ON CashData
+AFTER UPDATE ON CashData
        FOR EACH ROW WHEN SUBSTR(new.INTEGER_5,12,1) = '1'
        BEGIN
        DELETE FROM CashData WHERE rowid = new.rowid;

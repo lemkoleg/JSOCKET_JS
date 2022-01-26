@@ -4,6 +4,7 @@ import p_jsocket.ANSWER_TYPE
 import kotlin.js.JsName
 
 @Suppress("unused")
+@JsName("KMetaData")
 class KMetaData {
 
     private val answerType:ANSWER_TYPE

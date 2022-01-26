@@ -1021,7 +1021,7 @@ class ANSWER_TYPE(){
     }
 
     @JsName("merge")
-    fun merge(v :ANSWER_TYPE? ){
+    fun merge(v :ANSWER_TYPE?){
         if(v == null ){
             return
         }
@@ -1050,6 +1050,10 @@ class ANSWER_TYPE(){
             this.IDENTIFICATOR_6 = v.IDENTIFICATOR_6
         }
 
+        if(v.IDENTIFICATOR_7 != null && v.IDENTIFICATOR_7!!.isNotEmpty()){
+            this.IDENTIFICATOR_7 = v.IDENTIFICATOR_7
+        }
+
 
         if(v.IDENTIFICATOR_19 != null && v.IDENTIFICATOR_19!!.isNotEmpty()){
             this.IDENTIFICATOR_19 = v.IDENTIFICATOR_19
@@ -1061,35 +1065,35 @@ class ANSWER_TYPE(){
 
 
         if(v.LONG_1 != null){
-            this.LONG_1 = v.LONG_1
+            this.LONG_1 = v.LONG_1       // accounts1 last connect
         }
 
         if(v.LONG_2 != null){
-            this.LONG_2 = v.LONG_2
+            this.LONG_2 = v.LONG_2      // accounts2 last connect
         }
 
-        if(v.LONG_3 != null){
-            this.LONG_3 = v.LONG_3
+        if(v.INTEGER_4 != null && v.INTEGER_4!!!= 0){
+            this.INTEGER_4 = v.INTEGER_4  //object size
         }
 
-        if(v.LONG_4 != null){
-            this.LONG_4 = v.LONG_4
+        if(v.INTEGER_5 != null && v.INTEGER_5!!!= 0){
+            this.INTEGER_5 = v.INTEGER_5  // object length seconds
         }
 
         if(v.STRING_1 != null && v.STRING_1!!.isNotEmpty()){
-            this.STRING_1 = v.STRING_1
+            this.STRING_1 = v.STRING_1    //accounts1 name
         }
 
         if(v.STRING_2 != null && v.STRING_2!!.isNotEmpty()){
-            this.STRING_2 = v.STRING_2
+            this.STRING_2 = v.STRING_2    //accounts1 access
         }
 
         if(v.STRING_3 != null && v.STRING_3!!.isNotEmpty()){
-            this.STRING_3 = v.STRING_3
+            this.STRING_3 = v.STRING_3    //accounts2 name
         }
 
         if(v.STRING_4 != null && v.STRING_4!!.isNotEmpty()){
-            this.STRING_4 = v.STRING_4
+            this.STRING_4 = v.STRING_4    //accounts2 access
         }
 
         if(v.STRING_20 != null && v.STRING_20!!.isNotEmpty()){
@@ -1105,8 +1109,9 @@ class ANSWER_TYPE(){
             setORIGINAL_AVATAR_SIZE(v.getORIGINAL_AVATAR_SIZE())
         }
 
-
-        
+        if(getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())){
+            this.STRING_14 = v.STRING_14
+        }
     }
 
     @JsName("getIS_UPDATE_BLOB")
@@ -1124,6 +1129,54 @@ class ANSWER_TYPE(){
             return ""
         }
         return this.STRING_20!!.substring(7, 8)
+    }
+
+    @JsName("getIS_UPDATE_SUBSCRIBE")
+    fun getIS_UPDATE_SUBSCRIBE():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
+            return ""
+        }
+        return this.STRING_20!!.substring(2, 3)
+    }
+
+    @JsName("getOBJECT_SIZE")
+    fun getOBJECT_SIZE():Int{
+        return this.INTEGER_4?:0
+    }
+
+    @JsName("setOBJECT_SIZE")
+    fun setOBJECT_SIZE(v:Int?){
+        this.INTEGER_4 = v?:0
+    }
+
+    @JsName("getOBJECT_LENGTH_SECONDS")
+    fun getOBJECT_LENGTH_SECONDS():Int{
+        return this.INTEGER_5?:0
+    }
+
+    @JsName("setOBJECT_LENGTH_SECONDS")
+    fun setOBJECT_LENGTH_SECONDS(v:Int?){
+        this.INTEGER_5 = v?:0
+    }
+
+    @JsName("getSUBSCRIBE")
+    fun getSUBSCRIBE():String{
+        return this.STRING_14?:""
+    }
+
+    @JsName("setSUBSCRIBE")
+    fun setSUBSCRIBE(v:String?){
+        this.STRING_14 = v?:""
+    }
+
+    @JsName("getAVATAR_TYPE")
+    fun getAVATAR_TYPE():String{
+        return this.STRING_16?:""
+    }
+
+    @JsName("setAVATAR_TYPE")
+    fun setAVATAR_TYPE(v:String?){
+        this.STRING_16 = v?:""
     }
 
     @JsName("getAVATAR_LINK")

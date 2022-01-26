@@ -52,6 +52,16 @@ class KChatsLikes {
         answerType.STRING_5 = v
     }
 
+    @JsName("getCHATS_LIKES_PROFILE")
+    fun getCHATS_LIKES_PROFILE():String{
+        return answerType.STRING_7?:""
+    }
+
+    @JsName("setCHATS_LIKES_PROFILE")
+    fun setCHATS_LIKES_PROFILE(v:String){
+        answerType.STRING_7 = v
+    }
+
     @JsName("getADDING_DATE")
     fun getADDING_DATE():Long{
         return answerType.LONG_4?:0L
@@ -178,11 +188,6 @@ class KChatsLikes {
             return
         }
         answerType.merge(v.answerType)
-
-        if(v.getANSWER_TYPE().getIS_UPDATE_BLOB() == "1"){
-            setAVATAR_ID(v.getAVATAR_ID())
-        }
-
     }
 
 

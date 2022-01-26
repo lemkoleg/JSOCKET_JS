@@ -1,30 +1,34 @@
 table_messeges:
 CREATE TABLE IF NOT EXISTS Messeges
-(CHATS_ID TEXT NOT NULL,
- MESSEGES_COUNT INTEGER NOT NULL,
- ADDING_DATE INTEGER NOT NULL,
- PERIOD_FOR INTEGER NOT NULL,
- MESSEGES_OWNER TEXT NOT NULL,
- MESSEGES_ANSWER TEXT DEFAULT "" NOT NULL,
- MESSEGES_ANSWER_START_TEXT TEXT DEFAULT "" NOT NULL,
- MESSEGES_ADRESSER TEXT DEFAULT "" NOT NULL,
- OBJECT_ID TEXT DEFAULT "" NOT NULL,
- OBJECT_TYPE TEXT DEFAULT "" NOT NULL,
- START_TEXT TEXT DEFAULT "" NOT NULL,
- MESSEGES_COST INTEGER DEFAULT 0 NOT NULL,
- COST_TYPE INTEGER DEFAULT 0 NOT NULL,
- MESSEGES_TYPE TEXT NOT NULL,
- MESSEGES_ACCESS TEXT NOT NULL,
- MESSEGES_STATUS TEXT NOT NULL,
- HAVE_FULL_TEXT TEXT NOT NULL,
- HAVE_ANSWER TEXT NOT NULL,
- LAST_CHANGED TEXT DEFAULT "0" NOT NULL,
- FULL_TEXT TEXT,
- OBJECT_LINK TEXT DEFAULT "" NOT NULL,
- OBJECT_AVATAR_LINK TEXT DEFAULT "" NOT NULL,
- OBJECT_SERVER TEXT DEFAULT "" NOT NULL,
- OBJECT_AVATAR_SERVER TEXT DEFAULT "" NOT NULL,
- ORIGINAL_AVATAR_SIZE INTEGER,
+(CHATS_ID TEXT NOT NULL,                               --IDENTIFICATOR_11
+ MESSEGES_COUNT INTEGER NOT NULL,                      --LONG_12
+ ADDING_DATE INTEGER NOT NULL,                         --LONG_11
+ PERIOD_FOR INTEGER NOT NULL,                          --LONG_13
+ MESSEGES_OWNER TEXT NOT NULL,                         --IDENTIFICATOR_12
+ MESSEGES_ANSWER TEXT,                                 --LONG_14
+ MESSEGES_ANSWER_START_TEXT TEXT,                      --STRING_13
+ MESSEGES_ADRESSER TEXT,                               --IDENTIFICATOR_13
+ OBJECT_ID TEXT,                                       --IDENTIFICATOR_5
+ AVATAR_ID TEXT,                                       --IDENTIFICATOR_6
+ OBJECT_TYPE TEXT NOT NULL,                            --STRING_12.substring(5, 6)
+ START_TEXT TEXT,                                      --STRING_11
+ MESSEGES_COST INTEGER,                                --INTEGER_11
+ COST_TYPE INTEGER,                                    --INTEGER_12
+ MESSEGES_TYPE TEXT NOT NULL,                          --STRING_12.substring(0, 1)
+ MESSEGES_ACCESS TEXT NOT NULL,                        --STRING_12.substring(1, 2)
+ MESSEGES_STATUS TEXT NOT NULL,                        --STRING_12.substring(2, 3)
+ HAVE_FULL_TEXT TEXT NOT NULL,                         --STRING_12.substring(3, 4)
+ HAVE_ANSWER TEXT NOT NULL,                            --STRING_12.substring(4, 5)
+ LAST_CHANGED TEXT DEFAULT "0" NOT NULL,               --LONG_15
+ FULL_TEXT TEXT,                                       --STRING_14
+ OBJECT_NAME TEXT,                                     --STRING_5
+ OBJECT_SERVER TEXT,                                   --STRING_6
+ OBJECT_PROFILE_STRING TEXT,                           --STRING_7
+ OBJECT_LINK TEXT,                                     --STRING_8
+ OBJECT_EXTENSION TEXT,                                --STRING_9
+ AVATAR_LINK TEXT,                                     --STRING_18
+ AVATAR_SERVER TEXT,                                   --STRING_16
+ ORIGINAL_AVATAR_SIZE TEXT,                            --STRING_17
  MESSEGES_AVATAR BLOB,
  OBJECT_AVATAR BLOB,
  ANSWER_OBJECT_AVATAR BLOB,
@@ -42,7 +46,7 @@ PRIMARY KEY (CHATS_ID, MESSEGES_COUNT));
 trigger_control_count_messeges:
 CREATE TRIGGER TControlCountsMesseges
 AFTER INSERT ON Messeges
-FOR EACH ROW WHEN
+WHEN
 (SELECT count(*) FROM Messeges WHERE CHATS_ID = new.CHATS_ID)> 
 (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES')
 BEGIN
@@ -64,6 +68,7 @@ REPLACE INTO Messeges
   MESSEGES_ANSWER_START_TEXT,
   MESSEGES_ADRESSER,
   OBJECT_ID,
+  AVATAR_ID,
   OBJECT_TYPE,
   START_TEXT,
   MESSEGES_COST,
@@ -75,17 +80,21 @@ REPLACE INTO Messeges
   HAVE_ANSWER,
   LAST_CHANGED,
   FULL_TEXT,
-  OBJECT_LINK,
-  OBJECT_AVATAR_LINK,
+  OBJECT_NAME,
   OBJECT_SERVER,
-  OBJECT_AVATAR_SERVER,
+  OBJECT_PROFILE_STRING,
+  OBJECT_LINK,
+  OBJECT_EXTENSION,
+  AVATAR_LINK,
+  OBJECT_SERVER,
+  AVATAR_SERVER,
   ORIGINAL_AVATAR_SIZE,
   MESSEGES_AVATAR,
   OBJECT_AVATAR,
   ANSWER_OBJECT_AVATAR,
   STRING_20)
 VALUES 
-( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 select_count_messeges:
 SELECT count(*) FROM Messeges WHERE CHATS_ID = ? ;
