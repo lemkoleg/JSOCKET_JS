@@ -23,23 +23,18 @@ import kotlin.js.JsName
  */
 @InternalAPI
 @JsName("KChat")
-class KChat : CoroutineScope {
+class KChat :ANSWER_TYPE, CoroutineScope {
 
     val MESSEGES: MutableMap<Long?, KMessege?> = mutableMapOf()
     override val coroutineContext: CoroutineContext = Dispatchers.Unconfined
     private val ChatContext = CoroutineScope(coroutineContext)
 
-    private val answerType:ANSWER_TYPE
-
-
-    constructor(){
-        answerType = ANSWER_TYPE()
+    constructor(): super(){
     }
 
     @ExperimentalStdlibApi
     @InternalAPI
-    constructor(ans : ANSWER_TYPE, isAddSqLite: Boolean){
-        answerType = ans
+    constructor(ans : ANSWER_TYPE, isAddSqLite: Boolean): super(ans){
         setGlobalLastUpdatingDate(getLAST_UPDATE())
         if(isAddSqLite) {
             val m = this
@@ -47,102 +42,96 @@ class KChat : CoroutineScope {
         }
     }
 
-    @JsName("getANSWER_TYPE")
-    fun getANSWER_TYPE():ANSWER_TYPE{
-        return answerType
-    }
-
-
     @JsName("getCHATS_ID")
     fun getCHATS_ID():String{
-        return answerType.IDENTIFICATOR_5?:""
+        return IDENTIFICATOR_5?:""
     }
 
     @JsName("setCHATS_ID")
     fun setCHATS_ID(v:String){
-        answerType.IDENTIFICATOR_5 = v
+        IDENTIFICATOR_5 = v
     }
 
     @JsName("getMESSEGES_COUNT")
     fun getMESSEGES_COUNT():Long{
-        return answerType.LONG_5?:0L
+        return LONG_5?:0L
     }
 
     @JsName("setMESSEGES_COUNT")
     fun setMESSEGES_COUNT(v:Long?){
-        answerType.LONG_5 = v?:0L
+        LONG_5 = v?:0L
     }
 
     @JsName("getCOUNT_OF_MEMBERS")
     fun getCOUNT_OF_MEMBERS():Long{
-        return answerType.LONG_8?:0L
+        return LONG_8?:0L
     }
 
     @JsName("setCOUNT_OF_MEMBERS")
     fun setCOUNT_OF_MEMBERS(v:Long){
-        answerType.LONG_8 = v
+        LONG_8 = v
     }
 
     @JsName("getCHATS_OWNER")
     fun getCHATS_OWNER():String{
-        return answerType.IDENTIFICATOR_7?:""
+        return IDENTIFICATOR_7?:""
     }
 
     @JsName("setCHATS_OWNER")
     fun getCHATS_OWNER(v:String){
-        answerType.IDENTIFICATOR_7 = v
+        IDENTIFICATOR_7 = v
     }
 
     @JsName("getCHATS_NAME")
     fun getCHATS_NAME():String{
-        return answerType.STRING_5?:""
+        return STRING_5?:""
     }
 
     @JsName("setCHATS_NAME")
     fun setCHATS_NAME(v:String?){
-        answerType.STRING_5 = v?:""
+        STRING_5 = v?:""
     }
 
     @JsName("getAVATAR_ID")
     fun getAVATAR_ID():String{
-        return answerType.IDENTIFICATOR_6?:""
+        return IDENTIFICATOR_6?:""
     }
 
     @JsName("setAVATAR_ID")
     fun getAVATAR_ID(v:String?){
-        answerType.IDENTIFICATOR_6 = v?:""
+        IDENTIFICATOR_6 = v?:""
     }
 
     @JsName("getCHATS_PROFILE")
     fun setCHATS_PROFILE():String?{
-        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 5){
+        if(STRING_7 == null || STRING_7!!.length < 5){
             return null
         }
-        return answerType.STRING_7!!.substring(0, 5)
+        return STRING_7!!.substring(0, 5)
     }
 
     @JsName("getCHATS_TYPE")
     fun setCHATS_TYPE():String?{
-        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 6){
+        if(STRING_7 == null || STRING_7!!.length < 6){
             return null
         }
-        return answerType.STRING_7!!.substring(5, 6)
+        return STRING_7!!.substring(5, 6)
     }
 
     @JsName("getCHATS_ACCESS")
     fun setCHATS_ACCESS():String?{
-        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 7){
+        if(STRING_7 == null || STRING_7!!.length < 7){
             return null
         }
-        return answerType.STRING_7!!.substring(6, 7)
+        return STRING_7!!.substring(6, 7)
     }
 
     @JsName("getCHATS_STATUS")
     fun setCHATS_STATUS():String?{
-        if(answerType.STRING_7 == null || answerType.STRING_7!!.length < 8){
+        if(STRING_7 == null || STRING_7!!.length < 8){
             return null
         }
-        return answerType.STRING_7!!.substring(7, 8)
+        return STRING_7!!.substring(7, 8)
     }
 
     @JsName("setPROFILE_LINE")
@@ -150,64 +139,54 @@ class KChat : CoroutineScope {
                         l_chats_type: String,
                         l_chats_access: String,
                         l_chats_status: String){
-        answerType.STRING_7 = l_chats_profile + l_chats_type + l_chats_access + l_chats_status
+        STRING_7 = l_chats_profile + l_chats_type + l_chats_access + l_chats_status
     }
 
     @JsName("getADDING_DATE")
     fun getADDING_DATE():Long{
-        return answerType.LONG_4?:0L
+        return LONG_4?:0L
     }
 
     @JsName("setADDING_DATE")
     fun setADDING_DATE(v:Long){
-        answerType.LONG_4 = v
+        LONG_4 = v
     }
 
     @JsName("getBALANCE")
     fun getBALANCE():Long{
-        return answerType.LONG_9?:0L
+        return LONG_9?:0L
     }
 
     @JsName("setBALANCE")
     fun setBALANCE(v:Long?){
-        answerType.LONG_9 = v?:0L
+        LONG_9 = v?:0L
     }
 
     @JsName("getDATE_CLOSED")
     fun getDATE_CLOSED():Long{
-        return answerType.LONG_6?:0L
+        return LONG_6?:0L
     }
 
     @JsName("setDATE_CLOSED")
     fun setDATE_CLOSED(v:Long){
-        answerType.LONG_6 = v
+        LONG_6 = v
     }
 
     @JsName("getLAST_UPDATE")
     fun getLAST_UPDATE():Long{
-        return answerType.LONG_7?:0L
+        return LONG_7?:0L
     }
 
     @JsName("setLAST_UPDATE")
     fun setLAST_UPDATE(v:Long){
-        answerType.LONG_7 = v
-    }
-
-    @JsName("getCONNECTION_ID")
-    fun getCONNECTION_ID():Long{
-        return answerType.LONG_10?:0L
-    }
-
-    @JsName("setCONNECTION_ID")
-    fun getCONNECTION_ID(v:Long){
-        answerType.LONG_10 = v
+        LONG_7 = v
     }
 
     fun merge(v :KChat? ){
         if(v == null ){
             return
         }
-        answerType.merge(v.answerType)
+        super.merge(v)
     }
 
 
@@ -215,8 +194,8 @@ class KChat : CoroutineScope {
     @InternalAPI
     @JsName("UpdateChat")
     fun UpdateChat(lANSWER_TYPE: ANSWER_TYPE, isAddSqLite: Boolean) {
-        answerType.setValue(lANSWER_TYPE)
-        setGlobalLastUpdatingDate(lANSWER_TYPE.LONG_7 ?: 0L)
+        merge(lANSWER_TYPE)
+        setGlobalLastUpdatingDate(LONG_7 ?: 0L)
         if(isAddSqLite){
             ChatContext.launch {Sqlite_service.InsertChat(this@KChat)}
         }

@@ -110,7 +110,7 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
  * @author Oleg
  */
 @JsName("ANSWER_TYPE")
-class ANSWER_TYPE(){
+open class ANSWER_TYPE(){
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
@@ -1259,39 +1259,14 @@ class ANSWER_TYPE(){
         return BLOB_3?.size ?: 0
     }
 
-    @JsName("get_BLOB_4_size")
-    fun get_BLOB_4_size(): Int {
-        return BLOB_4?.size ?: 0
+    @JsName("getCONNECTION_ID")
+    fun getCONNECTION_ID():Long{
+        return LONG_19?:0L
     }
 
-    @JsName("get_BLOB_5_size")
-    fun get_BLOB_5_size(): Int {
-        return BLOB_5?.size ?: 0
-    }
-
-    @JsName("get_BLOB_6_size")
-    fun get_BLOB_6_size(): Int {
-        return BLOB_6?.size ?: 0
-    }
-
-    @JsName("get_BLOB_7_size")
-    fun get_BLOB_7_size(): Int {
-        return BLOB_7?.size ?: 0
-    }
-
-    @JsName("get_BLOB_8_size")
-    fun get_BLOB_8_size(): Int {
-        return BLOB_8?.size ?: 0
-    }
-
-    @JsName("get_BLOB_9_size")
-    fun get_BLOB_9_size(): Int {
-        return BLOB_9?.size ?: 0
-    }
-
-    @JsName("get_BLOB_10_size")
-    fun get_BLOB_10_size(): Int {
-        return BLOB_10?.size ?: 0
+    @JsName("setCONNECTION_ID")
+    fun setCONNECTION_ID(v:Long){
+        LONG_19 = v
     }
 
     fun setValue(MyANSWER_TYPE: ANSWER_TYPE) {

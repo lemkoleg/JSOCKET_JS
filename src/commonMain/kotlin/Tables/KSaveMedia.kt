@@ -24,176 +24,127 @@ import kotlin.js.JsName
  * @author User
  */
 @JsName("KSaveMedia")
-class KSaveMedia {
+class KSaveMedia:ANSWER_TYPE {
 
-    private val answerType:ANSWER_TYPE
 
-    constructor(){
-        answerType = ANSWER_TYPE()
+    constructor(): super()
+
+    constructor(ans : ANSWER_TYPE): super(ans)
+
+    @JsName("getOBJECT_ID")
+    fun getOBJECT_ID():String{
+        return IDENTIFICATOR_5?:""
     }
 
-    constructor(ans : ANSWER_TYPE){
-        answerType = ans
-        setCONNECTION_ID()
+    @JsName("setOBJECT_ID")
+    fun setOBJECT_ID(v:String){
+        IDENTIFICATOR_5 = v.trim()
     }
 
-    @InternalAPI
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
-    constructor(ljsocket: Jsocket){
-        answerType = ANSWER_TYPE()
-        setCONNECTION_ID()
-        setOBJECTS_ID(ljsocket.value_id1)
-        setOBJECTS_EXTENSION(ljsocket.object_extension)
-        setOBJECT_NAME(ljsocket.value_par8)
-        setOBJECT_INFO(ljsocket.value_par9)
-        setSMALL_AVATAR(ljsocket.content)
-        setIS_TEMP(1)
-        setIS_DOWNLOAD(0)
-        if (Sqlite_service.SAVEMEDIA.containsKey(getOBJECTS_ID())) {
-            setIsTemp(Sqlite_service.SAVEMEDIA[getOBJECTS_ID()]!!.IsTemp())
-            setIsDownLoaded(Sqlite_service.SAVEMEDIA[getOBJECTS_ID()]!!.IsDownLoaded())
-        }
-
-        setTIME_ADDED(if (ljsocket.last_date_of_update == 0L) {
-            ljsocket.last_date_of_update
-        } else {
-            DateTime.nowUnixLong()
-        })
-
-        setOBJECT_FULL_NAME(CreateFileFullName())
-        if (ljsocket.object_size == 0L) {
-            throw exc_file_size_is_wrong(getOBJECT_FULL_NAME(), 0L)
-        }
-        setOBJECTS_SIZE(ljsocket.object_size)
+    @JsName("getAVATAR_ID")
+    fun getAVATAR_ID():String{
+        return IDENTIFICATOR_6?:""
     }
 
-
-    @JsName("getANSWER_TYPE")
-    fun getANSWER_TYPE():ANSWER_TYPE{
-        return answerType
+    @JsName("setAVATAR_ID")
+    fun setAVATARID(v: String?){
+        IDENTIFICATOR_6 = v?.trim()?:""
     }
 
-    @JsName("getOBJECTS_ID")
-    fun getOBJECTS_ID():String{
-        return answerType.IDENTIFICATOR_1?:""
+    @JsName("getOBJECT_OWNER")
+    fun getOBJECT_OWNER():String{
+        return IDENTIFICATOR_7?:""
     }
 
-    @JsName("getOBJECTS_EXTENSION")
-    fun getOBJECTS_EXTENSION():String{
-        return answerType.STRING_1?:""
-    }
-
-    @JsName("getCONNECTION_ID")
-    fun getCONNECTION_ID():Long{
-        return myConnectionsID.value
+    @JsName("setOBJECT_OWNER")
+    fun setOBJECT_OWNER(v: String?){
+        IDENTIFICATOR_7 = v?.trim()?:""
     }
 
     @JsName("getOBJECT_NAME")
     fun getOBJECT_NAME():String{
-        return answerType.STRING_2?:""
-    }
-
-    @JsName("getOBJECT_INFO")
-    fun getOBJECT_INFO():String{
-        return answerType.STRING_3?:""
-    }
-
-    @JsName("getSMALL_AVATAR")
-    fun getSMALL_AVATAR():ByteArray?{
-        return answerType.BLOB_1
-    }
-
-    @JsName("getIS_TEMP")
-    fun getIS_TEMP():Int{
-        return answerType.INTEGER_1?:0
-    }
-
-    @JsName("getIS_DOWNLOAD")
-    fun getIS_DOWNLOAD():Int{
-        return answerType.INTEGER_2?:0
-    }
-
-    @JsName("getTIME_ADDED")
-    fun getTIME_ADDED():Long{
-        return answerType.LONG_2?:0L
-    }
-
-    @JsName("getOBJECTS_SIZE")
-    fun getOBJECTS_SIZE():Long{
-        return answerType.LONG_3?:0L
-    }
-
-    @JsName("getOBJECT_FULL_NAME")
-    fun getOBJECT_FULL_NAME():String{
-        return answerType.STRING_4?:""
-    }
-
-    @JsName("setOBJECTS_ID")
-    fun setOBJECTS_ID(v:String){
-        answerType.IDENTIFICATOR_1 = v.trim()
-    }
-
-    @JsName("setOBJECTS_EXTENSION")
-    fun setOBJECTS_EXTENSION(v:String){
-        answerType.STRING_1 = v.trim()
-    }
-
-    @JsName("setCONNECTION_ID")
-    private fun setCONNECTION_ID(){
-        answerType.LONG_1 = myConnectionsID.value
+        return STRING_5?:""
     }
 
     @JsName("setOBJECT_NAME")
     fun setOBJECT_NAME(v:String){
-        answerType.STRING_2 = v.trim()
+        STRING_5 = v.trim()
     }
 
-    @JsName("setOBJECT_INFO")
-    fun setOBJECT_INFO(v:String){
-        answerType.STRING_3 = v.trim()
+    @JsName("getOBJECT_SERVER")
+    fun getOBJECT_SERVER():String{
+        return STRING_6?:""
     }
 
-    @JsName("setSMALL_AVATAR")
-    fun setSMALL_AVATAR(v:ByteArray?){
-        answerType.BLOB_1 = v
+    @JsName("setOBJECT_SERVER")
+    fun setOBJECT_SERVER(v:String){
+        STRING_6 = v.trim()
+    }
+
+    @JsName("getOBJECT_PROFILE_STRING")
+    fun getOBJECT_PROFILE_STRING():String{
+        return STRING_7?:""
+    }
+
+    @JsName("setOBJECT_PROFILE_STRING")
+    fun setOBJECT_PROFILE_STRING(v:String){
+        STRING_7 = v.trim()
+    }
+
+    @JsName("getOBJECT_LINK")
+    fun getOBJECT_LINK():String{
+        return STRING_8?:""
+    }
+
+    @JsName("setOBJECT_LINK")
+    fun setOBJECT_LINK(v:String){
+        STRING_8 = v.trim()
+    }
+
+    @JsName("getOBJECT_EXTENSION")
+    fun getOBJECT_EXTENSION():String{
+        return STRING_9?:""
+    }
+
+    @JsName("setOBJECT_EXTENSION")
+    fun setOBJECT_EXTENSION(v:String?){
+        STRING_9 = v?:"".trim()
+    }
+
+    @JsName("getIS_TEMP")
+    fun getIS_TEMP():Int{
+        return this.INTEGER_6?:0
     }
 
     @JsName("setIS_TEMP")
-    fun setIS_TEMP(v:Int){
-        answerType.INTEGER_1 = v
+    fun setIS_TEMP(v:Int?){
+        this.INTEGER_6 = v?:0
+    }
+
+    @JsName("getIS_DOWNLOAD")
+    fun getIS_DOWNLOAD():Int{
+        return this.INTEGER_7?:0
     }
 
     @JsName("setIS_DOWNLOAD")
-    fun setIS_DOWNLOAD(v:Int){
-        answerType.INTEGER_2 = v
+    fun setIS_DOWNLOAD(v:Int?){
+        this.INTEGER_7 = v?:0
+    }
+
+    @JsName("getTIME_ADDED")
+    fun getTIME_ADDED():Long{
+        return LONG_20?:0L
     }
 
     @JsName("setTIME_ADDED")
     fun setTIME_ADDED(v:Long){
-        answerType.LONG_2 = v
-    }
-
-    @JsName("setOBJECTS_SIZE")
-    fun setOBJECTS_SIZE(v:Long){
-        answerType.LONG_3 = v
-    }
-
-    @JsName("setOBJECT_FULL_NAME")
-    fun setOBJECT_FULL_NAME(v:String){
-        answerType.STRING_4 = v.trim()
-    }
-
-    @JsName("getSmallAvatarSize")
-    fun getSmallAvatarSize():Int{
-        return getSMALL_AVATAR()?.size?:0
-
+        LONG_20 = v
     }
 
    
     @JsName("CreateFileFullName")
     private fun CreateFileFullName(): String {
-        return getOBJECTS_ID().substring(0, 2) + slash + getOBJECTS_ID() + "." + getOBJECTS_EXTENSION()
+        return getOBJECT_ID().substring(0, 2) + slash + getOBJECT_ID() + "." + getOBJECT_EXTENSION()
     }
 
     @JsName("setIsTemp")

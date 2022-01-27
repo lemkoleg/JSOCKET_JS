@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS Messeges
  MESSEGES_ADRESSER TEXT,                               --IDENTIFICATOR_13
  OBJECT_ID TEXT,                                       --IDENTIFICATOR_5
  AVATAR_ID TEXT,                                       --IDENTIFICATOR_6
+ OBJECT_OWNER TEXT,                                    --IDENTIFICATOR_7
  OBJECT_TYPE TEXT NOT NULL,                            --STRING_12.substring(5, 6)
  START_TEXT TEXT,                                      --STRING_11
  MESSEGES_COST INTEGER,                                --INTEGER_11
@@ -69,6 +70,7 @@ REPLACE INTO Messeges
   MESSEGES_ADRESSER,
   OBJECT_ID,
   AVATAR_ID,
+  OBJECT_OWNER,
   OBJECT_TYPE,
   START_TEXT,
   MESSEGES_COST,
@@ -94,7 +96,7 @@ REPLACE INTO Messeges
   ANSWER_OBJECT_AVATAR,
   STRING_20)
 VALUES 
-( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 select_count_messeges:
 SELECT count(*) FROM Messeges WHERE CHATS_ID = ? ;
