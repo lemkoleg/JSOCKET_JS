@@ -47,6 +47,7 @@ private val REQUEST_PREFIX = returnRequestPrefix()
 @DangerousInternalIoApi
 private val REQUEST_POSTFIX = returnRequestPostfix()
 
+@OptIn(ExperimentalIoApi::class)
 @DangerousInternalIoApi
 private fun returnRequestPrefix(): ByteArray {
     val b = BytePacketBuilder(0, ChunkBuffer.Pool)
@@ -121,6 +122,7 @@ class Connection(
         }
     }
 
+    @OptIn(ExperimentalIoApi::class)
     @ExperimentalStdlibApi
     @DangerousInternalIoApi
     private fun returnConnAddress(): ByteReadPacket {
@@ -201,6 +203,7 @@ class Connection(
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    @OptIn(ExperimentalIoApi::class)
     @InternalAPI
     @DangerousInternalIoApi
     @JsName("send_request")

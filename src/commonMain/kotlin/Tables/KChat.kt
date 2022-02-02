@@ -162,6 +162,16 @@ class KChat :ANSWER_TYPE, CoroutineScope {
         LONG_9 = v?:0L
     }
 
+    @JsName("getLAST_MESSEGES_ADDING")
+    fun getLAST_MESSEGES_ADDING():Long{
+        return LONG_10?:0L
+    }
+
+    @JsName("setLAST_MESSEGES_ADDING")
+    fun setLAST_MESSEGES_ADDING(v:Long?){
+        LONG_10 = v?:0L
+    }
+
     @JsName("getDATE_CLOSED")
     fun getDATE_CLOSED():Long{
         return LONG_6?:0L

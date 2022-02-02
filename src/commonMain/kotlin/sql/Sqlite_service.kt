@@ -48,13 +48,7 @@ object Sqlite_service : CoroutineScope {
     val Connection: MySQLConnection = MySQLConnection("AvaClubDB")
 
     @InternalAPI
-    private val META_DATA: ConcurrentMap<String, Int> = ConcurrentMap()
-
-    @InternalAPI
     internal val SAVEMEDIA: ConcurrentMap<String, KSaveMedia> = ConcurrentMap()
-
-    @InternalAPI
-    internal val SENDMEDIA: ConcurrentMap<String, KSendMedia> = ConcurrentMap()
 
     @InternalAPI
     val CHATS: ConcurrentMap<String, KChat> = ConcurrentMap()

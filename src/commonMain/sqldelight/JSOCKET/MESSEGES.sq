@@ -1,4 +1,4 @@
-table_messeges:
+table_Messeges:
 CREATE TABLE IF NOT EXISTS Messeges
 (CHATS_ID TEXT NOT NULL,                               --IDENTIFICATOR_11
  MESSEGES_COUNT INTEGER NOT NULL,                      --LONG_12
@@ -37,26 +37,39 @@ CREATE TABLE IF NOT EXISTS Messeges
 
  CHECK (length(CHATS_ID) = 18
  AND length(MESSEGES_OWNER) = 18
- AND length(MESSEGES_COUNT) < 19
- AND length(MESSEGES_ANSWER) < 19
- AND length(ADDING_DATE) < 19
- AND length(LAST_CHANGED) < 20
 ),
 PRIMARY KEY (CHATS_ID, MESSEGES_COUNT));
 
-trigger_control_count_messeges:
+index_Messeges_order_desc:
+CREATE INDEX IMessegesOrderDesc ON Messeges(MESSEGES_COUNT DESC);
+
 CREATE TRIGGER TControlCountsMesseges
 AFTER INSERT ON Messeges
+FOR EACH ROW
 WHEN
-(SELECT count(*) FROM Messeges WHERE CHATS_ID = new.CHATS_ID)> 
+(SELECT count(*) FROM Messeges WHERE CHATS_ID = new.CHATS_ID)>
 (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES')
 BEGIN
-DELETE FROM Messeges WHERE CHATS_ID = new.CHATS_ID AND MESSEGES_COUNT NOT IN
-(SELECT MESSEGES_COUNT FROM Messeges WHERE CHATS_ID = new.CHATS_ID
-ORDER BY CAST(MESSEGES_COUNT AS INTEGER) DESC
-LIMIT (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES'))
-OR CHATS_ID NOT IN (SELECT CHATS_ID FROM Chats);
+  DELETE FROM Messeges
+  WHERE CHATS_ID = new.CHATS_ID
+  AND MESSEGES_COUNT <
+  (SELECT min(MESSEGES_COUNT)
+   FROM Messeges
+   WHERE CHATS_ID = new.CHATS_ID
+   ORDER BY CHATS_ID, MESSEGES_COUNT DESC
+   LIMIT (SELECT  VALUE_VALUE
+          FROM MetaData
+          WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES'));
 END;
+
+trigger_Messeges_mess_without_cahts:
+CREATE TRIGGER TControlMessWithOutChats
+AFTER INSERT ON Messeges
+BEGIN
+  DELETE FROM Messeges
+  WHERE CHATS_ID NOT IN (SELECT CHATS_ID FROM Chats);
+END;
+
 
 insert_messeges:
 REPLACE INTO Messeges
@@ -99,10 +112,15 @@ VALUES
 ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 select_count_messeges:
-SELECT count(*) FROM Messeges WHERE CHATS_ID = ? ;
+SELECT count(*)
+FROM Messeges
+WHERE CHATS_ID = ? ;
 
 select_messeges:
-SELECT * FROM Messeges WHERE CHATS_ID = ? ;
+SELECT *
+FROM Messeges
+WHERE CHATS_ID = ?
+ORDER BY MESSEGES_COUNT DESC;
 
 select_last_messeges:
 SELECT min(MESSEGES_COUNT) FROM Messeges WHERE CHATS_ID = ? ;
@@ -111,4 +129,6 @@ clear_messeges:
 DELETE FROM Messeges;
 
 delete_messege:
-DELETE FROM Messeges WHERE CHATS_ID = ? AND MESSEGES_COUNT = ?;
+DELETE FROM Messeges
+WHERE CHATS_ID = ?
+AND MESSEGES_COUNT = ?;

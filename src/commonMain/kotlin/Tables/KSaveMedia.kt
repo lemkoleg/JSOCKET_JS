@@ -8,14 +8,8 @@
 package Tables
 
 import CrossPlatforms.slash
-import com.soywiz.klock.DateTime
-import io.ktor.util.InternalAPI
-import io.ktor.utils.io.core.ExperimentalIoApi
-import lib_exceptions.exc_file_size_is_wrong
 import p_client.Jsocket
-import p_client.myConnectionsID
 import p_jsocket.ANSWER_TYPE
-import sql.Sqlite_service
 import kotlin.js.JsName
 
 
@@ -31,84 +25,10 @@ class KSaveMedia:ANSWER_TYPE {
 
     constructor(ans : ANSWER_TYPE): super(ans)
 
-    @JsName("getOBJECT_ID")
-    fun getOBJECT_ID():String{
-        return IDENTIFICATOR_5?:""
-    }
-
-    @JsName("setOBJECT_ID")
-    fun setOBJECT_ID(v:String){
-        IDENTIFICATOR_5 = v.trim()
-    }
-
-    @JsName("getAVATAR_ID")
-    fun getAVATAR_ID():String{
-        return IDENTIFICATOR_6?:""
-    }
-
-    @JsName("setAVATAR_ID")
-    fun setAVATARID(v: String?){
-        IDENTIFICATOR_6 = v?.trim()?:""
-    }
-
-    @JsName("getOBJECT_OWNER")
-    fun getOBJECT_OWNER():String{
-        return IDENTIFICATOR_7?:""
-    }
-
-    @JsName("setOBJECT_OWNER")
-    fun setOBJECT_OWNER(v: String?){
-        IDENTIFICATOR_7 = v?.trim()?:""
-    }
-
-    @JsName("getOBJECT_NAME")
-    fun getOBJECT_NAME():String{
-        return STRING_5?:""
-    }
-
-    @JsName("setOBJECT_NAME")
-    fun setOBJECT_NAME(v:String){
-        STRING_5 = v.trim()
-    }
-
-    @JsName("getOBJECT_SERVER")
-    fun getOBJECT_SERVER():String{
-        return STRING_6?:""
-    }
-
-    @JsName("setOBJECT_SERVER")
-    fun setOBJECT_SERVER(v:String){
-        STRING_6 = v.trim()
-    }
-
-    @JsName("getOBJECT_PROFILE_STRING")
-    fun getOBJECT_PROFILE_STRING():String{
-        return STRING_7?:""
-    }
-
-    @JsName("setOBJECT_PROFILE_STRING")
-    fun setOBJECT_PROFILE_STRING(v:String){
-        STRING_7 = v.trim()
-    }
-
-    @JsName("getOBJECT_LINK")
-    fun getOBJECT_LINK():String{
-        return STRING_8?:""
-    }
-
-    @JsName("setOBJECT_LINK")
-    fun setOBJECT_LINK(v:String){
-        STRING_8 = v.trim()
-    }
-
-    @JsName("getOBJECT_EXTENSION")
-    fun getOBJECT_EXTENSION():String{
-        return STRING_9?:""
-    }
-
-    @JsName("setOBJECT_EXTENSION")
-    fun setOBJECT_EXTENSION(v:String?){
-        STRING_9 = v?:"".trim()
+    @OptIn(ExperimentalStdlibApi::class,
+        io.ktor.utils.io.core.ExperimentalIoApi::class)
+    constructor(ljsocket: Jsocket):super(){
+        super.setValue(ljsocket.currentANSWER_TYPE!!)
     }
 
     @JsName("getIS_TEMP")

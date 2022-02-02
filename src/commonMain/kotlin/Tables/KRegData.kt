@@ -23,36 +23,6 @@ class KRegData:ANSWER_TYPE {
         LONG_5 = v
     }
 
-    @JsName("getMY_DATABASE_ID")
-    fun getMY_DATABASE_ID():String{
-        return STRING_6?:""
-    }
-
-    @JsName("setMY_DATABASE_ID")
-    fun setMY_DATABASE_ID(v: String){
-        STRING_6 = v.trim()
-    }
-
-    @JsName("getACCOUNT_ID")
-    fun getACCOUNT_ID():String{
-        return IDENTIFICATOR_1?:""
-    }
-
-    @JsName("setACCOUNT_ID")
-    fun setACCOUNT_ID(v: String?){
-        IDENTIFICATOR_1 = v?.trim()?:""
-    }
-
-    @JsName("getACCOUNT_NAME")
-    fun getACCOUNT_NAME():String{
-        return STRING_1?:""
-    }
-
-    @JsName("setACCOUNT_NAME")
-    fun setACCOUNT_NAME(v: String?){
-        STRING_1 = v?.trim()?:""
-    }
-
     @JsName("getACCOUNT_PROFILE")
     fun getACCOUNT_PROFILE():String{
         return STRING_5?:""
@@ -83,15 +53,16 @@ class KRegData:ANSWER_TYPE {
         STRING_7 = v.trim()
     }
 
-    @JsName("getAVATAR_ID")
-    fun getAVATAR_ID():String{
-        return IDENTIFICATOR_2?:""
+    @JsName("getMY_DATABASE_ID")
+    fun getMY_DATABASE_ID():String{
+        return STRING_8?:""
     }
 
-    @JsName("setAVATAR_ID")
-    fun setAVATARID(v: String?){
-        IDENTIFICATOR_2 = v?.trim()?:""
+    @JsName("setMY_DATABASE_ID")
+    fun setMY_DATABASE_ID(v: String){
+        STRING_8 = v.trim()
     }
+
 
     @JsName("getBALANCE_OF_CHATS")
     fun getBALANCE_OF_CHATS():Long{

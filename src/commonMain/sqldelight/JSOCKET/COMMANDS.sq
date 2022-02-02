@@ -1,4 +1,4 @@
-table_commands:
+table_Commands:
 CREATE TABLE IF NOT EXISTS Commands
 (COMMANDS_ID INTEGER PRIMARY KEY,                       --LONG_1
 COMMANDS_ACCESS TEXT  NOT NULL,                         --STRING_1
@@ -26,8 +26,8 @@ STRING_20
 VALUES 
 (?, ?, ?, ?, ?, ?, ?);
 
-clear_commands:
+clear_Commands:
 DELETE FROM Commands;
 
-select_all_commands:
+select_Commands_all:
 SELECT * FROM Commands;

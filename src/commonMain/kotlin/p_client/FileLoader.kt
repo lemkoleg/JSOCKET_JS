@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-@file:Suppress("RedundantSuspendModifier")
+@file:Suppress("RedundantSuspendModifier", "EXPERIMENTAL_API_USAGE")
 
 package p_client
 
@@ -12,7 +12,6 @@ import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KSaveMedia
 import com.soywiz.korio.stream.AsyncStream
 import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.Lock
 import io.ktor.util.withLock
 import io.ktor.utils.io.core.ExperimentalIoApi
@@ -52,7 +51,6 @@ object FileLoader {
     private val lock = Lock()
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @DangerousInternalIoApi
     @ExperimentalTime
     @ExperimentalUnsignedTypes
@@ -68,13 +66,13 @@ object FileLoader {
                         errorTask = null
                         newTask = ljsocket
                         currentTask = null
-                        if (ljsocket.value_id1.trim().isEmpty()) { // ИД треуемого файла
+                        if (ljsocket.value_id1.isEmpty()) { // ИД треуемого файла
                             if (clientFileService != null) {
                                 clientFileService!!.close()
                                 return@withTimeoutOrNull null
                             }
                         }
-                        if (clientFileService != null && ljsocket.value_id1.trim() == clientFileService!!.MyFileService.fIleName) {
+                        if (clientFileService != null && ljsocket.value_id1 == clientFileService!!.MyFileService.fIleName) {
                             if (clientFileService!!.MyFileService.IsDownloaded()) { // если загруже
                                 currentTask = null
                                 if (clientFileService!!.MyFileService.OpenMode != 1) { // если открыт не для чте чтения, то открываем для чтения
@@ -85,7 +83,7 @@ object FileLoader {
                                 return@withTimeoutOrNull clientFileService!!.MyFileService.getMyFile()!!.fileChannel
                             }
                             if (clientFileService!!.MyFileService.IsDownLoadedChank(
-                                            ljsocket.value_par1.trim().toInt() // требуемая часть файла
+                                            ljsocket.value_par1.toInt() // требуемая часть файла
                                     )
                             ) {
                                 currentTask = newTask
@@ -101,17 +99,7 @@ object FileLoader {
                                 ClientFileService(KSaveMedia(newTask!!), 3) //если нет, то создаем новый
                             }
 
-                            newTask!!.value_par2 = if (clientFileService!!.getmyKBigAvatar()?.getSMALL_AVATAR_SIZE() !=
-                                    clientFileService!!.myKSaveMedia!!.getSmallAvatarSize()) {
-                                "1"
-                            } else {
-                                "0"
-                            } // проверяем соответсвие размеру мал.авы с размером указаном в SQLite
-
-                            if (newTask!!.value_par2 == "0") {
-                                // если размер не изменился, то используем сохраненную Аву
-                                newTask!!.content = clientFileService!!.getmyKBigAvatar()?.getAVATAR()
-                            }
+                            newTask!!.content = clientFileService!!.getmyKBigAvatar()?.getAVATAR()
 
                             if (clientFileService!!.MyFileService.OpenMode == 1) { //усли файл уже загружен
                                 return@withTimeoutOrNull clientFileService!!.MyFileService.getMyFile()!!.fileChannel
@@ -173,7 +161,7 @@ object FileLoader {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
+
     @DangerousInternalIoApi
     @ExperimentalTime
     @InternalAPI
@@ -198,7 +186,6 @@ object FileLoader {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @DangerousInternalIoApi
     @ExperimentalTime
     @ExperimentalIoApi
@@ -238,7 +225,7 @@ object FileLoader {
         try {
             withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
                 lock.lock()
-                if (ljsocket.value_id1 != clientFileService!!.myKSaveMedia!!.getOBJECTS_ID()) {
+                if (ljsocket.value_id1 != clientFileService!!.myKSaveMedia!!.getOBJECT_ID()) {
                     throw exc_object_name_is_wrong(ljsocket.value_id1)
                 }
                 currentTask = ljsocket

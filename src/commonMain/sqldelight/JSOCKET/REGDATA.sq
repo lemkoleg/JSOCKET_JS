@@ -2,7 +2,7 @@ table_regdata:
 CREATE TABLE IF NOT EXISTS RegData(
 CONNECTION_ID INTEGER PRIMARY KEY,           --LONG_4
 CONNECTION_COOCKI TEXT NOT NULL,             --LONG_5
-DATABASE_ID TEXT NOT NULL,                   --STRING_6
+DATABASE_ID TEXT NOT NULL,                   --STRING_8
 ACCOUNT_ID TEXT DEFAULT "" NOT NULL,         --IDENTIFICATOR_1
 ACCOUNT_NAME TEXT DEFAULT "" NOT NULL,       --STRING_1
 ACCOUNT_PROFILE TEXT DEFAULT "" NOT NULL,    --STRING_5
@@ -19,25 +19,33 @@ AVATAR_3 BLOB,
 STRING_20 TEXT,
 
 CHECK (
- length(CONNECTION_ID)= 18
- AND length(CONNECTION_COOCKI)= 18
+ length(CONNECTION_ID) = 18
+ AND length(CONNECTION_COOCKI) = 18
  AND (ACCOUNT_ID = "" OR length(ACCOUNT_ID)= 18)
  AND (AVATAR_ID = "" OR length(AVATAR_ID)= 18)
  AND (AVATAR_LINK = "" OR length(AVATAR_LINK)= 18)
- AND length(LANG)= 3
+ AND length(LANG) = 3
  AND (ACCOUNT_PROFILE = "" OR length(ACCOUNT_PROFILE)= 40)
- AND (REQUEST_PROFILE = "" OR length(REQUEST_PROFILE)= 30)
- AND REQUEST_PROFILE != '------------------------------'));
+ AND (REQUEST_PROFILE = "" OR length(REQUEST_PROFILE)= 30)));
 
-trigger_insert_regdata:
+trigger_RegData_insert:
 CREATE TRIGGER TRegData_Insert
-       BEFORE INSERT ON RegData
-       FOR EACH ROW
-       BEGIN
-       DELETE FROM RegData;
-       END;
+ BEFORE INSERT ON RegData
+ FOR EACH ROW
+ BEGIN
+ DELETE FROM RegData;
+END;
+
+trigger_RegData_delete:
+CREATE TRIGGER TRegData_Delete
+ AFTER DELETE ON RegData
+ FOR EACH ROW
+ BEGIN
+ DELETE FROM Chats;
+ DELETE FROM CashLastUpdate;
+END;
        
-insert_regdata:
+insert_RegData:
 REPLACE INTO RegData 
 (CONNECTION_ID,
  CONNECTION_COOCKI,
@@ -59,8 +67,8 @@ REPLACE INTO RegData
 VALUES 
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-clear_regdata:
+clear_RegData:
 DELETE FROM RegData;
 
-select_all_regdata:
+select_RegData_all:
 SELECT * FROM RegData LIMIT 1;

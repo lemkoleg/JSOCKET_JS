@@ -1,4 +1,4 @@
-@file:Suppress("DuplicatedCode", "unused")
+@file:Suppress("DuplicatedCode", "unused", "EXPERIMENTAL_IS_NOT_ENABLED")
 
 package p_jsocket
 
@@ -164,6 +164,9 @@ open class JSOCKET() : Closeable, CoroutineScope {
 
     @JsName("ANSWER_TYPEs")
     var ANSWER_TYPEs: ArrayDeque<ANSWER_TYPE>? = null
+
+    @JsName("currentANSWER_TYPE")
+    var currentANSWER_TYPE: ANSWER_TYPE? = null
 
     @JsName("jserver_connection_id")
     var jserver_connection_id: Long = 0L
@@ -707,7 +710,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
             if (content == null || content!!.isEmpty()) {
                 return
             }
-            var answer_type: ANSWER_TYPE? = null
+            var answer_type: ANSWER_TYPE?
             var nameField_length : Int
             var nameField_number : Int
             var recordSize : Int
@@ -796,9 +799,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
 
 
                 }
-                if (answer_type != null) {
-                    ANSWER_TYPEs!!.add(answer_type)
-                }
+                ANSWER_TYPEs!!.add(answer_type)
             }
         } catch (n: Exception) {
             WriteExceptionIntoFile(n, "JSOCKET.deserialized_ANSWERS_TYPES")

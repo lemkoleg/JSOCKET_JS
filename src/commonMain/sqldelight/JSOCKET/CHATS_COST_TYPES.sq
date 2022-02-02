@@ -1,4 +1,4 @@
-table_chats_cost_types:
+table_ChatsCostTypes:
 CREATE TABLE IF NOT EXISTS ChatsCostTypes
 (CHATS_ID TEXT NOT NULL,                               --IDENTIFICATOR_5
  COST_ID TEXT NOT NULL,                                --STRING_6
@@ -19,11 +19,10 @@ CREATE TABLE IF NOT EXISTS ChatsCostTypes
 
  CHECK (length(CHATS_ID) = 18
  AND length(TYPES_OWNER) = 18
- AND length(COST_ID) = 4
 ),
 PRIMARY KEY (CHATS_ID, COST_ID));
 
-insert_chats_cost_types:
+insert_ChatsCostTypes:
 REPLACE INTO ChatsCostTypes
 ( CHATS_ID,
   COST_ID ,
@@ -44,20 +43,13 @@ REPLACE INTO ChatsCostTypes
 VALUES
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-select_chat_cost_types:
-SELECT * FROM ChatsCostTypes WHERE CHATS_ID = ? ;
+select_ChatsCostTypes_All:
+SELECT * FROM ChatsCostTypes
+ORDER BY  CHATS_ID, COST_ID;
 
-clear_chats_cost_types:
+clear_ChatsCostTypes:
 DELETE FROM ChatsCostTypes;
 
-delete_chat_cost_types:
-DELETE FROM ChatsCostTypes WHERE CHATS_ID = ?;
-
-trigger_Avatar_Update:
-CREATE TRIGGER TChatsCostTypes_Avatar_Update
-AFTER UPDATE ON ChatsCostTypes
-FOR EACH ROW WHEN new.AVATAR IS NULL AND substr(new.STRING_20, 1, 2) = '0'
-BEGIN
-UPDATE ChatsCostTypes SET AVATAR = old.AVATAR
-WHERE rowid = new.rowid;
-END;
+delete_ChatsCostTypes:
+DELETE FROM ChatsCostTypes
+WHERE CHATS_ID = ?;

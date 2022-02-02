@@ -21,16 +21,6 @@ class KChatsLikes:ANSWER_TYPE {
         IDENTIFICATOR_5 = v
     }
 
-    @JsName("getACCOUNTS_ID")
-    fun getACCOUNTS_ID():String{
-        return IDENTIFICATOR_7?:""
-    }
-
-    @JsName("setACCOUNTS_ID")
-    fun setACCOUNTS_ID(v:String){
-        IDENTIFICATOR_7 = v
-    }
-
     @JsName("getRELATIONS")
     fun getRELATIONS():String{
         return STRING_5?:""
@@ -100,26 +90,16 @@ class KChatsLikes:ANSWER_TYPE {
     fun setLAST_DATE_DELIVERED(v:Long){
         LONG_10 = v
     }
-
-    @JsName("getLAST_MESS_DATE_DELIVERED")
-    fun getLAST_MESS_DATE_DELIVERED():Long{
-        return LONG_11?:0L
-    }
-
-    @JsName("setLAST_MESS_DATE_DELIVERED")
-    fun setLAST_MESS_DATE_DELIVERED(v:Long){
-        LONG_11 = v
-    }
     
 
     @JsName("getLAST_READED_MESS_ID")
     fun getLAST_READED_MESS_ID():Long{
-        return LONG_12?:0L
+        return LONG_11?:0L
     }
 
     @JsName("setLAST_READED_MESS_ID")
     fun setLAST_READED_MESS_ID(v:Long){
-        LONG_12 = v
+        LONG_11 = v
     }
 
     @JsName("getBALANCE")
@@ -152,25 +132,7 @@ class KChatsLikes:ANSWER_TYPE {
         LONG_5 = v
     }
 
-    @JsName("getACCOUNTS_NAME")
-    fun getACCOUNTS_NAME():String{
-        return STRING_1?:""
-    }
 
-    @JsName("setACCOUNTS_NAME")
-    fun setACCOUNTS_NAME(v:String){
-        STRING_1 = v
-    }
-
-    @JsName("getAVATAR_ID")
-    fun getAVATAR_ID():String{
-        return IDENTIFICATOR_2?:""
-    }
-
-    @JsName("setAVATAR_ID")
-    fun setAVATAR_ID(v:String?){
-        IDENTIFICATOR_2 = v?:""
-    }
 
     fun merge(v :KChatsLikes? ){
         if(v == null ){

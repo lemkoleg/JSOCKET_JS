@@ -56,10 +56,10 @@ class ClientFileService: CoroutineScope {
                 lmode = 1
             }
         }
-        if (myKSaveMedia!!.getOBJECTS_SIZE() != 0L) {
+        if (myKSaveMedia!!.getOBJECT_SIZE() != 0) {
             ClientFileServiceJob = ClientFileServiceScope.launch {
                 try {
-                    myKBigAvatar = Sqlite_service.SelectBigAvatar(myKSaveMedia!!.getOBJECTS_ID())
+                    myKBigAvatar = Sqlite_service.SelectBigAvatar(myKSaveMedia!!.getOBJECT_ID())
                     if (myKBigAvatar!!.getSMALL_AVATAR_SIZE() != myKSaveMedia!!.getSmallAvatarSize()) {
                         myKBigAvatar = null
                         Sqlite_service.DeleteBigAvatar(myKSaveMedia!!.getOBJECTS_ID())

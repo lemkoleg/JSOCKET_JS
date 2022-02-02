@@ -9,7 +9,6 @@ package Tables
 
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
-import lib_exceptions.exc_avatar_size_is_null
 import p_jsocket.ANSWER_TYPE
 import sql.Sqlite_service
 import kotlin.js.JsName
@@ -19,92 +18,33 @@ import kotlin.js.JsName
  * @author User
  */
 @JsName("BigAvatar")
-open class KBigAvatar {
+open class KBigAvatar :ANSWER_TYPE {
 
-    private val answerType:ANSWER_TYPE
 
-    constructor(){
-        answerType = ANSWER_TYPE()
-    }
+    constructor(): super()
 
-    constructor(ObjectID:String,
-                TimeAdded: Long,
-                IsTemp: Int,
-                SmallAvatarSize: Int,
-                Avatar: ByteArray){
-        answerType = ANSWER_TYPE()
-        setOBJECTS_ID(ObjectID.trim())
-        setTIME_ADDED(TimeAdded)
-        setIS_TEMP(IsTemp)
-        setSMALL_AVATAR_SIZE(SmallAvatarSize)
-        setAVATAR(Avatar)
-
-    }
-
-    constructor (ans : ANSWER_TYPE){
-        answerType = ans
-    }
-
-    @JsName("getANSWER_TYPE")
-    fun getANSWER_TYPE():ANSWER_TYPE{
-        return answerType
-    }
+    constructor(ans : ANSWER_TYPE): super(ans)
 
     @JsName("getAVATAR")
     fun getAVATAR(): ByteArray? {
-        return answerType.BLOB_1
+        return BLOB_3
     }
 
-    @JsName("getOBJECTS_ID")
-    fun getOBJECTS_ID(): String {
-        return answerType.IDENTIFICATOR_1 ?: ""
-    }
-
-    @JsName("getSMALL_AVATAR_SIZE")
-    fun getSMALL_AVATAR_SIZE(): Int {
-        return answerType.INTEGER_2 ?: 0
-    }
-
-    @JsName("getIS_TEMP")
-    fun getIS_TEMP(): Int {
-        return answerType.INTEGER_1 ?: 0
+    @JsName("setAVATAR")
+    fun setAVATAR(v: ByteArray) {
+        BLOB_1 = v
     }
 
     @JsName("getTIME_ADDED")
     fun getTIME_ADDED(): Long {
-        return answerType.LONG_1 ?: 0L
-    }
-
-    @JsName("setAVATAR")
-    fun setAVATAR(v: ByteArray?) {
-        answerType.BLOB_1 = v
-    }
-
-    @JsName("setOBJECTS_ID")
-    fun setOBJECTS_ID(v: String) {
-        answerType.IDENTIFICATOR_1 = v.trim()
-    }
-
-    @JsName("setSMALL_AVATAR_SIZE")
-    fun setSMALL_AVATAR_SIZE(v: Int) {
-        if (v == 0) {
-            throw exc_avatar_size_is_null()
-        }
-        answerType.INTEGER_2 = v
-    }
-
-    @JsName("setIS_TEMP")
-    fun setIS_TEMP(v: Int) {
-        answerType.INTEGER_1 = v
+        return LONG_18 ?: 0L
     }
 
     @JsName("setTIME_ADDED")
     fun setTIME_ADDED(v: Long) {
-        answerType.LONG_1 = if (v == 0L) DateTime.nowUnixLong()
+        LONG_18 = if (v == 0L) DateTime.nowUnixLong()
         else v
     }
-
-
 
     companion object {
         @InternalAPI

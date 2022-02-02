@@ -100,36 +100,6 @@ class KMessege:ANSWER_TYPE {
         IDENTIFICATOR_13 = v?:""
     }
 
-    @JsName("getOBJECT_ID")
-    fun getOBJECTS_ID():String{
-        return IDENTIFICATOR_5?:""
-    }
-
-    @JsName("setOBJECT_ID")
-    fun setOBJECTS_ID(v:String?){
-        IDENTIFICATOR_5 = v?:""
-    }
-
-    @JsName("getAVATAR_ID")
-    fun getAVATAR_ID():String{
-        return IDENTIFICATOR_6?:""
-    }
-
-    @JsName("setAVATAR_ID")
-    fun setAVATAR_ID(v:String?){
-        IDENTIFICATOR_6 = v?:""
-    }
-
-    @JsName("getOBJECT_OWNER")
-    fun getOBJECT_OWNER():String{
-        return IDENTIFICATOR_7?:""
-    }
-
-    @JsName("setOBJECT_OWNER")
-    fun setOBJECT_OWNER(v:String?){
-        IDENTIFICATOR_7 = v?:""
-    }
-
     @JsName("getOBJECT_TYPE")
     fun getOBJECT_TYPE():String{
         if(STRING_12 == null || STRING_12!!.length < 6){
@@ -230,48 +200,17 @@ class KMessege:ANSWER_TYPE {
 
     @JsName("getMESSEGE_FULL_TEXT")
     fun getMESSEGE_FULL_TEXT():String{
-        return STRING_14?:""
+        return super.getSUBSCRIBE()
     }
 
     @JsName("setMESSEGE_FULL_TEXT")
     fun setMESSEGE_FULL_TEXT(v:String?){
-        STRING_14 = v?:""
-    }
-
-
-    @JsName("getOBJECT_NAME")
-    fun getOBJECT_NAME():String{
-        return STRING_5?:""
-    }
-
-    @JsName("setMOBJECT_NAME")
-    fun setOBJECT_NAME(v:String?){
-        STRING_5 = v?:""
-    }
-
-    @JsName("getOBJECT_SERVER")
-    fun getOBJECT_SERVER():String{
-        return STRING_6?:""
-    }
-
-    @JsName("setOBJECT_SERVER")
-    fun setOBJECT_SERVER(v:String?){
-        STRING_6 = v?:""
+        super.setSUBSCRIBE(v)
     }
 
     @JsName("setMESSEGES_TYPE_ACCESS_STATUS_HAVEFULLTEXT_HAVEANSWER_OBJECTTYPE")
     fun setMESSEGES_TYPE_ACCESS_STATUS_HAVEFULLTEXT_HAVEANSWER_OBJECTTYPE(v:String){
         STRING_12 = v
-    }
-
-    @JsName("getOBJECT_LINK")
-    fun getOBJECT_LINK():String{
-        return STRING_8?:""
-    }
-
-    @JsName("setOBJECT_LINK")
-    fun setOBJECT_LINK(v:String?){
-        STRING_8 = v?:""
     }
 
 
@@ -337,26 +276,6 @@ class KMessege:ANSWER_TYPE {
 
         if(v.LONG_10 != null && v.LONG_10 != 0L){
             this.LONG_10 = v.LONG_10
-        }
-
-        if(v.STRING_5 != null && v.STRING_5!!.isNotEmpty()){
-            this.STRING_5 = v.STRING_5
-        }
-
-        if(v.STRING_6 != null && v.STRING_6!!.isNotEmpty()){
-            this.STRING_6 = v.STRING_6
-        }
-
-        if(v.STRING_7 != null && v.STRING_7!!.isNotEmpty()){
-            this.STRING_7 = v.STRING_7
-        }
-
-        if(v.STRING_8 != null && v.STRING_8!!.isNotEmpty()){
-            this.STRING_8 = v.STRING_8
-        }
-
-        if(v.STRING_9 != null && v.STRING_9!!.isNotEmpty()){
-            this.STRING_9 = v.STRING_9
         }
 
         if(v.STRING_13 != null && v.STRING_13!!.isNotEmpty()){

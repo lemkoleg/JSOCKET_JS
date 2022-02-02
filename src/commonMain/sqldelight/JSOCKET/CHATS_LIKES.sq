@@ -1,4 +1,4 @@
-table_messeges:
+table_ChatsLikes:
 CREATE TABLE IF NOT EXISTS ChatsLikes
 (CHATS_ID TEXT NOT NULL,                    --IDENTIFICATOR_5
  ACCOUNTS_ID TEXT NOT NULL,                 --IDENTIFICATOR_1
@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS ChatsLikes
  FIRST_MESS_COUNT INTEGER NOT NULL,         --LONG_8
  LAST_MESS_COUNT  INTEGER NOT NULL,         --LONG_9
  LAST_DATE_DELIVERED INTEGER NOT NULL,      --LONG_10
- LAST_MESS_DATE_DELIVERED INTEGER NOT NULL, --LONG_11
- LAST_READED_MESS_ID  INTEGER NOT NULL,     --LONG_12
+ LAST_READED_MESS_ID  INTEGER NOT NULL,     --LONG_11
  BALANCE INTEGER NOT NULL,                  --LONG_7
  LAST_CONNECT INTEGER NOT NULL,             --LONG_6
  DATE_DELETE INTEGER NOT NULL,              --LONG_5
@@ -27,7 +26,22 @@ CREATE TABLE IF NOT EXISTS ChatsLikes
 ),
 PRIMARY KEY (CHATS_ID, ACCOUNTS_ID));
 
-insert_chats_likes:
+index_ChatsLikes_AvatarId:
+CREATE INDEX IChatsLikessAvatarId ON Chats(AVATAR_ID);
+
+trigger_ChatsLikes_deleted_record:
+CREATE TRIGGER TChatsLikesDeletedRecocord
+AFTER UPDATE ON ChatsLikes
+FOR EACH ROW
+WHEN
+new.ACCOUNTS_ID = (SELECT ACCOUNT_ID FROM RegData LIMIT 1)
+AND
+new.RELATIONS = "39" --delete member;
+BEGIN
+DELETE FROM Chats WHERE CHATS_ID = new.CHATS_ID;
+END;
+
+insert_ChatsLikes:
 REPLACE INTO ChatsLikes
 ( CHATS_ID,
    ACCOUNTS_ID,
@@ -38,7 +52,6 @@ REPLACE INTO ChatsLikes
    FIRST_MESS_COUNT,
    LAST_MESS_COUNT,
    LAST_DATE_DELIVERED,
-   LAST_MESS_DATE_DELIVERED,
    LAST_READED_MESS_ID,
    BALANCE,
    LAST_CONNECT,
@@ -51,27 +64,10 @@ REPLACE INTO ChatsLikes
    AVATAR,
    STRING_20)
 VALUES
-(?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ? );
+(?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ? );
 
+select_ChatsLikes_All:
+SELECT * FROM ChatsLikes
+ORDER BY CHATS_ID, ACCOUNTS_ID;
 
-trigger_Avatar_Update:
-CREATE TRIGGER TChatsLikes_Avatar_Update
-AFTER UPDATE ON ChatsLikes
-FOR EACH ROW WHEN new.AVATAR IS NULL AND substr(new.STRING_20, 1, 2) = '0'
-BEGIN
-UPDATE ChatsLikes SET AVATAR = old.AVATAR
-WHERE rowid = new.rowid;
-END;
-
-select_count_ChatsLikes:
-SELECT count(*) FROM ChatsLikes WHERE CHATS_ID = ? ;
-
-select_ChatsLikes:
-SELECT * FROM ChatsLikes WHERE CHATS_ID = ? AND ACCOUNTS_ID = ? ;
-
-select_All_ChatsLikes:
-SELECT * FROM ChatsLikes WHERE CHATS_ID = ? ;
-
-clear_ChatsLikes:
-DELETE FROM ChatsLikes;
 

@@ -1,18 +1,22 @@
-table_metadata:
+table_MetaData:
 CREATE TABLE IF NOT EXISTS MetaData
 (VALUE_NAME TEXT PRIMARY KEY,     --STRING_1
  VALUE_VALUE INTEGER  NOT NULL,   --LONG_1
  LAST_UPDATE INTEGER  NOT NULL,   --LONG_2
  STRING_20 TEXT);
 
-insert_metadata:
-REPLACE INTO MetaData (VALUE_NAME, VALUE_VALUE, LAST_UPDATE, STRING_20) VALUES (?, ?, ?, ?);
+insert_MetaData:
+REPLACE INTO MetaData
+ (VALUE_NAME,
+  VALUE_VALUE,
+  LAST_UPDATE,
+  STRING_20) VALUES (?, ?, ?, ?);
 
-clear_metadata:
+clear_MetaData:
 DELETE FROM MetaData;
 
-select_all_metadata:
+select_MetaData_all:
 SELECT * FROM MetaData;
 
-select_metadata:
+select_MetaData:
 SELECT VALUE_VALUE FROM MetaData WHERE VALUE_NAME = ?;

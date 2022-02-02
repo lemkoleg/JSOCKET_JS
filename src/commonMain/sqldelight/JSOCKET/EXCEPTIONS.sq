@@ -1,4 +1,4 @@
-table_exception:
+table_Exception:
 CREATE TABLE IF NOT EXISTS Exception
 (NUMBER_OF_ECXEPTION INTEGER NOT NULL,  --LONG_1
  LANG_OF_ECXEPTION TEXT NOT NULL,       --STRING_2
@@ -7,14 +7,17 @@ CREATE TABLE IF NOT EXISTS Exception
  STRING_20 TEXT,
  PRIMARY KEY (NUMBER_OF_ECXEPTION, LANG_OF_ECXEPTION));
 
-insert_exception:
-REPLACE INTO Exception (NUMBER_OF_ECXEPTION, LANG_OF_ECXEPTION, TEXT_OF_ECXEPTION, LAST_UPDATE, STRING_20) VALUES (?, ?, ?, ?, ?);
+insert_Exception:
+REPLACE INTO Exception
+ (NUMBER_OF_ECXEPTION,
+  LANG_OF_ECXEPTION,
+  TEXT_OF_ECXEPTION,
+  LAST_UPDATE,
+  STRING_20)
+  VALUES (?, ?, ?, ?, ?);
 
-clear_exception:
+clear_Exception:
 DELETE FROM Exception;
 
-select_all_exception:
+select_Exception_all:
 SELECT * FROM Exception;
-
-select_exception:
-SELECT TEXT_OF_ECXEPTION FROM Exception WHERE NUMBER_OF_ECXEPTION = ? AND LANG_OF_ECXEPTION = ?;

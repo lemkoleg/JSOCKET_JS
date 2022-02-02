@@ -107,17 +107,10 @@ class ANSWER_TYPE_Subscribe  constructor(
         77 -> { j: ANSWER_TYPE -> j.STRING_17}
         78 -> { j: ANSWER_TYPE -> j.STRING_18}
         79 -> { j: ANSWER_TYPE -> j.STRING_19}
-        80 -> { j: ANSWER_TYPE -> j.STRING_20}
+        80 -> { j: ANSWER_TYPE -> j.getSTRING_20()}
         81 -> { j: ANSWER_TYPE -> j.BLOB_1}
         82 -> { j: ANSWER_TYPE -> j.BLOB_2}
         83 -> { j: ANSWER_TYPE -> j.BLOB_3}
-        84 -> { j: ANSWER_TYPE -> j.BLOB_4}
-        85 -> { j: ANSWER_TYPE -> j.BLOB_5}
-        86 -> { j: ANSWER_TYPE -> j.BLOB_6}
-        87 -> { j: ANSWER_TYPE -> j.BLOB_7}
-        88 -> { j: ANSWER_TYPE -> j.BLOB_8}
-        89 -> { j: ANSWER_TYPE -> j.BLOB_9}
-        90 -> { j: ANSWER_TYPE -> j.BLOB_10}
         else -> {
             throw exc_error_to_create_ANSWER_TYPE_Subscribe()
         }}
@@ -204,17 +197,10 @@ class ANSWER_TYPE_Subscribe  constructor(
     77 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_17 = (v as String?)?:""}
     78 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_18 = (v as String?)?:""}
     79 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_19 = (v as String?)?:""}
-    80 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_20 = (v as String?)?:""}
+    80 -> { j: ANSWER_TYPE, v: Any? -> j.setSTRING_20(v as String??:"")}
     81 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_1 = (v as ByteArray?)}
     82 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_2 = (v as ByteArray?)}
     83 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_3 = (v as ByteArray?)}
-    84 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_4 = (v as ByteArray?)}
-    85 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_5 = (v as ByteArray?)}
-    86 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_6 = (v as ByteArray?)}
-    87 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_7 = (v as ByteArray?)}
-    88 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_8 = (v as ByteArray?)}
-    89 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_9 = (v as ByteArray?)}
-    90 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_10 = (v as ByteArray?)}
     else -> {
         throw exc_error_to_create_ANSWER_TYPE_Subscribe()
     }}}

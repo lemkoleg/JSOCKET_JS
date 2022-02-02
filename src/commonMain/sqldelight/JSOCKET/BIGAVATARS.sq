@@ -1,48 +1,64 @@
-table_big_avatars:
+table_BigAvatars:
 CREATE TABLE IF NOT EXISTS BigAvatars
-(OBJECTS_ID TEXT PRIMARY KEY,
-TIME_ADDED TEXT NOT NULL,
-IS_TEMP INTEGER as Int NOT NULL,
-SMALL_AVATAR_SIZE INTEGER as Int NOT NULL,
-AVATAR BLOB  NOT NULL,
+(AVATAR_ID TEXT PRIMARY KEY,      --IDENTIFICATOR6
+ LAST_USE TEXT NOT NULL,    --LONG_18
+ AVATAR BLOB  NOT NULL,
 CHECK (
-length(OBJECTS_ID)=18
-AND length(TIME_ADDED) < 20
-AND (IS_TEMP BETWEEN 0 AND 1)));
+length(AVATAR_ID) = 18));
 
-trigger_control_count_big_avatars:
-CREATE TRIGGER TControlCountsBigAvatars
+index_BigAvatars_lastuse:
+CREATE INDEX IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
+
+trigger_BigAvatars_control_count:
+CREATE TRIGGER TBigAvatarsControlCounts
 AFTER INSERT ON BigAvatars
-FOR EACH ROW WHEN
-(SELECT count(*) FROM BigAvatars)>
-(SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')
+FOR EACH ROW
+WHEN
+(SELECT count(*)
+ FROM BigAvatars)>
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')
 BEGIN
-DELETE FROM BigAvatars WHERE OBJECTS_ID NOT IN
-(SELECT OBJECTS_ID FROM BigAvatars ORDER BY CAST(TIME_ADDED AS INTEGER) DESC
-LIMIT (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS'));
+DELETE FROM BigAvatars WHERE AVATAR_ID NOT IN
+(SELECT AVATAR_ID FROM BigAvatars
+ WHERE AVATAR_ID NOT IN (SELECT AVATAR_ID
+                         FROM SaveMedia)
+ AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
+                         FROM RegData)
+ AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
+                         FROM Chats
+                         WHERE 1 = (SELECT VALUE_VALUE
+                                     FROM MetaData
+                                     WHERE VALUE_NAME = 'IS_SAVE_CHATS_BIG_AVATARS_IN_CASHE_PERMINENTLY'))
+ AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
+                         FROM ChatsLikes
+                         WHERE 1 = (SELECT VALUE_VALUE
+                         FROM MetaData
+                         WHERE VALUE_NAME = 'IS_SAVE_CHATS_LIKES_BIG_AVATARS_IN_CASHE_PERMINENTLY'))
+ ORDER BY LAST_USE DESC
+ LIMIT (SELECT  VALUE_VALUE
+        FROM MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS'));
 END;
 
-index_big_avatars:
-CREATE INDEX IBigAvatars_TIME_ADDED ON BigAvatars(TIME_ADDED);
-
-insert_big_avatars:
+insert_BigAvatars:
 REPLACE INTO BigAvatars
-(OBJECTS_ID, TIME_ADDED, IS_TEMP, SMALL_AVATAR_SIZE, AVATAR)
+(AVATAR_ID, LAST_USE,  AVATAR)
 VALUES
-(?, ?, ?, ?, ?);
+(?, ?,  ?);
 
-select_big_avatars:
-SELECT * FROM BigAvatars WHERE OBJECTS_ID = ?;
+select_BigAvatars:
+SELECT * FROM BigAvatars
+WHERE AVATAR_ID = ?;
 
-select_count_big_avatars:
-SELECT count(*) FROM BigAvatars;
 
-select_last_big_avatars:
-SELECT OBJECTS_ID FROM BigAvatars WHERE TIME_ADDED =
-(SELECT min(CAST(TIME_ADDED AS INTEGER)) FROM BigAvatars) LIMIT 1;
+select_BigAvatars_last_use:
+SELECT AVATAR_ID FROM BigAvatars WHERE LAST_USE =
+(SELECT min(LAST_USE) FROM BigAvatars LIMIT 1);
 
-delete_big_avatars:
-DELETE FROM BigAvatars WHERE OBJECTS_ID = ?;
+delete_BigAvatars:
+DELETE FROM BigAvatars WHERE AVATAR_ID = ?;
 
-clear_big_avatars:
+clear_BigAvatars:
 DELETE FROM BigAvatars;

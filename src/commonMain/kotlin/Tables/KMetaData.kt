@@ -1,7 +1,13 @@
 package Tables
 
+import io.ktor.util.*
+import io.ktor.util.collections.*
 import p_jsocket.ANSWER_TYPE
 import kotlin.js.JsName
+
+
+@InternalAPI
+private val META_DATA: ConcurrentMap<String, Int> = ConcurrentMap()
 
 @Suppress("unused")
 @JsName("KMetaData")

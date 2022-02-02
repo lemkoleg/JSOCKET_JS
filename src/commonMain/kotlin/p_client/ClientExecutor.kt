@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package p_client
 
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KSaveMedia
-import Tables.KSendMedia
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import io.ktor.utils.io.core.ExperimentalIoApi
@@ -42,7 +43,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     private var curCommand: Command? = null
 
 
-    @OptIn(KtorExperimentalAPI::class)
+
     @KorioExperimentalApi
     @ExperimentalUnsignedTypes
     @ExperimentalIoApi
@@ -88,14 +89,14 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
+
     @ExperimentalTime
     @ExperimentalIoApi
     private suspend fun default_execute() {
         val j :Jsocket? = if (curCommand!!.isCaching) {
             Sqlite_service.SelectCashData(jsocket)
         } else {
-            MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, null, true)
+            MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
         }
         if(j != null ){
             jsocket = j
@@ -103,6 +104,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+
     @KorioExperimentalApi
     @ExperimentalTime
     @ExperimentalIoApi
@@ -170,7 +172,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                     jsocket.value_par9 = h.getMD5String(l2.toString())
                 }
             }
-            jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, null, true)
+            jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
             if (jsocket.connection_id == 0L) {
                 if (!curCommand!!.isCrypt) {
                     myConnectionsCoocki.setNewValue(0L)
@@ -231,20 +233,12 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
             if (connection == null) {
                 return
             }
-            jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, connection, true)
+            jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, connection, true)
 
             if (jsocket.just_do_it_successfull != "0" || jsocket.value_id1.trim().isEmpty()
             ) {
                 return
             }
-            Sqlite_service.InsertSendMedia(
-                KSendMedia(
-                    jsocket.value_id1.trim(),
-                    jsocket.object_extension,
-                    clientFileService!!.MyFileService.fIleFullName,
-                    0
-                )
-            )
             if (jsocket.just_do_it_successfull != "0") {
                 return
             }
@@ -287,7 +281,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
             if (connection == null) {
                 return
             }
-            jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, connection, true)
+            jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, connection, true)
 
             if (jsocket.just_do_it_successfull != "0") {
                 return
@@ -305,14 +299,13 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
         }
     }
     //////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @ExperimentalTime
     @ExperimentalIoApi
     private suspend fun selectBigAvatar() {
         if(jsocket.content != null && jsocket.content!!.isNotEmpty() && jsocket.value_id1.isNotEmpty()){
             val myKBigAvatar = Sqlite_service.SelectBigAvatar(jsocket.value_id1)
             if(myKBigAvatar?.getSMALL_AVATAR_SIZE() != jsocket.content!!.size){
-                jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, null, true)
+                jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
             }
         }
     }
@@ -335,11 +328,10 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @ExperimentalTime
     @ExperimentalIoApi
     private suspend fun quit_account() {
-        jsocket = MySend_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, null, true)
+        jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
         if (jsocket.just_do_it_successfull == "0") {
             Sqlite_service.ClearRegData()
             myConnectionsCoocki.setNewValue(0L)

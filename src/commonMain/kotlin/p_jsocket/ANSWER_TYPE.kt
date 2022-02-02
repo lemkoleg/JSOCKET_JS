@@ -118,540 +118,317 @@ open class ANSWER_TYPE(){
 
     @JsName("IDENTIFICATOR_1")
     var IDENTIFICATOR_1: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
 
     @JsName("IDENTIFICATOR_2")
     var IDENTIFICATOR_2: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
 
     @JsName("IDENTIFICATOR_3")
     var IDENTIFICATOR_3: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_4")
     var IDENTIFICATOR_4: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_5")
     var IDENTIFICATOR_5: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_6")
     var IDENTIFICATOR_6: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_7")
     var IDENTIFICATOR_7: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_8")
     var IDENTIFICATOR_8: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_9")
     var IDENTIFICATOR_9: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_10")
     var IDENTIFICATOR_10: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
     @JsName("IDENTIFICATOR_11")
     var IDENTIFICATOR_11: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_12")
     var IDENTIFICATOR_12: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_13")
     var IDENTIFICATOR_13: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_14")
     var IDENTIFICATOR_14: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_15")
     var IDENTIFICATOR_15: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_16")
     var IDENTIFICATOR_16: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_17")
     var IDENTIFICATOR_17: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_18")
     var IDENTIFICATOR_18: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_19")
     var IDENTIFICATOR_19: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("IDENTIFICATOR_20")
     var IDENTIFICATOR_20: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-            if (field!!.length != 18) {
-                field = ""
-            }
-        }
+       
 
     @JsName("INTEGER_1")
     var INTEGER_1: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_2")
     var INTEGER_2: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_3")
     var INTEGER_3: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_4")
     var INTEGER_4: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_5")
     var INTEGER_5: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_6")
     var INTEGER_6: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_7")
     var INTEGER_7: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_8")
     var INTEGER_8: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_9")
     var INTEGER_9: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_10")
     var INTEGER_10: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_11")
     var INTEGER_11: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_12")
     var INTEGER_12: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_13")
     var INTEGER_13: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_14")
     var INTEGER_14: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_15")
     var INTEGER_15: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_16")
     var INTEGER_16: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_17")
     var INTEGER_17: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_18")
     var INTEGER_18: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_19")
     var INTEGER_19: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("INTEGER_20")
     var INTEGER_20: Int? = 0
-        set(value) {
-            field = value ?: 0
-        }
+        
 
     @JsName("LONG_1")
     var LONG_1: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_2")
     var LONG_2: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_3")
     var LONG_3: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_4")
     var LONG_4: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_5")
     var LONG_5: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_6")
     var LONG_6: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_7")
     var LONG_7: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_8")
     var LONG_8: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_9")
     var LONG_9: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
-    @JsName("LONG_10")  // reserved fo parameters of request in SQLite (replacment BLOB)
+    @JsName("LONG_10") 
     var LONG_10: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
     @JsName("LONG_11")
     var LONG_11: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_12")
     var LONG_12: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_13")
     var LONG_13: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_14")
     var LONG_14: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_15")
     var LONG_15: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_16")
     var LONG_16: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_17")
     var LONG_17: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_18")
     var LONG_18: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
     @JsName("LONG_19")
     var LONG_19: Long? = 0L
-        set(value) {
-            field = value ?: 0L
-        }
+        
 
-    @JsName("LONG_20")  // reserved fo parameters of request in SQLite (replacment BLOB)
-    var LONG_20: Long? = 1000000000000000000L
-        set(value) {
-            field = value ?: 0L
-        }
+    @JsName("LONG_20")  
+    var LONG_20: Long? = 0L
+        
 
     @JsName("STRING_1")
     var STRING_1: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_2")
     var STRING_2: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_3")
     var STRING_3: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_4")
     var STRING_4: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_5")
     var STRING_5: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_6")
     var STRING_6: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_7")
     var STRING_7: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_8")
     var STRING_8: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_9")
     var STRING_9: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_10")
     var STRING_10: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
     @JsName("STRING_11")
     var STRING_11: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_12")
     var STRING_12: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_13")
     var STRING_13: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_14")
     var STRING_14: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_15")
     var STRING_15: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_16")
     var STRING_16: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_17")
     var STRING_17: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_18")
     var STRING_18: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_19")
     var STRING_19: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+        
 
     @JsName("STRING_20")
-    var STRING_20: String? = ""
-        set(value) {
-            field = value?.trim() ?: ""
-        }
+    private var STRING_20: String? = ""
 
     @JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
@@ -662,199 +439,134 @@ open class ANSWER_TYPE(){
     @JsName("BLOB_3")
     var BLOB_3: ByteArray? = null
 
-    @JsName("BLOB_4")
-    var BLOB_4: ByteArray? = null
-
-    @JsName("BLOB_5")
-    var BLOB_5: ByteArray? = null
-
-    @JsName("BLOB_6")
-    var BLOB_6: ByteArray? = null
-
-    @JsName("BLOB_7")
-    var BLOB_7: ByteArray? = null
-
-    @JsName("BLOB_8")
-    var BLOB_8: ByteArray? = null
-
-    @JsName("BLOB_9")
-    var BLOB_9: ByteArray? = null
-
-    @JsName("BLOB_10")
-    var BLOB_10: ByteArray? = null
-
+    @JsName("RECORD_TYPE")
+    var RECORD_TYPE: String = ""
+    
     constructor(
-        lIDENTIFICATOR_1: String? = "",
-        lIDENTIFICATOR_2: String? = "",
-        lIDENTIFICATOR_3: String? = "",
-        lIDENTIFICATOR_4: String? = "",
-        lIDENTIFICATOR_5: String? = "",
-        lIDENTIFICATOR_6: String? = "",
-        lIDENTIFICATOR_7: String? = "",
-        lIDENTIFICATOR_8: String? = "",
-        lIDENTIFICATOR_9: String? = "",
-        lIDENTIFICATOR_10: String? = "",
-        lIDENTIFICATOR_11: String? = "",
-        lIDENTIFICATOR_12: String? = "",
-        lIDENTIFICATOR_13: String? = "",
-        lIDENTIFICATOR_14: String? = "",
-        lIDENTIFICATOR_15: String? = "",
-        lIDENTIFICATOR_16: String? = "",
-        lIDENTIFICATOR_17: String? = "",
-        lIDENTIFICATOR_18: String? = "",
-        lIDENTIFICATOR_19: String? = "",
-        lIDENTIFICATOR_20: String? = "",
-        lInt_1: Int? = 0,
-        lInt_2: Int? = 0,
-        lInt_3: Int? = 0,
-        lInt_4: Int? = 0,
-        lInt_5: Int? = 0,
-        lInt_6: Int? = 0,
-        lInt_7: Int? = 0,
-        lInt_8: Int? = 0,
-        lInt_9: Int? = 0,
-        lInt_10: Int? = 0,
-        lInt_11: Int? = 0,
-        lInt_12: Int? = 0,
-        lInt_13: Int? = 0,
-        lInt_14: Int? = 0,
-        lInt_15: Int? = 0,
-        lInt_16: Int? = 0,
-        lInt_17: Int? = 0,
-        lInt_18: Int? = 0,
-        lInt_19: Int? = 0,
-        lInt_20: Int? = 0,
-        lLONG_1: Long? = 0L,
-        lLONG_2: Long? = 0L,
-        lLONG_3: Long? = 0L,
-        lLONG_4: Long? = 0L,
-        lLONG_5: Long? = 0L,
-        lLONG_6: Long? = 0L,
-        lLONG_7: Long? = 0L,
-        lLONG_8: Long? = 0L,
-        lLONG_9: Long? = 0L,
-        lLONG_10: Long? = 0L,
-        lLONG_11: Long? = 0L,
-        lLONG_12: Long? = 0L,
-        lLONG_13: Long? = 0L,
-        lLONG_14: Long? = 0L,
-        lLONG_15: Long? = 0L,
-        lLONG_16: Long? = 0L,
-        lLONG_17: Long? = 0L,
-        lLONG_18: Long? = 0L,
-        lLONG_19: Long? = 0L,
-        lLONG_20: Long? = 0L,
-        lSTRING_1: String? = "",
-        lSTRING_2: String? = "",
-        lSTRING_3: String? = "",
-        lSTRING_4: String? = "",
-        lSTRING_5: String? = "",
-        lSTRING_6: String? = "",
-        lSTRING_7: String? = "",
-        lSTRING_8: String? = "",
-        lSTRING_9: String? = "",
-        lSTRING_10: String? = "",
-        lSTRING_11: String? = "",
-        lSTRING_12: String? = "",
-        lSTRING_13: String? = "",
-        lSTRING_14: String? = "",
-        lSTRING_15: String? = "",
-        lSTRING_16: String? = "",
-        lSTRING_17: String? = "",
-        lSTRING_18: String? = "",
-        lSTRING_19: String? = "",
-        lSTRING_20: String? = "",
+        lIDENTIFICATOR_1: String?,
+        lIDENTIFICATOR_2: String?,
+        lIDENTIFICATOR_3: String?,
+        lIDENTIFICATOR_4: String?,
+        lIDENTIFICATOR_5: String?,
+        lIDENTIFICATOR_6: String?,
+        lIDENTIFICATOR_7: String?,
+        lIDENTIFICATOR_8: String?,
+        lIDENTIFICATOR_9: String?,
+        lIDENTIFICATOR_10: String?,
+        lIDENTIFICATOR_11: String?,
+        lIDENTIFICATOR_12: String?,
+        lIDENTIFICATOR_13: String?,
+        lIDENTIFICATOR_14: String?,
+        lIDENTIFICATOR_15: String?,
+        lIDENTIFICATOR_16: String?,
+        lIDENTIFICATOR_17: String?,
+        lIDENTIFICATOR_18: String?,
+        lIDENTIFICATOR_19: String?,
+        lIDENTIFICATOR_20: String?,
+        lInt_1: Int?,
+        lInt_2: Int?,
+        lInt_3: Int?,
+        lInt_4: Int?,
+        lInt_5: Int?,
+        lInt_6: Int?,
+        lInt_7: Int?,
+        lInt_8: Int?,
+        lInt_9: Int?,
+        lInt_10: Int?,
+        lInt_11: Int?,
+        lInt_12: Int?,
+        lInt_13: Int?,
+        lInt_14: Int?,
+        lInt_15: Int?,
+        lInt_16: Int?,
+        lInt_17: Int?,
+        lInt_18: Int?,
+        lInt_19: Int?,
+        lInt_20: Int?,
+        lLONG_1: Long?,
+        lLONG_2: Long?,
+        lLONG_3: Long?,
+        lLONG_4: Long?,
+        lLONG_5: Long?,
+        lLONG_6: Long?,
+        lLONG_7: Long?,
+        lLONG_8: Long?,
+        lLONG_9: Long?,
+        lLONG_10: Long?,
+        lLONG_11: Long?,
+        lLONG_12: Long?,
+        lLONG_13: Long?,
+        lLONG_14: Long?,
+        lLONG_15: Long?,
+        lLONG_16: Long?,
+        lLONG_17: Long?,
+        lLONG_18: Long?,
+        lLONG_19: Long?,
+        lLONG_20: Long?,
+        lSTRING_1: String?,
+        lSTRING_2: String?,
+        lSTRING_3: String?,
+        lSTRING_4: String?,
+        lSTRING_5: String?,
+        lSTRING_6: String?,
+        lSTRING_7: String?,
+        lSTRING_8: String?,
+        lSTRING_9: String?,
+        lSTRING_10: String?,
+        lSTRING_11: String?,
+        lSTRING_12: String?,
+        lSTRING_13: String?,
+        lSTRING_14: String?,
+        lSTRING_15: String?,
+        lSTRING_16: String?,
+        lSTRING_17: String?,
+        lSTRING_18: String?,
+        lSTRING_19: String?,
+        lSTRING_20: String?,
         lBLOB_1: ByteArray?,
         lBLOB_2: ByteArray?,
-        lBLOB_3: ByteArray?,
-        lBLOB_4: ByteArray?,
-        lBLOB_5: ByteArray?,
-        lBLOB_6: ByteArray?,
-        lBLOB_7: ByteArray?,
-        lBLOB_8: ByteArray?,
-        lBLOB_9: ByteArray?,
-        lBLOB_10: ByteArray?
+        lBLOB_3: ByteArray?
     ) : this() {
         IDENTIFICATOR_1 = lIDENTIFICATOR_1?.trim() ?: ""
-        if (IDENTIFICATOR_1!!.length != 18) {
-            IDENTIFICATOR_1 = ""
-        }
+
         IDENTIFICATOR_2 = lIDENTIFICATOR_2?.trim() ?: ""
-        if (IDENTIFICATOR_2!!.length != 18) {
-            IDENTIFICATOR_2 = ""
-        }
+
         IDENTIFICATOR_3 = lIDENTIFICATOR_3?.trim() ?: ""
-        if (IDENTIFICATOR_3!!.length != 18) {
-            IDENTIFICATOR_3 = ""
-        }
+
         IDENTIFICATOR_4 = lIDENTIFICATOR_4?.trim() ?: ""
-        if (IDENTIFICATOR_4!!.length != 18) {
-            IDENTIFICATOR_4 = ""
-        }
+
         IDENTIFICATOR_5 = lIDENTIFICATOR_5?.trim() ?: ""
-        if (IDENTIFICATOR_5!!.length != 18) {
-            IDENTIFICATOR_5 = ""
-        }
+
         IDENTIFICATOR_6 = lIDENTIFICATOR_6?.trim() ?: ""
-        if (IDENTIFICATOR_6!!.length != 18) {
-            IDENTIFICATOR_6 = ""
-        }
+
         IDENTIFICATOR_7 = lIDENTIFICATOR_7?.trim() ?: ""
-        if (IDENTIFICATOR_7!!.length != 18) {
-            IDENTIFICATOR_7 = ""
-        }
+
         IDENTIFICATOR_8 = lIDENTIFICATOR_8?.trim() ?: ""
-        if (IDENTIFICATOR_8!!.length != 18) {
-            IDENTIFICATOR_8 = ""
-        }
+
         IDENTIFICATOR_9 = lIDENTIFICATOR_9?.trim() ?: ""
-        if (IDENTIFICATOR_9!!.length != 18) {
-            IDENTIFICATOR_9 = ""
-        }
+
         IDENTIFICATOR_10 = lIDENTIFICATOR_10?.trim() ?: ""
-        if (IDENTIFICATOR_10!!.length != 18) {
-            IDENTIFICATOR_10 = ""
-        }
+
         IDENTIFICATOR_11 = lIDENTIFICATOR_11?.trim() ?: ""
-        if (IDENTIFICATOR_11!!.length != 18) {
-            IDENTIFICATOR_11 = ""
-        }
+
         IDENTIFICATOR_12 = lIDENTIFICATOR_12?.trim() ?: ""
-        if (IDENTIFICATOR_12!!.length != 18) {
-            IDENTIFICATOR_12 = ""
-        }
+
         IDENTIFICATOR_13 = lIDENTIFICATOR_13?.trim() ?: ""
-        if (IDENTIFICATOR_13!!.length != 18) {
-            IDENTIFICATOR_13 = ""
-        }
+
         IDENTIFICATOR_14 = lIDENTIFICATOR_14?.trim() ?: ""
-        if (IDENTIFICATOR_14!!.length != 18) {
-            IDENTIFICATOR_14 = ""
-        }
+
         IDENTIFICATOR_15 = lIDENTIFICATOR_15?.trim() ?: ""
-        if (IDENTIFICATOR_15!!.length != 18) {
-            IDENTIFICATOR_15 = ""
-        }
+
         IDENTIFICATOR_16 = lIDENTIFICATOR_16?.trim() ?: ""
-        if (IDENTIFICATOR_16!!.length != 18) {
-            IDENTIFICATOR_16 = ""
-        }
+
         IDENTIFICATOR_17 = lIDENTIFICATOR_17?.trim() ?: ""
-        if (IDENTIFICATOR_17!!.length != 18) {
-            IDENTIFICATOR_17 = ""
-        }
+
         IDENTIFICATOR_18 = lIDENTIFICATOR_18?.trim() ?: ""
-        if (IDENTIFICATOR_18!!.length != 18) {
-            IDENTIFICATOR_18 = ""
-        }
+
         IDENTIFICATOR_19 = lIDENTIFICATOR_19?.trim() ?: ""
-        if (IDENTIFICATOR_19!!.length != 18) {
-            IDENTIFICATOR_19 = ""
-        }
+
         IDENTIFICATOR_20 = lIDENTIFICATOR_20?.trim() ?: ""
-        if (IDENTIFICATOR_20!!.length != 18) {
-            IDENTIFICATOR_20 = ""
-        }
+
         INTEGER_1 = lInt_1 ?: 0
         INTEGER_2 = lInt_2 ?: 0
         INTEGER_3 = lInt_3 ?: 0
@@ -918,13 +630,8 @@ open class ANSWER_TYPE(){
         BLOB_1 = lBLOB_1
         BLOB_2 = lBLOB_2
         BLOB_3 = lBLOB_3
-        BLOB_4 = lBLOB_4
-        BLOB_5 = lBLOB_5
-        BLOB_6 = lBLOB_6
-        BLOB_7 = lBLOB_7
-        BLOB_8 = lBLOB_8
-        BLOB_9 = lBLOB_9
-        BLOB_10 = lBLOB_10
+
+        setRECORD_TYPE()
     }
 
     constructor(MyANSWER_TYPE: ANSWER_TYPE) : this() {
@@ -1011,13 +718,8 @@ open class ANSWER_TYPE(){
         BLOB_1 = MyANSWER_TYPE.BLOB_1
         BLOB_2 = MyANSWER_TYPE.BLOB_2
         BLOB_3 = MyANSWER_TYPE.BLOB_3
-        BLOB_4 = MyANSWER_TYPE.BLOB_4
-        BLOB_5 = MyANSWER_TYPE.BLOB_5
-        BLOB_6 = MyANSWER_TYPE.BLOB_6
-        BLOB_7 = MyANSWER_TYPE.BLOB_7
-        BLOB_8 = MyANSWER_TYPE.BLOB_8
-        BLOB_9 = MyANSWER_TYPE.BLOB_9
-        BLOB_10 = MyANSWER_TYPE.BLOB_10
+
+        setRECORD_TYPE()
     }
 
     @JsName("merge")
@@ -1054,6 +756,50 @@ open class ANSWER_TYPE(){
             this.IDENTIFICATOR_7 = v.IDENTIFICATOR_7
         }
 
+        if(v.IDENTIFICATOR_8 != null && v.IDENTIFICATOR_8!!.isNotEmpty()){
+            this.IDENTIFICATOR_8 = v.IDENTIFICATOR_8
+        }
+
+        if(v.IDENTIFICATOR_9 != null && v.IDENTIFICATOR_9!!.isNotEmpty()){
+            this.IDENTIFICATOR_9 = v.IDENTIFICATOR_9
+        }
+
+        if(v.IDENTIFICATOR_10 != null && v.IDENTIFICATOR_10!!.isNotEmpty()){
+            this.IDENTIFICATOR_10 = v.IDENTIFICATOR_10
+        }
+
+        if(v.IDENTIFICATOR_11 != null && v.IDENTIFICATOR_11!!.isNotEmpty()){
+            this.IDENTIFICATOR_11 = v.IDENTIFICATOR_11
+        }
+
+        if(v.IDENTIFICATOR_12 != null && v.IDENTIFICATOR_12!!.isNotEmpty()){
+            this.IDENTIFICATOR_12 = v.IDENTIFICATOR_12
+        }
+
+        if(v.IDENTIFICATOR_13 != null && v.IDENTIFICATOR_13!!.isNotEmpty()){
+            this.IDENTIFICATOR_13 = v.IDENTIFICATOR_13
+        }
+
+        if(v.IDENTIFICATOR_14 != null && v.IDENTIFICATOR_14!!.isNotEmpty()){
+            this.IDENTIFICATOR_14 = v.IDENTIFICATOR_14
+        }
+
+        if(v.IDENTIFICATOR_15 != null && v.IDENTIFICATOR_15!!.isNotEmpty()){
+            this.IDENTIFICATOR_15 = v.IDENTIFICATOR_15
+        }
+
+        if(v.IDENTIFICATOR_16 != null && v.IDENTIFICATOR_16!!.isNotEmpty()){
+            this.IDENTIFICATOR_16 = v.IDENTIFICATOR_16
+        }
+
+        if(v.IDENTIFICATOR_17 != null && v.IDENTIFICATOR_17!!.isNotEmpty()){
+            this.IDENTIFICATOR_17 = v.IDENTIFICATOR_17
+        }
+
+        if(v.IDENTIFICATOR_18 != null && v.IDENTIFICATOR_18!!.isNotEmpty()){
+            this.IDENTIFICATOR_18 = v.IDENTIFICATOR_18
+        }
+
 
         if(v.IDENTIFICATOR_19 != null && v.IDENTIFICATOR_19!!.isNotEmpty()){
             this.IDENTIFICATOR_19 = v.IDENTIFICATOR_19
@@ -1062,7 +808,6 @@ open class ANSWER_TYPE(){
         if(v.IDENTIFICATOR_20 != null && v.IDENTIFICATOR_20!!.isNotEmpty()){
             this.IDENTIFICATOR_20 = v.IDENTIFICATOR_20
         }
-
 
         if(v.LONG_1 != null){
             this.LONG_1 = v.LONG_1       // accounts1 last connect
@@ -1096,6 +841,26 @@ open class ANSWER_TYPE(){
             this.STRING_4 = v.STRING_4    //accounts2 access
         }
 
+        if(v.STRING_5 != null && v.STRING_5!!.isNotEmpty()){
+            this.STRING_5 = v.STRING_5    //object name
+        }
+
+        if(v.STRING_6 != null && v.STRING_6!!.isNotEmpty()){
+            this.STRING_6 = v.STRING_6    //object server
+        }
+
+        if(v.STRING_7 != null && v.STRING_7!!.isNotEmpty()){
+            this.STRING_7 = v.STRING_7    //object profile string;
+        }
+
+        if(v.STRING_8 != null && v.STRING_8!!.isNotEmpty()){
+            this.STRING_8 = v.STRING_8    //object link;
+        }
+
+        if(v.STRING_9 != null && v.STRING_9!!.isNotEmpty()){
+            this.STRING_9 = v.STRING_9    //object extension;
+        }
+
         if(v.STRING_20 != null && v.STRING_20!!.isNotEmpty()){
             this.STRING_20 = v.STRING_20
         }
@@ -1112,31 +877,59 @@ open class ANSWER_TYPE(){
         if(getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())){
             this.STRING_14 = v.STRING_14
         }
-    }
 
-    @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 2){
-            return "0"
-        }
-        return this.STRING_20!!.substring(1, 2)
+        setRECORD_TYPE()
     }
 
 
-    @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 8){
-            return ""
-        }
-        return this.STRING_20!!.substring(7, 8)
+    @JsName("getACCOUNT_ID")
+    open fun getACCOUNT_ID():String{
+        return IDENTIFICATOR_1?:""
     }
 
-    @JsName("getIS_UPDATE_SUBSCRIBE")
-    fun getIS_UPDATE_SUBSCRIBE():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
-            return ""
-        }
-        return this.STRING_20!!.substring(2, 3)
+    @JsName("setACCOUNT_ID")
+    open fun setACCOUNT_ID(v:String){
+        IDENTIFICATOR_1 = v
+    }
+
+    @JsName("getACCOUNT_AVATAR_ID")
+    fun getACCOUNT_AVATAR_ID():String{
+        return IDENTIFICATOR_2?:""
+    }
+
+    @JsName("setACCOUNT_AVATAR_ID")
+    fun setACCOUNT_AVATAR_ID(v:String?){
+        IDENTIFICATOR_2 = v?:""
+    }
+
+    @JsName("getOBJECT_ID")
+    fun getOBJECT_ID():String{
+        return this.IDENTIFICATOR_5?:""
+    }
+
+    @JsName("setOBJECT_ID")
+    fun setOBJECT_ID(v:String?){
+        this.IDENTIFICATOR_5 = v?:""
+    }
+
+    @JsName("getOBJECT_AVATAR_ID")
+    fun getOBJECT_AVATAR_ID():String{
+        return IDENTIFICATOR_6?:""
+    }
+
+    @JsName("setOBJECT_AVATAR_ID")
+    fun setOBJECT_AVATARID(v: String?){
+        IDENTIFICATOR_6 = v?.trim()?:""
+    }
+
+    @JsName("getOBJECT_OWNER")
+    fun getOBJECT_OWNER():String{
+        return IDENTIFICATOR_7?:""
+    }
+
+    @JsName("setOBJECT_OWNER")
+    fun setOBJECT_OWNER(v: String?){
+        IDENTIFICATOR_7 = v?.trim()?:""
     }
 
     @JsName("getOBJECT_SIZE")
@@ -1157,6 +950,66 @@ open class ANSWER_TYPE(){
     @JsName("setOBJECT_LENGTH_SECONDS")
     fun setOBJECT_LENGTH_SECONDS(v:Int?){
         this.INTEGER_5 = v?:0
+    }
+
+    @JsName("getACCOUNT_NAME")
+    fun getACCOUNT_NAME():String{
+        return STRING_1?:""
+    }
+
+    @JsName("setACCOUNT_NAME")
+    fun setACCOUNT_NAME(v:String){
+        STRING_1 = v
+    }
+
+    @JsName("getOBJECT_NAME")
+    fun getOBJECT_NAME():String{
+        return STRING_5?:""
+    }
+
+    @JsName("setOBJECT_NAME")
+    fun setOBJECT_NAME(v:String){
+        STRING_5 = v.trim()
+    }
+
+    @JsName("getOBJECT_SERVER")
+    fun getOBJECT_SERVER():String{
+        return this.STRING_6?:""
+    }
+
+    @JsName("setOBJECT_SERVER")
+    fun setOBJECT_SERVER(v:String?){
+        this.STRING_6 = v?:""
+    }
+
+    @JsName("getOBJECT_PROFILE_STRING")
+    fun getOBJECT_PROFILE_STRING():String{
+        return STRING_7?:""
+    }
+
+    @JsName("setOBJECT_PROFILE_STRING")
+    fun setOBJECT_PROFILE_STRING(v:String){
+        STRING_7 = v.trim()
+    }
+
+    @JsName("getOBJECT_LINK")
+    fun getOBJECT_LINK():String{
+        return STRING_8?:""
+    }
+
+    @JsName("setOBJECT_LINK")
+    fun setOBJECT_LINK(v:String){
+        STRING_8 = v.trim()
+    }
+
+    @JsName("getOBJECT_EXTENSION")
+    fun getOBJECT_EXTENSION():String{
+        return this.STRING_9?:""
+    }
+
+    @JsName("setOBJECT_EXTENSION")
+    fun setOBJECT_EXTENSION(v:String?){
+        this.STRING_9 = v?:""
     }
 
     @JsName("getSUBSCRIBE")
@@ -1189,16 +1042,6 @@ open class ANSWER_TYPE(){
         this.STRING_18 = v?:""
     }
 
-    @JsName("getAVATAR_SERVER")
-    fun getAVATAR_SERVER():String{
-        return this.STRING_16?:""
-    }
-
-    @JsName("setAVATAR_SERVER")
-    fun setAVATAR_SERVER(v:String?){
-        this.STRING_16 = v?:""
-    }
-
     @JsName("getORIGINAL_AVATAR_SIZE")
     fun getORIGINAL_AVATAR_SIZE():String{
         return this.STRING_17?:"0"
@@ -1207,6 +1050,63 @@ open class ANSWER_TYPE(){
     @JsName("setORIGINAL_AVATAR_SIZE")
     fun setORIGINAL_AVATAR_SIZE(v: String?){
         this.STRING_17 = v?.trim()?:"0"
+    }
+
+    @JsName("getAVATAR_SERVER")
+    fun getAVATAR_SERVER():String{
+        return this.STRING_19?:""
+    }
+
+    @JsName("setAVATAR_SERVER")
+    fun setAVATAR_SERVER(v:String?){
+        this.STRING_19 = v?:""
+    }
+
+    @JsName("getIS_UPDATE_BLOB")
+    fun getIS_UPDATE_BLOB():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 2){
+            return "0"
+        }
+        return this.STRING_20!!.substring(1, 2)
+    }
+
+    @JsName("getSTRING_20")
+    fun getSTRING_20():String{
+        return STRING_20?:""
+    }
+
+    @JsName("setSTRING_20")
+    fun setSTRING_20(v:String?){
+        this.STRING_20 = v?:""
+        setRECORD_TYPE()
+    }
+
+    @JsName("getRECORD_TYPE")
+    fun getRECORD_TYPE():String{
+        return RECORD_TYPE
+    }
+
+    @JsName("setRECORD_TYPE")
+    private fun setRECORD_TYPE(){
+        if(this.STRING_20 == null || this.STRING_20!!.length < 8){
+        }
+        RECORD_TYPE = STRING_20!!.substring(7, 8)
+    }
+
+    @JsName("getIS_UPDATE_SUBSCRIBE")
+    fun getIS_UPDATE_SUBSCRIBE():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
+            return ""
+        }
+        return this.STRING_20!!.substring(2, 3)
+    }
+
+    @JsName("getIS_DELETE_RECORD")
+    fun getIS_DELETE_RECORD():String{
+        if(this.STRING_20 == null || this.STRING_20!!.length < 7){
+            return ""
+        }
+        return this.STRING_20!!.substring(6, 7)
     }
 
     @JsName("getAVATAR1")
@@ -1237,11 +1137,6 @@ open class ANSWER_TYPE(){
     @JsName("setAVATAR3")
     fun setAVATAR3(v:ByteArray?){
         this.BLOB_3 = v
-    }
-
-    @JsName("setSTRING_20")
-    fun setSTRING_20(v:String?){
-        this.STRING_20 = v?:""
     }
 
     @JsName("get_BLOB_1_size")
@@ -1353,39 +1248,7 @@ open class ANSWER_TYPE(){
         BLOB_1 = MyANSWER_TYPE.BLOB_1
         BLOB_2 = MyANSWER_TYPE.BLOB_2
         BLOB_3 = MyANSWER_TYPE.BLOB_3
-        BLOB_4 = MyANSWER_TYPE.BLOB_4
-        BLOB_5 = MyANSWER_TYPE.BLOB_5
-        BLOB_6 = MyANSWER_TYPE.BLOB_6
-        BLOB_7 = MyANSWER_TYPE.BLOB_7
-        BLOB_8 = MyANSWER_TYPE.BLOB_8
-        BLOB_9 = MyANSWER_TYPE.BLOB_9
-        BLOB_10 = MyANSWER_TYPE.BLOB_10
+
     }
 
-    fun createIDENTIFICATOTS() {
-        if (IDENTIFICATOR_1!!.isEmpty()) IDENTIFICATOR_1 = "000000000000000000"
-        if (IDENTIFICATOR_2!!.isEmpty()) IDENTIFICATOR_2 = "000000000000000000"
-        if (IDENTIFICATOR_3!!.isEmpty()) IDENTIFICATOR_3 = "000000000000000000"
-        if (IDENTIFICATOR_4!!.isEmpty()) IDENTIFICATOR_4 = "000000000000000000"
-        if (IDENTIFICATOR_5!!.isEmpty()) IDENTIFICATOR_5 = "000000000000000000"
-        if (IDENTIFICATOR_6!!.isEmpty()) IDENTIFICATOR_6 = "000000000000000000"
-        if (IDENTIFICATOR_7!!.isEmpty()) IDENTIFICATOR_7 = "000000000000000000"
-        if (IDENTIFICATOR_8!!.isEmpty()) IDENTIFICATOR_8 = "000000000000000000"
-        if (IDENTIFICATOR_9!!.isEmpty()) IDENTIFICATOR_9 = "000000000000000000"
-        if (IDENTIFICATOR_10!!.isEmpty()) IDENTIFICATOR_10 = "000000000000000000"
-        if (IDENTIFICATOR_11!!.isEmpty()) IDENTIFICATOR_11 = "000000000000000000"
-        if (IDENTIFICATOR_12!!.isEmpty()) IDENTIFICATOR_12 = "000000000000000000"
-        if (IDENTIFICATOR_13!!.isEmpty()) IDENTIFICATOR_13 = "000000000000000000"
-        if (IDENTIFICATOR_14!!.isEmpty()) IDENTIFICATOR_14 = "000000000000000000"
-        if (IDENTIFICATOR_15!!.isEmpty()) IDENTIFICATOR_15 = "000000000000000000"
-        if (IDENTIFICATOR_16!!.isEmpty()) IDENTIFICATOR_16 = "000000000000000000"
-        if (IDENTIFICATOR_17!!.isEmpty()) IDENTIFICATOR_17 = "000000000000000000"
-        if (IDENTIFICATOR_18!!.isEmpty()) IDENTIFICATOR_18 = "000000000000000000"
-        IDENTIFICATORS = IDENTIFICATOR_1 + IDENTIFICATOR_2 + IDENTIFICATOR_3 +
-        IDENTIFICATOR_4 + IDENTIFICATOR_5 + IDENTIFICATOR_6 +IDENTIFICATOR_7 +
-        IDENTIFICATOR_8 + IDENTIFICATOR_9 + IDENTIFICATOR_10 +
-        IDENTIFICATOR_11 + IDENTIFICATOR_12 + IDENTIFICATOR_13 +
-        IDENTIFICATOR_14 + IDENTIFICATOR_15 + IDENTIFICATOR_16 +IDENTIFICATOR_17 +
-        IDENTIFICATOR_18
-    }
 }

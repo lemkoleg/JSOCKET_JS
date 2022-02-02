@@ -1,4 +1,4 @@
-table_savemedia:
+table_SaveMedia:
 CREATE TABLE IF NOT EXISTS SaveMedia
 (OBJECT_ID TEXT PRIMARY KEY,                           --IDENTIFICATOR5
  CONNECTION_ID INTEGER NOT NULL,                       --LONG_19
@@ -18,16 +18,74 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  BIG_AVATAR BLOB,
  IS_TEMP INTEGER AS Int NOT NULL,                      --INTEGER_6
  IS_DOWNLOAD INTEGER AS Int NOT NULL,                  --INTEGER_7
- TIME_ADDED TEXT NOT NULL,                             --LONG_20
-CHECK (length(CONNECTION_ID) = 18
-AND length(OBJECT_ID) = 18
-AND (IS_TEMP BETWEEN 0 AND 1) AND (IS_DOWNLOAD BETWEEN 0 AND 1)));
+ LAST_USED INTEGER NOT NULL,                           --LONG_20
 
-index_savemedia:
-CREATE INDEX ISaveMedia ON SaveMedia(CONNECTION_ID ASC, 
-IS_TEMP  ASC, TIME_ADDED ASC);
+ CHECK (length(CONNECTION_ID) = 18
+ AND length(OBJECT_ID) = 18
+ AND (IS_TEMP BETWEEN 0 AND 1)
+ AND (IS_DOWNLOAD BETWEEN 0 AND 1)));
 
-insert_savemedia:
+index_SaveMedia_ConnectionId:
+CREATE INDEX ISaveMediaConnectionId ON SaveMedia(CONNECTION_ID);
+
+index_SaveMedia_LastUsed:
+CREATE INDEX ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_ID);
+
+index_SaveMedia_IsTemp:
+CREATE INDEX ISaveMediaIsTemp ON SaveMedia(IS_TEMP, OBJECT_ID);
+
+index_SaveMedia_AvatarId:
+CREATE INDEX ISaveMediaAvatarId ON SaveMedia(AVATAR_ID);
+
+trigger_SaveMedia_control_temp_count:
+CREATE TRIGGER TSaveMediaControlTempCounts
+AFTER INSERT ON SaveMedia
+FOR EACH ROW
+WHEN
+new.IS_TEMP = 1
+AND
+(SELECT count(*)
+ FROM SaveMedia
+ WHERE IS_TEMP = 1)>
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')
+BEGIN
+DELETE FROM SaveMedia WHERE OBJECT_ID NOT IN
+(SELECT OBJECT_ID FROM SaveMedia
+ WHERE IS_TEMP = 1
+ ORDER BY LAST_USED
+ LIMIT (SELECT VALUE_VALUE
+        FROM  MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA'))
+ AND IS_TEMP = 1;
+END;
+
+trigger_SaveMedia_control_count:
+CREATE TRIGGER TSaveMediaControlCounts
+AFTER INSERT ON SaveMedia
+FOR EACH ROW
+WHEN
+new.IS_TEMP = 0
+AND
+(SELECT count(*)
+ FROM SaveMedia
+ WHERE IS_TEMP = 0)>
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')
+BEGIN
+DELETE FROM SaveMedia WHERE OBJECT_ID NOT IN
+(SELECT OBJECT_ID FROM SaveMedia
+ WHERE IS_TEMP = 0
+ ORDER BY LAST_USED
+ LIMIT (SELECT VALUE_VALUE
+        FROM  MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA'))
+ AND IS_TEMP = 0;
+END;
+
+insert_SaveMedia:
 REPLACE INTO SaveMedia
 (OBJECT_ID,
   CONNECTION_ID,
@@ -47,23 +105,15 @@ REPLACE INTO SaveMedia
   BIG_AVATAR,
   IS_TEMP,
   IS_DOWNLOAD,
-  TIME_ADDED)
+  LAST_USED)
 VALUES 
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-delete_all_savemedia:
-DELETE FROM SaveMedia WHERE CONNECTION_ID = ? AND IS_TEMP = ? ;
 
-delete_savemedia:
-DELETE FROM SaveMedia WHERE OBJECT_ID = ?;
+delete_SaveMedia:
+DELETE FROM SaveMedia
+WHERE OBJECT_ID = ?;
 
-select_all_savemedia:
-SELECT * FROM SaveMedia WHERE CONNECTION_ID = ?;
-
-select_count_savemedia:
-SELECT count(*) FROM SaveMedia WHERE IS_TEMP = ? ;
-
-select_last_savemedia:
-SELECT OBJECT_ID FROM SaveMedia WHERE IS_TEMP = ? AND TIME_ADDED =
-(SELECT min(CAST(TIME_ADDED AS INTEGER)) FROM SaveMedia WHERE IS_TEMP = ? GROUP BY TIME_ADDED) LIMIT 1;
+select_SaveMedia_all:
+SELECT * FROM SaveMedia;
 
