@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import lib_exceptions.*
-import p_client.myConnectionsCoocki
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -56,8 +55,9 @@ val Commands: MutableMap<Int, Command> = mutableMapOf(
 
 val MetaData: MutableMap<String, Long> = mutableMapOf()
 
-@ExperimentalTime
+
 @JsName("FIELDS_SUBSCRIBE")
+@InternalAPI
 val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         1 to JSOCKET_Subscribe(   fields_number = 1, fields_name = "connection_id",           fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 0, serialied = false, check_suming = true),
         2 to JSOCKET_Subscribe(   fields_number = 2, fields_name = "connection_coocki",       fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 2, serialied = false, check_suming = false),
@@ -95,10 +95,9 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         34 to JSOCKET_Subscribe(  fields_number = 34, fields_name = "content",                fields_size = 32768, fields_size_is_perminent = false, fields_type = 4, fields_crypted = 1, serialied = true, check_suming = false)
 )
 
-@ExperimentalIoApi
-@ExperimentalStdlibApi
+
 @JsName("JSOCKET")
-open class JSOCKET() : Closeable, CoroutineScope {
+open class JSOCKET() : CoroutineScope {
 
     final override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
@@ -106,7 +105,6 @@ open class JSOCKET() : Closeable, CoroutineScope {
 
 
     @InternalAPI
-    @ExperimentalTime
     constructor(myJsocketClass: JSOCKET) : this() {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
         this.connection_id = myJsocketClass.connection_id
@@ -201,10 +199,8 @@ open class JSOCKET() : Closeable, CoroutineScope {
     @JsName("just_do_it")
     var just_do_it: Int = 0
 
-    @InternalAPI
-    @ExperimentalTime
     @JsName("just_do_it_label")
-    var just_do_it_label: Long = nowNano()
+    var just_do_it_label: Long = 0L
 
     @JsName("just_do_it_successfull")
     var just_do_it_successfull: String = "0"
@@ -294,7 +290,6 @@ open class JSOCKET() : Closeable, CoroutineScope {
     private lateinit var md5LongArray: LongArray
     private lateinit var reverseMD5LongArray: LongArray
 
-    @ExperimentalStdlibApi
     private var h: HASH? = null
 
     @JsName("check_sum")
@@ -305,17 +300,17 @@ open class JSOCKET() : Closeable, CoroutineScope {
     private var nameField_length = 0
     private var nameField_number = 0
 
-    @DangerousInternalIoApi
     private var bbCONTENT_SIZE: BytePacketBuilder? = null
     private var currentPosition = 0
     private var currentLimit = 0
     private var crypt = false
     private var currentCommand: Command? = null
 
-    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class,
-        io.ktor.utils.io.core.internal.DangerousInternalIoApi::class
-    )
-    override fun close() {
+
+
+    @InternalAPI
+    @ExperimentalIoApi
+    fun close() {
         try {
             condition.cDestroy()
         } catch (e: Exception) {
@@ -337,8 +332,9 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
 
-    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class)
+
     @JsName("set_value")
+    @InternalAPI
     fun set_value(myJsocketClass: JSOCKET) {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
         this.connection_id = myJsocketClass.connection_id
@@ -380,8 +376,80 @@ open class JSOCKET() : Closeable, CoroutineScope {
         this.ANSWER_TYPEs = myJsocketClass.ANSWER_TYPEs
     }
 
-    @OptIn(DangerousInternalIoApi::class, io.ktor.util.InternalAPI::class, kotlin.time.ExperimentalTime::class)
+    @JsName("merge")
+    @InternalAPI
+    fun merge(myJsocketClass: JSOCKET) {
+        this.just_do_it = myJsocketClass.just_do_it
+        this.just_do_it_label = myJsocketClass.just_do_it_label
+        this.just_do_it_successfull = myJsocketClass.just_do_it_successfull
+        this.lang = myJsocketClass.lang
+        
+        if(myJsocketClass.value_id1.isNotEmpty()){
+            this.value_id1 = myJsocketClass.value_id1 
+        }
+
+        if(myJsocketClass.value_id2.isNotEmpty()){
+            this.value_id2 = myJsocketClass.value_id2
+        }
+
+        if(myJsocketClass.value_id3.isNotEmpty()){
+            this.value_id3 = myJsocketClass.value_id3
+        }
+
+        if(myJsocketClass.value_id4.isNotEmpty()){
+            this.value_id4 = myJsocketClass.value_id4
+        }
+
+        if(myJsocketClass.value_id5.isNotEmpty()){
+            this.value_id5 = myJsocketClass.value_id5
+        }
+
+        if(myJsocketClass.value_par1.isNotEmpty()){
+            this.value_par1 = myJsocketClass.value_par1
+        }
+
+        if(myJsocketClass.value_par2.isNotEmpty()){
+            this.value_par2 = myJsocketClass.value_par2
+        }
+
+        if(myJsocketClass.value_par3.isNotEmpty()){
+            this.value_par3 = myJsocketClass.value_par3
+        }
+
+        if(myJsocketClass.value_par4.isNotEmpty()){
+            this.value_par4 = myJsocketClass.value_par4
+        }
+
+        if(myJsocketClass.value_par5.isNotEmpty()){
+            this.value_par5 = myJsocketClass.value_par5
+        }
+
+        if(myJsocketClass.value_par6.isNotEmpty()){
+            this.value_par6 = myJsocketClass.value_par6
+        }
+
+        if(myJsocketClass.value_par7.isNotEmpty()){
+            this.value_par7 = myJsocketClass.value_par7
+        }
+
+        if(myJsocketClass.value_par8.isNotEmpty()){
+            this.value_par8 = myJsocketClass.value_par8
+        }
+
+        if(myJsocketClass.value_par9.isNotEmpty()){
+            this.value_par9 = myJsocketClass.value_par9
+        }
+
+        this.request_profile = myJsocketClass.request_profile
+        this.last_date_of_update = myJsocketClass.last_date_of_update
+        this.db_massage = myJsocketClass.db_massage
+        this.content = myJsocketClass.content
+    }
+
+
     @JsName("serialize")
+    @InternalAPI
+    @ExperimentalIoApi
     fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): BytePacketBuilder? {
 
         bbCONTENT_SIZE = BytePacketBuilder(0, ChunkBuffer.Pool)
@@ -446,7 +514,6 @@ open class JSOCKET() : Closeable, CoroutineScope {
             ////////////////////////////////////////////////////////////////////////////////
             val nes_fields: String = currentCommand!!.commands_necessarily_fields
             var nes_fields_symbol: String
-            //val nameFields = this::class.members.asSequence().associateBy { it.name }
             loop@ for (x in 1..FIELDS_SUBSCRIBE.size) {
                 val subJSOCKET: JSOCKET_Subscribe =
                         FIELDS_SUBSCRIBE[x] ?: error(message = "Wrong number field of JSOCKET_Subscribe")
@@ -576,8 +643,10 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     /////////////////////////////////////////////////////////////////////////////////
-    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class)
     @JsName("create_check_sum")
+    @InternalAPI
+    @ExperimentalIoApi
+    @ExperimentalTime
     fun create_check_sum(check_fields_lendth: Boolean) {
         if (h == null) h = HASH()
         var lcraete_check_sum: Boolean
@@ -698,9 +767,10 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     /////////////////////////////////////////////////////////////////////////////////
-    @DangerousInternalIoApi
+
     @JsName("deserialized_ANSWERS_TYPES")
-    fun deserialized_ANSWERS_TYPES() {
+    @InternalAPI
+    suspend fun deserialized_ANSWERS_TYPES() {
         try {
             if (ANSWER_TYPEs == null) {
                 ANSWER_TYPEs = ArrayDeque()
@@ -721,7 +791,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
                 if (bb!!.remaining >= 4) {
                     recordSize = bb!!.readInt()
                     record = ByteReadPacket(bb!!.readBytes(recordSize))
-                    answer_type = ANSWER_TYPE()
+                    answer_type = ANSWER_TYPE.getANSWER_TYPE()
                 } else {
                     break@loopChSum
                 }
@@ -813,10 +883,10 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class,
-        io.ktor.utils.io.core.internal.DangerousInternalIoApi::class
-    )
     @JsName("deserialize")
+    @InternalAPI
+    @ExperimentalIoApi
+    @ExperimentalTime
     fun deserialize(
             lbb: ByteReadPacket,
             p_original_connection_coocki: Long = 0L,
@@ -942,7 +1012,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     //////////////////////////write bytes into outStream/////////////////////////////
-    @DangerousInternalIoApi
+    @ExperimentalIoApi
     private fun setBytes(
             input_bytes: ByteArray,
             size: Int,
@@ -960,7 +1030,6 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
 
-    @DangerousInternalIoApi
     private fun setLong(input_long: Long, crypt: Boolean, lc_craete_check_sum: Boolean) {
         if (lc_craete_check_sum) {
             check_sum = h!!.getCheckSumFromLong(input_long, check_sum)
@@ -974,7 +1043,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
 
-    @DangerousInternalIoApi
+    @ExperimentalIoApi
     private fun setCryptBytes(input_bytesA: ByteArray, size: Int) {
         if (input_bytesA.isEmpty()) return
         val input_bytes = ByteReadPacket(input_bytesA)
@@ -1004,7 +1073,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
 
     /////////////////////get Bytes from Channel////////////////////////////////////
     @InternalAPI
-    @DangerousInternalIoApi
+    @ExperimentalIoApi
     @ExperimentalTime
     private fun getStringField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
@@ -1015,7 +1084,7 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
     @InternalAPI
-    @DangerousInternalIoApi
+    @ExperimentalIoApi
     @ExperimentalTime
     private fun getBytesField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
@@ -1025,9 +1094,10 @@ open class JSOCKET() : Closeable, CoroutineScope {
         }
     }
 
-    @InternalAPI
-    @DangerousInternalIoApi
+
+
     @ExperimentalTime
+    @InternalAPI
     private fun getLongField(field: JSOCKET_Subscribe, crypt: Boolean) {
         if (crypt) {
             field.setFieldsValue(this, bb!!.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
@@ -1038,7 +1108,8 @@ open class JSOCKET() : Closeable, CoroutineScope {
     }
 
 
-    @DangerousInternalIoApi
+
+    @ExperimentalIoApi
     private fun getCryptBytes(size: Int): ByteArray? {
         if (size < 1) return null
         val lbb = BytePacketBuilder(0, ChunkBuffer.Pool)

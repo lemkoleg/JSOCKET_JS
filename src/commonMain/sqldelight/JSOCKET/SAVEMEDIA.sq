@@ -86,7 +86,7 @@ DELETE FROM SaveMedia WHERE OBJECT_ID NOT IN
 END;
 
 insert_SaveMedia:
-REPLACE INTO SaveMedia
+INSERT OR REPLACE INTO SaveMedia
 (OBJECT_ID,
   CONNECTION_ID,
   AVATAR_ID,
@@ -110,10 +110,13 @@ VALUES
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 
+select_SaveMedia_all:
+SELECT *
+FROM SaveMedia;
+
 delete_SaveMedia:
 DELETE FROM SaveMedia
 WHERE OBJECT_ID = ?;
 
-select_SaveMedia_all:
-SELECT * FROM SaveMedia;
+
 

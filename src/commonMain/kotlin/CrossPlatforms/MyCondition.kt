@@ -6,17 +6,11 @@ import com.badoo.reaktive.utils.lock.Condition
 import com.badoo.reaktive.utils.lock.Lock
 import com.badoo.reaktive.utils.lock.synchronized
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.TimeSpan
 import com.soywiz.korio.async.delay
 import com.soywiz.korio.util.OS
-import io.ktor.util.InternalAPI
+import io.ktor.util.*
+import p_jsocket.TIME_SPAN_FOR_LOOP
 import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
-
-@JsName("DEFAULT_AWAIT_TIMEOUT")
-const val DEFAULT_AWAIT_TIMEOUT = 10000L
-
-val timeSpanForLoop = TimeSpan(50.0)
 
 
 /*
@@ -52,14 +46,13 @@ class MyCondition  {
     } else null
 
     @InternalAPI
-    @ExperimentalTime
     @JsName("cAwait")
     suspend fun cAwait(t: Long): Boolean{
         isAwaited = false
         if(OS.isJs) {
             time = t + DateTime.nowUnixLong()
             while (!isAwaited && time > DateTime.nowUnixLong()) {
-                delay(timeSpanForLoop)
+                delay(TIME_SPAN_FOR_LOOP)
             }
         }
         else{
@@ -79,7 +72,6 @@ class MyCondition  {
     }
 
     @InternalAPI
-    @ExperimentalTime
     @JsName("cDestroy")
     fun cDestroy(){
         if(OS.isJs){
@@ -88,6 +80,5 @@ class MyCondition  {
         else{
             lock!!.synchronized { cond!!.destroy() }
         }
-
     }
 }

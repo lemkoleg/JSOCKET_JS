@@ -294,7 +294,6 @@ private val LOOKUPTABLE2 = Array(0x100) { i -> r(i) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-@ExperimentalStdlibApi
 @JsName("HASH")
 class HASH {
 
@@ -315,11 +314,11 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
     private fun getXorHexSymbolFrom2HexSymbols(symbol1: String, symbol2: String): String {
-        return xor_map[symbol1.toUpperCase().plus(symbol2.toUpperCase())] ?: error("error on seek getXorHexSymbolFrom2HexSymbols")
+        return xor_map[symbol1.uppercase().plus(symbol2.uppercase())] ?: error("error on seek getXorHexSymbolFrom2HexSymbols")
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
+
     @JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
             var newStringMD5 = ""
@@ -336,7 +335,7 @@ class HASH {
             }
             if (TokenLong < 100000000000000001L) {
                 if(TokenLong < 72057594037927936L){
-                    TokenLong += TokenLong;
+                    TokenLong += TokenLong
                 }
                 newStringMD5 = "164".plus(
                         newStringMD5.substring(3)
@@ -354,10 +353,9 @@ class HASH {
     fun getNewCoockiLong(stringMD5: String): Long {
         val stringMD5String1: Long = stringMD5.substring(0, 15).toLong(16)
         val stringMD5String2: Long = stringMD5.substring(15, 30).toLong(16)
-
-            var TokenLong: Long = stringMD5String1 xor stringMD5String2
-            var newStringMD5 = ""
-            if (TokenLong > 999999999999999999L) {
+        var TokenLong: Long = stringMD5String1 xor stringMD5String2
+        var newStringMD5: String
+        if (TokenLong > 999999999999999999L) {
                 newStringMD5 = TokenLong.toString(16)
                 newStringMD5 = "ddf".plus(
                         newStringMD5.substring(3, 15)
@@ -366,7 +364,7 @@ class HASH {
             }
             if (TokenLong < 100000000000000001L) {
                 if(TokenLong < 72057594037927936L){
-                    TokenLong += TokenLong;
+                    TokenLong += TokenLong
                 }
                 newStringMD5 = TokenLong.toString(16)
                 newStringMD5 = "164".plus(other = newStringMD5.substring(3, 15))
@@ -396,14 +394,12 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @ExperimentalStdlibApi
     @JsName("getMD5String")
     fun getMD5String(input_string: String): String {
         return input_string.encodeToByteArray().md5().hexUpper
 
     }
 
-    @ExperimentalStdlibApi
     @JsName("getReverseMD5String")
     fun getReverseMD5String(input_string: String): String {
         return input_string.reversed()
@@ -450,7 +446,6 @@ class HASH {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-    @KtorExperimentalAPI
     @InternalAPI
     @JsName("cryptPass")
     fun cryptPass(pass: String, mail_code: String, isCrypt : Boolean): String {

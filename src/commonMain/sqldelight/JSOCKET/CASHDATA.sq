@@ -98,6 +98,45 @@ CREATE TABLE IF NOT EXISTS CashData
   CREATE INDEX ICashData_CASH_SUM_OBJECT_ID
   ON CashData(CASH_SUM, OBJECT_ID);
 
+ trigger_CashData_control_count:
+ CREATE TRIGGER TCashDataControlCounts
+ AFTER INSERT
+ ON CashData
+ WHEN
+ (SELECT count(*) FROM CashData)>(SELECT  VALUE_VALUE
+                                  FROM MetaData
+                                  WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA')
+ BEGIN
+ DELETE FROM CashData WHERE CASH_SUM = (SELECT CASH_SUM
+                                        FROM CashLastUpdate
+                                        WHERE LAST_USE = (SELECT min(LAST_USE)
+                                                          FROM CashLastUpdate
+                                                          LIMIT 1)
+                                        ORDER BY LAST_USE DESC, CASH_SUM
+                                        LIMIT 1)
+ AND NUMBER_POSITION > (SELECT (max(NUMBER_POSITION) - (SELECT  VALUE_VALUE
+                                                        FROM MetaData
+                                                        WHERE VALUE_NAME = 'LIMIT_FOR_SELECT'))
+                        FROM CashData
+                        WHERE CASH_SUM = (SELECT CASH_SUM
+                                          FROM CashLastUpdate
+                                          WHERE LAST_USE = (SELECT min(LAST_USE)
+                                                             FROM CashLastUpdate
+                                                             LIMIT 1)
+                                          ORDER BY LAST_USE DESC, CASH_SUM
+                                          LIMIT 1)
+                        );
+ UPDATE CashLastUpdate
+ SET COUNT_OF_ROWS = COUNT_OF_ROWS
+ WHERE CASH_SUM = (SELECT CASH_SUM
+                   FROM CashLastUpdate
+                   WHERE LAST_USE = (SELECT min(LAST_USE)
+                                     FROM CashLastUpdate
+                                     LIMIT 1)
+                   ORDER BY LAST_USE DESC, CASH_SUM
+                   LIMIT 1);
+ END;
+
  trigger_CashData_deleting_records:
  CREATE TRIGGER TCashData_DeletingRecord
  AFTER
@@ -214,15 +253,6 @@ VALUES
  , ? , ? , ? , ? , ? , ? , ? , ? , ?
  , ? , ? , ? );
 
-
- clear_CashData:
- DELETE FROM CashData;
-
- select_CashData_All_CASH_SUM_NUMBER_POSITION:
-  SELECT  CASH_SUM, NUMBER_POSITION, OBJECT_ID, LAST_UPDATE
-  FROM CashData
-  ORDER BY CASH_SUM, NUMBER_POSITION;
-
  update_CashData_NUMBER_POSITION_LAST_UPATE:
    UPDATE CashData
    SET  NUMBER_POSITION = ?,
@@ -230,23 +260,20 @@ VALUES
    WHERE CASH_SUM = ?
    AND OBJECT_ID = ?;
 
- select_CashData_CASH_SUM_NUMBER_POSITION:
-   SELECT  CASH_SUM, NUMBER_POSITION, OBJECT_ID, LAST_UPDATE
-   FROM CashData
-   WHERE CASH_SUM = ?
-   ORDER BY CASH_SUM, NUMBER_POSITION;
+ select_CashData_All_CASH_SUM_NUMBER_POSITION:
+  SELECT  CASH_SUM, NUMBER_POSITION, OBJECT_ID, LAST_UPDATE
+  FROM CashData
+  ORDER BY CASH_SUM, NUMBER_POSITION;
 
  select_CashData_WITH_NUMBER_POSITION_limit:
    SELECT  *
    FROM CashData
    WHERE CASH_SUM = ?
-   AND NUMBER_POSITION < ?
+   AND NUMBER_POSITION > ?
    ORDER BY CASH_SUM, NUMBER_POSITION
-   LIMIT (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'LIMIT_FOR_SELECT');
+   LIMIT (SELECT VALUE_VALUE
+          FROM   MetaData
+          WHERE  VALUE_NAME = 'LIMIT_FOR_SELECT');
 
- select_CashData_all:
- SELECT  * FROM CashData
- ORDER BY CASH_SUM, NUMBER_POSITION;
-
- select_CashData_count:
- SELECT count(*) FROM CashData;
+  clear_CashData:
+  DELETE FROM CashData;

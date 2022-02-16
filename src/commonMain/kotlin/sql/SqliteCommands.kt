@@ -17,15 +17,16 @@ package sql
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     const val TABLE_METADATA = """CREATE TABLE IF NOT EXISTS MetaData 
                                 (VALUE_NAME TEXT PRIMARY KEY, 
-                                 VALUE_VALUE INTEGER NOT NULL);"""
+                                 VALUE_VALUE TEXT NOT NULL,
+                                 LAST_UPDATE TEXT NOT NULL);"""
 
-    const val INSERT_METADATA = """REPLACE INTO MetaData VALUES (?, ?);"""
+    const val INSERT_METADATA = """REPLACE INTO MetaData VALUES (?, ?, ?);"""
 
     const val CLEAR_METADATA = """DELETE FROM MetaData;"""
 
     const val SELECT_ALL_METADATA = """SELECT * FROM MetaData;"""
 
-    const val SELECT_METADATA = """SELECT VALUE_VALUE FROM MetaData WHERE VALUE_NAME = ?;"""
+    const val SELECT_METADATA = """SELECT * FROM MetaData WHERE VALUE_NAME = ?;"""
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     const val TABLE_CASHDATA = """CREATE TABLE IF NOT EXISTS CashData

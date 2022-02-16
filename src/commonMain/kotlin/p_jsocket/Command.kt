@@ -89,9 +89,6 @@ class Command {
     @JsName("saveOrirginalAvatar")
     var saveOrirginalAvatar by Delegates.notNull<Boolean>()
 
-    @JsName("isSelectorOfList")
-    var isSelectorOfList by Delegates.notNull<Boolean>()
-
 
     @JsName("SendBlobSize")
     var SendBlobSize by Delegates.notNull<Int>()
@@ -127,7 +124,6 @@ class Command {
         allowFileByLink = commands_profile.substring(21, 22) == "1"
         cryptMediaContent = commands_profile.substring(22, 23) == "1"
         saveOrirginalAvatar = commands_profile.substring(23, 24) == "1"
-        isSelectorOfList = commands_profile.substring(26, 27) == "1"
         InitializeBlobSize()
     }
 
@@ -156,7 +152,6 @@ class Command {
         allowFileByLink = commnd.allowFileByLink
         cryptMediaContent = commnd.cryptMediaContent
         saveOrirginalAvatar = commnd.saveOrirginalAvatar
-        isSelectorOfList = commnd.isSelectorOfList
     }
 
     constructor(
@@ -189,7 +184,6 @@ class Command {
         allowFileByLink = commands_profile.substring(21, 22) == "1"
         cryptMediaContent = commands_profile.substring(22, 23) == "1"
         saveOrirginalAvatar = commands_profile.substring(23, 24) == "1"
-        isSelectorOfList = commands_profile.substring(26, 27) == "1"
         InitializeBlobSize()
 
     }

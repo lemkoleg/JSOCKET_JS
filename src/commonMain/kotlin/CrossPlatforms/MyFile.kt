@@ -9,7 +9,7 @@ import com.soywiz.korio.stream.AsyncStream
 import com.soywiz.korio.stream.asVfsFile
 import com.soywiz.korio.stream.openAsync
 import io.ktor.util.InternalAPI
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
+import io.ktor.utils.io.core.*
 import p_jsocket.Connection
 import kotlin.js.JsName
 
@@ -74,16 +74,15 @@ class MyFile(_fullName: String = "", _mode : Int = 0, fileData:ByteArray? = null
     fun writeFile(srs: ByteArray, from: Long = 0L):Long?
     {return null}
 
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
     @InternalAPI
+    @ExperimentalIoApi
     @JsName("sendChankOfFile")
     fun sendChankOfFile(from: Long = 0L, count: Long, conn: Connection):Long
     {return 0L}
 
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
+
     @InternalAPI
+    @ExperimentalIoApi
     @JsName("receiveChankOfFile")
     fun receiveChankOfFile(from: Long = 0L, count: Long, conn: Connection):Long
     {return 0L}

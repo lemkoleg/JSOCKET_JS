@@ -8,10 +8,10 @@
 package p_client
 
 import Tables.KBigAvatar
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
+import com.soywiz.klock.DateTime
+import io.ktor.util.*
+import io.ktor.utils.io.core.*
+import io.ktor.utils.io.core.internal.*
 import kotlinx.coroutines.launch
 import lib_exceptions.exc_universal_exception.returnException
 import p_jsocket.*
@@ -25,47 +25,52 @@ import kotlin.time.ExperimentalTime
  */
 @JsName("Send_JSOCKETs")
 class Send_JSOCKETs {
-    @KtorExperimentalAPI
     @ExperimentalIoApi
     @DangerousInternalIoApi
     @ExperimentalStdlibApi
     @InternalAPI
     @ExperimentalTime
     private val listener: Listener? = Listener.get_Instance()
-    private val WAITTIMEOUT= 10000L
-    @KtorExperimentalAPI
     @ExperimentalTime
     @ExperimentalIoApi
     @InternalAPI
     @DangerousInternalIoApi
     @ExperimentalStdlibApi
-    suspend fun send_JSOCKET_with_TimeOut(lMyJSocket: Jsocket, lConnection: Connection?, send_request: Boolean): Jsocket {
-        val myJSocket: Jsocket = lMyJSocket
+    suspend fun send_JSOCKET_with_TimeOut(lMyJSocket: Jsocket,
+                                          lConnection: Connection?,
+                                          send_request: Boolean): Jsocket {
+
+        var myJSocket: Jsocket = lMyJSocket
+
         if (lConnection != null) {
-            Listener.Connections[myJSocket.just_do_it_label] = lConnection
+            Connections[myJSocket.just_do_it_label] = lConnection
         }
+
         if (send_request) {
-            Listener.InJSOCKETs.enqueue(myJSocket,ListenerQUEUESize, "Listener.InJSOCKETs")
+            listener!!.setInJSOCKETs(myJSocket)
         } else {
-            Listener.BetweenJSOCKETs[myJSocket.just_do_it_label] = myJSocket
+            listener!!.setBetweenJSOCKETs(myJSocket)
         }
+
         if (!Commands[myJSocket.just_do_it]?.isDont_answer!!) {
             try {
-                if (myJSocket.condition.cAwait(WAITTIMEOUT)){
-                    myJSocket.setValue(Listener.OutJSOCKETs.remove(myJSocket.just_do_it_label)!!)
-                    if (myJSocket.content != null && myJSocket.just_do_it_successfull == "0"
-                            && myJSocket.content!!.isNotEmpty()) {
-                        if (Commands[myJSocket.just_do_it]!!.) {
+                if (myJSocket.condition.cAwait(CLIENT_TIMEOUT)){
+
+                    myJSocket = OutJSOCKETs.remove(myJSocket.just_do_it_label)!!
+
+                    if (myJSocket.content != null && myJSocket.content!!.isNotEmpty()) {
+
+                        if (Commands[myJSocket.just_do_it]!!.whichBlobDataReturned == "4") {
                             myJSocket.deserialized_ANSWERS_TYPES()
+                            return myJSocket
                         }
-                        if (Commands[myJSocket.just_do_it]!!.blobIsAvavtar && myJSocket.value_par4.trim().isNotEmpty()) {
+
+                        if (Commands[myJSocket.just_do_it]!!.whichBlobDataReturned == "5") {
                             myJSocket.JSOCKETScope.launch{
                                 Sqlite_service.InsertBigAvatar(
                                     KBigAvatar(
                                         myJSocket.value_id1.trim(),
-                                        myJSocket.last_date_of_update,
-                                        1,
-                                        myJSocket.value_par4.trim().toInt(),
+                                        DateTime.nowUnixLong(),
                                         myJSocket.content!!
                                     )
                                 )
@@ -81,8 +86,7 @@ class Send_JSOCKETs {
                 myJSocket.db_massage = ex.toString()
             } finally {
                 if (lConnection != null) {
-                    Listener.Connections.remove(myJSocket.just_do_it_label)
-
+                    Connections.remove(myJSocket.just_do_it_label)
                 }
             }
         }

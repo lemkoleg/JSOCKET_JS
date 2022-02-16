@@ -12,6 +12,9 @@ import kotlin.js.JsName
  *
  * @author User
  */
+
+val MESSEGES: MutableMap<Long?, KMessege?> = mutableMapOf()
+
 @JsName("KMessege")
 class KMessege:ANSWER_TYPE {
 

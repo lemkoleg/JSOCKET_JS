@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS BigAvatars
 CHECK (
 length(AVATAR_ID) = 18));
 
-index_BigAvatars_lastuse:
+index_BigAvatars_lastUse:
 CREATE INDEX IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
 
 trigger_BigAvatars_control_count:
@@ -43,7 +43,7 @@ DELETE FROM BigAvatars WHERE AVATAR_ID NOT IN
 END;
 
 insert_BigAvatars:
-REPLACE INTO BigAvatars
+INSERT OR REPLACE INTO BigAvatars
 (AVATAR_ID, LAST_USE,  AVATAR)
 VALUES
 (?, ?,  ?);
@@ -52,10 +52,8 @@ select_BigAvatars:
 SELECT * FROM BigAvatars
 WHERE AVATAR_ID = ?;
 
-
-select_BigAvatars_last_use:
-SELECT AVATAR_ID FROM BigAvatars WHERE LAST_USE =
-(SELECT min(LAST_USE) FROM BigAvatars LIMIT 1);
+select_BigAvatars_all_id:
+SELECT AVATAR_ID FROM BigAvatars;
 
 delete_BigAvatars:
 DELETE FROM BigAvatars WHERE AVATAR_ID = ?;

@@ -9,8 +9,6 @@ package p_jsocket
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
 import kotlin.js.JsName
-import kotlin.jvm.Synchronized
-import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource.Monotonic
@@ -28,15 +26,11 @@ private val clock : TimeMark = Monotonic.markNow()
 private val lock = Lock()
 @InternalAPI
 @ExperimentalTime
-@Synchronized
+
 @JsName("nowNano")
 fun nowNano(): Long {
     return lock.withLock {
-        return@withLock if (CrossPlatforms.PLATFORM == "JS") {
-            time_now + clock.elapsedNow().toLongNanoseconds() + Random.nextLong(100000, 999999)
-        } else {
-            time_now + clock.elapsedNow().toLongNanoseconds()
-        }
+        return@withLock clock.elapsedNow().inWholeNanoseconds
     }
 }
 

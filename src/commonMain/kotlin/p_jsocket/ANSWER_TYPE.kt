@@ -6,10 +6,12 @@
  */
 package p_jsocket
 
+import atomic.AtomicBoolean
+import com.soywiz.kds.Queue
+import io.ktor.util.*
+import kotlinx.coroutines.*
 import kotlin.js.JsName
 
-@JsName("BLOB_SIZE")
-private const val BLOB_SIZE = 32768
 
 @JsName("FIELDS_SUBSCRIBE_ANSWER_TYPES")
 val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
@@ -93,28 +95,28 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
     78 to ANSWER_TYPE_Subscribe(78, "STRING_18", 4000, false, 0),
     79 to ANSWER_TYPE_Subscribe(79, "STRING_19", 4000, false, 0),
     80 to ANSWER_TYPE_Subscribe(80, "STRING_20", 4000, false, 0),
-    81 to ANSWER_TYPE_Subscribe(81, "BLOB_1", BLOB_SIZE, false, 4),
-    82 to ANSWER_TYPE_Subscribe(82, "BLOB_2", BLOB_SIZE, false, 4),
-    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", BLOB_SIZE, false, 4),
-    84 to ANSWER_TYPE_Subscribe(84, "BLOB_4", BLOB_SIZE, false, 4),
-    85 to ANSWER_TYPE_Subscribe(85, "BLOB_5", BLOB_SIZE, false, 4),
-    86 to ANSWER_TYPE_Subscribe(86, "BLOB_6", BLOB_SIZE, false, 4),
-    87 to ANSWER_TYPE_Subscribe(87, "BLOB_7", BLOB_SIZE, false, 4),
-    88 to ANSWER_TYPE_Subscribe(88, "BLOB_8", BLOB_SIZE, false, 4),
-    89 to ANSWER_TYPE_Subscribe(89, "BLOB_9", BLOB_SIZE, false, 4),
-    90 to ANSWER_TYPE_Subscribe(90, "BLOB_10", BLOB_SIZE, false, 4)
+    81 to ANSWER_TYPE_Subscribe(81, "BLOB_1", MAX_SMALL_AVATAR_SIZE_B, false, 4),
+    82 to ANSWER_TYPE_Subscribe(82, "BLOB_2", MAX_CUT_BIG_AVATAR_SIZE_B, false, 4),
+    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", MAX_BIG_AVATAR_SIZE_B, false, 4)
 )
+
+private val CLIENT_ANSWER_TYPE_POOL: Queue<ANSWER_TYPE> = Queue()
+private val isInterrupted = AtomicBoolean(false)
+
+@InternalAPI
+private val lock = Lock()
 
 /**
  *
  * @author Oleg
  */
 @JsName("ANSWER_TYPE")
-open class ANSWER_TYPE(){
+open class ANSWER_TYPE {
+
+    protected constructor()
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
-        private set
 
     @JsName("IDENTIFICATOR_1")
     var IDENTIFICATOR_1: String? = ""
@@ -124,308 +126,307 @@ open class ANSWER_TYPE(){
 
     @JsName("IDENTIFICATOR_3")
     var IDENTIFICATOR_3: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_4")
     var IDENTIFICATOR_4: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_5")
     var IDENTIFICATOR_5: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_6")
     var IDENTIFICATOR_6: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_7")
     var IDENTIFICATOR_7: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_8")
     var IDENTIFICATOR_8: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_9")
     var IDENTIFICATOR_9: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_10")
     var IDENTIFICATOR_10: String? = ""
-       
+
     @JsName("IDENTIFICATOR_11")
     var IDENTIFICATOR_11: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_12")
     var IDENTIFICATOR_12: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_13")
     var IDENTIFICATOR_13: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_14")
     var IDENTIFICATOR_14: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_15")
     var IDENTIFICATOR_15: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_16")
     var IDENTIFICATOR_16: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_17")
     var IDENTIFICATOR_17: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_18")
     var IDENTIFICATOR_18: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_19")
     var IDENTIFICATOR_19: String? = ""
-       
+
 
     @JsName("IDENTIFICATOR_20")
     var IDENTIFICATOR_20: String? = ""
-       
+
 
     @JsName("INTEGER_1")
     var INTEGER_1: Int? = 0
-        
+
 
     @JsName("INTEGER_2")
     var INTEGER_2: Int? = 0
-        
+
 
     @JsName("INTEGER_3")
     var INTEGER_3: Int? = 0
-        
+
 
     @JsName("INTEGER_4")
     var INTEGER_4: Int? = 0
-        
+
 
     @JsName("INTEGER_5")
     var INTEGER_5: Int? = 0
-        
+
 
     @JsName("INTEGER_6")
     var INTEGER_6: Int? = 0
-        
+
 
     @JsName("INTEGER_7")
     var INTEGER_7: Int? = 0
-        
+
 
     @JsName("INTEGER_8")
     var INTEGER_8: Int? = 0
-        
+
 
     @JsName("INTEGER_9")
     var INTEGER_9: Int? = 0
-        
+
 
     @JsName("INTEGER_10")
     var INTEGER_10: Int? = 0
-        
+
 
     @JsName("INTEGER_11")
     var INTEGER_11: Int? = 0
-        
+
 
     @JsName("INTEGER_12")
     var INTEGER_12: Int? = 0
-        
+
 
     @JsName("INTEGER_13")
     var INTEGER_13: Int? = 0
-        
+
 
     @JsName("INTEGER_14")
     var INTEGER_14: Int? = 0
-        
+
 
     @JsName("INTEGER_15")
     var INTEGER_15: Int? = 0
-        
+
 
     @JsName("INTEGER_16")
     var INTEGER_16: Int? = 0
-        
+
 
     @JsName("INTEGER_17")
     var INTEGER_17: Int? = 0
-        
+
 
     @JsName("INTEGER_18")
     var INTEGER_18: Int? = 0
-        
+
 
     @JsName("INTEGER_19")
     var INTEGER_19: Int? = 0
-        
+
 
     @JsName("INTEGER_20")
     var INTEGER_20: Int? = 0
-        
+
 
     @JsName("LONG_1")
     var LONG_1: Long? = 0L
-        
+
 
     @JsName("LONG_2")
     var LONG_2: Long? = 0L
-        
+
 
     @JsName("LONG_3")
     var LONG_3: Long? = 0L
-        
+
 
     @JsName("LONG_4")
     var LONG_4: Long? = 0L
-        
+
 
     @JsName("LONG_5")
     var LONG_5: Long? = 0L
-        
+
 
     @JsName("LONG_6")
     var LONG_6: Long? = 0L
-        
+
 
     @JsName("LONG_7")
     var LONG_7: Long? = 0L
-        
+
 
     @JsName("LONG_8")
     var LONG_8: Long? = 0L
-        
+
 
     @JsName("LONG_9")
     var LONG_9: Long? = 0L
-        
 
-    @JsName("LONG_10") 
+
+    @JsName("LONG_10")
     var LONG_10: Long? = 0L
-        
+
     @JsName("LONG_11")
     var LONG_11: Long? = 0L
-        
+
 
     @JsName("LONG_12")
     var LONG_12: Long? = 0L
-        
+
 
     @JsName("LONG_13")
     var LONG_13: Long? = 0L
-        
+
 
     @JsName("LONG_14")
     var LONG_14: Long? = 0L
-        
+
 
     @JsName("LONG_15")
     var LONG_15: Long? = 0L
-        
+
 
     @JsName("LONG_16")
     var LONG_16: Long? = 0L
-        
+
 
     @JsName("LONG_17")
     var LONG_17: Long? = 0L
-        
+
 
     @JsName("LONG_18")
     var LONG_18: Long? = 0L
-        
+
 
     @JsName("LONG_19")
     var LONG_19: Long? = 0L
-        
 
-    @JsName("LONG_20")  
+
+    @JsName("LONG_20")
     var LONG_20: Long? = 0L
-        
+
 
     @JsName("STRING_1")
     var STRING_1: String? = ""
-        
+
 
     @JsName("STRING_2")
     var STRING_2: String? = ""
-        
+
 
     @JsName("STRING_3")
     var STRING_3: String? = ""
-        
+
 
     @JsName("STRING_4")
     var STRING_4: String? = ""
-        
+
 
     @JsName("STRING_5")
     var STRING_5: String? = ""
-        
+
 
     @JsName("STRING_6")
     var STRING_6: String? = ""
-        
+
 
     @JsName("STRING_7")
     var STRING_7: String? = ""
-        
+
 
     @JsName("STRING_8")
     var STRING_8: String? = ""
-        
+
 
     @JsName("STRING_9")
     var STRING_9: String? = ""
-        
+
 
     @JsName("STRING_10")
     var STRING_10: String? = ""
-        
+
     @JsName("STRING_11")
     var STRING_11: String? = ""
-        
+
 
     @JsName("STRING_12")
     var STRING_12: String? = ""
-        
+
 
     @JsName("STRING_13")
     var STRING_13: String? = ""
-        
+
 
     @JsName("STRING_14")
     var STRING_14: String? = ""
-        
+
 
     @JsName("STRING_15")
     var STRING_15: String? = ""
-        
+
 
     @JsName("STRING_16")
     var STRING_16: String? = ""
-        
+
 
     @JsName("STRING_17")
     var STRING_17: String? = ""
-        
+
 
     @JsName("STRING_18")
     var STRING_18: String? = ""
-        
+
 
     @JsName("STRING_19")
     var STRING_19: String? = ""
-        
 
     @JsName("STRING_20")
     private var STRING_20: String? = ""
@@ -441,8 +442,28 @@ open class ANSWER_TYPE(){
 
     @JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
-    
+
+    @JsName("OBJECTS_ID")
+    var OBJECTS_ID: String = ""
+
+    @JsName("CASH_SUM")
+    var CASH_SUM: Long = 0
+
+    @JsName("NUMBER_POSITION")
+    var NUMBER_POSITION: Int = 0
+
+    @JsName("LAST_UPDATE")
+    var LAST_UPDATE: Long = 0L
+
+    @JsName("IS_UPDATED_BY_MERGE")
+    var IS_UPDATED_BY_MERGE: Boolean = false
+
+
     constructor(
+        lOBJECTS_ID: String,
+        lCASH_SUM:Long,
+        lNUMBER_POSITION: Int,
+        lLAST_UPDATE: Long,
         lIDENTIFICATOR_1: String?,
         lIDENTIFICATOR_2: String?,
         lIDENTIFICATOR_3: String?,
@@ -526,6 +547,7 @@ open class ANSWER_TYPE(){
         lBLOB_1: ByteArray?,
         lBLOB_2: ByteArray?,
         lBLOB_3: ByteArray?
+
     ) : this() {
         IDENTIFICATOR_1 = lIDENTIFICATOR_1?.trim() ?: ""
 
@@ -630,7 +652,10 @@ open class ANSWER_TYPE(){
         BLOB_1 = lBLOB_1
         BLOB_2 = lBLOB_2
         BLOB_3 = lBLOB_3
-
+        OBJECTS_ID = lOBJECTS_ID
+        CASH_SUM = lCASH_SUM
+        NUMBER_POSITION = lNUMBER_POSITION
+        LAST_UPDATE = lLAST_UPDATE
         setRECORD_TYPE()
     }
 
@@ -718,164 +743,207 @@ open class ANSWER_TYPE(){
         BLOB_1 = MyANSWER_TYPE.BLOB_1
         BLOB_2 = MyANSWER_TYPE.BLOB_2
         BLOB_3 = MyANSWER_TYPE.BLOB_3
+        OBJECTS_ID = MyANSWER_TYPE.OBJECTS_ID
+        CASH_SUM = MyANSWER_TYPE.CASH_SUM
+        NUMBER_POSITION = MyANSWER_TYPE.NUMBER_POSITION
+        LAST_UPDATE = MyANSWER_TYPE.LAST_UPDATE
 
         setRECORD_TYPE()
     }
 
+    fun setOBJECT_ID() {}
+
     @JsName("merge")
-    fun merge(v :ANSWER_TYPE?){
-        if(v == null ){
+    fun merge(v: ANSWER_TYPE?) {
+        if (v == null) {
             return
         }
+        IS_UPDATED_BY_MERGE = false
 
-        if(v.IDENTIFICATOR_1 != null && v.IDENTIFICATOR_1!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_1 != null && v.IDENTIFICATOR_1!!.isNotEmpty() && v.IDENTIFICATOR_1 != this.IDENTIFICATOR_1) {
             this.IDENTIFICATOR_1 = v.IDENTIFICATOR_1
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_2 != null && v.IDENTIFICATOR_2!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_2 != null && v.IDENTIFICATOR_2!!.isNotEmpty() && v.IDENTIFICATOR_2 != this.IDENTIFICATOR_2) {
             this.IDENTIFICATOR_2 = v.IDENTIFICATOR_2
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_3 != null && v.IDENTIFICATOR_3!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_3 != null && v.IDENTIFICATOR_3!!.isNotEmpty() && v.IDENTIFICATOR_3 != this.IDENTIFICATOR_3) {
             this.IDENTIFICATOR_3 = v.IDENTIFICATOR_3
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_4 != null && v.IDENTIFICATOR_4!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_4 != null && v.IDENTIFICATOR_4!!.isNotEmpty() && v.IDENTIFICATOR_4 != this.IDENTIFICATOR_4) {
             this.IDENTIFICATOR_4 = v.IDENTIFICATOR_4
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_5 != null && v.IDENTIFICATOR_5!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_5 != null && v.IDENTIFICATOR_5!!.isNotEmpty() && v.IDENTIFICATOR_5 != this.IDENTIFICATOR_5) {
             this.IDENTIFICATOR_5 = v.IDENTIFICATOR_5
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_6 != null && v.IDENTIFICATOR_6!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_6 != null && v.IDENTIFICATOR_6!!.isNotEmpty() && v.IDENTIFICATOR_6 != this.IDENTIFICATOR_6) {
             this.IDENTIFICATOR_6 = v.IDENTIFICATOR_6
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_7 != null && v.IDENTIFICATOR_7!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_7 != null && v.IDENTIFICATOR_7!!.isNotEmpty() && v.IDENTIFICATOR_7 != this.IDENTIFICATOR_7) {
             this.IDENTIFICATOR_7 = v.IDENTIFICATOR_7
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_8 != null && v.IDENTIFICATOR_8!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_8 != null && v.IDENTIFICATOR_8!!.isNotEmpty() && v.IDENTIFICATOR_8 != this.IDENTIFICATOR_8) {
             this.IDENTIFICATOR_8 = v.IDENTIFICATOR_8
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_9 != null && v.IDENTIFICATOR_9!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_9 != null && v.IDENTIFICATOR_9!!.isNotEmpty() && v.IDENTIFICATOR_9 != this.IDENTIFICATOR_9) {
             this.IDENTIFICATOR_9 = v.IDENTIFICATOR_9
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_10 != null && v.IDENTIFICATOR_10!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_10 != null && v.IDENTIFICATOR_10!!.isNotEmpty() && v.IDENTIFICATOR_10 != this.IDENTIFICATOR_10) {
             this.IDENTIFICATOR_10 = v.IDENTIFICATOR_10
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_11 != null && v.IDENTIFICATOR_11!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_11 != null && v.IDENTIFICATOR_11!!.isNotEmpty() && v.IDENTIFICATOR_11 != this.IDENTIFICATOR_11) {
             this.IDENTIFICATOR_11 = v.IDENTIFICATOR_11
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_12 != null && v.IDENTIFICATOR_12!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_12 != null && v.IDENTIFICATOR_12!!.isNotEmpty() && v.IDENTIFICATOR_12 != this.IDENTIFICATOR_12) {
             this.IDENTIFICATOR_12 = v.IDENTIFICATOR_12
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_13 != null && v.IDENTIFICATOR_13!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_13 != null && v.IDENTIFICATOR_13!!.isNotEmpty() && v.IDENTIFICATOR_13 != this.IDENTIFICATOR_13) {
             this.IDENTIFICATOR_13 = v.IDENTIFICATOR_13
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_14 != null && v.IDENTIFICATOR_14!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_14 != null && v.IDENTIFICATOR_14!!.isNotEmpty() && v.IDENTIFICATOR_14 != this.IDENTIFICATOR_14) {
             this.IDENTIFICATOR_14 = v.IDENTIFICATOR_14
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_15 != null && v.IDENTIFICATOR_15!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_15 != null && v.IDENTIFICATOR_15!!.isNotEmpty() && v.IDENTIFICATOR_15 != this.IDENTIFICATOR_15) {
             this.IDENTIFICATOR_15 = v.IDENTIFICATOR_15
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_16 != null && v.IDENTIFICATOR_16!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_16 != null && v.IDENTIFICATOR_16!!.isNotEmpty() && v.IDENTIFICATOR_16 != this.IDENTIFICATOR_16) {
             this.IDENTIFICATOR_16 = v.IDENTIFICATOR_16
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_17 != null && v.IDENTIFICATOR_17!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_17 != null && v.IDENTIFICATOR_17!!.isNotEmpty() && v.IDENTIFICATOR_17 != this.IDENTIFICATOR_17) {
             this.IDENTIFICATOR_17 = v.IDENTIFICATOR_17
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_18 != null && v.IDENTIFICATOR_18!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_18 != null && v.IDENTIFICATOR_18!!.isNotEmpty() && v.IDENTIFICATOR_18 != this.IDENTIFICATOR_18) {
             this.IDENTIFICATOR_18 = v.IDENTIFICATOR_18
+            IS_UPDATED_BY_MERGE = true
         }
 
 
-        if(v.IDENTIFICATOR_19 != null && v.IDENTIFICATOR_19!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_19 != null && v.IDENTIFICATOR_19!!.isNotEmpty() && v.IDENTIFICATOR_19 != this.IDENTIFICATOR_19) {
             this.IDENTIFICATOR_19 = v.IDENTIFICATOR_19
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.IDENTIFICATOR_20 != null && v.IDENTIFICATOR_20!!.isNotEmpty()){
+        if (v.IDENTIFICATOR_20 != null && v.IDENTIFICATOR_20!!.isNotEmpty() && v.IDENTIFICATOR_20 != this.IDENTIFICATOR_20) {
             this.IDENTIFICATOR_20 = v.IDENTIFICATOR_20
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.LONG_1 != null){
+        if (v.LONG_1 != null && v.LONG_1 != this.LONG_1) {
             this.LONG_1 = v.LONG_1       // accounts1 last connect
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.LONG_2 != null){
+        if (v.LONG_2 != null && v.LONG_2 != this.LONG_2) {
             this.LONG_2 = v.LONG_2      // accounts2 last connect
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.INTEGER_4 != null && v.INTEGER_4!!!= 0){
+        if (v.INTEGER_4 != null  && v.INTEGER_4 != this.INTEGER_4) {
             this.INTEGER_4 = v.INTEGER_4  //object size
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.INTEGER_5 != null && v.INTEGER_5!!!= 0){
+        if (v.INTEGER_5 != null  && v.INTEGER_5 != this.INTEGER_5) {
             this.INTEGER_5 = v.INTEGER_5  // object length seconds
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_1 != null && v.STRING_1!!.isNotEmpty()){
+        if (v.STRING_1 != null && v.STRING_1!!.isNotEmpty() && v.STRING_1 != this.STRING_1) {
             this.STRING_1 = v.STRING_1    //accounts1 name
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_2 != null && v.STRING_2!!.isNotEmpty()){
+        if (v.STRING_2 != null && v.STRING_2!!.isNotEmpty() && v.STRING_2 != this.STRING_2) {
             this.STRING_2 = v.STRING_2    //accounts1 access
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_3 != null && v.STRING_3!!.isNotEmpty()){
+        if (v.STRING_3 != null && v.STRING_3!!.isNotEmpty() && v.STRING_3 != this.STRING_3) {
             this.STRING_3 = v.STRING_3    //accounts2 name
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_4 != null && v.STRING_4!!.isNotEmpty()){
+        if (v.STRING_4 != null && v.STRING_4!!.isNotEmpty() && v.STRING_4 != this.STRING_4) {
             this.STRING_4 = v.STRING_4    //accounts2 access
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_5 != null && v.STRING_5!!.isNotEmpty()){
+        if (v.STRING_5 != null && v.STRING_5!!.isNotEmpty() && v.STRING_5 != this.STRING_5) {
             this.STRING_5 = v.STRING_5    //object name
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_6 != null && v.STRING_6!!.isNotEmpty()){
+        if (v.STRING_6 != null && v.STRING_6!!.isNotEmpty() && v.STRING_6 != this.STRING_6) {
             this.STRING_6 = v.STRING_6    //object server
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_7 != null && v.STRING_7!!.isNotEmpty()){
+        if (v.STRING_7 != null && v.STRING_7!!.isNotEmpty() && v.STRING_7 != this.STRING_7) {
             this.STRING_7 = v.STRING_7    //object profile string;
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_8 != null && v.STRING_8!!.isNotEmpty()){
+        if (v.STRING_8 != null && v.STRING_8!!.isNotEmpty() && v.STRING_8 != this.STRING_8) {
             this.STRING_8 = v.STRING_8    //object link;
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_9 != null && v.STRING_9!!.isNotEmpty()){
+        if (v.STRING_9 != null && v.STRING_9!!.isNotEmpty() && v.STRING_9 != this.STRING_9) {
             this.STRING_9 = v.STRING_9    //object extension;
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(v.STRING_20 != null && v.STRING_20!!.isNotEmpty()){
+        if (v.STRING_20 != null && v.STRING_20!!.isNotEmpty() && v.STRING_20 != this.STRING_20) {
             this.STRING_20 = v.STRING_20
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(getIS_UPDATE_BLOB() == "1"){
+        if (getIS_UPDATE_BLOB() == "1") {
             this.BLOB_1 = v.BLOB_1
             this.BLOB_2 = v.BLOB_2
             this.BLOB_3 = v.BLOB_3
             setAVATAR_LINK(v.getAVATAR_LINK())
             setAVATAR_SERVER(v.getAVATAR_SERVER())
             setORIGINAL_AVATAR_SIZE(v.getORIGINAL_AVATAR_SIZE())
+            IS_UPDATED_BY_MERGE = true
         }
 
-        if(getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())){
+        if (getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())) {
             this.STRING_14 = v.STRING_14
+            IS_UPDATED_BY_MERGE = true
         }
 
         setRECORD_TYPE()
@@ -883,259 +951,260 @@ open class ANSWER_TYPE(){
 
 
     @JsName("getACCOUNT_ID")
-    open fun getACCOUNT_ID():String{
-        return IDENTIFICATOR_1?:""
+    open fun getACCOUNT_ID(): String {
+        return IDENTIFICATOR_1 ?: ""
     }
 
     @JsName("setACCOUNT_ID")
-    open fun setACCOUNT_ID(v:String){
+    open fun setACCOUNT_ID(v: String) {
         IDENTIFICATOR_1 = v
     }
 
     @JsName("getACCOUNT_AVATAR_ID")
-    fun getACCOUNT_AVATAR_ID():String{
-        return IDENTIFICATOR_2?:""
+    fun getACCOUNT_AVATAR_ID(): String {
+        return IDENTIFICATOR_2 ?: ""
     }
 
     @JsName("setACCOUNT_AVATAR_ID")
-    fun setACCOUNT_AVATAR_ID(v:String?){
-        IDENTIFICATOR_2 = v?:""
+    fun setACCOUNT_AVATAR_ID(v: String?) {
+        IDENTIFICATOR_2 = v ?: ""
     }
 
     @JsName("getOBJECT_ID")
-    fun getOBJECT_ID():String{
-        return this.IDENTIFICATOR_5?:""
+    fun getOBJECT_ID(): String {
+        return this.IDENTIFICATOR_5 ?: ""
     }
 
     @JsName("setOBJECT_ID")
-    fun setOBJECT_ID(v:String?){
-        this.IDENTIFICATOR_5 = v?:""
+    fun setOBJECT_ID(v: String?) {
+        this.IDENTIFICATOR_5 = v ?: ""
     }
 
     @JsName("getOBJECT_AVATAR_ID")
-    fun getOBJECT_AVATAR_ID():String{
-        return IDENTIFICATOR_6?:""
+    fun getOBJECT_AVATAR_ID(): String {
+        return IDENTIFICATOR_6 ?: ""
     }
 
     @JsName("setOBJECT_AVATAR_ID")
-    fun setOBJECT_AVATARID(v: String?){
-        IDENTIFICATOR_6 = v?.trim()?:""
+    fun setOBJECT_AVATARID(v: String?) {
+        IDENTIFICATOR_6 = v?.trim() ?: ""
     }
 
     @JsName("getOBJECT_OWNER")
-    fun getOBJECT_OWNER():String{
-        return IDENTIFICATOR_7?:""
+    fun getOBJECT_OWNER(): String {
+        return IDENTIFICATOR_7 ?: ""
     }
 
     @JsName("setOBJECT_OWNER")
-    fun setOBJECT_OWNER(v: String?){
-        IDENTIFICATOR_7 = v?.trim()?:""
+    fun setOBJECT_OWNER(v: String?) {
+        IDENTIFICATOR_7 = v?.trim() ?: ""
     }
 
     @JsName("getOBJECT_SIZE")
-    fun getOBJECT_SIZE():Int{
-        return this.INTEGER_4?:0
+    fun getOBJECT_SIZE(): Int {
+        return this.INTEGER_4 ?: 0
     }
 
     @JsName("setOBJECT_SIZE")
-    fun setOBJECT_SIZE(v:Int?){
-        this.INTEGER_4 = v?:0
+    fun setOBJECT_SIZE(v: Int?) {
+        this.INTEGER_4 = v ?: 0
     }
 
     @JsName("getOBJECT_LENGTH_SECONDS")
-    fun getOBJECT_LENGTH_SECONDS():Int{
-        return this.INTEGER_5?:0
+    fun getOBJECT_LENGTH_SECONDS(): Int {
+        return this.INTEGER_5 ?: 0
     }
 
     @JsName("setOBJECT_LENGTH_SECONDS")
-    fun setOBJECT_LENGTH_SECONDS(v:Int?){
-        this.INTEGER_5 = v?:0
+    fun setOBJECT_LENGTH_SECONDS(v: Int?) {
+        this.INTEGER_5 = v ?: 0
     }
 
     @JsName("getACCOUNT_NAME")
-    fun getACCOUNT_NAME():String{
-        return STRING_1?:""
+    fun getACCOUNT_NAME(): String {
+        return STRING_1 ?: ""
     }
 
     @JsName("setACCOUNT_NAME")
-    fun setACCOUNT_NAME(v:String){
+    fun setACCOUNT_NAME(v: String) {
         STRING_1 = v
     }
 
     @JsName("getOBJECT_NAME")
-    fun getOBJECT_NAME():String{
-        return STRING_5?:""
+    fun getOBJECT_NAME(): String {
+        return STRING_5 ?: ""
     }
 
     @JsName("setOBJECT_NAME")
-    fun setOBJECT_NAME(v:String){
+    fun setOBJECT_NAME(v: String) {
         STRING_5 = v.trim()
     }
 
     @JsName("getOBJECT_SERVER")
-    fun getOBJECT_SERVER():String{
-        return this.STRING_6?:""
+    fun getOBJECT_SERVER(): String {
+        return this.STRING_6 ?: ""
     }
 
     @JsName("setOBJECT_SERVER")
-    fun setOBJECT_SERVER(v:String?){
-        this.STRING_6 = v?:""
+    fun setOBJECT_SERVER(v: String?) {
+        this.STRING_6 = v ?: ""
     }
 
     @JsName("getOBJECT_PROFILE_STRING")
-    fun getOBJECT_PROFILE_STRING():String{
-        return STRING_7?:""
+    fun getOBJECT_PROFILE_STRING(): String {
+        return STRING_7 ?: ""
     }
 
     @JsName("setOBJECT_PROFILE_STRING")
-    fun setOBJECT_PROFILE_STRING(v:String){
+    fun setOBJECT_PROFILE_STRING(v: String) {
         STRING_7 = v.trim()
     }
 
     @JsName("getOBJECT_LINK")
-    fun getOBJECT_LINK():String{
-        return STRING_8?:""
+    fun getOBJECT_LINK(): String {
+        return STRING_8 ?: ""
     }
 
     @JsName("setOBJECT_LINK")
-    fun setOBJECT_LINK(v:String){
+    fun setOBJECT_LINK(v: String) {
         STRING_8 = v.trim()
     }
 
     @JsName("getOBJECT_EXTENSION")
-    fun getOBJECT_EXTENSION():String{
-        return this.STRING_9?:""
+    fun getOBJECT_EXTENSION(): String {
+        return this.STRING_9 ?: ""
     }
 
     @JsName("setOBJECT_EXTENSION")
-    fun setOBJECT_EXTENSION(v:String?){
-        this.STRING_9 = v?:""
+    fun setOBJECT_EXTENSION(v: String?) {
+        this.STRING_9 = v ?: ""
     }
 
     @JsName("getSUBSCRIBE")
-    fun getSUBSCRIBE():String{
-        return this.STRING_14?:""
+    fun getSUBSCRIBE(): String {
+        return this.STRING_14 ?: ""
     }
 
     @JsName("setSUBSCRIBE")
-    fun setSUBSCRIBE(v:String?){
-        this.STRING_14 = v?:""
+    fun setSUBSCRIBE(v: String?) {
+        this.STRING_14 = v ?: ""
     }
 
     @JsName("getAVATAR_TYPE")
-    fun getAVATAR_TYPE():String{
-        return this.STRING_16?:""
+    fun getAVATAR_TYPE(): String {
+        return this.STRING_16 ?: ""
     }
 
     @JsName("setAVATAR_TYPE")
-    fun setAVATAR_TYPE(v:String?){
-        this.STRING_16 = v?:""
+    fun setAVATAR_TYPE(v: String?) {
+        this.STRING_16 = v ?: ""
     }
 
     @JsName("getAVATAR_LINK")
-    fun getAVATAR_LINK():String{
-        return this.STRING_18?:""
+    fun getAVATAR_LINK(): String {
+        return this.STRING_18 ?: ""
     }
 
     @JsName("setAVATAR_LINK")
-    fun setAVATAR_LINK(v:String?){
-        this.STRING_18 = v?:""
+    fun setAVATAR_LINK(v: String?) {
+        this.STRING_18 = v ?: ""
     }
 
     @JsName("getORIGINAL_AVATAR_SIZE")
-    fun getORIGINAL_AVATAR_SIZE():String{
-        return this.STRING_17?:"0"
+    fun getORIGINAL_AVATAR_SIZE(): String {
+        return this.STRING_17 ?: "0"
     }
 
     @JsName("setORIGINAL_AVATAR_SIZE")
-    fun setORIGINAL_AVATAR_SIZE(v: String?){
-        this.STRING_17 = v?.trim()?:"0"
+    fun setORIGINAL_AVATAR_SIZE(v: String?) {
+        this.STRING_17 = v?.trim() ?: "0"
     }
 
     @JsName("getAVATAR_SERVER")
-    fun getAVATAR_SERVER():String{
-        return this.STRING_19?:""
+    fun getAVATAR_SERVER(): String {
+        return this.STRING_19 ?: ""
     }
 
     @JsName("setAVATAR_SERVER")
-    fun setAVATAR_SERVER(v:String?){
-        this.STRING_19 = v?:""
+    fun setAVATAR_SERVER(v: String?) {
+        this.STRING_19 = v ?: ""
     }
 
     @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 2){
+    fun getIS_UPDATE_BLOB(): String {
+        if (this.STRING_20 == null || this.STRING_20!!.length < 2) {
             return "0"
         }
         return this.STRING_20!!.substring(1, 2)
     }
 
     @JsName("getSTRING_20")
-    fun getSTRING_20():String{
-        return STRING_20?:""
+    fun getSTRING_20(): String {
+        return STRING_20 ?: ""
     }
 
     @JsName("setSTRING_20")
-    fun setSTRING_20(v:String?){
-        this.STRING_20 = v?:""
+    fun setSTRING_20(v: String?) {
+        this.STRING_20 = v ?: ""
         setRECORD_TYPE()
     }
 
     @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE():String{
+    fun getRECORD_TYPE(): String {
         return RECORD_TYPE
     }
 
     @JsName("setRECORD_TYPE")
-    private fun setRECORD_TYPE(){
-        if(this.STRING_20 == null || this.STRING_20!!.length < 8){
+    private fun setRECORD_TYPE() {
+        if (this.STRING_20 == null || this.STRING_20!!.length < 8) {
+            return
         }
         RECORD_TYPE = STRING_20!!.substring(7, 8)
     }
 
     @JsName("getIS_UPDATE_SUBSCRIBE")
-    fun getIS_UPDATE_SUBSCRIBE():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 3){
+    fun getIS_UPDATE_SUBSCRIBE(): String {
+        if (this.STRING_20 == null || this.STRING_20!!.length < 3) {
             return ""
         }
         return this.STRING_20!!.substring(2, 3)
     }
 
     @JsName("getIS_DELETE_RECORD")
-    fun getIS_DELETE_RECORD():String{
-        if(this.STRING_20 == null || this.STRING_20!!.length < 7){
+    fun getIS_DELETE_RECORD(): String {
+        if (this.STRING_20 == null || this.STRING_20!!.length < 7) {
             return ""
         }
         return this.STRING_20!!.substring(6, 7)
     }
 
     @JsName("getAVATAR1")
-    fun getAVATAR1():ByteArray?{
+    fun getAVATAR1(): ByteArray? {
         return this.BLOB_1
     }
 
     @JsName("setAVATAR1")
-    fun setAVATAR1(v:ByteArray?){
+    fun setAVATAR1(v: ByteArray?) {
         this.BLOB_1 = v
     }
 
     @JsName("getAVATAR2")
-    fun getAVATAR2():ByteArray?{
+    fun getAVATAR2(): ByteArray? {
         return this.BLOB_2
     }
 
     @JsName("setAVATAR2")
-    fun setAVATAR2(v:ByteArray?){
+    fun setAVATAR2(v: ByteArray?) {
         this.BLOB_2 = v
     }
 
     @JsName("getAVATAR3")
-    fun getAVATAR3():ByteArray?{
+    fun getAVATAR3(): ByteArray? {
         return this.BLOB_3
     }
 
     @JsName("setAVATAR3")
-    fun setAVATAR3(v:ByteArray?){
+    fun setAVATAR3(v: ByteArray?) {
         this.BLOB_3 = v
     }
 
@@ -1155,12 +1224,12 @@ open class ANSWER_TYPE(){
     }
 
     @JsName("getCONNECTION_ID")
-    fun getCONNECTION_ID():Long{
-        return LONG_19?:0L
+    fun getCONNECTION_ID(): Long {
+        return LONG_19 ?: 0L
     }
 
     @JsName("setCONNECTION_ID")
-    fun setCONNECTION_ID(v:Long){
+    fun setCONNECTION_ID(v: Long) {
         LONG_19 = v
     }
 
@@ -1249,6 +1318,49 @@ open class ANSWER_TYPE(){
         BLOB_2 = MyANSWER_TYPE.BLOB_2
         BLOB_3 = MyANSWER_TYPE.BLOB_3
 
+    }
+
+
+    companion object {
+
+        @JsName("getANSWER_TYPE")
+        @InternalAPI
+        suspend fun getANSWER_TYPE(): ANSWER_TYPE {
+            val answe_type:ANSWER_TYPE? =
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lock.lock()
+                    if (CLIENT_ANSWER_TYPE_POOL.peek() == null) {
+                        CoroutineScope(NonCancellable).launch {
+                            fill()
+                        }
+                        return@withTimeoutOrNull ANSWER_TYPE()
+                    } else {
+                        return@withTimeoutOrNull CLIENT_ANSWER_TYPE_POOL.dequeue()
+                    }
+                }
+            } catch(ex: Exception) {
+                CoroutineScope(NonCancellable).launch {
+                    fill()
+                }
+                return ANSWER_TYPE()
+            }finally {
+                lock.unlock()
+            }
+            return answe_type?:ANSWER_TYPE()
+        }
+
+        private fun fill() {
+            while (CLIENT_ANSWER_TYPE_POOL.size < CLIENT_ANSWER_TYPE_POOL_SIZE && !isInterrupted.value) {
+                CLIENT_ANSWER_TYPE_POOL.enqueue(ANSWER_TYPE())
+            }
+        }
+
+        @InternalAPI
+        fun close(){
+            isInterrupted.setNewValue(true)
+            CLIENT_ANSWER_TYPE_POOL.clear()
+        }
     }
 
 }

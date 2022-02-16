@@ -7,7 +7,6 @@ import Tables.*
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import io.ktor.util.InternalAPI
-import p_client.dbLocalName
 import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
 import p_jsocket.rootPath
@@ -18,221 +17,395 @@ actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${rootPath}${
 
 actual class SQLStatement actual constructor() {
 
-    val metaData = db!!.mETADATAQueries
     val bigAvatars = db!!.bIGAVATARSQueries
     val cashData = db!!.cASHDATAQueries
-    val lastUpdate = db!!.cASHLASTUPDATEQueries
+    val cashLastUpdate = db!!.cASHLASTUPDATEQueries
     val chats = db!!.cHATSQueries
+    val chatsCostTypes = db!!.cHATS_COST_TYPESQueries
+    val chatsLikes = db!!.cHATS_LIKESQueries
     val commands = db!!.cOMMANDSQueries
+    val exceptions = db!!.eXCEPTIONSQueries
     val messeges = db!!.mESSEGESQueries
+    val metaData = db!!.mETADATAQueries
     val regData = db!!.rEGDATAQueries
     val saveMedia = db!!.sAVEMEDIAQueries
-    val sendMedia = db!!.sENDMEDIAQueries
 
-    ///////////////////////////////////////////////////////////////////////
-    actual suspend fun SELECT_LASTUPDATE(CASH_SUM: Long): Long? {
-        return lastUpdate.select_lastupdate(CASH_SUM.toString()).executeAsOne().toLong()
+    ///////////////////////////////////big avatars///////////////////////////
+    actual suspend fun TABLE_BIG_AVATARS(){
+        bigAvatars.table_BigAvatars()
     }
 
-    actual suspend fun connect() {
+    actual suspend fun INDEX_BIG_AVATARS_LAST_USE(){
+        bigAvatars.index_BigAvatars_lastUse()
+    }
+
+    actual suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT(){
+        bigAvatars.trigger_BigAvatars_control_count()
+    }
+
+    actual suspend fun INSERT_BIG_AVATARS(kBigAvatar: KBigAvatar){
+        kBigAvatar.getAVATAR()?.let {
+            bigAvatars.insert_BigAvatars(kBigAvatar.getAVATAR_ID(),
+                kBigAvatar.getLAST_USE(),
+                it
+            )
+        }
+    }
+
+    actual suspend fun SELECT_BIG_AVATARS(OBJECTS_ID: String):KBigAvatar?{
+        var kBigAvatar: KBigAvatar? = BIG_AVATARS[OBJECTS_ID]
+        if(kBigAvatar == null){
+
+        }
+        return kBigAvatar
 
     }
 
-    actual suspend fun TABLE_METADATA() {
-        metaData.table_metadata()
+    actual suspend fun SELECT_BIGAVATARS_ALL_ID(){
+
     }
 
-    actual suspend fun TABLE_CASHDATA() {
-        cashData.table_cashdata()
+    actual suspend fun CLEAR_BIG_AVATARS(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_1() {
-        cashData.trigger_cashdata_blob_1()
+    actual suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_2() {
-        cashData.trigger_cashdata_blob_2()
+    /////////////cash data///////////////////////////
+
+    actual suspend fun TABLE_CASHDATA(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_3() {
-        cashData.trigger_cashdata_blob_3()
+    actual suspend fun INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_4() {
-        cashData.trigger_cashdata_blob_4()
+    actual suspend fun INDEX_CASHDATA_CASH_SUM_OBJECT_ID(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_5() {
-        cashData.trigger_cashdata_blob_5()
+    actual suspend fun TRIGGER_CASHDATA_CONTROL_COUNT(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_6() {
-        cashData.trigger_cashdata_blob_6()
+    actual suspend fun TRIGGER_CASHDATA_DELETING_RECORDS(){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_7() {
-        cashData.trigger_cashdata_blob_7()
+    actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_8() {
-        cashData.trigger_cashdata_blob_8()
+    actual suspend fun UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE(L_NUMBER_POSITION: Int, L_LAST_UPDATE: Long, L_CASH_SUM: Long, L_OBJECT_ID: Long) {
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_9() {
-        cashData.trigger_cashdata_blob_9()
+    actual suspend fun SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION() {
     }
 
-    actual suspend fun TRIGGER_CASHDATA_BLOB_10() {
-        cashData.trigger_cashdata_blob_10()
+    @ExperimentalStdlibApi
+    actual suspend fun SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT(CASH_SUM: Long, L_NUMBER_POSITION: Int){
+
     }
 
-    actual suspend fun TRIGGER_CASHDATA_DELETING_RECORDS() {
-        cashData.trigger_cashdata_deleting_records()
+    actual suspend fun CLEAR_CASHDATA(){
+
     }
 
-    actual suspend fun TABLE_REGDATA() {
-        regData.table_regdata()
+    /////////////last update///////////////////////////
+
+    actual suspend fun TABLE_CASHLASTUPDATE(){
+
     }
 
-    actual suspend fun TRIGGER_INSERT_REGDATA() {
-        regData.trigger_insert_regdata()
+    actual suspend fun INDEX_CASHLASTUPDATE_LAST_USE(){
+
     }
 
-    actual suspend fun TABLE_COMMANDS() {
-        commands.table_commands()
+    actual suspend fun INDEX_CASHLASTUPDATE_CONNECTIONID(){
+
     }
 
-    actual suspend fun TABLE_SAVEMEDIA() {
-        saveMedia.table_savemedia()
+    actual suspend fun TRIGGER_CASHLASTUPDATE_DELETE(){
+
     }
 
-    actual suspend fun INDEX_SAVEMEDIA() {
-        saveMedia.index_savemedia()
+    actual suspend fun TRIGGER_CASHLASTUPDATE_INSERT(){
+
     }
 
-    actual suspend fun TABLE_BIG_AVATARS() {
-        bigAvatars.table_big_avatars()
+    actual suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate){
+
     }
 
-    actual suspend fun INDEX_BIG_AVATARS() {
-        bigAvatars.index_big_avatars()
+    actual suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate){
+
     }
 
-    actual suspend fun TRIGGER_CONTROL_COUNT_BIG_AVATARS() {
-        bigAvatars.trigger_control_count_big_avatars()
+    actual suspend fun SELECT_CASHLASTUPDATE(L_CONNECTION_ID : Long){
+
     }
 
-    actual suspend fun TABLE_SENDMEDIA() {
-        sendMedia.table_sendmedia()
+    actual suspend fun CLEAR_LASTUPDATE(){
+
     }
 
-    actual suspend fun TRIGGER_INSERT_SENDMEDIA() {
-        sendMedia.trigger_insert_sendmedia()
+    /////////////chats///////////////////////////
+
+    actual suspend fun TABLE_CHATS(){
+
     }
 
-    actual suspend fun TABLE_LASTUPDATE() {
-        lastUpdate.table_lastupdate()
+    actual suspend fun INDEX_CHATS_LAST_MESS_ADDING(){
+
     }
 
-    actual suspend fun INDEX_LASTUPDATE() {
-        lastUpdate.index_lastupdate()
+    actual suspend fun INDEX_CHATS_CONNECTIONID(){
+
     }
 
-    actual suspend fun TRIGGER_DELETE_LASTUPDATE() {
-        lastUpdate.trigger_delete_lastupdate()
+    actual suspend fun INDEX_CHATS_AVATARID(){
+
     }
 
-    actual suspend fun TRIGGER_INSERT_LASTUPDATE() {
-        lastUpdate.trigger_insert_lastupdate()
+    actual suspend fun TRIGGER_CHATS_DELETE(){
+
     }
 
-    actual suspend fun TRIGGER_CONTROL_COUNT_CASH() {
-        lastUpdate.trigger_control_count_cash()
+    actual suspend fun TRIGGER_CHATS_CONTROL_COUNT(){
+
     }
 
-    actual suspend fun TABLE_CHATS() {
-        chats.table_chats()
+    actual suspend fun INSERT_CHATS(kChat: KChat){
+
     }
 
-    actual suspend fun TRIGGER_DELETE_CHATS() {
-        chats.trigger_delete_chats()
+    actual suspend fun SELECT_CHATS_ALL(){
+
     }
 
-    actual suspend fun TRIGGER_CONTROL_COUNT_CHATS() {
-        chats.trigger_control_count_chats()
+    actual suspend fun CLEAR_CHATS(){
+
     }
 
-    actual suspend fun TABLE_MESSEGES() {
-        messeges.table_messeges()
+    /////////////chats cost types///////////////////////////
+
+    actual suspend fun TABLE_CHATS_COST_TYPES(){
+
     }
 
-    actual suspend fun TRIGGER_CONTROL_COUNT_MESSEGES() {
-        messeges.trigger_control_count_messeges()
+    actual suspend fun INSERT_CHATS_COST_TYPES(kChatsCostTypes: KChatsCostTypes){
+
     }
 
-    actual suspend fun UPDATE_LAST_USE_LASTUPDATE(LAST_USE: Long, CASH_SUM: Long) {
-        lastUpdate.update_last_use_lastupdate(LAST_USE.toString(), CASH_SUM.toString())
+    actual suspend fun SELECT_CHATS_COST_TYPES_ALL(){
+
     }
 
-    actual suspend fun CLEAR_CASHDATA() {
-        cashData.clear_cashdata()
+    actual suspend fun CLEAR_CHATS_COST_TYPES(){
+
     }
 
-    actual suspend fun CLEAR_LASTUPDATE() {
-        lastUpdate.clear_lastupdate()
+    /////////////chats likes///////////////////////////
+
+    actual suspend fun TABLE_CHATS_LIKES(){
+
     }
 
-    actual suspend fun CLEAR_REGDATA() {
-        regData.clear_regdata()
+    actual suspend fun INDEX_CHATSLIKES_AVATARID(){
+
     }
 
-    actual suspend fun CLEAR_COMMANDS() {
-        commands.clear_commands()
+    actual suspend fun INDEX_CHATSLIKES_ACCOUNTSID(){
+
     }
 
-    actual suspend fun CLEAR_METADATA() {
-        metaData.clear_metadata()
+    actual suspend fun TRIGGER_CHATSLIKES_DELETED_RECORD(){
+
     }
 
-    actual suspend fun CLEAR_BIG_AVATARS() {
-        bigAvatars.clear_big_avatars()
+    actual suspend fun INSERT_CHATS_LIKES(kChatsLikes: KChatsLikes){
+
     }
 
-    actual suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String) {
-        bigAvatars.delete_big_avatars(OBJECTS_ID)
+    actual suspend fun SELECT_CHATSLIKES_ALL(){
+
     }
 
-    actual suspend fun DELETE_LASTUPDATE(CASH_SUM: Long) {
-        lastUpdate.delete_lastupdate(CASH_SUM.toString())
+    /////////////commands///////////////////////////
+
+    actual suspend fun TABLE_COMMANDS(){
+
     }
 
-    actual suspend fun DELETE_ALL_SAVEMEDIA(CONNECTION_ID: Long, IS_TEMP: Int) {
-        saveMedia.delete_all_savemedia(CONNECTION_ID.toString(), IS_TEMP)
+    actual suspend fun INSERT_COMMANDS(kCommands: KCommands){
+
     }
 
-    actual suspend fun DELETE_SAVEMEDIA(OBJECTS_ID: String) {
-        saveMedia.delete_savemedia(OBJECTS_ID)
+    actual suspend fun SELECT_COMMANDS_ALL(){
+
     }
 
-    actual suspend fun DELETE_ALL_SENDMEDIA(CONNECTION_ID: Long) {
-        sendMedia.delete_all_sendmedia(CONNECTION_ID.toString())
+    actual suspend fun CLEAR_COMMANDS(){
+
     }
 
-    actual suspend fun DELETE_SENDMEDIA(OBJECTS_ID: String) {
-        sendMedia.delete_sendmedia(OBJECTS_ID)
+    /////////////exceptions///////////////////////////
+
+    actual suspend fun TABLE_EXCEPTION(){
+
     }
 
-    actual suspend fun DELETE_CHAT(CHATS_ID: String) {
-        chats.delete_chat(CHATS_ID)
+    actual suspend fun INSERT_EXCEPTION(kExceptions: KExceptions){
+
     }
 
-    actual suspend fun CLEAR_CHATS() {
-        chats.clear_chats()
+    actual suspend fun SELECT_EXCEPTION_ALL(){
+
     }
 
-    actual suspend fun DELETE_MESSEGE(CHATS_ID: String, MESSEGES_ID: Long) {
-        messeges.delete_messege(CHATS_ID, MESSEGES_ID.toString())
+    actual suspend fun CLEAR_EXCEPTION(){
+
     }
+
+    /////////////messeges///////////////////////////
+
+    actual suspend fun TABLE_MESSEGES(){
+
+    }
+
+    actual suspend fun INDEX_MESSEGES_ORDER_DESC(){
+
+    }
+
+    actual suspend fun TRIGGER_MESSEGES_CONTROL_COUNT(){
+
+    }
+
+    actual suspend fun TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS(){
+
+    }
+
+    actual suspend fun INSERT_MESSEGES(kMessege: KMessege){
+
+    }
+
+    actual suspend fun SELECT_MESSEGES_LIMIT(L_CHATS_ID: String, L_MESSEGES_COUNT: Long = 999999999999999999){
+
+    }
+
+    actual suspend fun CLEAR_MESSEGES(){
+
+    }
+
+    /////////////meta data///////////////////////////
+
+    actual suspend fun TABLE_METADATA(){
+
+    }
+
+    actual suspend fun INSERT_METADATA(kMetaData: KMetaData){
+
+    }
+
+    actual suspend fun CLEAR_METADATA(){
+
+    }
+
+    actual suspend fun SELECT_ALL_METADATA() {
+
+    }
+
+    /////////////reg data///////////////////////////
+
+    actual suspend fun TABLE_REGDATA(){
+
+    }
+
+    actual suspend fun TRIGGER_REGDATA_INSERT(){
+
+    }
+
+    actual suspend fun TRIGGER_REGDATA_DELETE(){
+
+    }
+
+    actual suspend fun INSERT_REGDATA(kRegData: KRegData){
+
+    }
+
+    actual suspend fun CLEAR_REGDATA(){
+
+    }
+
+    actual suspend fun SELECT_REGDATA_ALL(){
+
+    }
+
+    /////////////save media///////////////////////////
+
+    actual suspend fun TABLE_SAVEMEDIA(){
+
+    }
+
+    actual suspend fun INDEX_SAVEMEDIA_CONNECTIONID(){
+
+    }
+
+    actual suspend fun INDEX_SAVEMEDIA_LASTUSED(){
+
+    }
+
+    actual suspend fun INDEX_SAVEMEDIA_ISTEMP(){
+
+    }
+
+    actual suspend fun INDEX_SAVEMEDIA_AVATARID(){
+
+    }
+
+    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT(){
+
+    }
+
+    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT(){
+
+    }
+
+    actual suspend fun INSERT_SAVEMEDIA(){
+
+    }
+
+    actual suspend fun SELECT_SAVEMEDIA_ALL(kSaveMedia: KSaveMedia){
+
+    }
+
+    actual suspend fun DELETE_SAVEMEDIA(){
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    actual suspend fun connect(){
+
+    }
+
+    @ExperimentalStdlibApi
+    actual suspend fun SELECT_ALL_METADATA(){
+        val res = metaData.select_MetaData_all().execute()
+        while (res.next()) {
+            KMetaData.setMETA_DATA(res.getString(0)!!, res.getLong(1)!!, res.getLong(2)!!)
+        }
+    }
+
+    actual suspend fun SELECT_METADATA(VALUE_NAME: String){
+        val res = metaData.select_MetaData(VALUE_NAME).execute()
+        while (res.next()) {
+            KMetaData.setMETA_DATA(res.getString(0)!!, res.getLong(1)!!, res.getLong(2)!!)
+        }
+    }
+
 
     actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE, lcheck_sum: Long) {
         lANSWER_TYPE.createIDENTIFICATOTS()
@@ -322,9 +495,7 @@ actual class SQLStatement actual constructor() {
         commands.insert_commands(COMMANDS_ID, COMMANDS_ACCESS, COMMANDS_PROFILE, COMMANDS_NECESSARILY_FIELDS)
     }
 
-    actual suspend fun INSERT_METADATA(VALUE_NAME: String, VALUE_VALUE: Int) {
-        metaData.insert_metadata(VALUE_NAME, VALUE_VALUE)
-    }
+
 
     actual suspend fun INSERT_SAVEMEDIA(
         OBJECTS_ID: String,
@@ -501,22 +672,7 @@ actual class SQLStatement actual constructor() {
         } else null
     }
 
-    @ExperimentalStdlibApi
-    actual suspend fun SELECT_ALL_METADATA(): ArrayDeque<KMetaData> {
-        val res = metaData.select_all_metadata().execute()
-        val ret = ArrayDeque<KMetaData>()
-        while (res.next()) {
-            val m = KMetaData()
-            m.setVALUE_NAME(res.getString(0)!!)
-            m.setVALUE_VALUE(res.getString(1)!!.toInt())
-            ret.add(m)
-        }
-        return ret
-    }
 
-    actual suspend fun SELECT_METADATA(VALUE_NAME: String): Int {
-        return metaData.select_metadata(VALUE_NAME).executeAsOne()
-    }
 
     @ExperimentalStdlibApi
     actual suspend fun SELECT_ALL_COMMANDS(): ArrayDeque<KCommands> {
@@ -683,5 +839,7 @@ actual class SQLStatement actual constructor() {
         }
         return ret
     }
+
+
 
 }

@@ -11,9 +11,6 @@ import lib_exceptions.exc_queue_is_full
 import kotlin.jvm.Synchronized
 import kotlin.time.ExperimentalTime
 
-private const val standartQueueSize = 1000
-
-
 @InternalAPI
 private val <T> Queue<T>.lock: Lock
     get() = Lock()
@@ -40,7 +37,7 @@ suspend fun <T> Queue<T>.dequeue(timOut: Long): T? {
 
 @Synchronized
 @InternalAPI
-fun <T> Queue<T>.enqueue(v:T, size:Int = standartQueueSize, whatQueue: String) {
+fun <T> Queue<T>.enqueue(v:T, size:Int = STANDART_QUEUE_SIZE, whatQueue: String) {
     lock.withLock {
         if (this.size > size) {
             condition.cSignal()

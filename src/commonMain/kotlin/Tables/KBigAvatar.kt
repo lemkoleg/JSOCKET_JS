@@ -9,75 +9,73 @@ package Tables
 
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
-import p_jsocket.ANSWER_TYPE
-import sql.Sqlite_service
+import p_client.Jsocket
+import sql.SELECT_BIG_AVATARS
 import kotlin.js.JsName
 
 /**
  *
  * @author User
  */
+
+val BIG_AVATARS: MutableMap<String, KBigAvatar> = mutableMapOf()
+
+@InternalAPI
+private val lock = Lock()
+
 @JsName("BigAvatar")
-open class KBigAvatar :ANSWER_TYPE {
+open class KBigAvatar {
 
+    private var AVATAR_ID: String = ""
+    private var LAST_USE: Long = 0L
+    private var AVATAR: ByteArray? = null
 
-    constructor(): super()
+    private constructor()
 
-    constructor(ans : ANSWER_TYPE): super(ans)
+    constructor(L_AVATAR_ID: String,
+                L_LAST_USE: Long,
+                L_AVATAR: ByteArray){
+        AVATAR_ID = L_AVATAR_ID
+        LAST_USE = L_LAST_USE
+        AVATAR = L_AVATAR
+    }
+
+    @InternalAPI
+    constructor(jsocket: Jsocket){
+        if(jsocket.value_par1.isEmpty() || jsocket.content == null || jsocket.content!!.isEmpty()){
+            return
+        }
+        AVATAR_ID = jsocket.value_id3
+        LAST_USE = DateTime.nowUnixLong()
+        AVATAR = jsocket.content
+    }
+
+    @JsName("getAVATAR_ID")
+    fun getAVATAR_ID(): String {
+        return AVATAR_ID
+    }
+
+    @JsName("getLAST_USE")
+    fun getLAST_USE(): Long{
+        return LAST_USE
+    }
 
     @JsName("getAVATAR")
     fun getAVATAR(): ByteArray? {
-        return BLOB_3
+        return AVATAR
     }
 
-    @JsName("setAVATAR")
-    fun setAVATAR(v: ByteArray) {
-        BLOB_1 = v
-    }
-
-    @JsName("getTIME_ADDED")
-    fun getTIME_ADDED(): Long {
-        return LONG_18 ?: 0L
-    }
-
-    @JsName("setTIME_ADDED")
-    fun setTIME_ADDED(v: Long) {
-        LONG_18 = if (v == 0L) DateTime.nowUnixLong()
-        else v
-    }
 
     companion object {
-        @InternalAPI
-        val lock = Lock()
 
-        @ExperimentalStdlibApi
         @InternalAPI
-        @JsName("IsExistBigAvatar")
-        protected suspend fun IsExistBigAvatar(lObjectID: String): Boolean {
-            try{
-            lock.lock()
-                val b =
-                    Sqlite_service.SelectBigAvatar(lObjectID.trim())
-                return (b != null)
-            }
-            finally {
-                lock.unlock()
+        suspend fun GET_AVATAR(jsocket: Jsocket){
+            var kBigAvatar: KBigAvatar? = BIG_AVATARS[jsocket.value_id3]
+            if(kBigAvatar == null){
+                kBigAvatar = SELECT_BIG_AVATARS(jsocket.value_id3)
             }
         }
 
-        @ExperimentalStdlibApi
-        @InternalAPI
-        @JsName("ReturnExistingTimeAdded")
-        suspend fun ReturnExistingTimeAdded(lObjectID: String): Long {
-            try{
-            lock.lock()
-                val b =
-                    Sqlite_service.SelectBigAvatar(lObjectID.trim())
-                return b?.getTIME_ADDED() ?: 0L
-            }
-            finally {
-                lock.unlock()
-            }
-        }
+
     }
 }

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Chats
  CHATS_TYPE TEXT NOT NULL,                     --STRING_7.substring(5, 6)
  CHATS_ACCESS TEXT NOT NULL,                   --STRING_7.substring(6, 7)
  CHATS_STATUS TEXT NOT NULL,                   --STRING_7.substring(7, 8)
- ADDING_DATE TEXT NOT NULL,                    --LONG_4
+ ADDING_DATE INTEGER NOT NULL,                 --LONG_4
  BALANCE INTEGER NOT NULL,                     --LONG_9
  LAST_MESSEGES_ADDING INTEGER NOT NULL,        --LONG_10
  DATE_CLOSED INTEGER NOT NULL,                 --LONG_6
@@ -37,7 +37,7 @@ CREATE INDEX IChatsConnectionId ON Chats(CONNECTION_ID);
 index_Chats_AvatarId:
 CREATE INDEX IChatsAvatarId ON Chats(AVATAR_ID);
 
-trigger_Chats:
+trigger_Chats_delete:
 CREATE TRIGGER TChats_DELETE
 AFTER DELETE ON Chats
 FOR EACH ROW
@@ -54,12 +54,16 @@ WHEN
 (SELECT count(*) FROM Chats) > (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS')
 BEGIN
 DELETE FROM Chats WHERE CHATS_ID NOT IN
-(SELECT CHATS_ID FROM Chats ORDER BY LAST_MESSEGES_ADDING DESC
-LIMIT (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS'));
+(SELECT CHATS_ID
+ FROM Chats
+ ORDER BY LAST_MESSEGES_ADDING DESC
+ LIMIT (SELECT  VALUE_VALUE
+        FROM MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS'));
 END;
 
-insert_chats:
-REPLACE INTO Chats
+insert_Chats:
+INSERT OR REPLACE INTO Chats
 ( CHATS_ID,
   MESSEGES_COUNT,
   COUNT_OF_MEMBERS,
@@ -85,6 +89,9 @@ REPLACE INTO Chats
 VALUES 
 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-select_all_chats:
+select_Chats_all:
 SELECT * FROM Chats
 ORDER BY LAST_MESSEGES_ADDING DESC;
+
+claer_Chats:
+DELETE FROM Chats;

@@ -9,16 +9,11 @@ package p_client
 
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KSaveMedia
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
+import io.ktor.utils.io.core.*
 import lib_exceptions.exc_error_on_create_Client_File_Service
 import lib_exceptions.exc_universal_exception.returnException
-import p_jsocket.Command
-import p_jsocket.Commands
-import p_jsocket.Connection
-import p_jsocket.HASH
+import p_jsocket.*
 import sql.Sqlite_service
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -28,28 +23,23 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
-@ExperimentalStdlibApi
-@InternalAPI
-@DangerousInternalIoApi
+
 @JsName("ClientExecutor")
-class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
-    private var jsocket: Jsocket = lJsocket
+class ClientExecutor {
+
+    @InternalAPI
+    private lateinit var jsocket: Jsocket
     private val MySend_JSOCKETs: Send_JSOCKETs = Send_JSOCKETs()
 
+    @InternalAPI
     private var connection: Connection? = null
     private var clientFileService: ClientFileService? = null
     private var curCommand: Command? = null
 
-
-
-    @KorioExperimentalApi
-    @ExperimentalUnsignedTypes
-    @ExperimentalIoApi
-    @ExperimentalTime
-    suspend fun execute() {
+    @InternalAPI
+    suspend fun execute(lJsocket: Jsocket) {
         try {
+            jsocket = lJsocket
             curCommand = Commands[jsocket.just_do_it]
             if (curCommand!!.commands_access == "7") {
                 self_execute()
@@ -90,24 +80,21 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @ExperimentalTime
-    @ExperimentalIoApi
+    @InternalAPI
     private suspend fun default_execute() {
-        val j :Jsocket? = if (curCommand!!.isCaching) {
+        val j: Jsocket? = if (curCommand!!.isCaching) {
             Sqlite_service.SelectCashData(jsocket)
         } else {
             MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
         }
-        if(j != null ){
+        if (j != null) {
             jsocket = j
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @KorioExperimentalApi
-    @ExperimentalTime
-    @ExperimentalIoApi
+
     private suspend fun update_account() {
         try {
             if (jsocket.value_par7.trim().isEmpty()) {
@@ -153,7 +140,7 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                 }
             }
             if (!curCommand!!.isCrypt) {
-                    //Sqlite_service.ClearRegData()
+                //Sqlite_service.ClearRegData()
                 if (jsocket.value_par8.trim().isNotEmpty()) {
                     val l1: Long = h.getNewTokenLong(jsocket.value_par7, p, jsocket.just_do_it_label)
                     if (jsocket.just_do_it != 1011000010 && jsocket.just_do_it != 1011000026) {
@@ -196,8 +183,8 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
                     Sqlite_service.InsertRegData()
                     try {
                         Sqlite_service.Connect().join()
+                    } catch (ex: Exception) {
                     }
-                    catch (ex: Exception){}
                     if (jsocket.ANSWER_TYPEs != null && jsocket.ANSWER_TYPEs!!.isNotEmpty()) {
                         Sqlite_service.InitializeCommands(jsocket)
                     }
@@ -298,13 +285,14 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
             clientFileService?.close()
         }
     }
+
     //////////////////////////////////////////////////////////////////////////////
     @ExperimentalTime
     @ExperimentalIoApi
     private suspend fun selectBigAvatar() {
-        if(jsocket.content != null && jsocket.content!!.isNotEmpty() && jsocket.value_id1.isNotEmpty()){
+        if (jsocket.content != null && jsocket.content!!.isNotEmpty() && jsocket.value_id1.isNotEmpty()) {
             val myKBigAvatar = Sqlite_service.SelectBigAvatar(jsocket.value_id1)
-            if(myKBigAvatar?.getSMALL_AVATAR_SIZE() != jsocket.content!!.size){
+            if (myKBigAvatar?.getSMALL_AVATAR_SIZE() != jsocket.content!!.size) {
                 jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
             }
         }
@@ -328,8 +316,8 @@ class ClientExecutor @ExperimentalIoApi constructor(lJsocket: Jsocket) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @ExperimentalTime
-    @ExperimentalIoApi
+
+    @OptIn(InternalAPI::class, kotlin.ExperimentalStdlibApi::class)
     private suspend fun quit_account() {
         jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
         if (jsocket.just_do_it_successfull == "0") {

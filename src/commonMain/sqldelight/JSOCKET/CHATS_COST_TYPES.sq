@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS ChatsCostTypes
 PRIMARY KEY (CHATS_ID, COST_ID));
 
 insert_ChatsCostTypes:
-REPLACE INTO ChatsCostTypes
+INSERT OR REPLACE INTO ChatsCostTypes
 ( CHATS_ID,
   COST_ID ,
   TYPES_OWNER,
@@ -50,6 +50,3 @@ ORDER BY  CHATS_ID, COST_ID;
 clear_ChatsCostTypes:
 DELETE FROM ChatsCostTypes;
 
-delete_ChatsCostTypes:
-DELETE FROM ChatsCostTypes
-WHERE CHATS_ID = ?;

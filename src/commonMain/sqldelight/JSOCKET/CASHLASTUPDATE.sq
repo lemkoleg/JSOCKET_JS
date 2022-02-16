@@ -2,6 +2,7 @@ table_CashLastUpdate:
 CREATE TABLE IF NOT EXISTS CashLastUpdate
 (CASH_SUM INTEGER NOT NULL,
  LAST_USE TEXT NOT NULL,
+ COUNT_OF_ROWS INTEGER NOT NULL,
  CONNECTION_ID INTEGER NOT NULL,
  PRIMARY KEY (CASH_SUM)
 );
@@ -22,39 +23,32 @@ END;
 
 trigger_CashLastUpdate_insert:
 CREATE TRIGGER TCashLastUpdate_Insert
-AFTER INSERT ON CashLastUpdate
+AFTER INSERT
+ON CashLastUpdate
 FOR EACH ROW
 BEGIN
-DELETE FROM CashLastUpdate  WHERE CASH_SUM = new.CASH_SUM
+DELETE FROM CashLastUpdate
+WHERE CASH_SUM <> new.CASH_SUM
 AND ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM) = 0);
 END;
 
-trigger_CashLastUpdate_control_count:
-CREATE TRIGGER TControlCountsCash
-AFTER INSERT
-ON CashLastUpdate
-WHEN
-(SELECT count(*) FROM CashData)>(SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA')
-BEGIN
-DELETE FROM CashLastUpdate WHERE CASH_SUM =
-(SELECT CASH_SUM FROM CashLastUpdate WHERE LAST_USE =
-(SELECT min(LAST_USE) FROM CashLastUpdate)
-LIMIT 1);
-END;
-
 insert_CashLastUpdate:
-REPLACE INTO CashLastUpdate
-(CASH_SUM, CONNECTION_ID, LAST_USE)
+INSERT OR REPLACE INTO CashLastUpdate
+(CASH_SUM, CONNECTION_ID, COUNT_OF_ROWS, LAST_USE)
 VALUES
-(?, ?, ?);
+(?, ?, ?, ?);
+
+update_CashLastUpdate_last_use:
+UPDATE CashLastUpdate
+SET    LAST_USE = ?
+WHERE  CASH_SUM = ?;
+
+select_CashLastUpdate:
+SELECT *
+FROM CashLastUpdate
+WHERE CONNECTION_ID = ?;
 
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
 
-delete_CashLastUpdate:
-DELETE FROM CashLastUpdate
-WHERE CASH_SUM = ?;
 
-select_CashLastUpdate_min_last_use:
-SELECT CASH_SUM FROM CashLastUpdate WHERE LAST_USE =
-(SELECT min(LAST_USE) FROM CashLastUpdate) LIMIT 1;

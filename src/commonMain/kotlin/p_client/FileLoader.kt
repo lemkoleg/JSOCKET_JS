@@ -7,7 +7,6 @@
 
 package p_client
 
-import CrossPlatforms.DEFAULT_AWAIT_TIMEOUT
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KSaveMedia
 import com.soywiz.korio.stream.AsyncStream
@@ -19,8 +18,8 @@ import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.exc_object_name_is_wrong
 import lib_exceptions.exc_universal_exception.returnException
+import p_jsocket.CLIENT_TIMEOUT
 import p_jsocket.Connection
-import p_jsocket.enqueue
 import p_jsocket.nowNano
 import sql.Sqlite_service.SAVEMEDIA
 import kotlin.js.JsName
@@ -32,23 +31,22 @@ import kotlin.time.ExperimentalTime
  */
 @JsName("FileLoader")
 object FileLoader {
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
+    @InternalAPI
     private var newTask: Jsocket? = null
 
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
+    @InternalAPI
     private var currentTask: Jsocket? = null
 
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
+    @InternalAPI
     private var errorTask: Jsocket? = null
     private var clientFileService: ClientFileService? = null
-    private const val WAITTIMEOUT: Long = 10000L
+
     private var currentChunk: Int? = 0
 
     @InternalAPI
     private val lock = Lock()
+
+    private val listener: Listener? = Listener.get_Instance()
 
     ////////////////////////////////////////////////////////////////////////////////
     @DangerousInternalIoApi
@@ -60,7 +58,7 @@ object FileLoader {
     @JsName("setTask")
     suspend fun setTask(ljsocket: Jsocket): AsyncStream? {
         return try {
-            withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+            withTimeoutOrNull(CLIENT_TIMEOUT) {
                 try {
                     lock.lock()
                         errorTask = null
@@ -171,8 +169,8 @@ object FileLoader {
     private suspend fun sendTask(ljsocket: Jsocket): Jsocket {
         try {
             ljsocket.just_do_it_label = nowNano()
-            Listener.InJSOCKETs.enqueue(ljsocket, ListenerQUEUESize, "Listener.InJSOCKETs")
-            if (!ljsocket.condition.cAwait(WAITTIMEOUT)) {
+            listener!!.setInJSOCKETs(ljsocket)
+            if (!ljsocket.condition.cAwait(CLIENT_TIMEOUT)) {
                 ljsocket.just_do_it_successfull = "4"
                 ljsocket.db_massage = returnException(90031, ljsocket.lang)
             }
@@ -194,8 +192,8 @@ object FileLoader {
     @JsName("getTask")
     suspend fun getTask() {
         try {
-            withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                lock.withLock {
+            withTimeoutOrNull(CLIENT_TIMEOUT) {
+                lock.lock()
                     if (currentTask != null && clientFileService != null && !clientFileService!!.MyFileService.IsDownloaded()) {
                         currentChunk = clientFileService!!.MyFileService.ReturnNextNotDownloadedChankNumber(
                                 currentTask!!.value_par1.toInt()
@@ -203,15 +201,16 @@ object FileLoader {
                         if (currentChunk!! > -1) {
                             currentTask!!.value_par1 = currentChunk.toString()
                             currentTask!!.value_par2 = "0"
-                            Listener.InJSOCKETs.enqueue(currentTask!!, ListenerQUEUESize, "Listener.InJSOCKETs")
+                            listener!!.setInJSOCKETs(currentTask)
                         } else {
                             currentTask = null
                         }
                     }
                 }
-            }
         } catch (ex: Exception) {
             WriteExceptionIntoFile(ex, "FileLoader.task")
+        }finally {
+            lock.unlock()
         }
     }
 
@@ -221,9 +220,10 @@ object FileLoader {
     @DangerousInternalIoApi
     @ExperimentalStdlibApi
     @JsName("executeTask")
-    suspend fun executeTask(ljsocket: Jsocket, Connection: Connection) {
+    suspend fun executeTask(ljsocket: Jsocket,
+                            Connection: Connection) {
         try {
-            withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+            withTimeoutOrNull(CLIENT_TIMEOUT) {
                 lock.lock()
                 if (ljsocket.value_id1 != clientFileService!!.myKSaveMedia!!.getOBJECT_ID()) {
                     throw exc_object_name_is_wrong(ljsocket.value_id1)

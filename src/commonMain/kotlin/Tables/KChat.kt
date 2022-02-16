@@ -7,13 +7,13 @@
 
 package Tables
 import atomic.AtomicLong
-import io.ktor.util.InternalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import p_jsocket.ANSWER_TYPE
 import sql.Sqlite_service
-import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 
 
@@ -21,26 +21,70 @@ import kotlin.js.JsName
  *
  * @author User
  */
+
+@InternalAPI
+val CHATS: MutableMap<String, KChat> = mutableMapOf()
+
 @InternalAPI
 @JsName("KChat")
-class KChat :ANSWER_TYPE, CoroutineScope {
+class KChat :ANSWER_TYPE{
 
-    val MESSEGES: MutableMap<Long?, KMessege?> = mutableMapOf()
-    override val coroutineContext: CoroutineContext = Dispatchers.Unconfined
-    private val ChatContext = CoroutineScope(coroutineContext)
+
 
     constructor(): super(){
     }
 
     @ExperimentalStdlibApi
     @InternalAPI
-    constructor(ans : ANSWER_TYPE, isAddSqLite: Boolean): super(ans){
+    constructor(ans : ANSWER_TYPE): super(ans){
         setGlobalLastUpdatingDate(getLAST_UPDATE())
-        if(isAddSqLite) {
-            val m = this
-            ChatContext.launch {Sqlite_service.InsertChat(m)}
-        }
+        MainScope().launch {Sqlite_service.InsertChat(this as KChat)}
     }
+
+    /*
+    constructor(CHATS_ID: String,
+                L_MESSEGES_COUNT: Long,
+                L_COUNT_OF_MEMBERS: Long,
+                L_CHATS_OWNER: String,
+                L_CHATS_TWINS: String,
+                L_CHATS_NAME: String?,
+                L_AVATAR_ID: String?,
+                L_CHATS_PROFILE: String,
+                L_CHATS_TYPE: String,
+                L_CHATS_ACCESS: String,
+                L_CHATS_STATUS: String,
+                L_ADDING_DATE: Long,
+                L_BALANCE: Long?,
+                L_LAST_MESSEGES_ADDING: Long,
+                L_DATE_CLOSED: Long,
+                L_CHATS_SUBSCRIBE: String?,
+                L_LAST_UPDATE: Long,
+                L_ORIGINAL_AVATAR_SIZE: String?,
+                L_AVATAR_SERVER: String?,
+                L_AVATAR_LINK: String?,
+                L_AVATAR: ByteArray?,
+                L_STRING_20: String): super(){
+        setCHATS_ID(CHATS_ID)
+        setMESSEGES_COUNT(L_MESSEGES_COUNT)
+        setCOUNT_OF_MEMBERS(L_COUNT_OF_MEMBERS)
+        setCHATS_OWNER(L_CHATS_OWNER)
+        setCHATS_TWINS(L_CHATS_TWINS)
+        setCHATS_NAME(L_CHATS_NAME)
+        setAVATAR_ID(L_AVATAR_ID)
+        setPROFILE_LINE(L_CHATS_PROFILE, L_CHATS_TYPE, L_CHATS_ACCESS,L_CHATS_STATUS)
+        setADDING_DATE(L_ADDING_DATE)
+        setBALANCE(L_BALANCE)
+        setLAST_MESSEGES_ADDING(L_LAST_MESSEGES_ADDING)
+        setDATE_CLOSED(L_DATE_CLOSED)
+        setSUBSCRIBE(L_CHATS_SUBSCRIBE)
+        setLAST_UPDATE(L_LAST_UPDATE)
+        setORIGINAL_AVATAR_SIZE(L_ORIGINAL_AVATAR_SIZE)
+        setAVATAR_SERVER(L_AVATAR_SERVER)
+        setAVATAR_LINK(L_AVATAR_LINK)
+        setAVATAR1(L_AVATAR)
+        setSTRING_20(L_STRING_20)
+    }
+    */
 
     @JsName("getCHATS_ID")
     fun getCHATS_ID():String{
@@ -78,8 +122,18 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     }
 
     @JsName("setCHATS_OWNER")
-    fun getCHATS_OWNER(v:String){
+    fun setCHATS_OWNER(v:String){
         IDENTIFICATOR_7 = v
+    }
+
+    @JsName("getCHATS_TWINS")
+    fun getCHATS_TWINS():String{
+        return IDENTIFICATOR_8?:""
+    }
+
+    @JsName("setCHATS_TWINS")
+    fun setCHATS_TWINS(v:String){
+        IDENTIFICATOR_8 = v
     }
 
     @JsName("getCHATS_NAME")
@@ -98,12 +152,12 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     }
 
     @JsName("setAVATAR_ID")
-    fun getAVATAR_ID(v:String?){
+    fun setAVATAR_ID(v:String?){
         IDENTIFICATOR_6 = v?:""
     }
 
     @JsName("getCHATS_PROFILE")
-    fun setCHATS_PROFILE():String?{
+    fun getCHATS_PROFILE():String?{
         if(STRING_7 == null || STRING_7!!.length < 5){
             return null
         }
@@ -111,7 +165,7 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     }
 
     @JsName("getCHATS_TYPE")
-    fun setCHATS_TYPE():String?{
+    fun getCHATS_TYPE():String?{
         if(STRING_7 == null || STRING_7!!.length < 6){
             return null
         }
@@ -119,7 +173,7 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     }
 
     @JsName("getCHATS_ACCESS")
-    fun setCHATS_ACCESS():String?{
+    fun getCHATS_ACCESS():String?{
         if(STRING_7 == null || STRING_7!!.length < 7){
             return null
         }
@@ -127,7 +181,7 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     }
 
     @JsName("getCHATS_STATUS")
-    fun setCHATS_STATUS():String?{
+    fun getCHATS_STATUS():String?{
         if(STRING_7 == null || STRING_7!!.length < 8){
             return null
         }
@@ -207,7 +261,7 @@ class KChat :ANSWER_TYPE, CoroutineScope {
         merge(lANSWER_TYPE)
         setGlobalLastUpdatingDate(LONG_7 ?: 0L)
         if(isAddSqLite){
-            ChatContext.launch {Sqlite_service.InsertChat(this@KChat)}
+            CoroutineScope(Dispatchers.Default).launch {Sqlite_service.InsertChat(this@KChat)}
         }
     }
 
@@ -227,9 +281,9 @@ class KChat :ANSWER_TYPE, CoroutineScope {
     fun InsertNewMessege(m: KMessege) {
         if (m.getCHATS_ID() == getCHATS_ID()) {
             if (MESSEGES.containsKey(m.getMESSEGES_COUNT())) {
-                ChatContext.launch { MESSEGES[m.getMESSEGES_COUNT()]!!.merge(m)}
+                CoroutineScope(Dispatchers.Default).launch { MESSEGES[m.getMESSEGES_COUNT()]!!.merge(m)}
             } else {
-                ChatContext.launch {Sqlite_service.InsertMessege(m)}
+                CoroutineScope(Dispatchers.Default).launch {Sqlite_service.InsertMessege(m)}
             }
             MESSEGES[m.getMESSEGES_COUNT()] = m
         }

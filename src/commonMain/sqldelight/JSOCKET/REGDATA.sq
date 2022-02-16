@@ -30,10 +30,10 @@ CHECK (
 
 trigger_RegData_insert:
 CREATE TRIGGER TRegData_Insert
- BEFORE INSERT ON RegData
- FOR EACH ROW
+ AFTER INSERT ON RegData
  BEGIN
- DELETE FROM RegData;
+ DELETE FROM RegData
+ WHERE CONNECTION_ID != new.CONNECTION_ID;
 END;
 
 trigger_RegData_delete:
@@ -46,7 +46,7 @@ CREATE TRIGGER TRegData_Delete
 END;
        
 insert_RegData:
-REPLACE INTO RegData 
+INSERT OR REPLACE INTO RegData
 (CONNECTION_ID,
  CONNECTION_COOCKI,
  DATABASE_ID,

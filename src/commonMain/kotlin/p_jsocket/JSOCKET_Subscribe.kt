@@ -7,17 +7,15 @@
 
 package p_jsocket
 
-import io.ktor.util.InternalAPI
-import io.ktor.utils.io.core.ExperimentalIoApi
+import io.ktor.util.*
 import lib_exceptions.exc_error_to_create_JSOCKET_Subscribe
 import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
 /**
  *
  * @author Oleg
  */
-@ExperimentalTime
+@InternalAPI
 @JsName("JSOCKET_Subscribe")
 class JSOCKET_Subscribe
 constructor(
@@ -31,10 +29,7 @@ constructor(
     val fields_crypted: Int,
     val serialied: Boolean,
     val check_suming: Boolean){
-    @InternalAPI
-    @ExperimentalTime
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
+
     val getFieldsValue: (JSOCKET) -> Any? = when(fields_number)
        {1 -> { j: JSOCKET -> j.connection_id}
         2 -> { j: JSOCKET -> j.connection_coocki}
@@ -74,9 +69,6 @@ constructor(
     }
 
     @InternalAPI
-    @ExperimentalTime
-    @ExperimentalIoApi
-    @ExperimentalStdlibApi
     val setFieldsValue: (JSOCKET, Any?) -> Unit = when(fields_number)
        {1 -> { j: JSOCKET, v: Any? -> j.connection_id = (v as Long?)?:0L}
         2 -> { j: JSOCKET, v: Any? -> j.connection_coocki = (v as Long?)?:0L}

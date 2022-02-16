@@ -12,222 +12,276 @@ expect var sqlDriver: SqlDriver?
 @JsName("SQLStatement")
 expect class SQLStatement() {
 
-    @JsName("SELECT_LASTUPDATE")
-    suspend fun SELECT_LASTUPDATE(CASH_SUM : Long):Long?
-/////////////////////////////////////////////////////////////////////////
-    @JsName("connect")
-    suspend fun connect()
-    @JsName("TABLE_METADATA")
-    suspend fun TABLE_METADATA()
-    @JsName("TABLE_CASHDATA")
-    suspend fun TABLE_CASHDATA()
-    @JsName("TRIGGER_CASHDATA_BLOB_1")
-    suspend fun TRIGGER_CASHDATA_BLOB_1()
-    @JsName("TRIGGER_CASHDATA_BLOB_2")
-    suspend fun TRIGGER_CASHDATA_BLOB_2()
-    @JsName("TRIGGER_CASHDATA_BLOB_3")
-    suspend fun TRIGGER_CASHDATA_BLOB_3()
-    @JsName("TRIGGER_CASHDATA_BLOB_4")
-    suspend fun TRIGGER_CASHDATA_BLOB_4()
-    @JsName("TRIGGER_CASHDATA_BLOB_5")
-    suspend fun TRIGGER_CASHDATA_BLOB_5()
-    @JsName("TRIGGER_CASHDATA_BLOB_6")
-    suspend fun TRIGGER_CASHDATA_BLOB_6()
-    @JsName("TRIGGER_CASHDATA_BLOB_7")
-    suspend fun TRIGGER_CASHDATA_BLOB_7()
-    @JsName("TRIGGER_CASHDATA_BLOB_8")
-    suspend fun TRIGGER_CASHDATA_BLOB_8()
-    @JsName("TRIGGER_CASHDATA_BLOB_9")
-    suspend fun TRIGGER_CASHDATA_BLOB_9()
-    @JsName("TRIGGER_CASHDATA_BLOB_10")
-    suspend fun TRIGGER_CASHDATA_BLOB_10()
-    @JsName("TRIGGER_CASHDATA_DELETING_RECORDS")
-    suspend fun TRIGGER_CASHDATA_DELETING_RECORDS()
-    @JsName("TABLE_REGDATA")
-    suspend fun TABLE_REGDATA()
-    @JsName("TRIGGER_INSERT_REGDATA")
-    suspend fun TRIGGER_INSERT_REGDATA()
-    @JsName("TABLE_COMMANDS")
-    suspend fun TABLE_COMMANDS()
-    @JsName("TABLE_SAVEMEDIA")
-    suspend fun TABLE_SAVEMEDIA()
-    @JsName("INDEX_SAVEMEDIA")
-    suspend fun INDEX_SAVEMEDIA()
+    ///////////////////////////////////big avatars///////////////////////////
     @JsName("TABLE_BIG_AVATARS")
     suspend fun TABLE_BIG_AVATARS()
-    @JsName("INDEX_BIG_AVATARS")
-    suspend fun INDEX_BIG_AVATARS()
-    @JsName("TRIGGER_CONTROL_COUNT_BIG_AVATARS")
-    suspend fun TRIGGER_CONTROL_COUNT_BIG_AVATARS()
-    @JsName("TABLE_SENDMEDIA")
-    suspend fun TABLE_SENDMEDIA()
-    @JsName("TRIGGER_INSERT_SENDMEDIA")
-    suspend fun TRIGGER_INSERT_SENDMEDIA()
-    @JsName("TABLE_LASTUPDATE")
-    suspend fun TABLE_LASTUPDATE()
-    @JsName("INDEX_LASTUPDATE")
-    suspend fun INDEX_LASTUPDATE()
-    @JsName("TRIGGER_DELETE_LASTUPDATE")
-    suspend fun TRIGGER_DELETE_LASTUPDATE()
-    @JsName("TRIGGER_INSERT_LASTUPDATE")
-    suspend fun TRIGGER_INSERT_LASTUPDATE()
-    @JsName("TRIGGER_CONTROL_COUNT_CASH")
-    suspend fun TRIGGER_CONTROL_COUNT_CASH()
-    @JsName("TABLE_CHATS")
-    suspend fun TABLE_CHATS()
-    @JsName("TRIGGER_DELETE_CHATS")
-    suspend fun TRIGGER_DELETE_CHATS()
-    @JsName("TRIGGER_CONTROL_COUNT_CHATS")
-    suspend fun TRIGGER_CONTROL_COUNT_CHATS()
-    @JsName("TABLE_MESSEGES")
-    suspend fun TABLE_MESSEGES()
-    @JsName("TRIGGER_CONTROL_COUNT_MESSEGES")
-    suspend fun TRIGGER_CONTROL_COUNT_MESSEGES()
-///////////////////////////////////////////////////////////////////////
 
-    @JsName("UPDATE_LAST_USE_LASTUPDATE")
-    suspend fun UPDATE_LAST_USE_LASTUPDATE(LAST_USE:Long, CASH_SUM: Long)
-//////////////////////////////////////////////////////////////////////////
-    @JsName("CLEAR_CASHDATA")
-    suspend fun CLEAR_CASHDATA()
-    @JsName("CLEAR_LASTUPDATE")
-    suspend fun CLEAR_LASTUPDATE()
-    @JsName("CLEAR_REGDATA")
-    suspend fun CLEAR_REGDATA()
-    @JsName("CLEAR_COMMANDS")
-    suspend fun CLEAR_COMMANDS()
-    @JsName("CLEAR_METADATA")
-    suspend fun CLEAR_METADATA()
-    @JsName("CLEAR_BIG_AVATARS")
-    suspend fun CLEAR_BIG_AVATARS()
-    @JsName("DELETE_BIG_AVATARS")
-    suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String)
-    @JsName("DELETE_LASTUPDATE")
-    suspend fun DELETE_LASTUPDATE(CASH_SUM: Long)
-    @JsName("DELETE_ALL_SAVEMEDIA")
-    suspend fun DELETE_ALL_SAVEMEDIA(CONNECTION_ID: Long, IS_TEMP: Int)
-    @JsName("DELETE_SAVEMEDIA")
-    suspend fun DELETE_SAVEMEDIA(OBJECTS_ID: String)
-    @JsName("DELETE_ALL_SENDMEDIA")
-    suspend fun DELETE_ALL_SENDMEDIA(CONNECTION_ID: Long)
-    @JsName("DELETE_SENDMEDIA")
-    suspend fun DELETE_SENDMEDIA(OBJECTS_ID: String)
-    @JsName("DELETE_CHAT")
-    suspend fun DELETE_CHAT(CHATS_ID: String)
-    @JsName("CLEAR_CHATS")
-    suspend fun CLEAR_CHATS()
-    @JsName("DELETE_MESSEGE")
-    suspend fun DELETE_MESSEGE(CHATS_ID: String, MESSEGES_ID: Long)
-//////////////////////////////////////////////////////////////////////
-    @JsName("INSERT_CASHDATA")
-    suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE, lcheck_sum: Long)
-    @JsName("INSERT_LASTUPDATE")
-    suspend fun INSERT_LASTUPDATE(CASH_SUM: Long, LAST_UPDATE: Long, LAST_USE: Long, IS_TEMP: Int)
-    @JsName("INSERT_REGDATA")
-    suspend fun INSERT_REGDATA(CONNECTION_ID: Long, CONNECTION_COOCKI: Long, MY_ID: String, LANG: String, REQUEST_PROFILE: String, ACCOUNT_PROFILE: String)
-    @JsName("INSERT_COMMANDS")
-    suspend fun INSERT_COMMANDS(COMMANDS_ID: Int, COMMANDS_ACCESS: String, COMMANDS_PROFILE: String, COMMANDS_NECESSARILY_FIELDS: String)
-    @JsName("INSERT_METADATA")
-    suspend fun INSERT_METADATA(VALUE_NAME: String, VALUE_VALUE: Int)
-    @JsName("INSERT_SAVEMEDIA")
-    suspend fun INSERT_SAVEMEDIA(OBJECTS_ID: String,
-                         OBJECTS_EXTENSION: String,
-                         CONNECTION_ID: Long,
-                         OBJECT_NAME: String,
-                         OBJECT_INFO: String,
-                         SMALL_AVATAR: ByteArray?,
-                         IS_TEMP: Int,
-                         IS_DOWNLOAD: Int,
-                         TIME_ADDED: Long,
-                         OBJECTS_SIZE: Long)
+    @JsName("INDEX_BIG_AVATARS_LAST_USE")  // for clear old last use in trigger
+    suspend fun INDEX_BIG_AVATARS_LAST_USE()
+
+    @JsName("TRIGGER_BIG_AVATARS_CONTROL_COUNT")
+    suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT()
+
     @JsName("INSERT_BIG_AVATARS")
-    suspend fun INSERT_BIG_AVATARS(OBJECTS_ID: String,
-                           TIME_ADDED: Long,
-                           IS_TEMP: Int,
-                           SMALL_AVATAR_SIZE: Int,
-                           AVATAR: ByteArray)
-    @JsName("INSERT_SENDMEDIA")
-    suspend fun INSERT_SENDMEDIA(OBJECTS_ID: String,
-                         OBJECTS_EXTENSION: String,
-                         FILE_NAME: String,
-                         CONNECTION_ID: Long,
-                         IS_DOWNLOAD: Int)
-    @JsName("INSERT_CHATS")
-    suspend fun INSERT_CHATS(CHATS_ID: String,
-                     CHATS_OWNER: String,
-                     LAST_MESSEGES_ID: Long,
-                     CHATS_OPPONENT: String,
-                     MESSEGES_COUNT: Long,
-                     CHATS_NAME: String,
-                     CHATS_SMALL_AVATAR: ByteArray?,
-                     CHATS_PROFILE: String,
-                     CHATS_ACCESS: String,
-                     CHATS_TYPE: String,
-                     CHATS_STATUS: String,
-                     LAST_UPDATING_DATE: Long,
-                     CHATS_SUBSCRIBE: String,
-                     CONNECTION_ID: String,
-                     IS_UPDATE_BLOB: String)
-    @JsName("INSERT_MESSEGES")
-    suspend fun INSERT_MESSEGES(CHATS_ID: String,
-                        MESSEGES_ID: Long,
-                        MESSEGES_CHATS_COUNT: Long,
-                        MESSEGES_OWNER: String,
-                        MESSEGES_ANSWER: Long,
-                        MESSEGES_ADRESSER: String,
-                        OBJECTS_LINK: String,
-                        MESSEGE_TEXT: String,
-                        MESSEGES_AVATAR: ByteArray?,
-                        MESSEGES_LIKES: Int,
-                        MESSEGES_DISLIKES: Int,
-                        NOT_DELIVERIED: Int,
-                        NOT_READED: Int,
-                        MESSEGES_ACCESS: String,
-                        MESSEGES_TYPE: String,
-                        DATE_ADDING: Long,
-                        LAST_UPDATING_DATE: Long,
-                        OBJECTS_LINK_SUBSCRIBE: String,
-                        OBJECTS_LINK_SMALL_AVATAR: ByteArray?)
-    @JsName("SELECT_COUNT_SAVEMEDIA")
-    suspend fun SELECT_COUNT_SAVEMEDIA(lTemp: Int):Int
+    suspend fun INSERT_BIG_AVATARS(kBigAvatar: KBigAvatar)
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_LAST_SAVEMEDIA")
-    suspend fun SELECT_LAST_SAVEMEDIA(IS_TEMP: Int): ArrayDeque<String>
     @JsName("SELECT_BIG_AVATARS")
     suspend fun SELECT_BIG_AVATARS(OBJECTS_ID: String):KBigAvatar?
-    @JsName("SELECT_ALL_REGDATA")
-    suspend fun SELECT_ALL_REGDATA():KRegData?
+
+    @JsName("SELECT_BIGAVATARS_ALL_ID")  //for save in memory
+    suspend fun SELECT_BIGAVATARS_ALL_ID()
+
+    @JsName("CLEAR_BIG_AVATARS")
+    suspend fun CLEAR_BIG_AVATARS()
+
+    @JsName("DELETE_BIG_AVATARS")
+    suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String)
+
+    /////////////cash data///////////////////////////
+
+    @JsName("TABLE_CASHDATA")
+    suspend fun TABLE_CASHDATA()
+
+    @JsName("INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION")
+    suspend fun INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION()
+
+    @JsName("INDEX_CASHDATA_CASH_SUM_OBJECT_ID")
+    suspend fun INDEX_CASHDATA_CASH_SUM_OBJECT_ID()
+
+    @JsName("TRIGGER_CASHDATA_CONTROL_COUNT")
+    suspend fun TRIGGER_CASHDATA_CONTROL_COUNT()
+
+    @JsName("TRIGGER_CASHDATA_DELETING_RECORDS")
+    suspend fun TRIGGER_CASHDATA_DELETING_RECORDS()
+
+    @JsName("INSERT_CASHDATA")
+    suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
+
+    @JsName("UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE")
+    suspend fun UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE(L_NUMBER_POSITION: Int, L_LAST_UPDATE: Long, L_CASH_SUM: Long, L_OBJECT_ID: Long)
+
+    @JsName("SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION") //for save in memory
+    suspend fun SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION()
 
     @ExperimentalStdlibApi
-    @JsName("SELECT_ALL_METADATA")
-    suspend fun SELECT_ALL_METADATA():ArrayDeque<KMetaData>
-    @JsName("SELECT_METADATA")
-    suspend fun SELECT_METADATA(VALUE_NAME: String):Int
+    @JsName("SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT") //for select next chunk
+    suspend fun SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT(CASH_SUM: Long, L_NUMBER_POSITION: Int)
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_ALL_COMMANDS")
-    suspend fun SELECT_ALL_COMMANDS():ArrayDeque<KCommands>
+    @JsName("CLEAR_CASHDATA")
+    suspend fun CLEAR_CASHDATA()
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_ALL_SAVEMEDIA")
-    suspend fun SELECT_ALL_SAVEMEDIA(CONN_ID: Long):ArrayDeque<KSaveMedia>
+    /////////////last update///////////////////////////
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_ALL_SENDMEDIA")
-    suspend fun SELECT_ALL_SENDMEDIA(CONN_ID: Long):ArrayDeque<KSendMedia>
+    @JsName("TABLE_CASHLASTUPDATE")
+    suspend fun TABLE_CASHLASTUPDATE()
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_CASHDATA")
-    suspend fun SELECT_CASHDATA(CASH_SUM: Long):ArrayDeque<ANSWER_TYPE>
+    @JsName("INDEX_CASHLASTUPDATE_LAST_USE")
+    suspend fun INDEX_CASHLASTUPDATE_LAST_USE()
+
+    @JsName("INDEX_CASHLASTUPDATE_CONNECTIONID")
+    suspend fun INDEX_CASHLASTUPDATE_CONNECTIONID()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_DELETE")
+    suspend fun TRIGGER_CASHLASTUPDATE_DELETE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_INSERT")
+    suspend fun TRIGGER_CASHLASTUPDATE_INSERT()
+
+    @JsName("INSERT_CASHLASTUPDATE")
+    suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate)
+
+    @JsName("UPDATE_CASHLASTUPDATE_LAST_USE")
+    suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate)
+
+    @JsName("SELECT_CASHLASTUPDATE")
+    suspend fun SELECT_CASHLASTUPDATE(L_CONNECTION_ID : Long)
+
+    @JsName("CLEAR_LASTUPDATE")
+    suspend fun CLEAR_LASTUPDATE()
+
+    /////////////chats///////////////////////////
+
+    @JsName("TABLE_CHATS")
+    suspend fun TABLE_CHATS()
+
+    @JsName("INDEX_CHATS_LAST_MESS_ADDING")
+    suspend fun INDEX_CHATS_LAST_MESS_ADDING()
+
+    @JsName("INDEX_CHATS_CONNECTIONID")
+    suspend fun INDEX_CHATS_CONNECTIONID()
+
+    @JsName("INDEX_CHATS_AVATARID")
+    suspend fun INDEX_CHATS_AVATARID()
+
+    @JsName("TRIGGER_CHATS_DELETE")
+    suspend fun TRIGGER_CHATS_DELETE()
+
+    @JsName("TRIGGER_CHATS_CONTROL_COUNT")
+    suspend fun TRIGGER_CHATS_CONTROL_COUNT()
 
     @InternalAPI
-    @ExperimentalStdlibApi
-    @JsName("SELECT_ALL_CHATS")
-    suspend fun SELECT_ALL_CHATS(CONNECTION_ID: String):ArrayDeque<KChat>
+    @JsName("INSERT_CHATS")
+    suspend fun INSERT_CHATS(kChat: KChat)
 
-    @ExperimentalStdlibApi
-    @JsName("SELECT_MESSEGES")
-    suspend fun SELECT_MESSEGES(CHATS_ID: String):ArrayDeque<KMessege>
+    @InternalAPI
+    @JsName("SELECT_CHATS_ALL")
+    suspend fun SELECT_CHATS_ALL()
+
+    @JsName("CLEAR_CHATS")
+    suspend fun CLEAR_CHATS()
+
+    /////////////chats cost types///////////////////////////
+
+    @JsName("TABLE_CHATS_COST_TYPES")
+    suspend fun TABLE_CHATS_COST_TYPES()
+
+    @JsName("INSERT_CHATS_COST_TYPES")
+    suspend fun INSERT_CHATS_COST_TYPES(kChatsCostTypes: KChatsCostTypes)
+
+    @JsName("SELECT_CHATS_COST_TYPES_ALL")
+    suspend fun SELECT_CHATS_COST_TYPES_ALL()
+
+    @JsName("CLEAR_CHATS_COST_TYPES")
+    suspend fun CLEAR_CHATS_COST_TYPES()
+
+    /////////////chats likes///////////////////////////
+
+    @JsName("TABLE_CHATS_LIKES")
+    suspend fun TABLE_CHATS_LIKES()
+
+    @JsName("INDEX_CHATSLIKES_AVATARID")
+    suspend fun INDEX_CHATSLIKES_AVATARID()
+
+    @JsName("INDEX_CHATSLIKES_ACCOUNTSID")
+    suspend fun INDEX_CHATSLIKES_ACCOUNTSID()
+
+    @JsName("TRIGGER_CHATSLIKES_DELETED_RECORD")
+    suspend fun TRIGGER_CHATSLIKES_DELETED_RECORD()
+
+    @JsName("INSERT_CHATS_LIKES")
+    suspend fun INSERT_CHATS_LIKES(kChatsLikes: KChatsLikes)
+
+    @JsName("SELECT_CHATSLIKES_ALL")
+    suspend fun SELECT_CHATSLIKES_ALL()
+
+    /////////////commands///////////////////////////
+
+    @JsName("TABLE_COMMANDS")
+    suspend fun TABLE_COMMANDS()
+
+    @JsName("INSERT_COMMANDS")
+    suspend fun INSERT_COMMANDS(kCommands: KCommands)
+
+    @JsName("SELECT_COMMANDS_ALL")
+    suspend fun SELECT_COMMANDS_ALL()
+
+    @JsName("CLEAR_COMMANDS")
+    suspend fun CLEAR_COMMANDS()
+
+    /////////////exceptions///////////////////////////
+
+    @JsName("TABLE_EXCEPTION")
+    suspend fun TABLE_EXCEPTION()
+
+    @JsName("INSERT_EXCEPTION")
+    suspend fun INSERT_EXCEPTION(kExceptions: KExceptions)
+
+    @JsName("SELECT_EXCEPTION_ALL")
+    suspend fun SELECT_EXCEPTION_ALL()
+
+    @JsName("CLEAR_EXCEPTION")
+    suspend fun CLEAR_EXCEPTION()
+
+    /////////////messeges///////////////////////////
+
+    @JsName("TABLE_MESSEGES")
+    suspend fun TABLE_MESSEGES()
+
+    @JsName("INDEX_MESSEGES_ORDER_DESC")
+    suspend fun INDEX_MESSEGES_ORDER_DESC()
+
+    @JsName("TRIGGER_MESSEGES_CONTROL_COUNT")
+    suspend fun TRIGGER_MESSEGES_CONTROL_COUNT()
+
+    @JsName("TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS")
+    suspend fun TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS()
+
+    @JsName("INSERT_MESSEGES")
+    suspend fun INSERT_MESSEGES(kMessege: KMessege)
+
+    @JsName("SELECT_MESSEGES_LIMIT")
+    suspend fun SELECT_MESSEGES_LIMIT(L_CHATS_ID: String, L_MESSEGES_COUNT: Long = 999999999999999999)
+
+    @JsName("CLEAR_MESSEGES")
+    suspend fun CLEAR_MESSEGES()
+
+    /////////////meta data///////////////////////////
+    @JsName("TABLE_METADATA")
+    suspend fun TABLE_METADATA()
+
+    @JsName("INSERT_METADATA")
+    suspend fun INSERT_METADATA(kMetaData: KMetaData)
+
+    @JsName("CLEAR_METADATA")
+    suspend fun CLEAR_METADATA()
+
+    @JsName("SELECT_ALL_METADATA")
+    suspend fun SELECT_ALL_METADATA()
+
+    /////////////reg data///////////////////////////
+
+    @JsName("TABLE_REGDATA")
+    suspend fun TABLE_REGDATA()
+
+    @JsName("TRIGGER_REGDATA_INSERT")
+    suspend fun TRIGGER_REGDATA_INSERT()
+
+    @JsName("TRIGGER_REGDATA_DELETE")
+    suspend fun TRIGGER_REGDATA_DELETE()
+
+    @JsName("INSERT_REGDATA")
+    suspend fun INSERT_REGDATA(kRegData: KRegData)
+
+    @JsName("CLEAR_REGDATA")
+    suspend fun CLEAR_REGDATA()
+
+    @JsName("SELECT_REGDATA_ALL")
+    suspend fun SELECT_REGDATA_ALL()
+
+    /////////////save media///////////////////////////
+
+    @JsName("TABLE_SAVEMEDIA")
+    suspend fun TABLE_SAVEMEDIA()
+
+    @JsName("INDEX_SAVEMEDIA_CONNECTIONID")
+    suspend fun INDEX_SAVEMEDIA_CONNECTIONID()
+
+    @JsName("INDEX_SAVEMEDIA_LASTUSED")
+    suspend fun INDEX_SAVEMEDIA_LASTUSED()
+
+    @JsName("INDEX_SAVEMEDIA_ISTEMP")
+    suspend fun INDEX_SAVEMEDIA_ISTEMP()
+
+    @JsName("INDEX_SAVEMEDIA_AVATARID")
+    suspend fun INDEX_SAVEMEDIA_AVATARID()
+
+    @JsName("TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT")
+    suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
+
+    @JsName("TRIGGER_SAVEMEDIA_CONTROL_COUNT")
+    suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT()
+
+    @JsName("INSERT_SAVEMEDIA")
+    suspend fun INSERT_SAVEMEDIA()
+
+    @JsName("SELECT_SAVEMEDIA_ALL")
+    suspend fun SELECT_SAVEMEDIA_ALL(kSaveMedia: KSaveMedia)
+
+    @JsName("DELETE_SAVEMEDIA")
+    suspend fun DELETE_SAVEMEDIA()
+
+    /////////////////////////////////////////////////////////////////////////
+    @JsName("connect")
+    suspend fun connect()
 
 }

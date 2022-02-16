@@ -41,8 +41,9 @@ CREATE TABLE IF NOT EXISTS Messeges
 PRIMARY KEY (CHATS_ID, MESSEGES_COUNT));
 
 index_Messeges_order_desc:
-CREATE INDEX IMessegesOrderDesc ON Messeges(MESSEGES_COUNT DESC);
+CREATE INDEX IMessegesOrderDesc ON Messeges(CHATS_ID, MESSEGES_COUNT DESC);
 
+trigger_Messeges_control_count:
 CREATE TRIGGER TControlCountsMesseges
 AFTER INSERT ON Messeges
 FOR EACH ROW
@@ -71,8 +72,8 @@ BEGIN
 END;
 
 
-insert_messeges:
-REPLACE INTO Messeges
+insert_Messeges:
+INSERT OR REPLACE INTO Messeges
 ( CHATS_ID,
   MESSEGES_COUNT,
   ADDING_DATE,
@@ -111,24 +112,16 @@ REPLACE INTO Messeges
 VALUES 
 ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-select_count_messeges:
-SELECT count(*)
-FROM Messeges
-WHERE CHATS_ID = ? ;
 
-select_messeges:
+select_Messeges_limit:
 SELECT *
 FROM Messeges
 WHERE CHATS_ID = ?
-ORDER BY MESSEGES_COUNT DESC;
+AND MESSEGES_COUNT < ?
+ORDER BY CHATS_ID, MESSEGES_COUNT DESC
+LIMIT (SELECT VALUE_VALUE
+        FROM   MetaData
+        WHERE  VALUE_NAME = 'LIMIT_FOR_SELECT');
 
-select_last_messeges:
-SELECT min(MESSEGES_COUNT) FROM Messeges WHERE CHATS_ID = ? ;
-
-clear_messeges:
+clear_Messeges:
 DELETE FROM Messeges;
-
-delete_messege:
-DELETE FROM Messeges
-WHERE CHATS_ID = ?
-AND MESSEGES_COUNT = ?;
