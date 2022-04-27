@@ -5,4 +5,4 @@ package CrossPlatforms
 import kotlin.js.JsName
 
 @JsName("WriteExceptionIntoFile")
-expect fun WriteExceptionIntoFile(exc: Exception, moduleNmae: String)
+expect fun WriteExceptionIntoFile(exc: String, fileNmae: String)

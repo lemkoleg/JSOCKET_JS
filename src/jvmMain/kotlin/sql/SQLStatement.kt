@@ -17,6 +17,7 @@ actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${rootPath}${
 
 actual class SQLStatement actual constructor() {
 
+
     val bigAvatars = db!!.bIGAVATARSQueries
     val cashData = db!!.cASHDATAQueries
     val cashLastUpdate = db!!.cASHLASTUPDATEQueries
@@ -43,16 +44,16 @@ actual class SQLStatement actual constructor() {
         bigAvatars.trigger_BigAvatars_control_count()
     }
 
-    actual suspend fun INSERT_BIG_AVATARS(kBigAvatar: KBigAvatar){
+    actual suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar){
         kBigAvatar.getAVATAR()?.let {
-            bigAvatars.insert_BigAvatars(kBigAvatar.getAVATAR_ID(),
+            bigAvatars.insert_BigAvatar(kBigAvatar.getAVATAR_ID(),
                 kBigAvatar.getLAST_USE(),
                 it
             )
         }
     }
 
-    actual suspend fun SELECT_BIG_AVATARS(OBJECTS_ID: String):KBigAvatar?{
+    actual suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String):KBigAvatar?{
         var kBigAvatar: KBigAvatar? = BIG_AVATARS[OBJECTS_ID]
         if(kBigAvatar == null){
 
@@ -62,94 +63,76 @@ actual class SQLStatement actual constructor() {
     }
 
     actual suspend fun SELECT_BIGAVATARS_ALL_ID(){
+    }
 
+    actual suspend fun SELECT_BIGAVATARS_ALL(){
     }
 
     actual suspend fun CLEAR_BIG_AVATARS(){
-
     }
 
-    actual suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String){
+    actual suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String){
+    }
 
+    actual suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long){
     }
 
     /////////////cash data///////////////////////////
 
     actual suspend fun TABLE_CASHDATA(){
-
-    }
-
-    actual suspend fun INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION(){
-
-    }
-
-    actual suspend fun INDEX_CASHDATA_CASH_SUM_OBJECT_ID(){
-
-    }
-
-    actual suspend fun TRIGGER_CASHDATA_CONTROL_COUNT(){
-
-    }
-
-    actual suspend fun TRIGGER_CASHDATA_DELETING_RECORDS(){
-
     }
 
     actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE){
-
     }
 
-    actual suspend fun UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE(L_NUMBER_POSITION: Int, L_LAST_UPDATE: Long, L_CASH_SUM: Long, L_OBJECT_ID: Long) {
+    actual suspend fun INSERT_CASHDATAS(lANSWER_TYPES: ArrayDeque<ANSWER_TYPE>){
     }
 
-    actual suspend fun SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION() {
+    actual suspend fun SELECT_CASHDATA_ALL() {
     }
 
-    @ExperimentalStdlibApi
-    actual suspend fun SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT(CASH_SUM: Long, L_NUMBER_POSITION: Int){
-
+    actual suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long) {
     }
 
     actual suspend fun CLEAR_CASHDATA(){
-
     }
 
     /////////////last update///////////////////////////
 
     actual suspend fun TABLE_CASHLASTUPDATE(){
-
     }
 
     actual suspend fun INDEX_CASHLASTUPDATE_LAST_USE(){
-
     }
 
     actual suspend fun INDEX_CASHLASTUPDATE_CONNECTIONID(){
-
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_DELETE(){
-
     }
 
-    actual suspend fun TRIGGER_CASHLASTUPDATE_INSERT(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT(){
+    }
 
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE(){
+    }
+
+    actual suspend fun TRIGGER_CASHLASTUPDATE_UPDATE(){
+    }
+
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT(){
     }
 
     actual suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate){
-
     }
 
     actual suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate){
-
     }
 
     actual suspend fun SELECT_CASHLASTUPDATE(L_CONNECTION_ID : Long){
-
     }
 
     actual suspend fun CLEAR_LASTUPDATE(){
-
     }
 
     /////////////chats///////////////////////////
@@ -389,6 +372,9 @@ actual class SQLStatement actual constructor() {
     /////////////////////////////////////////////////////////////////////////
     actual suspend fun connect(){
 
+    }
+
+    actual suspend fun clear_parameters(){
     }
 
     @ExperimentalStdlibApi

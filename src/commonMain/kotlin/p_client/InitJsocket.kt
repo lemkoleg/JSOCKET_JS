@@ -11,12 +11,13 @@ import CrossPlatforms.WriteExceptionIntoFile
 import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.slash
 import JSOCKET.AvaClubDB
+import Tables.myDeviceId
+import atomic.AtomicBoolean
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.lang.substr
 import com.soywiz.krypto.md5
 import com.squareup.sqldelight.db.SqlDriver
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import io.ktor.utils.io.core.ExperimentalIoApi
 import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.*
@@ -37,14 +38,10 @@ import kotlin.time.ExperimentalTime
 @JsName("InitJsocketJob")
 var InitJsocketJob: Job = Job()
 
+val isInitialised : AtomicBoolean = AtomicBoolean(false);
 
-@KtorExperimentalAPI
-@ExperimentalTime
-@DangerousInternalIoApi
-@ExperimentalIoApi
+
 @InternalAPI
-@ExperimentalStdlibApi
-@KorioExperimentalApi
 @JsName("InitJsocket")
 class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver? = null): CoroutineScope {
 
@@ -57,21 +54,21 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
     private val SqlDriver = _sqlDriver
     private val listener: Listener? = Listener.get_Instance()
 
+
     init {
 
-        if(DeviceId.isNotEmpty()) myDeviceId = DeviceId.replace(":", "").replace(";", "")
-            .encodeToByteArray().md5().hex.substr(0, 16).toUpperCase()
+        if(DeviceId.isNotEmpty()) myDeviceId.setNewValue(DeviceId.replace(":", "").replace(";", "")
+                .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
 
         if(SqlDriver != null){
             sqlDriver = SqlDriver
         }
         InitJsocketJob = InitJsocketScope.launch {
             try{
-                if(myDeviceId.isEmpty()) {
+                if(myDeviceId.value.isEmpty()) {
                         launch {
-                            myDeviceId =
-                                getMyDeviceId().replace(":", "").replace(";", "")
-                                    .encodeToByteArray().md5().hex.substr(0, 16).toUpperCase()
+                            myDeviceId.setNewValue(getMyDeviceId().replace(":", "").replace(";", "")
+                                                                .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()
                 }
                 println("end myDeviceId")
@@ -87,6 +84,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                 println("end Connect")
                 //Sqlite_service.InitializeCommands().join()
                 //Sqlite_service.removeSyncJsocket().join()
+                isInitialised.setNewValue(true)
             } catch (ex: Exception) {
                 WriteExceptionIntoFile(ex, "InitJsocket.init")
             }

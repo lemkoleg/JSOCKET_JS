@@ -2,7 +2,6 @@ table_regdata:
 CREATE TABLE IF NOT EXISTS RegData(
 CONNECTION_ID INTEGER PRIMARY KEY,           --LONG_4
 CONNECTION_COOCKI TEXT NOT NULL,             --LONG_5
-DATABASE_ID TEXT NOT NULL,                   --STRING_8
 ACCOUNT_ID TEXT DEFAULT "" NOT NULL,         --IDENTIFICATOR_1
 ACCOUNT_NAME TEXT DEFAULT "" NOT NULL,       --STRING_1
 ACCOUNT_PROFILE TEXT DEFAULT "" NOT NULL,    --STRING_5
@@ -49,7 +48,6 @@ insert_RegData:
 INSERT OR REPLACE INTO RegData
 (CONNECTION_ID,
  CONNECTION_COOCKI,
- DATABASE_ID,
  ACCOUNT_ID,
  ACCOUNT_NAME,
  ACCOUNT_PROFILE,
@@ -65,7 +63,7 @@ INSERT OR REPLACE INTO RegData
  AVATAR_3,
  STRING_20)
 VALUES 
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 clear_RegData:
 DELETE FROM RegData;

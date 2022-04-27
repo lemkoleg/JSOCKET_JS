@@ -1,7 +1,7 @@
 table_BigAvatars:
 CREATE TABLE IF NOT EXISTS BigAvatars
 (AVATAR_ID TEXT PRIMARY KEY,      --IDENTIFICATOR6
- LAST_USE TEXT NOT NULL,    --LONG_18
+ LAST_USE INTEGER NOT NULL,       --LONG_18
  AVATAR BLOB  NOT NULL,
 CHECK (
 length(AVATAR_ID) = 18));
@@ -12,7 +12,6 @@ CREATE INDEX IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
 trigger_BigAvatars_control_count:
 CREATE TRIGGER TBigAvatarsControlCounts
 AFTER INSERT ON BigAvatars
-FOR EACH ROW
 WHEN
 (SELECT count(*)
  FROM BigAvatars)>
@@ -42,21 +41,29 @@ DELETE FROM BigAvatars WHERE AVATAR_ID NOT IN
         WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS'));
 END;
 
-insert_BigAvatars:
+insert_BigAvatar:
 INSERT OR REPLACE INTO BigAvatars
 (AVATAR_ID, LAST_USE,  AVATAR)
 VALUES
 (?, ?,  ?);
 
-select_BigAvatars:
+select_BigAvatar:
 SELECT * FROM BigAvatars
 WHERE AVATAR_ID = ?;
 
 select_BigAvatars_all_id:
 SELECT AVATAR_ID FROM BigAvatars;
 
-delete_BigAvatars:
+select_BigAvatars_all:
+SELECT * FROM BigAvatars;
+
+delete_BigAvatar:
 DELETE FROM BigAvatars WHERE AVATAR_ID = ?;
 
 clear_BigAvatars:
 DELETE FROM BigAvatars;
+
+update_BigAvatars_last_use:
+UPDATE BigAvatars
+SET LAST_USE = ?
+WHERE AVATAR_ID = ?;

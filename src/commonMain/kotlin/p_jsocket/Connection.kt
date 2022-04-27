@@ -7,32 +7,25 @@
 package p_jsocket
 
 import CrossPlatforms.WriteExceptionIntoFile
+import atomic.dequeue
+import atomic.enqueue
 import com.soywiz.kds.Queue
 import com.soywiz.korio.async.Signal
 import com.soywiz.korio.async.addSuspend
 import com.soywiz.korio.async.delay
-import com.soywiz.korio.net.URL
-import com.soywiz.korio.net.createTcpClient
-import com.soywiz.korio.net.ws.RawSocketWebSocketClient
 import com.soywiz.korio.net.ws.WebSocketClient
-import com.soywiz.korio.stream.writeBytes
 import io.ktor.util.InternalAPI
 import io.ktor.util.Lock
 import io.ktor.util.withLock
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.ChunkBuffer
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import io.ktor.utils.io.errors.IOException
 import io.ktor.utils.io.writer
 import kotlinx.coroutines.*
-import lib_exceptions.exc_JSOCKET_not_readed
-import lib_exceptions.exc_size_of_data_is_too_long
-import lib_exceptions.exc_socket_not_allowed
+import lib_exceptions.my_user_exceptions_class
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
-import p_jsocket.MAX_REQUEST_SIZE_B
-
 
 
 private const val COUNT_OF_0_BYTES = 9
@@ -68,7 +61,7 @@ private fun returnRequestPostfix(): ByteArray {
 class Connection(
     _connectionDNSName: String = "",
     _connPort: Int = 0
-): CoroutineScope {
+) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
@@ -99,7 +92,6 @@ class Connection(
     private var isClosed: Boolean = false
 
 
-
     init {
         if (connectionDNSName.isNotEmpty()) {
             MyConnection = ConnectionScope.launch { setConn() }
@@ -123,10 +115,12 @@ class Connection(
     private var globalBuf: ByteArray? = null
 
     @InternalAPI
-    private val lock = Lock()
+    private val ConnectionLock = Lock()
+
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @ExperimentalIoApi
+    @JsName("setConn")
     private suspend fun setConn() {
         try {
             MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
@@ -134,11 +128,16 @@ class Connection(
             signalonOpen?.add {
                 isConnect = true
                 isClosed = false
-                println("connect")
+                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("connect")
+                }
+
             }
             signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
             signalonBinaryMessage?.addSuspend { v ->
-                println("read size: ${v.size}")
+                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("read size: ${v.size}")
+                }
                 QUEUE_OF_RAW_MESSEGES.enqueue(
                     v,
                     MAX_COUNT_OF_REQUEST_ON_CLIENT_REQUESTS_QUEUE,
@@ -151,11 +150,15 @@ class Connection(
             signalonClose?.add {
                 isConnect = false
                 isClosed = true
-                println("disconnect")
+                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("disconnect")
+                }
             }
             signalonError = MyWebSocketChannel!!.onError
             signalonError?.add { v ->
-                println("error on connection: $v\n")
+                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("error on connection: $v\n")
+                }
                 //val e = v.printStackTrace()
                 isConnect = false
                 isClosed = true
@@ -173,8 +176,14 @@ class Connection(
         } catch (e: Exception) {
             isConnect = false
             isClosed = true
-            println(e.toString())
-            WriteExceptionIntoFile(e, "Connection.setConn")
+            throw e.message?.let {
+                my_user_exceptions_class(
+                    "Connection",
+                    "setConn",
+                    "EXC_SOCKET_NOT_ALLOWED",
+                    it
+                )
+            }!!
         }
     }
 
@@ -194,7 +203,14 @@ class Connection(
                     val b = buf.build().readBytes()
                     sendData(b)
                 } catch (e: Exception) {
-                    WriteExceptionIntoFile(e, "Connection.send_request")
+                    throw e.message?.let {
+                        my_user_exceptions_class(
+                            "Connection",
+                            "send_request",
+                            "EXC_SOCKET_NOT_ALLOWED",
+                            it
+                        )
+                    }!!
                 }
             }
         }
@@ -207,7 +223,14 @@ class Connection(
                 try {
                     sendData(data)
                 } catch (e: Exception) {
-                    WriteExceptionIntoFile(e, "Connection.send_request")
+                    throw e.message?.let {
+                        my_user_exceptions_class(
+                            "Connection",
+                            "send_raw_data",
+                            "EXC_SOCKET_NOT_ALLOWED",
+                            it
+                        )
+                    }!!
                 }
             }
         }
@@ -220,8 +243,8 @@ class Connection(
             /*if (!MyConnection.isCompleted) {
                 MyConnection.join()
             }*/
-            while(!isConnected()){
-                if(isClosed){
+            while (!isConnected()) {
+                if (isClosed) {
                     setConn()
                 }
                 delay(TIME_SPAN_FOR_LOOP)
@@ -229,19 +252,28 @@ class Connection(
 
             try {
                 MyWebSocketChannel!!.send(b)
-                println("send size: ${b.size}")
-            } catch (ex1: Exception) {
-                stringExceptionHandler = ex1.toString()
-                //withContext(NonCancellable) {
-                    setConn()
-                    try {
-                        MyWebSocketChannel!!.send(b)
-                        println("send size2: ${b.size}")
-                    } catch (ex1: Exception) {
-                        throw exc_socket_not_allowed("Error in connection.send_data - ".plus(stringExceptionHandler))
-                    }
+                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("send size: ${b.size}")
                 }
-           // }
+            } catch (ex1: Exception) {
+                setConn()
+                try {
+                    MyWebSocketChannel!!.send(b)
+                    if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("send size2: ${b.size}")
+                    }
+                } catch (ex1: Exception) {
+                    throw ex1.message?.let {
+                        my_user_exceptions_class(
+                            "Connection",
+                            "sendData",
+                            "EXC_SOCKET_NOT_ALLOWED",
+                            it
+                        )
+                    }!!
+                }
+            }
+            // }
         }
     }
 
@@ -249,10 +281,10 @@ class Connection(
     @ExperimentalTime
     @InternalAPI
     @JsName("read_request")
-    suspend fun read_request(timeOut:Long): ByteReadPacket? {
+    suspend fun read_request(timeOut: Long): ByteReadPacket? {
         var ch: ByteReadPacket? = null
         val l = QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)
-        if(l != null) {
+        if (l != null) {
             ch = DecodeRequest(l)
         }
         return ch
@@ -261,7 +293,7 @@ class Connection(
 
     @ExperimentalTime
     @JsName("read_raw_data")
-    suspend fun read_raw_data(timeOut:Long): ByteArray? {
+    suspend fun read_raw_data(timeOut: Long): ByteArray? {
         var ch: ByteArray? = null
         if (QUEUE_OF_RAW_MESSEGES.isNotEmpty()) {
             ch = QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)
@@ -272,7 +304,6 @@ class Connection(
     ////////////////////////////////////////////////////////////////////////////////
 
 
-
     @InternalAPI
     private suspend fun DecodeRequest(buffer: ByteArray?): ByteReadPacket? {
         var buf: ByteReadPacket? = null
@@ -280,60 +311,54 @@ class Connection(
         var x = 0
         var b: ByteReadPacket? = null
         try {
-            withTimeoutOrNull(CLIENT_TIMEOUT) {
-                lock.withLock {
-                    if (buffer != null && buffer.isNotEmpty()) {
-                        globalBuf = if (globalBuf == null || globalBuf!!.isEmpty()) {
-                            buffer
-                        } else {
-                            globalBuf!!.plus(buffer)
-                        }
-                    }
-
-                    if (globalBuf != null && globalBuf!!.isNotEmpty()) {
-                        if (globalBuf!!.size < MIN_SIZE_OF_REQUEST) {
-                            return@withLock null
-                        }
-                        buf = ByteReadPacket(globalBuf!!)
-                        FirstLoop@
-                        while (x < COUNT_OF_0_BYTES && buf!!.isNotEmpty) {
-                            if (buf!!.readByte() == 0.toByte()) {
-                                x++
-                                if (x == COUNT_OF_0_BYTES) {
-                                    x = if (buf!!.readLong() == 9223372036854775807L) {
-                                        break@FirstLoop
-                                    } else {
-                                        0
-                                    }
-                                }
-                            } else {
-                                x = 0
-                            }
-                        }
-                        if (x < COUNT_OF_0_BYTES || buf!!.remaining < 4) {
-                            return@withLock null
-                        }
-                        Request_size = buf!!.readInt()
-                        if (Request_size > MAX_REQUEST_SIZE_B) {
-                            throw exc_size_of_data_is_too_long(Request_size)
-                        }
-
-                        if (buf!!.remaining < Request_size + 8) {
-                            return@withLock null
-                        }
-
-                        b = ByteReadPacket(returnConnAddress().readBytes().plus(buf!!.readBytes(Request_size)))
-
-                        if (buf!!.readLong() != 7085774586302733229L) {
-                            throw exc_JSOCKET_not_readed("Final code is wrong.")
-                        }
-                        else{
-                            return@withLock b
-                        }
-                    }
-                    else return@withLock null
+            if (buffer != null && buffer.isNotEmpty()) {
+                globalBuf = if (globalBuf == null || globalBuf!!.isEmpty()) {
+                    buffer
+                } else {
+                    globalBuf!!.plus(buffer)
                 }
             }
+
+            if (globalBuf != null && globalBuf!!.isNotEmpty()) {
+                if (globalBuf!!.size < MIN_SIZE_OF_REQUEST) {
+                    return null
+                }
+                buf = ByteReadPacket(globalBuf!!)
+                FirstLoop@
+                while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
+                    if (buf.readByte() == 0.toByte()) {
+                        x++
+                        if (x == COUNT_OF_0_BYTES) {
+                            x = if (buf.readLong() == 9223372036854775807L) {
+                                break@FirstLoop
+                            } else {
+                                0
+                            }
+                        }
+                    } else {
+                        x = 0
+                    }
+                }
+                if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
+                    return@withLock null
+                }
+                Request_size = buf.readInt()
+                if (Request_size > MAX_REQUEST_SIZE_B) {
+                    throw exc_error_on_read_request("Request size is to big: ${Request_size.toString()}")
+                }
+
+                if (buf.remaining < Request_size + 8) {
+                    return@withLock null
+                }
+
+                b = ByteReadPacket(returnConnAddress().readBytes().plus(buf!!.readBytes(Request_size)))
+
+                if (buf.readLong() != 7085774586302733229L) {
+                    throw exc_error_on_read_request("Final code is wrong!")
+                } else {
+                    return@withLock b
+                }
+            } else return null
         } catch (io: IOException) {
             this.close()
         } catch (e: Exception) {
@@ -352,14 +377,14 @@ class Connection(
     fun isConnected(): Boolean {
         if (MyWebSocketChannel == null) {
             return false
-        }else{
+        } else {
             return isConnect
         }
     }
 
     @ExperimentalTime
-    suspend fun skip(timeOut:Long):Long {
-        return QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)?.size?.toLong()?:0L
+    suspend fun skip(timeOut: Long): Long {
+        return QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)?.size?.toLong() ?: 0L
     }
 
     ////////////////////////////////////////////////////////////////////////////////

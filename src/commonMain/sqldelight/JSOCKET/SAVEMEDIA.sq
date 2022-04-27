@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  ORIGINAL_AVATAR_SIZE TEXT,                            --STRING_17
  SMALL_AVATAR BLOB,
  BIG_AVATAR BLOB,
- IS_TEMP INTEGER AS Int NOT NULL,                      --INTEGER_6
- IS_DOWNLOAD INTEGER AS Int NOT NULL,                  --INTEGER_7
+ IS_TEMP INTEGER NOT NULL,                             --INTEGER_6
+ IS_DOWNLOAD INTEGER NOT NULL,                         --INTEGER_7
  LAST_USED INTEGER NOT NULL,                           --LONG_20
 
  CHECK (length(CONNECTION_ID) = 18

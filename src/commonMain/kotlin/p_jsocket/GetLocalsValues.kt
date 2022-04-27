@@ -1,4 +1,4 @@
-package p_client
+package p_jsocket
 
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KBigAvatar
@@ -7,24 +7,23 @@ import Tables.META_DATA_condition
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
 import kotlinx.coroutines.*
-import p_jsocket.CLIENT_TIMEOUT
 import sql.SQLStatement
 import sql.Sqlite_service
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
+import com.soywiz.kds.Queue
+
+
+private val CLIENT_GET_LOCAL_VALUES_POOL: Queue<GetLocalsValues> = Queue()
+
+@InternalAPI
+private val lock = Lock()
 
 class GetLocalsValues: CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default
 
     private val serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
-
-    @OptIn(ExperimentalStdlibApi::class)
-    val sqlStatement: SQLStatement = Sqlite_service.Connection.createStatement()
-
-    @InternalAPI
-    private val lock = Lock()
-
 
     //////////////////////////////big avatars//////////////////////////////////
 
@@ -96,6 +95,45 @@ class GetLocalsValues: CoroutineScope {
             lock.unlock()
         }
     }
+
+
+    companion object {
+
+        @JsName("getANSWER_TYPE")
+        @InternalAPI
+        fun getGET_LOCAL_VALUES(): GetLocalsValues {
+            val getLocalsValues: GetLocalsValues? =
+                try {
+                    lock.lock()
+                    if (CLIENT_GET_LOCAL_VALUES_POOL.peek() == null) {
+                        CoroutineScope(NonCancellable).launch {
+                            fill()
+                        }
+                        GetLocalsValues()
+                    } else {
+                        CLIENT_GET_LOCAL_VALUES_POOL.dequeue()
+                    }
+                } catch (ex: Exception) {
+                    CoroutineScope(NonCancellable).launch {
+                        fill()
+                    }
+                    return GetLocalsValues()
+                } finally {
+                    lock.unlock()
+                }
+            return getLocalsValues ?: GetLocalsValues()
+        }
+
+        private fun fill() {
+            while (CLIENT_GET_LOCAL_VALUES_POOL.size < CLIENT_ANSWER_TYPE_POOL_SIZE && !isInterrupted.value) {
+                CLIENT_GET_LOCAL_VALUES_POOL.enqueue(GetLocalsValues())
+            }
+        }
+
+        @InternalAPI
+        fun close(){
+            CLIENT_GET_LOCAL_VALUES_POOL.clear()
+        }
 
 
 

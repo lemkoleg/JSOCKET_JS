@@ -41,7 +41,6 @@ class KChat :ANSWER_TYPE{
         MainScope().launch {Sqlite_service.InsertChat(this as KChat)}
     }
 
-    /*
     constructor(CHATS_ID: String,
                 L_MESSEGES_COUNT: Long,
                 L_COUNT_OF_MEMBERS: Long,
@@ -84,7 +83,6 @@ class KChat :ANSWER_TYPE{
         setAVATAR1(L_AVATAR)
         setSTRING_20(L_STRING_20)
     }
-    */
 
     @JsName("getCHATS_ID")
     fun getCHATS_ID():String{

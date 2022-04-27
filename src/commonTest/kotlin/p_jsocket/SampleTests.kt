@@ -2,6 +2,7 @@
 
 package p_jsocket
 
+import Tables.myLang
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
@@ -12,7 +13,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import p_client.InitJsocket
 import p_client.Jsocket
-import p_client.myLang
 import kotlin.time.ExperimentalTime
 
 

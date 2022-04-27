@@ -1,9 +1,8 @@
 package p_jsocket
 
+import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.getMyOS
 import atomic.AtomicBoolean
-import atomic.AtomicLong
-import atomic.AtomicString
 import com.soywiz.klock.TimeSpan
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
@@ -18,41 +17,14 @@ private val lock = Lock()
 @JsName("SERVER_DNS_NAME")
 val SERVER_DNS_NAME: String = "MINI"
 
-@JsName("dbLocalName")
-const val dbLocalName = "avaClub"
-
-@JsName("myDeviceId")
-var myDeviceId = ""
-
 @JsName("myOS")
 val myOS = getMyOS()
 
-@JsName("myDataBaseID")
-val myDataBaseID = AtomicString("")
+@JsName("isInterrupted")
+val isInterrupted = AtomicBoolean(false)
 
-@JsName("myConnectionsID")
-val myConnectionsID = AtomicLong(0L)
-
-@JsName("myConnectionsCoocki")
-val myConnectionsCoocki = AtomicLong(0L)
-
-@JsName("myConnectionContext")
-val myConnectionContext = AtomicString(myOS)
-
-@JsName("myLang")
-val myLang = AtomicString("ENG")
-
-@JsName("myRequestProfile")
-val myRequestProfile = AtomicString("")
-
-@JsName("myAccountProfile")
-val myAccountProfile = AtomicString("")
-
-@JsName("isPRO")
-val isPRO = AtomicBoolean(false)
-
-@JsName("mailConfirm")
-val mailConfirm = AtomicBoolean(false)
+@JsName("dbLocalName")
+const val dbLocalName = "AUF"
 
 @JsName("CLIENT_TIMEOUT")
 var CLIENT_TIMEOUT = 5000L
@@ -74,6 +46,9 @@ var MAX_REQUEST_SIZE_B = 51205000
 
 @JsName("CLIENT_ANSWER_TYPE_POOL_SIZE")
 var CLIENT_ANSWER_TYPE_POOL_SIZE = 100000
+
+@JsName("CLIENT_GET_LOCAL_VALUES_POOL_SIZE")
+var CLIENT_GET_LOCAL_VALUES_POOL_SIZE = 100000
 
 @JsName("MAX_SMALL_AVATAR_SIZE_B")
 var MAX_SMALL_AVATAR_SIZE_B = 6400
@@ -101,6 +76,24 @@ var CLIENT_JSOCKET_POOL_SIZE = 10000
 
 @JsName("LISTENER_QUEUE_SIZE")
 var LISTENER_QUEUE_SIZE = 10000
+
+@JsName("FIX_INTO_DB_MESSEGE_SYSTEM_ERRORS")
+var FIX_INTO_DB_MESSEGE_SYSTEM_ERRORS = 1
+
+@JsName("FIX_INTO_DB_MESSEGE_USER_ERRORS_BY_FILE")
+var FIX_INTO_DB_MESSEGE_USER_ERRORS_BY_FILE = 1
+
+@JsName("FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME")
+var FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME = 1
+
+@JsName("FIX_INTO_SCRENN_ERRORS")
+var FIX_INTO_SCRENN_ERRORS = 1
+
+@JsName("USE_SINGLE_FILE_FOR_FIX_ERRORS")
+var USE_SINGLE_FILE_FOR_FIX_ERRORS = 1
+
+@JsName("PRINT_INTO_SCREEN_DEBUG_INFORMATION")
+var PRINT_INTO_SCREEN_DEBUG_INFORMATION = 1
 
 
 class Constans {

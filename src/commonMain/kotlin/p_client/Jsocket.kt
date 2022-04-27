@@ -8,6 +8,9 @@
 package p_client
 
 import CrossPlatforms.WriteExceptionIntoFile
+import Tables.myConnectionsCoocki
+import Tables.myConnectionsID
+import Tables.myLang
 import atomic.AtomicBoolean
 import atomic.AtomicLong
 import com.soywiz.kds.Queue
@@ -23,6 +26,7 @@ import kotlinx.coroutines.*
 import lib_exceptions.exc_universal_exception.returnException
 import p_jsocket.*
 import sql.Sqlite_service
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.Duration
@@ -43,17 +47,21 @@ var newConnectionCoocki = AtomicLong(0L)
 @InternalAPI
 @ExperimentalTime
 private val CLIENT_JSOCKET_POOL: Queue<Jsocket> = Queue()
-private val isInterrupted = AtomicBoolean(false)
 
 @InternalAPI
-private val lock = Lock()
+private val JsocketLock = Lock()
 
 
 
 @JsName("Jsocket")
 @InternalAPI
-class Jsocket : JSOCKET
+class Jsocket : JSOCKET, CoroutineScope
 {
+
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+
+    val JSOCKETScope = CoroutineScope(coroutineContext)
+
     private constructor():super()
 
     @JsName("onRequestListener")
@@ -98,14 +106,16 @@ class Jsocket : JSOCKET
     @ExperimentalTime
     @InternalAPI
     @JsName("execute")
-    fun execute()= JSOCKETScope.async {
+    fun execute() = JSOCKETScope.async {
 
             super.just_do_it_label = nowNano()
 
             if (!InitJsocketJob.isCompleted) {
                 InitJsocketJob.join()
             }
+
             onRequestListener?.startLoading()
+
             try {
                 just_do_it_label = nowNano()
                 just_do_it_successfull = "0"
@@ -261,13 +271,15 @@ class Jsocket : JSOCKET
         }
         ////////////////////////////////////////////////////////////////////////////////
 
+
         @JsName("getANSWER_TYPE")
         @InternalAPI
+        @ExperimentalTime
         suspend fun getJsocket(): Jsocket {
             val jsocket:Jsocket? =
                 try {
                     withTimeoutOrNull(CLIENT_TIMEOUT) {
-                        lock.lock()
+                        JsocketLock.lock()
                         if (CLIENT_JSOCKET_POOL.peek() == null) {
                             CoroutineScope(NonCancellable).launch {
                                 Jsocket.fill()
@@ -283,14 +295,17 @@ class Jsocket : JSOCKET
                     }
                     return Jsocket()
                 }finally {
-                    lock.unlock()
+                    JsocketLock.unlock()
                 }
             return jsocket?:Jsocket()
         }
 
+        @ExperimentalTime
         private fun fill() {
-            while (CLIENT_JSOCKET_POOL.size < CLIENT_JSOCKET_POOL_SIZE && !p_jsocket.isInterrupted.value) {
-                CLIENT_JSOCKET_POOL.enqueue(Jsocket())
+            if(myConnectionsCoocki.value > 0){
+                while (CLIENT_JSOCKET_POOL.size < CLIENT_JSOCKET_POOL_SIZE && !p_jsocket.isInterrupted.value) {
+                    CLIENT_JSOCKET_POOL.enqueue(Jsocket())
+                }
             }
         }
 

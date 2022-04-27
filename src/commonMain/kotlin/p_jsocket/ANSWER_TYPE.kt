@@ -6,10 +6,10 @@
  */
 package p_jsocket
 
-import atomic.AtomicBoolean
 import com.soywiz.kds.Queue
 import io.ktor.util.*
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 
 
@@ -101,7 +101,7 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
 )
 
 private val CLIENT_ANSWER_TYPE_POOL: Queue<ANSWER_TYPE> = Queue()
-private val isInterrupted = AtomicBoolean(false)
+
 
 @InternalAPI
 private val lock = Lock()
@@ -111,7 +111,11 @@ private val lock = Lock()
  * @author Oleg
  */
 @JsName("ANSWER_TYPE")
-open class ANSWER_TYPE {
+open class ANSWER_TYPE : CoroutineScope {
+
+    final override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+
+    val LocalScope = CoroutineScope(coroutineContext)
 
     protected constructor()
 
@@ -458,11 +462,15 @@ open class ANSWER_TYPE {
     @JsName("IS_UPDATED_BY_MERGE")
     var IS_UPDATED_BY_MERGE: Boolean = false
 
+    @InternalAPI
+    private val getLocalsValues: GetLocalsValues = GetLocalsValues.getGET_LOCAL_VALUES()
 
+
+    @InternalAPI
     constructor(
         lOBJECTS_ID: String,
         lCASH_SUM:Long,
-        lNUMBER_POSITION: Int,
+        lNUMBER_POSITION: Int?,
         lLAST_UPDATE: Long,
         lIDENTIFICATOR_1: String?,
         lIDENTIFICATOR_2: String?,
@@ -654,9 +662,10 @@ open class ANSWER_TYPE {
         BLOB_3 = lBLOB_3
         OBJECTS_ID = lOBJECTS_ID
         CASH_SUM = lCASH_SUM
-        NUMBER_POSITION = lNUMBER_POSITION
+        NUMBER_POSITION = lNUMBER_POSITION ?: INTEGER_20 ?: 1
         LAST_UPDATE = lLAST_UPDATE
         setRECORD_TYPE()
+
     }
 
     constructor(MyANSWER_TYPE: ANSWER_TYPE) : this() {
@@ -871,6 +880,111 @@ open class ANSWER_TYPE {
             IS_UPDATED_BY_MERGE = true
         }
 
+        if (v.LONG_3 != null && v.LONG_3 != this.LONG_3) {
+            this.LONG_3 = v.LONG_3     
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_4 != null && v.LONG_4 != this.LONG_4) {
+            this.LONG_4 = v.LONG_4
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_5 != null && v.LONG_5 != this.LONG_5) {
+            this.LONG_5 = v.LONG_5
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_6 != null && v.LONG_6 != this.LONG_6) {
+            this.LONG_6 = v.LONG_6
+            IS_UPDATED_BY_MERGE = true
+        }
+        
+        if (v.LONG_7 != null && v.LONG_7 != this.LONG_7) {
+            this.LONG_7 = v.LONG_7
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_8 != null && v.LONG_8 != this.LONG_8) {
+            this.LONG_8 = v.LONG_8
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_9 != null && v.LONG_9 != this.LONG_9) {
+            this.LONG_9 = v.LONG_9
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_10 != null && v.LONG_10 != this.LONG_10) {
+            this.LONG_10 = v.LONG_10
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_11 != null && v.LONG_11 != this.LONG_11) {
+            this.LONG_11 = v.LONG_11
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_12 != null && v.LONG_12 != this.LONG_12) {
+            this.LONG_12 = v.LONG_12
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_13 != null && v.LONG_13 != this.LONG_13) {
+            this.LONG_13 = v.LONG_13
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_14 != null && v.LONG_14 != this.LONG_14) {
+            this.LONG_14 = v.LONG_14
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_15 != null && v.LONG_15 != this.LONG_15) {
+            this.LONG_15 = v.LONG_15
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_16 != null && v.LONG_16 != this.LONG_16) {
+            this.LONG_16 = v.LONG_16
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.LONG_17 != null && v.LONG_17 != this.LONG_17) {
+            this.LONG_17 = v.LONG_17
+            IS_UPDATED_BY_MERGE = true
+        }
+        
+        if (v.LONG_18 != null && v.LONG_18 != this.LONG_18) {
+            this.LONG_18 = v.LONG_18
+            IS_UPDATED_BY_MERGE = true
+        }
+        
+        if (v.LONG_19 != null && v.LONG_19 != this.LONG_19) {
+            this.LONG_19 = v.LONG_19
+            IS_UPDATED_BY_MERGE = true
+        }
+        
+        if (v.LONG_20 != null && v.LONG_20 != this.LONG_20) {
+            this.LONG_20 = v.LONG_20
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_1 != null  && v.INTEGER_1 != this.INTEGER_1) {
+            this.INTEGER_1 = v.INTEGER_1  
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_2 != null  && v.INTEGER_2 != this.INTEGER_2) {
+            this.INTEGER_2 = v.INTEGER_2  
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_3 != null  && v.INTEGER_3 != this.INTEGER_3) {
+            this.INTEGER_3 = v.INTEGER_3  
+            IS_UPDATED_BY_MERGE = true
+        }
+        
         if (v.INTEGER_4 != null  && v.INTEGER_4 != this.INTEGER_4) {
             this.INTEGER_4 = v.INTEGER_4  //object size
             IS_UPDATED_BY_MERGE = true
@@ -878,6 +992,81 @@ open class ANSWER_TYPE {
 
         if (v.INTEGER_5 != null  && v.INTEGER_5 != this.INTEGER_5) {
             this.INTEGER_5 = v.INTEGER_5  // object length seconds
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_6 != null  && v.INTEGER_6 != this.INTEGER_6) {
+            this.INTEGER_6 = v.INTEGER_6
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_7 != null  && v.INTEGER_7 != this.INTEGER_7) {
+            this.INTEGER_7 = v.INTEGER_7
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_8 != null  && v.INTEGER_8 != this.INTEGER_8) {
+            this.INTEGER_8 = v.INTEGER_8
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_9 != null  && v.INTEGER_9 != this.INTEGER_9) {
+            this.INTEGER_9 = v.INTEGER_9
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_10 != null  && v.INTEGER_10 != this.INTEGER_10) {
+            this.INTEGER_10 = v.INTEGER_10
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_11 != null  && v.INTEGER_11 != this.INTEGER_11) {
+            this.INTEGER_11 = v.INTEGER_11
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_12 != null  && v.INTEGER_12 != this.INTEGER_12) {
+            this.INTEGER_12 = v.INTEGER_12
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_13 != null  && v.INTEGER_13 != this.INTEGER_13) {
+            this.INTEGER_13 = v.INTEGER_13
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_14 != null  && v.INTEGER_14 != this.INTEGER_14) {
+            this.INTEGER_14 = v.INTEGER_14
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_15 != null  && v.INTEGER_15 != this.INTEGER_15) {
+            this.INTEGER_15 = v.INTEGER_15
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_16 != null  && v.INTEGER_16 != this.INTEGER_16) {
+            this.INTEGER_16 = v.INTEGER_16
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_17 != null  && v.INTEGER_17 != this.INTEGER_17) {
+            this.INTEGER_17 = v.INTEGER_17
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_18 != null  && v.INTEGER_18 != this.INTEGER_18) {
+            this.INTEGER_18 = v.INTEGER_18
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_19 != null  && v.INTEGER_19 != this.INTEGER_19) {
+            this.INTEGER_19 = v.INTEGER_19
+            IS_UPDATED_BY_MERGE = true
+        }
+
+        if (v.INTEGER_20 != null  && v.INTEGER_20 != this.INTEGER_20) {
+            this.INTEGER_20 = v.INTEGER_20
             IS_UPDATED_BY_MERGE = true
         }
 
@@ -926,12 +1115,18 @@ open class ANSWER_TYPE {
             IS_UPDATED_BY_MERGE = true
         }
 
+        if (v.STRING_10 != null && v.STRING_10!!.isNotEmpty() && v.STRING_10 != this.STRING_10) {
+            this.STRING_10 = v.STRING_10    //object extension;
+            IS_UPDATED_BY_MERGE = true
+        }
+
         if (v.STRING_20 != null && v.STRING_20!!.isNotEmpty() && v.STRING_20 != this.STRING_20) {
             this.STRING_20 = v.STRING_20
             IS_UPDATED_BY_MERGE = true
         }
 
         if (getIS_UPDATE_BLOB() == "1") {
+            this.IDENTIFICATOR_2 = v.IDENTIFICATOR_2
             this.BLOB_1 = v.BLOB_1
             this.BLOB_2 = v.BLOB_2
             this.BLOB_3 = v.BLOB_3
@@ -1020,6 +1215,7 @@ open class ANSWER_TYPE {
         this.INTEGER_5 = v ?: 0
     }
 
+
     @JsName("getACCOUNT_NAME")
     fun getACCOUNT_NAME(): String {
         return STRING_1 ?: ""
@@ -1092,12 +1288,12 @@ open class ANSWER_TYPE {
 
     @JsName("getAVATAR_TYPE")
     fun getAVATAR_TYPE(): String {
-        return this.STRING_16 ?: ""
+        return this.STRING_19 ?: ""
     }
 
     @JsName("setAVATAR_TYPE")
     fun setAVATAR_TYPE(v: String?) {
-        this.STRING_16 = v ?: ""
+        this.STRING_19 = v ?: ""
     }
 
     @JsName("getAVATAR_LINK")
@@ -1111,23 +1307,23 @@ open class ANSWER_TYPE {
     }
 
     @JsName("getORIGINAL_AVATAR_SIZE")
-    fun getORIGINAL_AVATAR_SIZE(): String {
-        return this.STRING_17 ?: "0"
+    fun getORIGINAL_AVATAR_SIZE(): Int {
+        return this.INTEGER_19 ?: 0
     }
 
     @JsName("setORIGINAL_AVATAR_SIZE")
-    fun setORIGINAL_AVATAR_SIZE(v: String?) {
-        this.STRING_17 = v?.trim() ?: "0"
+    fun setORIGINAL_AVATAR_SIZE(v: Int?) {
+        this.INTEGER_19 = v?: 0
     }
 
     @JsName("getAVATAR_SERVER")
     fun getAVATAR_SERVER(): String {
-        return this.STRING_19 ?: ""
+        return this.STRING_17 ?: ""
     }
 
     @JsName("setAVATAR_SERVER")
     fun setAVATAR_SERVER(v: String?) {
-        this.STRING_19 = v ?: ""
+        this.STRING_17 = v ?: ""
     }
 
     @JsName("getIS_UPDATE_BLOB")
@@ -1358,7 +1554,6 @@ open class ANSWER_TYPE {
 
         @InternalAPI
         fun close(){
-            isInterrupted.setNewValue(true)
             CLIENT_ANSWER_TYPE_POOL.clear()
         }
     }

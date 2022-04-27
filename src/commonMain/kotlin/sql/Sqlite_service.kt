@@ -7,7 +7,6 @@
 
 package sql
 
-import CrossPlatforms.DEFAULT_AWAIT_TIMEOUT
 import CrossPlatforms.MyFile
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.*
@@ -24,12 +23,10 @@ import kotlinx.coroutines.*
 import lib_exceptions.exc_file_not_exists
 import lib_exceptions.exc_file_size_is_wrong
 import p_client.*
-import p_jsocket.ANSWER_TYPE
-import p_jsocket.Command
-import p_jsocket.Commands
-import p_jsocket.JSOCKET
+import p_jsocket.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
@@ -46,6 +43,215 @@ object Sqlite_service : CoroutineScope {
     val Sqlite_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
 
     val Connection: MySQLConnection = MySQLConnection("AvaClubDB")
+
+    ///////////////////////////////////big avatars///////////////////////////
+
+    private val statBIG_AVATARS = Connection.createStatement()
+    @InternalAPI
+    private val lockBIG_AVATARS = Lock()
+
+    @InternalAPI
+    @JsName("InsertBigAvatars")
+    fun InsertBigAvatars(kBigAvatar: KBigAvatar) {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("SelectBigAvatar")
+    suspend fun SelectBigAvatar(OBJECTS_ID: String, IS_UPDATE_LAST_USE: Boolean): KBigAvatar? {
+        try {
+            withTimeoutOrNull(CLIENT_TIMEOUT) {
+                lockBIG_AVATARS.lock()
+                if(IS_UPDATE_LAST_USE){
+                    statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                }
+                return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
+            }
+        } catch (ex: Exception) {
+            WriteExceptionIntoFile(ex, "Sqlite_service.SelectBigAvatar")
+            return null
+        } finally {
+            statBIG_AVATARS.clear_parameters()
+            lockBIG_AVATARS.unlock()
+        }
+        return null
+    }
+
+    @InternalAPI
+    @JsName("UpdateBigAvatarsLastUse")
+    suspend fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.SelectBigAvatar")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("DeleteBigAvatars")
+    fun DeleteBigAvatars(kBigAvatar: KBigAvatar) {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("ClearBigAvatars")
+    fun ClearBigAvatars() {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    statBIG_AVATARS.CLEAR_BIG_AVATARS()
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("LoadBigAvatarsIds")
+    private fun LoadBigAvatarsIds() {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    var arr:ArrayList<String> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL_ID()
+                    KBigAvatar.LOAD_BIG_AVATAR_ADS(arr)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.LoadBigAvatarsIds")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("LoadBigAvatars")
+    private fun LoadBigAvatars() {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    var arr:ArrayList<KBigAvatar> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL()
+                    KBigAvatar.LOAD_BIG_AVATARS(arr)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.LoadBigAvatars")
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
+            }
+        }
+    }
+
+    ///////////// Exceptions ///////////////////////////
+
+    private val statEXCEPTIONS = Connection.createStatement()
+    @InternalAPI
+    private val lockEXCEPTIONS = Lock()
+
+    @InternalAPI
+    @JsName("InsertExceptions")
+    fun InsertExceptions(ans: ArrayList<KExceptions.KException>) {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockEXCEPTIONS.lock()
+                    ans.forEach {
+                        statEXCEPTIONS.INSERT_EXCEPTION(it)
+                    }
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertExceptions")
+            } finally {
+                statEXCEPTIONS.clear_parameters()
+                lockEXCEPTIONS.unlock()
+            }
+        }
+    }
+
+    @InternalAPI
+    @JsName("LoadExceptions")
+    fun LoadExceptions(){
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockEXCEPTIONS.lock()
+                    val arr: ArrayList<KExceptions.KException> = statEXCEPTIONS.SELECT_EXCEPTION_ALL()
+                    KExceptions.INSERT_EXCEPTIONS(arr, false)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.LoadExceptions")
+            } finally {
+                statEXCEPTIONS.clear_parameters()
+                lockEXCEPTIONS.unlock()
+            }
+        }
+    }
+
+    /////////////cash data///////////////////////////
+
+    private val statCASHDATA = Connection.createStatement()
+    @InternalAPI
+    private val lockCASHDATA = Lock()
+
+    @InternalAPI
+    @JsName("InsertCashData")
+    fun InsertCashData(lANSWER_TYPE: ANSWER_TYPE) {
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockCASHDATA.lock()
+                    statCASHDATA.INSERT_CASHDATA(lANSWER_TYPE)
+                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertCashData")
+            } finally {
+                statCASHDATA.clear_parameters()
+                lockCASHDATA.unlock()
+            }
+        }
+    }
+
+
+
 
     @InternalAPI
     internal val SAVEMEDIA: ConcurrentMap<String, KSaveMedia> = ConcurrentMap()
@@ -66,8 +272,8 @@ object Sqlite_service : CoroutineScope {
     @DangerousInternalIoApi
     @ExperimentalTime
     private val Cleaner = KorosTimerTask.start(
-            delay = VERIFYTABLES.seconds,
-            repeat = VERIFYTABLES.seconds
+            delay = Duration.seconds(VERIFYTABLES),
+            repeat = Duration.seconds(VERIFYTABLES)
     ) { removeOldAll() }
 
     @ExperimentalIoApi
@@ -923,19 +1129,6 @@ object Sqlite_service : CoroutineScope {
                 }
             }
 
-    @InternalAPI
-    @JsName("SelectBigAvatar")
-    internal suspend fun SelectBigAvatar(lOBJECT_ID: String): KBigAvatar? {
-        return try {
-            return withContext(Sqlite_serviceScope.coroutineContext) {
-                Connection.createStatement().SELECT_BIG_AVATARS(lOBJECT_ID)
-            }
-
-        } catch (ex: Exception) {
-            WriteExceptionIntoFile(ex, "Sqlite_service.SelectBigAvatar")
-            null
-        }
-    }
 
     @InternalAPI
     private fun ClearBigAvatar() =

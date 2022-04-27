@@ -8,14 +8,15 @@
 package p_client
 
 import CrossPlatforms.WriteExceptionIntoFile
-import Tables.KChat
+import Tables.*
 import atomic.AtomicBoolean
+import atomic.dequeue
+import atomic.enqueue
 import com.soywiz.kds.Queue
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
-import io.ktor.util.collections.ConcurrentMap
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.core.isNotEmpty
+import io.ktor.util.collections.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import lib_exceptions.exc_channel_already_closed
 import lib_exceptions.exc_just_do_it_label_is_null
@@ -105,21 +106,19 @@ private constructor() {
                             Connections[1L] = connection!!
                         }
                         jsocket!!.ANSWER_TYPEs?.clear()
-                        jsocket!!.connection_id = myConnectionsID.value
-                        jsocket!!.connection_coocki = myConnectionsCoocki.value
-                        jsocket!!.device_id = myDeviceId
+
                         if (!Commands[jsocket!!.just_do_it]?.canChangeCoocki!!) {
                             jsocket!!.just_do_it_label = nowNano()
                         }
+
+                        jsocket!!.connection_id = myConnectionsCoocki.value
+                        jsocket!!.connection_coocki = myConnectionsCoocki.value
+                        jsocket!!.device_id = myDeviceId.value
                         jsocket!!.lang = myLang.value
                         jsocket!!.last_messege_update = KChat.globalLastUpdatingDate.value
                         jsocket!!.db_massage = ""
                         jsocket!!.just_do_it_successfull = "0"
                         jsocket!!.connection_context = myConnectionContext.value
-                        println("jsocket.value_par7 ${jsocket!!.value_par7}")
-                        println("jsocket.value_par8 ${jsocket!!.value_par8}")
-                        println("jsocket.value_par9 ${jsocket!!.value_par9}")
-                        println("jsocket.just_do_it sended ${jsocket!!.just_do_it}")
                         val data = jsocket!!.serialize(craete_check_sum = false, verify_fields = true)
                         if (data != null && data.size > 0) {
                             timeVerifyMesseges = DateTime.nowUnixLong() + TIME_OUT_VERIFY_MESSEGES
@@ -146,6 +145,7 @@ private constructor() {
                         jsocket = null
                     }
                 }
+
                 val keys = Connections.keys
                 keys.forEach {
                     try {
@@ -163,9 +163,14 @@ private constructor() {
                             jsocketRet.deserialize(b, myConnectionsCoocki.value, true, newConnectionCoocki.value)
                             if (jsocketRet.just_do_it != 0) {
                                 jsocket = BetweenJSOCKETs.remove(jsocketRet.just_do_it_label)
+
                                 if (jsocket != null) {
-                                    jsocket!!.merge(jsocketRet)
-                                    when (jsocket!!.just_do_it) {
+                                    when (jsocketRet.just_do_it){
+                                        1011000058 -> {
+                                            jsocket!!.connection_id = myConnectionsID.value
+                                            jsocket!!.connection_coocki = myConnectionsCoocki.value
+                                            InJSOCKETs.enqueue(jsocket!!)
+                                        }
                                         1011000069 -> {
                                             myConnectionsID.setNewValue(0L)
                                             myConnectionsCoocki.setNewValue(0L)
@@ -173,12 +178,18 @@ private constructor() {
                                             jsocket!!.just_do_it_successfull = "4"
                                             jsocket!!.db_massage = returnException(90031, jsocket!!.lang)
                                         }
-                                        1011000055 -> {
-                                            Connections[1L]?.let { it1 -> FileLoader.executeTask(jsocket!!, it1) }
-                                        }
                                         else -> {
-                                            OutJSOCKETs[jsocket!!.just_do_it_label] = jsocket!!
+                                            when (jsocket!!.just_do_it) {
+                                                1011000055 -> {
+                                                    jsocket!!.merge(jsocketRet)
+                                                    Connections[1L]?.let { it -> FileLoader.executeTask(jsocket!!, it) }
+                                                }
+                                                else -> {
+                                                    jsocket!!.merge(jsocketRet)
+                                                    OutJSOCKETs[jsocket!!.just_do_it_label] = jsocket!!
 
+                                                }
+                                            }
                                         }
                                     }
                                 }

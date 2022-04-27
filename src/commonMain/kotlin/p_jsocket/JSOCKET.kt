@@ -4,6 +4,7 @@ package p_jsocket
 
 import CrossPlatforms.MyCondition
 import CrossPlatforms.WriteExceptionIntoFile
+import Tables.myConnectionsCoocki
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.*
@@ -97,11 +98,8 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
 
 
 @JsName("JSOCKET")
-open class JSOCKET() : CoroutineScope {
+open class JSOCKET(){
 
-    final override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
-
-    val JSOCKETScope = CoroutineScope(coroutineContext)
 
 
     @InternalAPI
@@ -456,15 +454,15 @@ open class JSOCKET() : CoroutineScope {
 
         if (h == null) h = HASH()
         if (just_do_it_label == 0L) {
-            throw exc_just_do_it_is_null()
+            throw exc_just_do_it_label_is_null()
         }
         if (just_do_it == 0) {
-            throw exc_just_do_it_is_null()
+            throw exc_wrong_number_of_command(null)
         }
         currentCommand = if (!Commands.containsKey(just_do_it)) {
-            throw exc_commands_id_is_wrong(just_do_it)
+            throw exc_wrong_number_of_command(just_do_it.toString())
         } else {
-            Commands[just_do_it] ?: error(message = "Wrong number of command")
+            Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
         }
         currentPosition = 0
         currentLimit = 0
@@ -516,7 +514,7 @@ open class JSOCKET() : CoroutineScope {
             var nes_fields_symbol: String
             loop@ for (x in 1..FIELDS_SUBSCRIBE.size) {
                 val subJSOCKET: JSOCKET_Subscribe =
-                        FIELDS_SUBSCRIBE[x] ?: error(message = "Wrong number field of JSOCKET_Subscribe")
+                        FIELDS_SUBSCRIBE[x] ?: throw exc_wrong_number_of_field(null)
                 if (!subJSOCKET.serialied) {
                     continue@loop
                 }
@@ -653,15 +651,15 @@ open class JSOCKET() : CoroutineScope {
         check_sum = 0L
         value_par7 = value_par7.trim().uppercase()
         if (just_do_it_label == 0L) {
-            throw exc_just_do_it_is_null()
+            throw exc_just_do_it_label_is_null()
         }
         if (just_do_it == 0) {
-            throw exc_just_do_it_is_null()
+            throw exc_wrong_number_of_command(null)
         }
         currentCommand = if (!Commands.containsKey(just_do_it)) {
-            throw exc_commands_id_is_wrong(just_do_it)
+            throw exc_wrong_number_of_command(just_do_it.toString())
         } else {
-            Commands[just_do_it] ?: error(message = "Wrong number of command")
+            Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
         }
         if (connection_id != 0L) {
             check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
@@ -672,7 +670,7 @@ open class JSOCKET() : CoroutineScope {
         var nes_fields_symbol: String
         loopSerr@ for (x in 1..FIELDS_SUBSCRIBE.size) {
             val subJSOCKET: JSOCKET_Subscribe =
-                    FIELDS_SUBSCRIBE[x] ?: error(message = "Wrong number field of JSOCKET_Subscribe")
+                    FIELDS_SUBSCRIBE[x] ?: throw exc_wrong_number_of_field(null)
             if (!subJSOCKET.check_suming) {
                 continue@loopSerr
             }
@@ -912,13 +910,13 @@ open class JSOCKET() : CoroutineScope {
             just_do_it_label = bb!!.readLong()
 
             if (!Commands.containsKey(just_do_it)) {
-                throw exc_commands_id_is_wrong(just_do_it)
+                throw exc_wrong_number_of_command(just_do_it.toString())
             } else {
-                currentCommand = Commands[just_do_it] ?: error(message = "Wrong number of command")
+                currentCommand = Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
             }
             crypt = currentCommand!!.isCrypt
             if (just_do_it_label == 0L) {
-                throw exc_just_do_it_is_null()
+                throw exc_just_do_it_label_is_null()
             }
             if (crypt) {
                 if (connection_id == 0L) {
@@ -928,7 +926,7 @@ open class JSOCKET() : CoroutineScope {
                     throw exc_connection_coocki_is_null()
                 }
                 if (p_original_connection_coocki == 0L) {
-                    throw exc_user_coocki_not_equal_db_coocki(connection_id, connection_coocki, just_do_it_label)
+                    throw exc_user_coocki_not_equal_db_coocki(connection_coocki.toString(), p_original_connection_coocki.toString())
                 }
                 md5String = h!!.getNewMD5String(p_original_connection_coocki, just_do_it_label)
                 if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
@@ -941,13 +939,12 @@ open class JSOCKET() : CoroutineScope {
                             connection_coocki = p_new_connection_coocki
                         } else {
                             throw exc_user_coocki_not_equal_db_coocki(
-                                    connection_id,
-                                    connection_coocki,
-                                    just_do_it_label
+                                    connection_coocki.toString(),
+                                    p_original_connection_coocki.toString()
                             )
                         }
                     } else {
-                        throw exc_user_coocki_not_equal_db_coocki(connection_id, connection_coocki, just_do_it_label)
+                        throw exc_user_coocki_not_equal_db_coocki(connection_coocki.toString(), p_original_connection_coocki.toString())
                     }
                 }
                 reverseMD5String = h!!.getReverseMD5String(md5String)
@@ -963,7 +960,7 @@ open class JSOCKET() : CoroutineScope {
                 nameField_number = 0
                 nameField_number = bb!!.readInt()
                 val subJSOCKET =
-                        FIELDS_SUBSCRIBE[nameField_number] ?: error(message = "Wrong number field of JSOCKET_Subscribe")
+                        FIELDS_SUBSCRIBE[nameField_number] ?: throw exc_wrong_number_of_field(null)
                 nameField_length = bb!!.readInt()
                 if (subJSOCKET.serialied) {
                     if ((subJSOCKET.fields_size_is_perminent && nameField_length != subJSOCKET.fields_size)
@@ -1163,4 +1160,5 @@ open class JSOCKET() : CoroutineScope {
     fun getmd5LongArray():LongArray {
         return md5LongArray
     }
+
 }

@@ -22,50 +22,45 @@ expect class SQLStatement() {
     @JsName("TRIGGER_BIG_AVATARS_CONTROL_COUNT")
     suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT()
 
-    @JsName("INSERT_BIG_AVATARS")
-    suspend fun INSERT_BIG_AVATARS(kBigAvatar: KBigAvatar)
+    @JsName("INSERT_BIG_AVATAR")
+    suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar)
 
-    @JsName("SELECT_BIG_AVATARS")
-    suspend fun SELECT_BIG_AVATARS(OBJECTS_ID: String):KBigAvatar?
+    @JsName("SELECT_BIG_AVATAR")
+    suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String):KBigAvatar?
 
     @JsName("SELECT_BIGAVATARS_ALL_ID")  //for save in memory
-    suspend fun SELECT_BIGAVATARS_ALL_ID()
+    suspend fun SELECT_BIGAVATARS_ALL_ID():ArrayList<String>
+
+    @JsName("SELECT_BIGAVATARS_ALL")  //for save in memory
+    suspend fun SELECT_BIGAVATARS_ALL():ArrayList<KBigAvatar>
 
     @JsName("CLEAR_BIG_AVATARS")
     suspend fun CLEAR_BIG_AVATARS()
 
     @JsName("DELETE_BIG_AVATARS")
-    suspend fun DELETE_BIG_AVATARS(OBJECTS_ID: String)
+    suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String)
+
+    @JsName("UPDATE_BIG_AVATAR_LAST_USE")
+    suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long)
+
 
     /////////////cash data///////////////////////////
 
     @JsName("TABLE_CASHDATA")
     suspend fun TABLE_CASHDATA()
 
-    @JsName("INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION")
-    suspend fun INDEX_CASHDATA_CASH_SUM_NUMBER_POSITION()
-
-    @JsName("INDEX_CASHDATA_CASH_SUM_OBJECT_ID")
-    suspend fun INDEX_CASHDATA_CASH_SUM_OBJECT_ID()
-
-    @JsName("TRIGGER_CASHDATA_CONTROL_COUNT")
-    suspend fun TRIGGER_CASHDATA_CONTROL_COUNT()
-
-    @JsName("TRIGGER_CASHDATA_DELETING_RECORDS")
-    suspend fun TRIGGER_CASHDATA_DELETING_RECORDS()
-
     @JsName("INSERT_CASHDATA")
     suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
 
-    @JsName("UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE")
-    suspend fun UPDATE_CASHDATA_NUMBER_POSITION_LAST_UPATE(L_NUMBER_POSITION: Int, L_LAST_UPDATE: Long, L_CASH_SUM: Long, L_OBJECT_ID: Long)
+    @JsName("INSERT_CASHDATAS")
+    suspend fun INSERT_CASHDATAS(lANSWER_TYPES: ArrayDeque<ANSWER_TYPE>)
 
-    @JsName("SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION") //for save in memory
-    suspend fun SELECT_CASHDATA_ALL_CASH_SUM_NUMBER_POSITION()
+    @JsName("SELECT_CASHDATA_ALL")
+    suspend fun SELECT_CASHDATA_ALL()
 
     @ExperimentalStdlibApi
-    @JsName("SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT") //for select next chunk
-    suspend fun SELECT_CASHDATA_WITH_NUMBER_POSITION_LIMIT(CASH_SUM: Long, L_NUMBER_POSITION: Int)
+    @JsName("SELECT_CASHDATA_ALL_ON_CASH_SUM")
+    suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long)
 
     @JsName("CLEAR_CASHDATA")
     suspend fun CLEAR_CASHDATA()
@@ -84,8 +79,17 @@ expect class SQLStatement() {
     @JsName("TRIGGER_CASHLASTUPDATE_DELETE")
     suspend fun TRIGGER_CASHLASTUPDATE_DELETE()
 
-    @JsName("TRIGGER_CASHLASTUPDATE_INSERT")
-    suspend fun TRIGGER_CASHLASTUPDATE_INSERT()
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_UPDATE")
+    suspend fun TRIGGER_CASHLASTUPDATE_UPDATE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT()
 
     @JsName("INSERT_CASHLASTUPDATE")
     suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate)
@@ -173,7 +177,7 @@ expect class SQLStatement() {
     suspend fun INSERT_COMMANDS(kCommands: KCommands)
 
     @JsName("SELECT_COMMANDS_ALL")
-    suspend fun SELECT_COMMANDS_ALL()
+    suspend fun SELECT_COMMANDS_ALL():ArrayList<KCommands>
 
     @JsName("CLEAR_COMMANDS")
     suspend fun CLEAR_COMMANDS()
@@ -184,10 +188,10 @@ expect class SQLStatement() {
     suspend fun TABLE_EXCEPTION()
 
     @JsName("INSERT_EXCEPTION")
-    suspend fun INSERT_EXCEPTION(kExceptions: KExceptions)
+    suspend fun INSERT_EXCEPTION(kException: KExceptions.KException)
 
     @JsName("SELECT_EXCEPTION_ALL")
-    suspend fun SELECT_EXCEPTION_ALL()
+    suspend fun SELECT_EXCEPTION_ALL():ArrayList<KExceptions.KException>
 
     @JsName("CLEAR_EXCEPTION")
     suspend fun CLEAR_EXCEPTION()
@@ -216,6 +220,7 @@ expect class SQLStatement() {
     suspend fun CLEAR_MESSEGES()
 
     /////////////meta data///////////////////////////
+
     @JsName("TABLE_METADATA")
     suspend fun TABLE_METADATA()
 
@@ -283,5 +288,8 @@ expect class SQLStatement() {
     /////////////////////////////////////////////////////////////////////////
     @JsName("connect")
     suspend fun connect()
+
+    @JsName("clear_parameters(")
+    suspend fun clear_parameters()
 
 }
