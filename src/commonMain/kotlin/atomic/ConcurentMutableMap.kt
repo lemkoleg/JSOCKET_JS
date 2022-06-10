@@ -1,25 +1,36 @@
 package atomic
 
 
+import co.touchlab.stately.ensureNeverFrozen
 import io.ktor.util.*
-import kotlin.jvm.Synchronized
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
+
+//val <K, V> MutableMap<K, V>.InstanceRef: AtomicReference<MutableMap<K, V>>
+//    get() = AtomicReference(this)
+val <K, V> MutableMap<K, V>.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun <K, V> MutableMap<K, V>.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
+}
+
+@InternalAPI
+val <K, V> MutableMap<K, V>.lock: Mutex
+    get() = Mutex()
 
 
 @InternalAPI
-val <K, V> MutableMap<K, V>.lock: Lock
-    get() = Lock()
-
-@Synchronized
-@InternalAPI
-fun <K, V> MutableMap<K, V>.lockedPut(k:K, v:V) {
+suspend fun <K, V> MutableMap<K, V>.lockedPut(k:K, v:V) {
     lock.withLock {
         this[k] = v
     }
 }
 
-@Synchronized
+
 @InternalAPI
-fun <K, V>MutableMap<K, V>.lockedPutAll(v: MutableMap<K, V>) {
+suspend fun <K, V>MutableMap<K, V>.lockedPutAll(v: MutableMap<K, V>) {
     lock.withLock {
         v.keys.forEach{
             this[it] = v[it]!!
@@ -27,9 +38,9 @@ fun <K, V>MutableMap<K, V>.lockedPutAll(v: MutableMap<K, V>) {
     }
 }
 
-@Synchronized
+
 @InternalAPI
-fun <K, V>MutableMap<K, V>.lockedGet(k:K):V? {
+suspend fun <K, V>MutableMap<K, V>.lockedGet(k:K):V? {
     lock.withLock {
         if(this.contains(k)){
             return@withLock this[k]
@@ -40,9 +51,9 @@ fun <K, V>MutableMap<K, V>.lockedGet(k:K):V? {
     return null
 }
 
-@Synchronized
+
 @InternalAPI
-fun <K, V>MutableMap<K, V>.lockedContains(k:K):Boolean {
+suspend fun <K, V>MutableMap<K, V>.lockedContains(k:K):Boolean {
     lock.withLock {
         return@withLock this.contains(k)
     }

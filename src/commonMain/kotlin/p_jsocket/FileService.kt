@@ -6,8 +6,12 @@
  */
 package p_jsocket
 
-import CrossPlatforms.MyFile
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.slash
+import Tables.KBigAvatar
+import Tables.KSaveMedia
+import Tables.SAVE_MEDIA
+import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korim.bitmap.Bitmap32
 import com.soywiz.korim.color.RGB_555
@@ -15,6 +19,8 @@ import com.soywiz.korim.format.ImageEncodingProps
 import com.soywiz.korim.format.PNG
 import com.soywiz.korim.format.encode
 import com.soywiz.korim.format.readBitmap
+import com.soywiz.korio.async.await
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.stream.asVfsFile
 import com.soywiz.korio.stream.openAsync
@@ -23,7 +29,8 @@ import io.ktor.utils.io.core.internal.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import lib_exceptions.*
-import kotlin.coroutines.CoroutineContext
+import p_client.CLIENT_JSOCKET_POOL
+import p_client.Jsocket
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -33,296 +40,360 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
-const val CHUNK_SIZE = 1024L * 1000L
-const val maxTimeWaitRead = 5000L
 val colorFormat = RGB_555
-const val SEND_AVATAR_SIZE = AVATARSIZE * 10 * 2
 
 
 @JsName("FileService")
-class FileService(): CoroutineScope {
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+class FileService(jsocket: Jsocket? = null) {
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+    var file: CrossPlatformFile? = null
 
-    val FileServiceScope = CoroutineScope(coroutineContext)
+    private var IsDownloaded = false
 
-    var fIleFullName: String = ""
-        private set
-    var fIleName: String = ""
-        private set
-    var fileExtension: String = ""
-        private set
-    private var TempPath: String = ""
-    var OpenMode /* 1-read, 2-re-write 3-random write, 4 - write-append*/: Int = 0
-    private var ExpectedFIleSize: Long = 0
+    val command: Int = jsocket?.just_do_it ?: 0
+
+    val SELF_Jsocket: Jsocket? = if (jsocket == null) {
+        null
+    } else {
+        var j: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+        if (j == null) {
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                println("CLIENT_JSOCKET_POOL is emprty")
+            }
+            j = Jsocket()
+            j!!.set_value(jsocket)
+        }
+        j
+    }
+
+    val fIleName: String =
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+            if (SELF_Jsocket!!.value_par4.isEmpty()) { // object_link
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "constructor",
+                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
+                )
+            } else {
+                DeleteSymbols(SELF_Jsocket.value_par4) // OBJECT_LINK
+            }
+        } else {
+            if (command.equals(1011000056)) { // take_a_new_file();
+                if (SELF_Jsocket!!.value_par8.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "constructor",
+                        name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
+                    )
+                } else {
+                    if (file == null) {
+                        file = CrossPlatformFile(SELF_Jsocket.value_par8)
+                    }
+                    file!!.getFileName()
+                }
+
+            } else ""
+        }
+
+    val fileExtension: String =
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+            if (SELF_Jsocket!!.object_extension.isEmpty()) { // object_link
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "constructor",
+                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY",
+                    l_additional_text = "FileExtension is empty"
+                )
+            } else {
+                DeleteSymbols(SELF_Jsocket.object_extension)
+            }
+        } else {
+            if (command.equals(1011000056)) { // take_a_new_file();
+                if (SELF_Jsocket!!.value_par8.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "constructor",
+                        name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
+                    )
+                } else {
+                    if (file == null) {
+                        file = CrossPlatformFile(SELF_Jsocket.value_par8)
+                    }
+                    file!!.getFileExtension()
+                }
+
+            } else ""
+        }
+
+    val save_media: KSaveMedia? =
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+
+            var s = SAVE_MEDIA[fIleName]
+
+            if (s != null) {
+                if (command.equals(1011000007) && s!!.IsTemp()) {
+                    s!!.setIsPerminent()
+                }
+                s!!.setLAST_USED()
+                IsDownloaded = true
+            } else {
+                s = SELF_Jsocket?.let { KSaveMedia(it) }
+            }
+            s
+        } else null
+
+    val fIleFullName: String = if (SELF_Jsocket == null) {
+        ""
+    } else {
+        if (command.equals(1011000056)) { // take_a_new_file();
+            if (SELF_Jsocket.value_par8.isEmpty()) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "constructor",
+                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
+                )
+            } else {
+                SELF_Jsocket.value_par8
+            }
+
+        } else if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+            save_media!!.FILE_FULL_NAME
+        } else ""
+    }
+
+    private var ExpectedFIleSize: Long =
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+            SELF_Jsocket!!.object_size
+        } else {
+            0L
+        }
+
     var currentFIleSize: Long = 0L
         private set
-    private var CURRENT_CHUNK_SIZE = CHUNK_SIZE
-    private var MAZ_FILE_SIZE = 1000 * 1000 * 1024L
-    private val AVATAR_MAX_SIZE = AVATARSIZE * 1000L
+    private var CURRENT_CHUNK_SIZE: Int =
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+            if (IsDownloaded) Constants.CHUNK_SIZE else 0
+        } else 0
+    private var SEND_AVATAR_SIZE = Constants.SEND_AVATAR_SIZE
+    private var MAX_FILE_SIZE = Constants.MAX_FILES_SIZE_B
+    private val AVATAR_MAX_SIZE = Constants.AVATAR_MAX_SIZE_FOR_LOADING
     private var Chunks: IntArray? = null
     private var NotSendedChunks: Long = 0
     private var EndFIleBytes: Long = 0L
     private var CurrentLoopBytes = 0L
     private var AllBytes = 0L
     private var SendedBytes = 0L
-    private var TimeOutTime = 0L
-    private val SOCKET_TIMEOUT = 5000L
-    private var IsDownloaded = false
-    private val IsTryAgain = false
-    private var myFile: MyFile? = null
-    private var md5LongArray: LongArray? = null
-    private var reverseMD5LongArray: LongArray? = null
-    private var md5String: String? = ""
-    private var reverseMD5String: String?  = ""
-    private var start_position = 0
-    private var reverse_start_position = 0
+    private var ServerFileName = ""  // Fale name into Server for send file
+    private var MaxTryingSendReceiveFileChunks = Constants.MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS
 
-    @ExperimentalUnsignedTypes
-    constructor(
-        lFIleName: String,
-        lFIleExtension: String,
-        lExpectedFIleSize: Long,
-        mode: Int
-    ) : this() {
-        if (lFIleName.trim().isEmpty()) {
-            throw exc_file_id_is_empty()
-        }
-        if (lFIleExtension.trim().isEmpty()) {
-            throw exc_file_extension_is_empty()
-        }
-        this.fIleName = DeleteSymbols(lFIleName)
-        this.OpenMode = mode
-        ExpectedFIleSize = lExpectedFIleSize
-        fileExtension = DeleteSymbols(lFIleExtension).lowercase()
-        this.TempPath = if (mode != 1) {
-            "Temp".plus(slash)
-        } else {
-            ""
-        }
-        this.fIleFullName =
-            TempPath.plus(fIleName.substring(0, 2).plus(slash))
-                .plus(fIleName).plus(".").plus(fileExtension)
-        if (lExpectedFIleSize == 0L) {
-            throw exc_file_size_is_wrong(fIleFullName, lExpectedFIleSize)
-        }
-        FileServiceScope.launch { open_file_channel() }
-    }
 
-    ////////////////////////////////////////////////////////////////////////////
-    @ExperimentalUnsignedTypes
-    constructor(lFullFIleName: String) : this() {
-        fIleFullName = lFullFIleName.trim()
-        fileExtension = DeleteSymbols(createFileExtensionFromFullFIleName(fIleFullName))
-        fIleName = DeleteSymbols(createFileNameFromName(fIleFullName))
-        TempPath = ""
-        OpenMode = 1
-        FileServiceScope.launch { open_file_channel() }
+    init {
+        ensureNeverFrozen()
+        if (!command.equals(0)) {
+            if (fIleName.isEmpty() || fileExtension.isEmpty()) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "constructor",
+                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
+                )
+            }
+        }
+        if (SELF_Jsocket != null) {
+            if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+                SELF_Jsocket.just_do_it = 1011000055 // GIVE_ME_THAT_FILE;
+            }
+        }
     }
 
     private fun DeleteSymbols(InputString: String): String {
-        return InputString.replace("/", "").replace(slash, "")
+        return InputString.replace("/", "").replace(slash, "").replace(" ", "")
             .replace("'", "").replace("/'", "").replace("..", "").trim()
     }
 
 
     private fun createFileExtensionFromFullFIleName(LFileFullName: String): String {
         return try {
+            if (save_media != null) {
+                return save_media.getOBJECT_EXTENSION()
+            }
             val extension: String = DeleteSymbols(LFileFullName.trim()).substringAfterLast(".")
             if (extension.trim().isEmpty()) {
-                throw exc_error_on_create_file_name("")
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "createFileExtensionFromFullFIleName",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "FileExtension is empty"
+                )
             }
             extension.lowercase()
+        } catch (e: my_user_exceptions_class) {
+            throw e
         } catch (ex: Exception) {
-            throw exc_error_on_create_file_name(ex.message)
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "createFileExtensionFromFullFIleName",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = ex.message
+            )
         }
     }
 
-    private fun createFileNameFromName(LFileFullName: String): String {
+    private fun createFileNameFromFullName(LFileFullName: String): String {
         return try {
-            val file_name = DeleteSymbols(LFileFullName.trim()).substringBefore(".")
-            val extension = DeleteSymbols(LFileFullName.trim()).substringAfterLast(".")
-            return file_name
+            return (LFileFullName.trim().substringAfterLast(slash)).substringBeforeLast(".")
         } catch (ex: Exception) {
-            throw exc_error_on_create_file_name(ex.message)
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "createFileNameFromName",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = ex.message
+            )
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    @ExperimentalUnsignedTypes
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+    // 1-read, 2-re-write 3-random write, 4 - write-append
     @JsName("open_file_channel")
     suspend fun open_file_channel() {
-        if (fIleFullName.trim().isEmpty()) {
-            throw exc_file_name_is_empty()
-        }
-        myFile = MyFile(fIleFullName, OpenMode)
-        if (OpenMode == 1) //read
-        {
-            myFile!!.openFile()
-            if (!myFile!!.isExists() || myFile!!.isPath() || myFile!!.size() == 0L) {
-                throw exc_file_not_exists()
-            }
-            ExpectedFIleSize = myFile!!.size()
-            IsDownloaded = true
-        }
-        if (OpenMode == 2) //re-write(download)
-        {
-            myFile!!.creteFile()
-        }
-        if (OpenMode == 3) //create and write whis RandomAccessFile (play)
-        {
-            myFile!!.creteFile(ExpectedFIleSize)
-        }
-        if (OpenMode == 4) //append
-        {
-            myFile!!.openFile()
-            if (!myFile!!.isExists() || myFile!!.isPath() || myFile!!.size() == 0L) {
-                throw exc_file_not_exists()
-            }
-        }
-        currentFIleSize = myFile!!.size()
 
-        /*if (OpenMode == 1 || OpenMode == 3) {
-            if (currentFIleSize != ExpectedFIleSize) {
-                throw exc_file_current_size_not_eqoual_expected_size(fIleFullName, currentFIleSize, ExpectedFIleSize)
-            }
-        }*/
+        if (file == null) {
+            file = CrossPlatformFile(fIleFullName)
+        }
 
-        if (OpenMode == 3) {
-            val i = (ExpectedFIleSize / CHUNK_SIZE).toInt()
-            EndFIleBytes = ExpectedFIleSize % CHUNK_SIZE
-            Chunks = if (EndFIleBytes > 0L) {
-                IntArray(i + 1)
-            } else {
-                IntArray(i)
+        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+
+            if (!IsDownloaded) {
+
+                if (KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(SELF_Jsocket!!.value_id3)) {
+                    save_media!!.SET_BIG_AVATAR(
+                        KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(L_AVATAR_ID = SELF_Jsocket!!.value_id3).await()
+                            ?.getAVATAR(), SELF_Jsocket.value_id3
+                    )
+                }
+                if (save_media!!.getBIG_AVATAR() == null) {
+                    SELF_Jsocket.value_par1 = if (SELF_Jsocket.value_par6.equals("NO_ORIGINAL")) "2" else "1"
+                }
+                SELF_Jsocket.send_request()
+
+                CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
+
+                file!!.create(ExpectedFIleSize) // create full size file
+
+                val i = (ExpectedFIleSize / CURRENT_CHUNK_SIZE).toInt()
+                EndFIleBytes = ExpectedFIleSize % CURRENT_CHUNK_SIZE
+                Chunks = if (EndFIleBytes > 0L) {
+                    IntArray(i + 1)
+                } else {
+                    IntArray(i)
+                }
+                NotSendedChunks = Chunks!!.size.toLong()
+
+                if (SELF_Jsocket.value_par2.equals("A")) {
+                    save_media.SET_BIG_AVATAR(SELF_Jsocket.content, SELF_Jsocket.value_id3)
+                } else if (SELF_Jsocket.value_par2.equals("0") && SELF_Jsocket.content != null) {
+                    if (Chunks!!.size == 1) {
+                        if (SELF_Jsocket.content!!.size != EndFIleBytes.toInt()) {
+                            return
+                        }
+                    } else {
+                        if (SELF_Jsocket.content!!.size != CURRENT_CHUNK_SIZE) {
+                            return
+                        }
+                    }
+                    file!!.write(SELF_Jsocket.content!!, 0L)
+                    Chunks!![0] = 1
+                    NotSendedChunks--
+                    if (NotSendedChunks == 0L) {
+                        IsDownloaded = true
+                    }
+                }
             }
-            NotSendedChunks = Chunks!!.size.toLong()
+
+        } else if (command.equals(1011000056)) { // take_a_new_file();
+            ExpectedFIleSize = file!!.size()
+            SELF_Jsocket!!.send_request()
+            ServerFileName = SELF_Jsocket.value_par4
+            CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
+        }
+
+        if (!file!!.exists() || !file!!.isFile() || file!!.size() != ExpectedFIleSize) {
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "open_file_channel",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "file not exists"
+            )
         }
     }
 
-    fun getMyFile(): MyFile? {
-        return myFile
+    fun getMyFile(): CrossPlatformFile? {
+        return file
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
-    @InternalAPI
-    @JsName("send_chunk_of_file")
-    suspend fun send_chunk_or_full_of_file(number_of_chunk: Int,
-                                           send_full_file: Boolean,
-                                           conn: Connection,
-                                           lmd5LongArray:LongArray,
-                                           lreverseMD5LongArray:LongArray,
-                                           lmd5String: String,
-                                           lreverseMD5String: String) {
+/////////////////////////////////////////////////////////////////////////////////////
 
-        md5LongArray = lmd5LongArray;
-        md5String   = lmd5String;
-        reverseMD5LongArray = lreverseMD5LongArray;
-        reverseMD5String   = lreverseMD5String
-        start_position = (md5String!!.substring(md5String!!.length - 1, md5String!!.length)).toInt(16)
-        reverse_start_position = (reverseMD5String!!.substring(reverseMD5String!!.length - 1, md5String!!.length)).toInt(16)
+    @JsName("send_file")
+    fun send_file(): Job = CoroutineScope(Dispatchers.Default).launch {
 
-        SendedBytes = number_of_chunk * CHUNK_SIZE
-
-        if (OpenMode != 1) {
-            throw exc_wrong_operation_for_open_mode()
-        }
-        if (SendedBytes > myFile!!.size()) {
-            throw exc_wrong_current_positon_of_file(number_of_chunk.toLong())
-        }
-        AllBytes = myFile!!.size()
-        CURRENT_CHUNK_SIZE = if (AllBytes - SendedBytes >= CHUNK_SIZE) {
-            CHUNK_SIZE
-        } else {
-            AllBytes - SendedBytes
-        }
-        AllBytes = SendedBytes
-        CurrentLoopBytes = 0L
-        SendedBytes = 0L
-        TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
         try {
-            while (SendedBytes < CURRENT_CHUNK_SIZE && TimeOutTime > DateTime.nowUnixLong()) {
-                CurrentLoopBytes =
-                    myFile!!.sendChankOfFile(AllBytes + SendedBytes, CURRENT_CHUNK_SIZE - SendedBytes, conn)
-                if (CurrentLoopBytes >= 0L) {
-                    if (CurrentLoopBytes > 0L) {
-                        SendedBytes += CurrentLoopBytes
-                        CurrentLoopBytes = 0L
-                        TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
-                    } else {
-                        yield()
-                    }
-                } else {
-                    break
-                }
-            }
-        } catch (e: IOException) {
-            conn.close()
-            myFile?.close()
-        }
-    }
+            while (true) {
 
-    @DangerousInternalIoApi
-    @ExperimentalStdlibApi
-    @InternalAPI
-    @JsName("send_file_full")
-    suspend fun send_file_full(lCurrentPosition: Long, conn: Connection): Boolean {
-        if (OpenMode != 1) {
-            throw exc_wrong_operation_for_open_mode()
-        }
-        CurrentLoopBytes = 0L
-        SendedBytes = lCurrentPosition
-        AllBytes = myFile!!.size()
-        if (SendedBytes > AllBytes) {
-            throw exc_wrong_current_positon_of_file(lCurrentPosition)
-        }
-        return try {
-            TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
-            while (SendedBytes < AllBytes && TimeOutTime > DateTime.nowUnixLong()) {
-                CurrentLoopBytes = myFile!!.sendChankOfFile(SendedBytes, AllBytes - SendedBytes, conn)
-                if (CurrentLoopBytes >= 0L) {
-                    if (CurrentLoopBytes > 0L) {
-                        SendedBytes += CurrentLoopBytes
-                        CurrentLoopBytes = 0L
-                        TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
-                    } else {
-                        yield()
+                MaxTryingSendReceiveFileChunks--
+                if (MaxTryingSendReceiveFileChunks == 0) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "send_file",
+                        name_of_exception = "EXC_MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS"
+                    )
+                }
+
+                SELF_Jsocket!!.content = null
+
+                if (ServerFileName.isEmpty()) {
+                    if (CURRENT_CHUNK_SIZE != 0) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "send_file",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "Error send file: ServerFileName is empty"
+                        )
                     }
-                } else {
+
+
+                }
+
+                if (CURRENT_CHUNK_SIZE == 0) {
+                    if (ServerFileName.isNotEmpty()) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "send_file",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "Error send file: CURRENT_CHUNK_SIZE is empty"
+                        )
+                    }
+                }
+
+                if (SELF_Jsocket.value_par2.equals("B")) {
+                    IsDownloaded = true
                     break
+                } else {
+                    SELF_Jsocket.content =
+                        file!!.read((SELF_Jsocket.value_par2.toLong() * CURRENT_CHUNK_SIZE), CURRENT_CHUNK_SIZE)
+                    if (SELF_Jsocket.content!!.size > 0) SELF_Jsocket.send_request()
                 }
             }
-            TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
-            try {
-                while (TimeOutTime > DateTime.nowUnixLong()) {
-                    if (!conn.isConnected()) {
-                        return true
-                    }
-                    yield()
-                }
-                false
-            } catch (e: IOException) {
-                true
-            }
-        } catch (e: IOException) {
-            false
         } finally {
-            conn.close()
-            myFile?.close()
+            this@FileService.close()
         }
     }
-    ///////////////////////////////////////////////////////////////////////////////
-    fun getMyFileChannel():MyFile?{
-        return myFile
-    }
-    ////////////////////////////////////////////////////////////////////////////////
 
-    @ExperimentalTime
-    @ExperimentalStdlibApi
-    @InternalAPI
-    @DangerousInternalIoApi
+////////////////////////////////////////////////////////////////////////////////
+
     @JsName("write_chunk_of_file")
     suspend fun write_chunk_of_file(lCurrentChunk: Int, conn: Connection): Boolean {
         if (OpenMode != 3) {
@@ -343,7 +414,7 @@ class FileService(): CoroutineScope {
         return try {
             if (Chunks!![lCurrentChunk] == 0) {
                 while (SendedBytes < CURRENT_CHUNK_SIZE && TimeOutTime > DateTime.nowUnixLong()) {
-                    CurrentLoopBytes = myFile!!.receiveChankOfFile(
+                    CurrentLoopBytes = crossPlatformFile!!.receiveChankOfFile(
                         AllBytes + SendedBytes,
                         CURRENT_CHUNK_SIZE - SendedBytes,
                         conn
@@ -384,26 +455,23 @@ class FileService(): CoroutineScope {
             IsDownloaded
         } catch (e: IOException) {
             conn.close()
-            myFile?.close()
+            crossPlatformFile?.close()
             false
         }
     }
 
-    @InternalAPI
-    @ExperimentalStdlibApi
-    @DangerousInternalIoApi
     @JsName("write_file_full")
     suspend fun write_file_full(conn: Connection): Boolean {
         if (OpenMode == 1 || OpenMode == 3) {
             throw exc_wrong_operation_for_open_mode()
         }
         return try {
-            SendedBytes = myFile!!.size()
+            SendedBytes = crossPlatformFile!!.size()
             CurrentLoopBytes = 0L
             TimeOutTime = DateTime.nowUnixLong() + SOCKET_TIMEOUT
             while (SendedBytes < ExpectedFIleSize && TimeOutTime > DateTime.nowUnixLong()) {
                 CurrentLoopBytes =
-                    myFile!!.receiveChankOfFile(SendedBytes, ExpectedFIleSize - SendedBytes, conn)
+                    crossPlatformFile!!.receiveChankOfFile(SendedBytes, ExpectedFIleSize - SendedBytes, conn)
                 if (CurrentLoopBytes >= 0L) {
                     if (CurrentLoopBytes > 0L) {
                         SendedBytes += CurrentLoopBytes
@@ -416,13 +484,13 @@ class FileService(): CoroutineScope {
                     break
                 }
             }
-            IsDownloaded = myFile!!.size() == ExpectedFIleSize
+            IsDownloaded = crossPlatformFile!!.size() == ExpectedFIleSize
             IsDownloaded
         } catch (e: IOException) {
             IsDownloaded
         } finally {
             conn.close()
-            myFile?.close()
+            crossPlatformFile?.close()
         }
     }
 
@@ -433,13 +501,13 @@ class FileService(): CoroutineScope {
             throw exc_wrong_operation_for_open_mode()
         }
         if (IsDownloaded) {
-            if (myFile != null) {
-                myFile!!.close()
+            if (crossPlatformFile != null) {
+                crossPlatformFile!!.close()
             }
-            val sourceFile = MyFile(fIleFullName)
+            val sourceFile = CrossPlatformFile(fIleFullName)
             if (sourceFile.isExists() && !sourceFile.isPath()) {
                 val f: String = fIleFullName.replace("Temp$slash", "")
-                val d = MyFile(f)
+                val d = CrossPlatformFile(f)
                 if (d.isExists() && !sourceFile.isPath()) {
                     if (OpenMode == 4) {
                         d.delete()
@@ -461,11 +529,11 @@ class FileService(): CoroutineScope {
             throw exc_wrong_operation_for_open_mode()
         }
         try {
-            if (myFile != null) {
-                myFile!!.close()
+            if (crossPlatformFile != null) {
+                crossPlatformFile!!.close()
             }
             val f: String = fIleFullName.replace("Temp\\\\", "")
-            val d = MyFile(f)
+            val d = CrossPlatformFile(f)
             if (d.isExists() && !d.isPath()) {
                 d.delete()
             }
@@ -525,22 +593,37 @@ class FileService(): CoroutineScope {
 
     ////////////////////////////////////////////////////////////////////////////////
     @JsName("getImmageAvatarFromFileName")
+
     suspend fun getImmageAvatarFromFileName(lFullFileName: String): ByteArray? {
         val fileName = resourcesVfs[lFullFileName]
+        fileName.readAsSyncStream()
         if (!fileName.exists() || fileName.isDirectory()) {
-            throw exc_fail_picture_extension()
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "getImmageAvatarFromFileName",
+                name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
+            )
         }
         if (fileExtension.trim().isEmpty()) {
             fileExtension = createFileExtensionFromFullFIleName(lFullFileName)
         }
         if (!PictureSet.contains(fileExtension)) {
-            throw exc_fail_picture_extension()
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "getImmageAvatarFromFileName",
+                name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
+            )
         }
-        if(fileName.size() > AVATAR_MAX_SIZE)
-          {throw exc_max_file_size("Avatar", fileName.size())}
+        if (fileName.size() > AVATAR_MAX_SIZE) {
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "getImmageAvatarFromFileName",
+                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+            )
+        }
 
         val l = fileName.readAll()
-        if(l.size <= SEND_AVATAR_SIZE){
+        if (l.size <= SEND_AVATAR_SIZE) {
             return l
         }
         val file = l.openAsync().asVfsFile()
@@ -551,23 +634,36 @@ class FileService(): CoroutineScope {
 
     @JsName("getImmageAvatarFromByteArray")
     suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): ByteArray? {
-        if(imageData.size > AVATAR_MAX_SIZE)
-           {throw exc_max_file_size("Avatar", imageData.size.toLong())}
-        if(imageData.size <= SEND_AVATAR_SIZE)
-           {return imageData}
+        if (imageData.size > AVATAR_MAX_SIZE) {
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "getImmageAvatarFromFileName",
+                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+            )
+        }
+        if (imageData.size <= SEND_AVATAR_SIZE) {
+            return imageData
+        }
         val fileName = imageData.openAsync().asVfsFile()
         val image32 = fileName.readBitmap().toBMP32()
         return getImmageAvatarFromBitmap32(image32)
     }
 
-    @JsName("getImmageAvatarFormBitmap32")
-    private suspend fun getImmageAvatarFromByteArrayWithKoord(imageData: ByteArray,
-                                                              x: Int,
-                                                              y: Int,
-                                                              w: Int,
-                                                              h: Int): ByteArray? {
-        if(imageData.size > AVATAR_MAX_SIZE)
-          {throw exc_max_file_size("Avatar", imageData.size.toLong())}
+    @JsName("getImmageAvatarFromByteArrayWithKoord")
+    private suspend fun getImmageAvatarFromByteArrayWithKoord(
+        imageData: ByteArray,
+        x: Int,
+        y: Int,
+        w: Int,
+        h: Int
+    ): ByteArray? {
+        if (imageData.size > AVATAR_MAX_SIZE) {
+            throw my_user_exceptions_class(
+                l_class_name = "FileService",
+                l_function_name = "getImmageAvatarFromFileName",
+                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+            )
+        }
         val fileName = imageData.openAsync().asVfsFile()
         var image32 = fileName.readBitmap().toBMP32()
         image32 = image32.copySliceWithSize(x = x, y = y, width = w, height = h)
@@ -578,14 +674,14 @@ class FileService(): CoroutineScope {
     private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
         var bb: ByteArray? = null
         var image32 = imageData
-        val ex = ImageEncodingProps("",1.0)
+        val ex = ImageEncodingProps("", 1.0)
         val sliceSIze = SEND_AVATAR_SIZE * 1.4
         //bb = image32.encode(PNG, ex)
         bb = image32.encode(PNG)
         if (bb.size <= SEND_AVATAR_SIZE) return bb
         else bb = null
         var x = 0
-        while (x < 1000 ) {
+        while (x < 1000) {
             x += 1
             image32 = image32.mipmap(1)
             bb = image32.encode(PNG)
@@ -599,7 +695,7 @@ class FileService(): CoroutineScope {
             var im_width = (image32.width * koef).toInt()
             var im_heigth = (image32.height * koef).toInt()
             x = 0
-            while (x < 1000 ) {
+            while (x < 1000) {
                 x += 1
                 image32 = image32.copySliceWithSize(
                     (image32.width - im_width) / 2,
@@ -616,114 +712,114 @@ class FileService(): CoroutineScope {
         return bb
     }
 
-    /*@JsName("getImmageAvatarFormBitmap32")
-    private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
-        var bb: ByteArray? = null
-        var image32: Bitmap32 = imageData
-        val ex = ImageEncodingProps("",1.0)
-        //bb = image32.encode(PNG, ex)
+/*@JsName("getImmageAvatarFormBitmap32")
+private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
+    var bb: ByteArray? = null
+    var image32: Bitmap32 = imageData
+    val ex = ImageEncodingProps("",1.0)
+    //bb = image32.encode(PNG, ex)
+    bb = image32.encode(PNG)
+    if (bb.size <= SEND_AVATAR_SIZE) return bb
+    else bb = null
+    var x = 0
+    while (x < 1000 ) {
+        x += 1
+        image32 = image32.mipmap(1)
         bb = image32.encode(PNG)
+        println("bb.size ${bb.size}")
+        if (bb.size <= (SEND_AVATAR_SIZE * 2)) break
+    }
+    if (bb != null) {
         if (bb.size <= SEND_AVATAR_SIZE) return bb
-        else bb = null
-        var x = 0
+
+        val koef = 0.95F
+        val avatar = SEND_AVATAR_SIZE.toFloat()
+        var percent = (bb.size / avatar)
+        var im_width = (image32.width * koef).toInt()
+        var im_heigth = (image32.height * koef).toInt()
+        x = 0
         while (x < 1000 ) {
             x += 1
-            image32 = image32.mipmap(1)
+            image32 = image32.copySliceWithSize(
+                (image32.width - im_width) / 2,
+                (image32.height - im_heigth) / 2,
+                im_width,
+                im_heigth
+            )
             bb = image32.encode(PNG)
-            println("bb.size ${bb.size}")
-            if (bb.size <= (SEND_AVATAR_SIZE * 2)) break
+            println("bb.size2 ${bb.size}")
+            if (bb.size <= SEND_AVATAR_SIZE) break
+            im_width = (image32.width * koef).toInt()
+            im_heigth = (image32.height * koef).toInt()
         }
-        if (bb != null) {
-            if (bb.size <= SEND_AVATAR_SIZE) return bb
+    }
+    return bb
+}*/
 
-            val koef = 0.95F
-            val avatar = SEND_AVATAR_SIZE.toFloat()
-            var percent = (bb.size / avatar)
-            var im_width = (image32.width * koef).toInt()
-            var im_heigth = (image32.height * koef).toInt()
-            x = 0
-            while (x < 1000 ) {
-                x += 1
+/*@JsName("getImmageAvatarFormBitmap32")
+private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
+    var bb: ByteArray? = null
+    var image32: Bitmap32 = imageData
+    val ex = ImageEncodingProps("",1.0)
+    bb = image32.encode(PNG, ex)
+    if (bb.size <= AVATAR_SIZE) return bb
+    var image16 = Bitmap16(width = image32.width, height = image32.height, format = colorFormat, premultiplied = false)
+    image32.forEach { _, x, y ->
+        image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
+    }
+    image32 = image16.toBMP32()
+    FileServiceScope.launch {
+        var im_width = image32.width
+        var im_heigth = image32.height
+        var koef: Float
+        val avatar = AVATAR_SIZE.toFloat()
+        var percent = (bb!!.size / avatar)
+        while (true) {
+            if (bb!!.size <= AVATAR_SIZE) break
+            percent = (bb!!.size / avatar)
+            koef = if (percent > 2F) {
+                1F
+            } else {
+                0.99F
+            }
+            if (koef == 1F) {
+                image32 = image32.mipmap(1)
+
+            } else {
+                im_width = (im_width * koef).toInt()
+                im_heigth = (im_heigth * koef).toInt()
                 image32 = image32.copySliceWithSize(
                     (image32.width - im_width) / 2,
                     (image32.height - im_heigth) / 2,
                     im_width,
                     im_heigth
                 )
-                bb = image32.encode(PNG)
-                println("bb.size2 ${bb.size}")
-                if (bb.size <= SEND_AVATAR_SIZE) break
-                im_width = (image32.width * koef).toInt()
-                im_heigth = (image32.height * koef).toInt()
-            }
-        }
-        return bb
-    }*/
-
-    /*@JsName("getImmageAvatarFormBitmap32")
-    private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
-        var bb: ByteArray? = null
-        var image32: Bitmap32 = imageData
-        val ex = ImageEncodingProps("",1.0)
-        bb = image32.encode(PNG, ex)
-        if (bb.size <= AVATAR_SIZE) return bb
-        var image16 = Bitmap16(width = image32.width, height = image32.height, format = colorFormat, premultiplied = false)
-        image32.forEach { _, x, y ->
-            image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
-        }
-        image32 = image16.toBMP32()
-        FileServiceScope.launch {
-            var im_width = image32.width
-            var im_heigth = image32.height
-            var koef: Float
-            val avatar = AVATAR_SIZE.toFloat()
-            var percent = (bb!!.size / avatar)
-            while (true) {
-                if (bb!!.size <= AVATAR_SIZE) break
-                percent = (bb!!.size / avatar)
-                koef = if (percent > 2F) {
-                    1F
-                } else {
-                    0.99F
-                }
-                if (koef == 1F) {
-                    image32 = image32.mipmap(1)
-
-                } else {
-                    im_width = (im_width * koef).toInt()
-                    im_heigth = (im_heigth * koef).toInt()
-                    image32 = image32.copySliceWithSize(
-                        (image32.width - im_width) / 2,
-                        (image32.height - im_heigth) / 2,
-                        im_width,
-                        im_heigth
-                    )
-
-                }
-                im_width = image32.width
-                im_heigth = image32.height
-                image16 =
-                    Bitmap16(width = im_width, height = im_heigth, format = colorFormat, premultiplied = false)
-                image32.forEach { _, x, y ->
-                    image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
-                }
-                image32 = image16.toBMP32()
-                bb = image32.encode(PNG, ex)
-                break
 
             }
+            im_width = image32.width
+            im_heigth = image32.height
+            image16 =
+                Bitmap16(width = im_width, height = im_heigth, format = colorFormat, premultiplied = false)
+            image32.forEach { _, x, y ->
+                image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
+            }
+            image32 = image16.toBMP32()
+            bb = image32.encode(PNG, ex)
+            break
 
-        }.join()
-        return bb
-    }*/
+        }
+
+    }.join()
+    return bb
+}*/
 
     /////////////////////////////////////////////////////////////////////////////////////
     fun close() {
-        if (myFile != null) {
-            myFile!!.close()
+        if (crossPlatformFile != null) {
+            crossPlatformFile!!.close()
         }
         if (OpenMode != 1) {
-            val f = MyFile(fIleFullName)
+            val f = CrossPlatformFile(fIleFullName)
             if (f.isExists() && !f.isPath()) {
                 f.delete()
             }
@@ -732,15 +828,15 @@ class FileService(): CoroutineScope {
 
     /////////////////////////////////////////////////////////////////////////////////////
     fun finalize() {
-        if (myFile != null) {
-            myFile!!.close()
+        if (crossPlatformFile != null) {
+            crossPlatformFile!!.close()
         }
         if (OpenMode != 1) {
-            val f = MyFile(fIleFullName)
+            val f = CrossPlatformFile(fIleFullName)
             if (f.isExists() && !f.isPath()) {
                 f.delete()
             }
         }
     }
-    /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 }

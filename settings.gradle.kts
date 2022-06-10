@@ -1,8 +1,6 @@
 rootProject.name = "JSOCKET"
 
 
-enableFeaturePreview("GRADLE_METADATA")
-
 pluginManagement {
     repositories {
         mavenLocal()

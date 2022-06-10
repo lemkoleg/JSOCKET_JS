@@ -14,14 +14,7 @@ import com.soywiz.korio.async.await
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.stream.AsyncStream
 import io.ktor.util.InternalAPI
-import io.ktor.util.Lock
-import io.ktor.util.withLock
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.*
-import lib_exceptions.exc_object_name_is_wrong
-import lib_exceptions.exc_universal_exception.returnException
-import p_jsocket.CLIENT_TIMEOUT
 import p_jsocket.Connection
 import p_jsocket.nowNano
 import sql.Sqlite_service.SAVEMEDIA
@@ -34,39 +27,36 @@ import kotlin.time.ExperimentalTime
  *
  * @author User
  */
+
+@InternalAPI
+@ExperimentalTime
 @JsName("FileLoader")
-object FileLoader : CoroutineScope {
+object MediaViewer : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
     val FileLoaderScope = CoroutineScope(coroutineContext)
 
-    @InternalAPI
+
     private var newTask: Jsocket? = null
 
-    @InternalAPI
+
     private var currentTask: Jsocket? = null
 
-    @InternalAPI
+
     private var errorTask: Jsocket? = null
     private var clientFileService: ClientFileService? = null
 
     private var currentChunk: Int? = 0
 
-    @InternalAPI
+
     private val FileLoaderLock = Lock()
 
-    @InternalAPI
-    @ExperimentalTime
     private val listener: Listener? = Listener.get_Instance()
 
     ////////////////////////////////////////////////////////////////////////////////
-    @DangerousInternalIoApi
-    @ExperimentalTime
-    @ExperimentalUnsignedTypes
-    @ExperimentalIoApi
-    @InternalAPI
-    @ExperimentalStdlibApi
+
+
     @JsName("setTask")
     suspend fun setTask(ljsocket: Jsocket): AsyncStream? {
         return try {
@@ -91,7 +81,6 @@ object FileLoader : CoroutineScope {
                         }
 
                         if (clientFileService!!.MyFileService.IsDownloaded()) { // если загруже
-                            currentTask = null
                             if (clientFileService!!.MyFileService.OpenMode != 1) { // если открыт не для чте чтения, то открываем для чтения
                                 val m: KSaveMedia = clientFileService!!.myKSaveMedia as KSaveMedia
                                 clientFileService!!.close()
@@ -182,7 +171,6 @@ object FileLoader : CoroutineScope {
     @DangerousInternalIoApi
     @ExperimentalTime
     @InternalAPI
-    @ExperimentalIoApi
     @ExperimentalStdlibApi
     @JsName("sendTask")
     private suspend fun sendTask(ljsocket: Jsocket) = FileLoaderScope.async {

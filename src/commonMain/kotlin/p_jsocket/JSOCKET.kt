@@ -3,16 +3,14 @@
 package p_jsocket
 
 import CrossPlatforms.MyCondition
-import CrossPlatforms.WriteExceptionIntoFile
-import Tables.myConnectionsCoocki
+import Tables.*
+import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.await
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import lib_exceptions.*
-import kotlin.coroutines.CoroutineContext
+import lib_exceptions.my_user_exceptions_class
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -21,88 +19,414 @@ import kotlin.time.ExperimentalTime
  *
  * @author Oleg
  */
-@JsName("FIELDS_SIZE")
-const val FIELDS_SIZE = 1024 * 5
+
+
+private val REQUEST_PREFIX = returnRequestPrefix()
+
+
+private val REQUEST_POSTFIX = returnRequestPostfix()
+
+private fun returnRequestPrefix(): ByteArray {
+    val b = BytePacketBuilder(ChunkBuffer.Pool)
+    b.writeByte(0.toByte())
+    b.writeLong(0L)
+    b.writeLong(9223372036854775807L)
+    return b.build().readBytes()
+}
+
+private fun returnRequestPostfix(): ByteArray {
+    val b = BytePacketBuilder(ChunkBuffer.Pool)
+    b.writeLong(7085774586302733229L)
+    return b.build().readBytes()
+}
 
 
 @InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 @JsName("Commands")
 val Commands: MutableMap<Int, Command> = mutableMapOf(
-        1011000010 to Command(
-                1011000010, "9", "111010001410000000000000000000",
-                "202000111222000020000012222202222000000000000000000000000000"
-        ), // RESTORE_PASSWORD
-        1011000026 to Command(
-                1011000026, "9", "111010001410000000000000000000",
-                "202000111222000020002212222202222000000000000000000000000000"
-        ), // INSERT_ACCOUNT
-        1011000027 to Command(
-                1011000027, "2", "111011001410000000000000000000",
-                "202000111222000000000011222202022000000000000000000000000000"
-        ),// CONNECT_ACCOUNT
-        1011000049 to Command(
-                1011000049, "2", "011000000000000000000000000000",
-                "002000111222000000000020022002022000000000000000000000000000"
-        ), // RE_SEND_MAIL_CONFIRM_CODE
-        1011000061 to Command(
-                1011000061, "3", "011011001401000000000000000000",
-                "112000111220000000000000022202022000000000000000000000000000"
-        ), // SELECT_COMMANDS
-        1011000069 to Command(
-                1011000069, "5", "111100101000010000000000000000",
-                "102000111220000000000000022202220000000000000000000000000000"
-        )// QUIT FROM CLIENT
+    1011000010 to Command(
+        1011000010, "9", "111010001410000000000000000000",
+        "202000111222000020000012222202222000000000000000000000000000"
+    ), // RESTORE_PASSWORD
+    1011000026 to Command(
+        1011000026, "9", "111010001410000000000000000000",
+        "202000111222000020002212222202222000000000000000000000000000"
+    ), // INSERT_ACCOUNT
+    1011000027 to Command(
+        1011000027, "2", "111011001410000000000000000000",
+        "202000111222000000000011222202022000000000000000000000000000"
+    ),// CONNECT_ACCOUNT
+    1011000049 to Command(
+        1011000049, "2", "011000000000000000000000000000",
+        "002000111222000000000020022002022000000000000000000000000000"
+    ), // RE_SEND_MAIL_CONFIRM_CODE
+    1011000061 to Command(
+        1011000061, "3", "011011001401000000000000000000",
+        "112000111220000000000000022202022000000000000000000000000000"
+    ), // SELECT_COMMANDS
+    1011000069 to Command(
+        1011000069, "5", "111100101000010000000000000000",
+        "102000111220000000000000022202220000000000000000000000000000"
+    )// QUIT FROM CLIENT
 )
 
-val MetaData: MutableMap<String, Long> = mutableMapOf()
+
 
 
 @JsName("FIELDS_SUBSCRIBE")
 @InternalAPI
 val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
-        1 to JSOCKET_Subscribe(   fields_number = 1, fields_name = "connection_id",           fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 0, serialied = false, check_suming = true),
-        2 to JSOCKET_Subscribe(   fields_number = 2, fields_name = "connection_coocki",       fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 2, serialied = false, check_suming = false),
-        3 to JSOCKET_Subscribe(   fields_number = 3, fields_name = "connection_context",      fields_size = 30,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        4 to JSOCKET_Subscribe(   fields_number = 4, fields_name = "object_size",             fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
-        5 to JSOCKET_Subscribe(   fields_number = 5, fields_name = "object_extension",        fields_size = 5,     fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        6 to JSOCKET_Subscribe(   fields_number = 6, fields_name = "object_server",           fields_size = 15,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        7 to JSOCKET_Subscribe(   fields_number = 7, fields_name = "device_id",               fields_size = 16,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        8 to JSOCKET_Subscribe(   fields_number = 8, fields_name = "just_do_it",              fields_size = 4,     fields_size_is_perminent = true,  fields_type = 1, fields_crypted = 1, serialied = false, check_suming = false),
-        9 to JSOCKET_Subscribe(   fields_number = 9, fields_name = "just_do_it_label",        fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = false, check_suming = false),
-        10 to JSOCKET_Subscribe(  fields_number = 10, fields_name = "just_do_it_successfull", fields_size = 4,     fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        11 to JSOCKET_Subscribe(  fields_number = 11, fields_name = "lang",                   fields_size = 3,     fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        12 to JSOCKET_Subscribe(  fields_number = 12, fields_name = "value_id1",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        13 to JSOCKET_Subscribe(  fields_number = 13, fields_name = "value_id2",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        14 to JSOCKET_Subscribe(  fields_number = 14, fields_name = "value_id3",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        15 to JSOCKET_Subscribe(  fields_number = 15, fields_name = "value_id4",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        16 to JSOCKET_Subscribe(  fields_number = 16, fields_name = "value_id5",              fields_size = 18,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        17 to JSOCKET_Subscribe(  fields_number = 17, fields_name = "value_par1",             fields_size =  120,  fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        18 to JSOCKET_Subscribe(  fields_number = 18, fields_name = "value_par2",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        19 to JSOCKET_Subscribe(  fields_number = 19, fields_name = "value_par3",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        20 to JSOCKET_Subscribe(  fields_number = 20, fields_name = "value_par4",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        21 to JSOCKET_Subscribe(  fields_number = 21, fields_name = "value_par5",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        22 to JSOCKET_Subscribe(  fields_number = 22, fields_name = "value_par6",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        23 to JSOCKET_Subscribe(  fields_number = 23, fields_name = "value_par7",             fields_size = 60,    fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = true),
-        24 to JSOCKET_Subscribe(  fields_number = 24, fields_name = "value_par8",             fields_size = 400,   fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        25 to JSOCKET_Subscribe(  fields_number = 25, fields_name = "value_par9",             fields_size = 4000,  fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        26 to JSOCKET_Subscribe(  fields_number = 26, fields_name = "last_messege_update",    fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
-        27 to JSOCKET_Subscribe(  fields_number = 27, fields_name = "last_notice_update",     fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
-        28 to JSOCKET_Subscribe(  fields_number = 28, fields_name = "last_metadata_update",   fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
-        29 to JSOCKET_Subscribe(  fields_number = 29, fields_name = "request_profile",        fields_size = 30,    fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        30 to JSOCKET_Subscribe(  fields_number = 30, fields_name = "request_size",           fields_size = 8,     fields_size_is_perminent = false, fields_type = 1, fields_crypted = 1, serialied = false, check_suming = false),
-        31 to JSOCKET_Subscribe(  fields_number = 31, fields_name = "version",                fields_size = 5,     fields_size_is_perminent = true,  fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        32 to JSOCKET_Subscribe(  fields_number = 32, fields_name = "last_date_of_update",    fields_size = 8,     fields_size_is_perminent = true,  fields_type = 2, fields_crypted = 1, serialied = true, check_suming = false),
-        33 to JSOCKET_Subscribe(  fields_number = 33, fields_name = "db_massage",             fields_size = 500,   fields_size_is_perminent = false, fields_type = 0, fields_crypted = 1, serialied = true, check_suming = false),
-        34 to JSOCKET_Subscribe(  fields_number = 34, fields_name = "content",                fields_size = 32768, fields_size_is_perminent = false, fields_type = 4, fields_crypted = 1, serialied = true, check_suming = false)
+    1 to JSOCKET_Subscribe(
+        fields_number = 1,
+        fields_name = "connection_id",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 0,
+        serialied = false,
+        check_suming = true
+    ),
+    2 to JSOCKET_Subscribe(
+        fields_number = 2,
+        fields_name = "connection_coocki",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 2,
+        serialied = false,
+        check_suming = false
+    ),
+    3 to JSOCKET_Subscribe(
+        fields_number = 3,
+        fields_name = "connection_context",
+        fields_size = 30,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    4 to JSOCKET_Subscribe(
+        fields_number = 4,
+        fields_name = "object_size",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    5 to JSOCKET_Subscribe(
+        fields_number = 5,
+        fields_name = "object_extension",
+        fields_size = 5,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    6 to JSOCKET_Subscribe(
+        fields_number = 6,
+        fields_name = "object_server",
+        fields_size = 15,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    7 to JSOCKET_Subscribe(
+        fields_number = 7,
+        fields_name = "device_id",
+        fields_size = 16,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    8 to JSOCKET_Subscribe(
+        fields_number = 8,
+        fields_name = "just_do_it",
+        fields_size = 4,
+        fields_size_is_perminent = true,
+        fields_type = 1,
+        fields_crypted = 1,
+        serialied = false,
+        check_suming = false
+    ),
+    9 to JSOCKET_Subscribe(
+        fields_number = 9,
+        fields_name = "just_do_it_label",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = false,
+        check_suming = false
+    ),
+    10 to JSOCKET_Subscribe(
+        fields_number = 10,
+        fields_name = "just_do_it_successfull",
+        fields_size = 4,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    11 to JSOCKET_Subscribe(
+        fields_number = 11,
+        fields_name = "lang",
+        fields_size = 3,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    12 to JSOCKET_Subscribe(
+        fields_number = 12,
+        fields_name = "value_id1",
+        fields_size = 18,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    13 to JSOCKET_Subscribe(
+        fields_number = 13,
+        fields_name = "value_id2",
+        fields_size = 18,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    14 to JSOCKET_Subscribe(
+        fields_number = 14,
+        fields_name = "value_id3",
+        fields_size = 18,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    15 to JSOCKET_Subscribe(
+        fields_number = 15,
+        fields_name = "value_id4",
+        fields_size = 18,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    16 to JSOCKET_Subscribe(
+        fields_number = 16,
+        fields_name = "value_id5",
+        fields_size = 18,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    17 to JSOCKET_Subscribe(
+        fields_number = 17,
+        fields_name = "value_par1",
+        fields_size = 120,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    18 to JSOCKET_Subscribe(
+        fields_number = 18,
+        fields_name = "value_par2",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    19 to JSOCKET_Subscribe(
+        fields_number = 19,
+        fields_name = "value_par3",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    20 to JSOCKET_Subscribe(
+        fields_number = 20,
+        fields_name = "value_par4",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    21 to JSOCKET_Subscribe(
+        fields_number = 21,
+        fields_name = "value_par5",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    22 to JSOCKET_Subscribe(
+        fields_number = 22,
+        fields_name = "value_par6",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    23 to JSOCKET_Subscribe(
+        fields_number = 23,
+        fields_name = "value_par7",
+        fields_size = 60,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = true
+    ),
+    24 to JSOCKET_Subscribe(
+        fields_number = 24,
+        fields_name = "value_par8",
+        fields_size = 400,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    25 to JSOCKET_Subscribe(
+        fields_number = 25,
+        fields_name = "value_par9",
+        fields_size = 4000,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    26 to JSOCKET_Subscribe(
+        fields_number = 26,
+        fields_name = "last_messege_update",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    27 to JSOCKET_Subscribe(
+        fields_number = 27,
+        fields_name = "last_notice_update",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    28 to JSOCKET_Subscribe(
+        fields_number = 28,
+        fields_name = "last_metadata_update",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    29 to JSOCKET_Subscribe(
+        fields_number = 29,
+        fields_name = "request_profile",
+        fields_size = 30,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    30 to JSOCKET_Subscribe(
+        fields_number = 30,
+        fields_name = "request_size",
+        fields_size = 8,
+        fields_size_is_perminent = false,
+        fields_type = 1,
+        fields_crypted = 1,
+        serialied = false,
+        check_suming = false
+    ),
+    31 to JSOCKET_Subscribe(
+        fields_number = 31,
+        fields_name = "version",
+        fields_size = 5,
+        fields_size_is_perminent = true,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    32 to JSOCKET_Subscribe(
+        fields_number = 32,
+        fields_name = "last_date_of_update",
+        fields_size = 8,
+        fields_size_is_perminent = true,
+        fields_type = 2,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    33 to JSOCKET_Subscribe(
+        fields_number = 33,
+        fields_name = "db_massage",
+        fields_size = 500,
+        fields_size_is_perminent = false,
+        fields_type = 0,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    ),
+    34 to JSOCKET_Subscribe(
+        fields_number = 34,
+        fields_name = "content",
+        fields_size = 32768,
+        fields_size_is_perminent = false,
+        fields_type = 4,
+        fields_crypted = 1,
+        serialied = true,
+        check_suming = false
+    )
 )
 
 
 @JsName("JSOCKET")
-open class JSOCKET(){
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
+open class JSOCKET() {
 
-
-
-    @InternalAPI
     constructor(myJsocketClass: JSOCKET) : this() {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
         this.connection_id = myJsocketClass.connection_id
@@ -160,9 +484,6 @@ open class JSOCKET(){
 
     @JsName("ANSWER_TYPEs")
     var ANSWER_TYPEs: ArrayDeque<ANSWER_TYPE>? = null
-
-    @JsName("currentANSWER_TYPE")
-    var currentANSWER_TYPE: ANSWER_TYPE? = null
 
     @JsName("jserver_connection_id")
     var jserver_connection_id: Long = 0L
@@ -278,8 +599,6 @@ open class JSOCKET(){
     @JsName("bb")
     var bb: ByteReadPacket? = null
 
-    @OptIn(InternalAPI::class)
-    val lock = Lock()
 
     private var start_position = 0
     private var reverse_start_position = 0
@@ -305,9 +624,6 @@ open class JSOCKET(){
     private var currentCommand: Command? = null
 
 
-
-    @InternalAPI
-    @ExperimentalIoApi
     fun close() {
         try {
             condition.cDestroy()
@@ -328,7 +644,6 @@ open class JSOCKET(){
         //ip_address_bytes?.close()
         content = null
     }
-
 
 
     @JsName("set_value")
@@ -371,7 +686,7 @@ open class JSOCKET(){
         this.last_date_of_update = myJsocketClass.last_date_of_update
         this.db_massage = myJsocketClass.db_massage
         this.content = myJsocketClass.content
-        this.ANSWER_TYPEs = myJsocketClass.ANSWER_TYPEs
+        //this.ANSWER_TYPEs = myJsocketClass.ANSWER_TYPEs
     }
 
     @JsName("merge")
@@ -381,60 +696,60 @@ open class JSOCKET(){
         this.just_do_it_label = myJsocketClass.just_do_it_label
         this.just_do_it_successfull = myJsocketClass.just_do_it_successfull
         this.lang = myJsocketClass.lang
-        
-        if(myJsocketClass.value_id1.isNotEmpty()){
-            this.value_id1 = myJsocketClass.value_id1 
+
+        if (myJsocketClass.value_id1.isNotEmpty()) {
+            this.value_id1 = myJsocketClass.value_id1
         }
 
-        if(myJsocketClass.value_id2.isNotEmpty()){
+        if (myJsocketClass.value_id2.isNotEmpty()) {
             this.value_id2 = myJsocketClass.value_id2
         }
 
-        if(myJsocketClass.value_id3.isNotEmpty()){
+        if (myJsocketClass.value_id3.isNotEmpty()) {
             this.value_id3 = myJsocketClass.value_id3
         }
 
-        if(myJsocketClass.value_id4.isNotEmpty()){
+        if (myJsocketClass.value_id4.isNotEmpty()) {
             this.value_id4 = myJsocketClass.value_id4
         }
 
-        if(myJsocketClass.value_id5.isNotEmpty()){
+        if (myJsocketClass.value_id5.isNotEmpty()) {
             this.value_id5 = myJsocketClass.value_id5
         }
 
-        if(myJsocketClass.value_par1.isNotEmpty()){
+        if (myJsocketClass.value_par1.isNotEmpty()) {
             this.value_par1 = myJsocketClass.value_par1
         }
 
-        if(myJsocketClass.value_par2.isNotEmpty()){
+        if (myJsocketClass.value_par2.isNotEmpty()) {
             this.value_par2 = myJsocketClass.value_par2
         }
 
-        if(myJsocketClass.value_par3.isNotEmpty()){
+        if (myJsocketClass.value_par3.isNotEmpty()) {
             this.value_par3 = myJsocketClass.value_par3
         }
 
-        if(myJsocketClass.value_par4.isNotEmpty()){
+        if (myJsocketClass.value_par4.isNotEmpty()) {
             this.value_par4 = myJsocketClass.value_par4
         }
 
-        if(myJsocketClass.value_par5.isNotEmpty()){
+        if (myJsocketClass.value_par5.isNotEmpty()) {
             this.value_par5 = myJsocketClass.value_par5
         }
 
-        if(myJsocketClass.value_par6.isNotEmpty()){
+        if (myJsocketClass.value_par6.isNotEmpty()) {
             this.value_par6 = myJsocketClass.value_par6
         }
 
-        if(myJsocketClass.value_par7.isNotEmpty()){
+        if (myJsocketClass.value_par7.isNotEmpty()) {
             this.value_par7 = myJsocketClass.value_par7
         }
 
-        if(myJsocketClass.value_par8.isNotEmpty()){
+        if (myJsocketClass.value_par8.isNotEmpty()) {
             this.value_par8 = myJsocketClass.value_par8
         }
 
-        if(myJsocketClass.value_par9.isNotEmpty()){
+        if (myJsocketClass.value_par9.isNotEmpty()) {
             this.value_par9 = myJsocketClass.value_par9
         }
 
@@ -447,63 +762,107 @@ open class JSOCKET(){
 
     @JsName("serialize")
     @InternalAPI
-    @ExperimentalIoApi
-    fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): BytePacketBuilder? {
+    @ExperimentalTime
+    fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): ByteArray {
 
-        bbCONTENT_SIZE = BytePacketBuilder(0, ChunkBuffer.Pool)
+        try {
+            bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
 
-        if (h == null) h = HASH()
-        if (just_do_it_label == 0L) {
-            throw exc_just_do_it_label_is_null()
-        }
-        if (just_do_it == 0) {
-            throw exc_wrong_number_of_command(null)
-        }
-        currentCommand = if (!Commands.containsKey(just_do_it)) {
-            throw exc_wrong_number_of_command(just_do_it.toString())
-        } else {
-            Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
-        }
-        currentPosition = 0
-        currentLimit = 0
-        var lcraete_check_sum: Boolean
-        if (craete_check_sum) {
-            check_sum = 0L
-        }
-        md5String = ""
-        object_extension = object_extension.trim().lowercase()
-        value_par7 = value_par7.trim().uppercase()
-        start_position = 0
-        crypt = currentCommand!!.isCrypt
+            connection_id = myConnectionsCoocki.value
+            connection_coocki = myConnectionsCoocki.value
+            device_id = myDeviceId.value
+            lang = myLang.value
+            last_messege_update = KChat.globalLastUpdatingDate.value
+            db_massage = ""
+            just_do_it_successfull = "0"
+            myConnectionContext.value
+            just_do_it_label = nowNano()
 
-        if (crypt) {
-            if (connection_id == 0L) {
-                throw exc_connection_id_is_null()
+
+            if (h == null) h = HASH()
+
+            if (just_do_it_label == 0L) {
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "serialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "just_do_it_label is null"
+                )
             }
-            if (connection_coocki == 0L) {
-                throw exc_connection_coocki_is_null()
+            if (just_do_it == 0) {
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "serialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "just_do_it is null"
+                )
             }
-        } else {
-            connection_coocki = 0L
-        }
-        if (craete_check_sum && connection_id != 0L) {
-            check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
-        }
-        if (craete_check_sum) {
-            check_sum = h!!.getCheckSumFromLong(just_do_it.toLong(), check_sum)
-        }
-        nature_connection_coocki = connection_coocki
-        if (connection_coocki != 0L) {
-            md5String = h!!.getNewMD5String(connection_coocki, just_do_it_label)
-            reverseMD5String = h!!.getReverseMD5String(md5String)
-            connection_coocki = h!!.getNewCoockiLong(md5String)
-            md5LongArray = h!!.getNewMD5longArray(md5String)
-            reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
-            start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
-            reverse_start_position = reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-        return try {
+            currentCommand = if (!Commands.containsKey(just_do_it)) {
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "serialize",
+                    name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
+                    l_additional_text = "just_do_it not found $just_do_it"
+                )
+            } else {
+                Commands[just_do_it] ?: throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "serialize",
+                    name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
+                    l_additional_text = "just_do_it not found $just_do_it"
+                )
+            }
+            currentPosition = 0
+            currentLimit = 0
+            var lcraete_check_sum: Boolean
+            if (craete_check_sum) {
+                check_sum = 0L
+            }
+            md5String = ""
+            object_extension = object_extension.trim().lowercase()
+            value_par7 = value_par7.trim().uppercase()
+            start_position = 0
+            crypt = currentCommand!!.isCrypt
+
+            if (crypt) {
+                if (connection_id.equals(0L)) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "serialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "connection_id is null"
+                    )
+                }
+                if (connection_id.equals(0L)) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "serialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "connection_coocki is null"
+                    )
+                }
+            } else {
+                connection_coocki = 0L
+            }
+            if (craete_check_sum && connection_id != 0L) {
+                check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
+            }
+            if (craete_check_sum) {
+                check_sum = h!!.getCheckSumFromLong(just_do_it.toLong(), check_sum)
+            }
+            nature_connection_coocki = connection_coocki
+            if (connection_coocki != 0L) {
+                md5String = h!!.getNewMD5String(connection_coocki, just_do_it_label)
+                reverseMD5String = h!!.getReverseMD5String(md5String)
+                connection_coocki = h!!.getNewCoockiLong(md5String)
+                md5LongArray = h!!.getNewMD5longArray(md5String)
+                reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
+                start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
+                reverse_start_position =
+                    reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
+            }
+            ////////////////////////////////////////////////////////////////////////////////
+
             bbCONTENT_SIZE!!.writeLong(jserver_connection_id)
             bbCONTENT_SIZE!!.writeLong(connection_id)
             bbCONTENT_SIZE!!.writeLong(connection_coocki)
@@ -514,7 +873,12 @@ open class JSOCKET(){
             var nes_fields_symbol: String
             loop@ for (x in 1..FIELDS_SUBSCRIBE.size) {
                 val subJSOCKET: JSOCKET_Subscribe =
-                        FIELDS_SUBSCRIBE[x] ?: throw exc_wrong_number_of_field(null)
+                    FIELDS_SUBSCRIBE[x] ?: throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "serialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "wrong number of field: $x"
+                    )
                 if (!subJSOCKET.serialied) {
                     continue@loop
                 }
@@ -524,7 +888,7 @@ open class JSOCKET(){
                     lcraete_check_sum = false
                     if (craete_check_sum) {
                         lcraete_check_sum =
-                                subJSOCKET.check_suming && "1" == nes_fields_symbol
+                            subJSOCKET.check_suming && "1" == nes_fields_symbol
                     }
                     when (subJSOCKET.fields_type) {
                         0 -> {
@@ -532,25 +896,40 @@ open class JSOCKET(){
                             var s: String
                             try {
                                 //val nameField = nameFields[subJSOCKET.fields_name] as KProperty<String?>
-                                s = subJSOCKET.getFieldsValue(this) as String
+                                s = subJSOCKET.getJSOCKET_FieldsValue(this) as String
 
                             } catch (e: Exception) {
                                 if ("1" == nes_fields_symbol && verify_fields) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "serialize",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loop
                                 }
                             }
                             if (s.isEmpty() || (s.length == 4 && s.equals("null", true))) {
                                 if ("1" == nes_fields_symbol && verify_fields) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "serialize",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loop
                                 }
                             }
 
                             if (subJSOCKET.fields_size_is_perminent && s.length != subJSOCKET.fields_size) {
-                                throw exc_field_of_socket_is_empty(x, s.length)
+                                throw my_user_exceptions_class(
+                                    l_class_name = "JSOCKET",
+                                    l_function_name = "serialize",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "field length is wrong: $x; ${s.length}"
+                                )
                             }
 
                             bbb = s.encodeToByteArray()
@@ -566,15 +945,20 @@ open class JSOCKET(){
                         }
                         1 -> {
                             try {
-                                int_value = subJSOCKET.getFieldsValue(this) as Int
+                                int_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Int
                                 //val nameField = nameFields[subJSOCKET.fields_name] as KProperty<Int?>
                                 //int_value = nameField.getter.call()?:0
                             } catch (e: Exception) {
                                 continue@loop
                             }
-                            if (int_value == 0) {
+                            if (int_value.equals(0)) {
                                 if ("1" == nes_fields_symbol && verify_fields) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "serialize",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loop
                                 }
@@ -586,15 +970,20 @@ open class JSOCKET(){
                         }
                         2 -> {
                             try {
-                                long_value = subJSOCKET.getFieldsValue(this) as Long
+                                long_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Long
                                 //val nameField = nameFields[subJSOCKET.fields_name] as KProperty<Long?>
                                 //long_value = nameField.getter.call()?:0L
                             } catch (e: Exception) {
                                 continue@loop
                             }
-                            if (long_value == 0L) {
+                            if (long_value.equals(0L)) {
                                 if ("1" == nes_fields_symbol && verify_fields) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "serialize",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loop
                                 }
@@ -610,7 +999,12 @@ open class JSOCKET(){
                         4 -> {
                             if (content == null || content!!.isEmpty()) {
                                 if ("1" == nes_fields_symbol && verify_fields) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "serialize",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loop
                                 }
@@ -619,10 +1013,10 @@ open class JSOCKET(){
                                     bbCONTENT_SIZE!!.writeInt(x)
                                     bbCONTENT_SIZE!!.writeInt(content!!.size)
                                     setBytes(
-                                            content!!,
-                                            content!!.size,
-                                            crypt && currentCommand!!.cryptContent,
-                                            lcraete_check_sum
+                                        content!!,
+                                        content!!.size,
+                                        crypt && currentCommand!!.cryptContent,
+                                        lcraete_check_sum
                                     )
                                 }
                             }
@@ -630,7 +1024,22 @@ open class JSOCKET(){
                     }
                 }
             }
-            bbCONTENT_SIZE
+            val send_data = bbCONTENT_SIZE!!.build()
+            val buf = BytePacketBuilder(ChunkBuffer.Pool)
+            buf.writeFully(REQUEST_PREFIX)
+            buf.writeInt(send_data.remaining.toInt())
+            buf.writePacket(send_data)
+            buf.writeFully(REQUEST_POSTFIX)
+            return buf.build().readBytes()
+        } catch (e: my_user_exceptions_class) {
+            throw e
+        } catch (e: Exception) {
+            throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "serialize",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = e.message
+            )
         } finally {
             connection_coocki = nature_connection_coocki
             try {
@@ -643,7 +1052,6 @@ open class JSOCKET(){
     /////////////////////////////////////////////////////////////////////////////////
     @JsName("create_check_sum")
     @InternalAPI
-    @ExperimentalIoApi
     @ExperimentalTime
     fun create_check_sum(check_fields_lendth: Boolean) {
         if (h == null) h = HASH()
@@ -651,15 +1059,35 @@ open class JSOCKET(){
         check_sum = 0L
         value_par7 = value_par7.trim().uppercase()
         if (just_do_it_label == 0L) {
-            throw exc_just_do_it_label_is_null()
+            throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "create_check_sum",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "just_do_it_label is null"
+            )
         }
         if (just_do_it == 0) {
-            throw exc_wrong_number_of_command(null)
+            throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "create_check_sum",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "just_do_it is null"
+            )
         }
         currentCommand = if (!Commands.containsKey(just_do_it)) {
-            throw exc_wrong_number_of_command(just_do_it.toString())
+            throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "create_check_sum",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "just_do_it not found: $just_do_it"
+            )
         } else {
-            Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
+            Commands[just_do_it] ?: throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "create_check_sum",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "just_do_it not found: $just_do_it"
+            )
         }
         if (connection_id != 0L) {
             check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
@@ -670,7 +1098,12 @@ open class JSOCKET(){
         var nes_fields_symbol: String
         loopSerr@ for (x in 1..FIELDS_SUBSCRIBE.size) {
             val subJSOCKET: JSOCKET_Subscribe =
-                    FIELDS_SUBSCRIBE[x] ?: throw exc_wrong_number_of_field(null)
+                FIELDS_SUBSCRIBE[x] ?: throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "create_check_sum",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "wrong number of field: $x"
+                )
             if (!subJSOCKET.check_suming) {
                 continue@loopSerr
             }
@@ -684,24 +1117,39 @@ open class JSOCKET(){
                             var bbb: ByteArray
                             var s: String
                             try {
-                                s = subJSOCKET.getFieldsValue(this) as String
+                                s = subJSOCKET.getJSOCKET_FieldsValue(this) as String
                             } catch (e: Exception) {
                                 if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "create_check_sum",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loopSerr
                                 }
                             }
                             if (s.length == 4 && s.equals("null", true)) {
                                 if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "create_check_sum",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loopSerr
                                 }
                             }
 
                             if (subJSOCKET.fields_size_is_perminent && s.length != subJSOCKET.fields_size) {
-                                throw exc_field_of_socket_is_empty(x, s.length)
+                                throw my_user_exceptions_class(
+                                    l_class_name = "JSOCKET",
+                                    l_function_name = "create_check_sum",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "field length is wrong: $x; ${s.length}"
+                                )
                             }
                             bbb = s.encodeToByteArray()
                             nameField_length = bbb.size
@@ -715,13 +1163,18 @@ open class JSOCKET(){
                         1 -> {
                             int_value = 0
                             try {
-                                int_value = subJSOCKET.getFieldsValue(this) as Int
+                                int_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Int
                             } catch (e: Exception) {
                                 continue@loopSerr
                             }
-                            if (int_value == 0) {
+                            if (int_value.equals(0)) {
                                 if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw  my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "create_check_sum",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loopSerr
                                 }
@@ -731,13 +1184,18 @@ open class JSOCKET(){
                         2 -> {
                             long_value = 0L
                             try {
-                                long_value = subJSOCKET.getFieldsValue(this) as Long
+                                long_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Long
                             } catch (e: Exception) {
                                 continue@loopSerr
                             }
-                            if (long_value == 0L) {
+                            if (long_value.equals(0L)) {
                                 if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "create_check_sum",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loopSerr
                                 }
@@ -750,7 +1208,12 @@ open class JSOCKET(){
                         4 -> {
                             if (content == null || content!!.isNotEmpty()) {
                                 if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw exc_field_of_socket_is_empty(x, 0)
+                                    throw  my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "create_check_sum",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "field is empty: $x"
+                                    )
                                 } else {
                                     continue@loopSerr
                                 }
@@ -766,30 +1229,47 @@ open class JSOCKET(){
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("deserialized_ANSWERS_TYPES")
-    @InternalAPI
-    suspend fun deserialized_ANSWERS_TYPES() {
+    @KorioExperimentalApi
+    @JsName("desend_datad_ANSWERS_TYPES")
+    suspend fun deserialize_ANSWERS_TYPES() {
         try {
-            if (ANSWER_TYPEs == null) {
-                ANSWER_TYPEs = ArrayDeque()
-            } else {
-                ANSWER_TYPEs!!.clear()
-            }
+
             if (content == null || content!!.isEmpty()) {
                 return
             }
             var answer_type: ANSWER_TYPE?
-            var nameField_length : Int
-            var nameField_number : Int
-            var recordSize : Int
+            var empty_answer_types: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
+            var nameField_length: Int
+            var nameField_number: Int
+            var recordSize: Int
             var subJSOCKET: ANSWER_TYPE_Subscribe?
             bb = ByteReadPacket(content!!)
             var record: ByteReadPacket
+            var record_type = "0"
+            var promise: Promise<Boolean>? = null
             loopChSum@ while (true) {
                 if (bb!!.remaining >= 4) {
+                    if (empty_answer_types.isEmpty()) {
+                        empty_answer_types = CLIENT_ANSWER_TYPE_POOLS.removeFirstOrNull() ?: ArrayDeque()
+                        if (empty_answer_types.isEmpty()) {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("CLIENT_ANSWER_TYPE_POOLS is emprty")
+                            }
+                            ANSWER_TYPE.fillPOOLS()
+                            var ans:ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
+                            if(ans == null){
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    println("CLIENT_ANSWER_TYPE_POOL is emprty")
+                                }
+                                ANSWER_TYPE.fillPOOL()
+                                ans = ANSWER_TYPE()
+                            }
+                            empty_answer_types.addLast(ans)
+                        }
+                    }
                     recordSize = bb!!.readInt()
                     record = ByteReadPacket(bb!!.readBytes(recordSize))
-                    answer_type = ANSWER_TYPE.getANSWER_TYPE()
+                    answer_type = empty_answer_types.removeFirst()
                 } else {
                     break@loopChSum
                 }
@@ -840,7 +1320,7 @@ open class JSOCKET(){
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
                     nameField_length = record.readInt()
                     if ((subJSOCKET!!.fields_size_is_perminent && nameField_length != subJSOCKET.fields_size)
-                            || (nameField_length > subJSOCKET.fields_size)
+                        || (nameField_length > subJSOCKET.fields_size)
                     ) {
                         record.discardExact(nameField_length)
                         continue@loopChSum2
@@ -849,28 +1329,79 @@ open class JSOCKET(){
                         0 -> {
                             //val l = bb!!.readBytes(nameField_length).decodeToString()
                             //println("nameField_number = $nameField_number, l = $l")
-                            subJSOCKET.setFieldsValue(answer_type, record.readBytes(nameField_length).decodeToString())
+                            subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readBytes(nameField_length).decodeToString())
                         }
                         1 -> {
-                            subJSOCKET.setFieldsValue(answer_type, record.readInt())
+                            subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readInt())
                         }
                         2 -> {
-                            subJSOCKET.setFieldsValue(answer_type, record.readLong())
+                            subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readLong())
                         }
                         3 -> {
                             record.discardExact(nameField_length)
                         }
                         4 -> {
-                            subJSOCKET.setFieldsValue(answer_type, record.readBytes(nameField_length))
+                            subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readBytes(nameField_length))
                         }
                     }
 
 
                 }
-                ANSWER_TYPEs!!.add(answer_type)
+
+                when (answer_type.RECORD_TYPE) {
+                    "1" -> NEW_COMMANDS.add(answer_type)
+                    "2" -> NEW_META_DATA.add(answer_type)
+                    "3" -> NEW_CHATS.add(answer_type)
+                    "4" -> NEW_MESSEGES.add(answer_type)
+                    "5" -> NEW_EXCEPTIONS.add(answer_type)
+                    "6" -> NEW_BIG_AVATARS.add(answer_type)
+                    "7" -> NEW_REG_DATA.add(answer_type)
+                    "8" -> NEW_CHATS_LIKES.add(answer_type)
+                    "9" -> NEW_CHATS_COST_TYPES.add(answer_type)
+                    else -> NEW_CASH_DATA.add(answer_type)
+                }
+
+                if (record_type == "0") {
+                    record_type = answer_type.RECORD_TYPE
+                }else if (record_type != answer_type.RECORD_TYPE) {
+                    when (record_type) {
+                        "1" -> KCommands.ADD_NEW_COMMANDS()
+                        "2" -> KMetaData.ADD_NEW_META_DATA()
+                        "3" -> KChat.ADD_NEW_CHATS()
+                        "4" -> KMessege.ADD_NEW_MESSEGES()
+                        "5" -> KExceptions.ADD_NEW_EXCEPTIONS()
+                        "6" -> KBigAvatar.ADD_NEW_BIG_AVATARS()
+                        "7" -> KRegData.ADD_NEW_REG_DATA()
+                        "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
+                        "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
+                        else -> KCashData.ADD_NEW_CASH_DATA()
+                    }
+                    record_type = answer_type.RECORD_TYPE
+                }
+
             }
+            if (record_type != "0") {
+                promise = when (record_type) {
+                    "1" -> KCommands.ADD_NEW_COMMANDS()
+                    "2" -> KMetaData.ADD_NEW_META_DATA()
+                    "3" -> KChat.ADD_NEW_CHATS()
+                    "4" -> KMessege.ADD_NEW_MESSEGES()
+                    "5" -> KExceptions.ADD_NEW_EXCEPTIONS()
+                    "6" -> KBigAvatar.ADD_NEW_BIG_AVATARS()
+                    "7" -> KRegData.ADD_NEW_REG_DATA()
+                    "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
+                    "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
+                    else -> KCashData.ADD_NEW_CASH_DATA()
+                }
+            }
+            promise?.await()
         } catch (n: Exception) {
-            WriteExceptionIntoFile(n, "JSOCKET.deserialized_ANSWERS_TYPES")
+            throw my_user_exceptions_class(
+                l_class_name = "JSOCKET",
+                l_function_name = "deserialize_ANSWERS_TYPES",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = n.message
+            )
         } finally {
             try {
                 bb?.close()
@@ -881,19 +1412,17 @@ open class JSOCKET(){
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    @JsName("deserialize")
+    @JsName("desend_data")
     @InternalAPI
-    @ExperimentalIoApi
-    @ExperimentalTime
-    fun deserialize(
-            lbb: ByteReadPacket,
-            p_original_connection_coocki: Long = 0L,
-            ip: Boolean = true,
-            p_new_connection_coocki: Long = 0L
+    suspend fun deserialize(
+        lbb: ByteReadPacket,
+        p_original_connection_coocki: Long = 0L,
+        ip: Boolean = true,
+        p_new_connection_coocki: Long = 0L
     ) /////////////////////////////verify/////////////////////////////////////////////
     {
         try {
-            bbCONTENT_SIZE = BytePacketBuilder(0, ChunkBuffer.Pool)
+            bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
             if (h == null) h = HASH()
             request_size = lbb.remaining
             bb = lbb
@@ -910,23 +1439,53 @@ open class JSOCKET(){
             just_do_it_label = bb!!.readLong()
 
             if (!Commands.containsKey(just_do_it)) {
-                throw exc_wrong_number_of_command(just_do_it.toString())
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "deserialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "just_do_it not found ${just_do_it}"
+                )
             } else {
-                currentCommand = Commands[just_do_it] ?: throw exc_wrong_number_of_command(null)
+                currentCommand = Commands[just_do_it] ?: throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "deserialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "just_do_it not found $just_do_it"
+                )
             }
             crypt = currentCommand!!.isCrypt
             if (just_do_it_label == 0L) {
-                throw exc_just_do_it_label_is_null()
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "deserialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "just_do_it_label is null"
+                )
             }
             if (crypt) {
                 if (connection_id == 0L) {
-                    throw exc_connection_id_is_null()
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "deserialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "connection_id is null"
+                    )
                 }
                 if (connection_coocki == 0L) {
-                    throw exc_connection_coocki_is_null()
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "deserialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "connection_coocki is null"
+                    )
                 }
                 if (p_original_connection_coocki == 0L) {
-                    throw exc_user_coocki_not_equal_db_coocki(connection_coocki.toString(), p_original_connection_coocki.toString())
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "deserialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                    )
                 }
                 md5String = h!!.getNewMD5String(p_original_connection_coocki, just_do_it_label)
                 if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
@@ -938,20 +1497,28 @@ open class JSOCKET(){
                             myConnectionsCoocki.setNewValue(p_new_connection_coocki)
                             connection_coocki = p_new_connection_coocki
                         } else {
-                            throw exc_user_coocki_not_equal_db_coocki(
-                                    connection_coocki.toString(),
-                                    p_original_connection_coocki.toString()
+                            throw my_user_exceptions_class(
+                                l_class_name = "JSOCKET",
+                                l_function_name = "deserialize",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                             )
                         }
                     } else {
-                        throw exc_user_coocki_not_equal_db_coocki(connection_coocki.toString(), p_original_connection_coocki.toString())
+                        throw my_user_exceptions_class(
+                            l_class_name = "JSOCKET",
+                            l_function_name = "deserialize",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                        )
                     }
                 }
                 reverseMD5String = h!!.getReverseMD5String(md5String)
                 md5LongArray = h!!.getNewMD5longArray(md5String)
                 reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
                 start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
-                reverse_start_position = reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
+                reverse_start_position =
+                    reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)
             }
             ////////////////////////////////////////////////////////////////////////////////
             //val nameFields = this::class.members.asSequence().associateBy { it.name }
@@ -960,15 +1527,20 @@ open class JSOCKET(){
                 nameField_number = 0
                 nameField_number = bb!!.readInt()
                 val subJSOCKET =
-                        FIELDS_SUBSCRIBE[nameField_number] ?: throw exc_wrong_number_of_field(null)
+                    FIELDS_SUBSCRIBE[nameField_number] ?: throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "deserialize",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "wrong number of field: $nameField_number"
+                    )
                 nameField_length = bb!!.readInt()
                 if (subJSOCKET.serialied) {
                     if ((subJSOCKET.fields_size_is_perminent && nameField_length != subJSOCKET.fields_size)
-                            || nameField_length > (if (subJSOCKET.fields_type != 4) {
-                                subJSOCKET.fields_size
-                            } else {
-                                currentCommand!!.ReturnBlobSize
-                            })
+                        || nameField_length > (if (subJSOCKET.fields_type != 4) {
+                            subJSOCKET.fields_size
+                        } else {
+                            currentCommand!!.ReturnBlobSize
+                        })
                     ) {
                         bb!!.discardExact(nameField_length)
                         getNewStartPositionIfSkipBytes(nameField_length)
@@ -980,7 +1552,7 @@ open class JSOCKET(){
                             getStringField(subJSOCKET, nameField_length, crypt)
                         }
                         1 -> {
-                            subJSOCKET.setFieldsValue(this, bb!!.readInt())
+                            subJSOCKET.setJSOCKET_FieldsValue(this, bb!!.readInt())
                         }
                         2 -> {
                             getLongField(subJSOCKET, crypt)
@@ -1009,12 +1581,11 @@ open class JSOCKET(){
     }
 
     //////////////////////////write bytes into outStream/////////////////////////////
-    @ExperimentalIoApi
     private fun setBytes(
-            input_bytes: ByteArray,
-            size: Int,
-            lcrypt: Boolean,
-            lc_craete_check_sum: Boolean
+        input_bytes: ByteArray,
+        size: Int,
+        lcrypt: Boolean,
+        lc_craete_check_sum: Boolean
     ) {
         if (lc_craete_check_sum) {
             check_sum = h!!.getCheckSumFromByteArray(data = input_bytes, checksum = check_sum)
@@ -1040,14 +1611,14 @@ open class JSOCKET(){
     }
 
 
-    @ExperimentalIoApi
     private fun setCryptBytes(input_bytesA: ByteArray, size: Int) {
         if (input_bytesA.isEmpty()) return
         val input_bytes = ByteReadPacket(input_bytesA)
         if (size < 8) {
             for (x in 0 until size) {
                 bbCONTENT_SIZE!!.writeByte(
-                        (input_bytes.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
+                    (input_bytes.readByte()
+                        .toLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
                 )
                 getNewStartPosition()
             }
@@ -1061,7 +1632,8 @@ open class JSOCKET(){
         }
         while (x < size) {
             bbCONTENT_SIZE!!.writeByte(
-                    (input_bytes.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
+                (input_bytes.readByte()
+                    .toLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
             )
             x += 1
             getNewStartPosition()
@@ -1070,50 +1642,49 @@ open class JSOCKET(){
 
     /////////////////////get Bytes from Channel////////////////////////////////////
     @InternalAPI
-    @ExperimentalIoApi
-    @ExperimentalTime
+
     private fun getStringField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
-            field.setFieldsValue(this, getCryptBytes(size)?.decodeToString())
+            field.setJSOCKET_FieldsValue(this, getCryptBytes(size)?.decodeToString())
         } else {
-            field.setFieldsValue(this, bb!!.readBytes(size).decodeToString())
+            field.setJSOCKET_FieldsValue(this, bb!!.readBytes(size).decodeToString())
         }
     }
 
     @InternalAPI
-    @ExperimentalIoApi
-    @ExperimentalTime
     private fun getBytesField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
-            field.setFieldsValue(this, getCryptBytes(size))
+            field.setJSOCKET_FieldsValue(this, getCryptBytes(size))
         } else {
-            field.setFieldsValue(this, bb!!.readBytes(size))
+            field.setJSOCKET_FieldsValue(this, bb!!.readBytes(size))
         }
     }
 
 
-
-    @ExperimentalTime
     @InternalAPI
     private fun getLongField(field: JSOCKET_Subscribe, crypt: Boolean) {
         if (crypt) {
-            field.setFieldsValue(this, bb!!.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
+            field.setJSOCKET_FieldsValue(
+                this,
+                bb!!.readLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]
+            )
             getNewStartPosition()
         } else {
-            field.setFieldsValue(this, bb!!.readLong())
+            field.setJSOCKET_FieldsValue(this, bb!!.readLong())
         }
     }
 
 
-
-    @ExperimentalIoApi
     private fun getCryptBytes(size: Int): ByteArray? {
         if (size < 1) return null
-        val lbb = BytePacketBuilder(0, ChunkBuffer.Pool)
+        val lbb = BytePacketBuilder(ChunkBuffer.Pool)
         var x = 0
         if (size < 8) {
             while (x < size) {
-                lbb.writeByte((bb!!.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte())
+                lbb.writeByte(
+                    (bb!!.readByte()
+                        .toLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
+                )
                 getNewStartPosition()
                 x += 1
             }
@@ -1125,7 +1696,10 @@ open class JSOCKET(){
             getNewStartPosition()
         }
         while (x < size) {
-            lbb.writeByte((bb!!.readByte().toLong()  xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte())
+            lbb.writeByte(
+                (bb!!.readByte()
+                    .toLong() xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position]).toByte()
+            )
             getNewStartPosition()
             x += 1
         }
@@ -1157,7 +1731,7 @@ open class JSOCKET(){
         }
     }
 
-    fun getmd5LongArray():LongArray {
+    fun getmd5LongArray(): LongArray {
         return md5LongArray
     }
 

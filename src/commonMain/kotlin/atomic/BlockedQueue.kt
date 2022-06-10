@@ -3,47 +3,157 @@
 package atomic
 
 import CrossPlatforms.MyCondition
-import com.soywiz.kds.Queue
-import io.ktor.util.InternalAPI
-import io.ktor.util.Lock
-import io.ktor.util.withLock
-import lib_exceptions.exc_queue_is_full
-import p_jsocket.STANDART_QUEUE_SIZE
-import kotlin.jvm.Synchronized
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.kds.Deque
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+import lib_exceptions.my_user_exceptions_class
+import p_jsocket.Constants
+import kotlin.time.ExperimentalTime
 
-@InternalAPI
-private val <T> Queue<T>.lock: Lock
-    get() = Lock()
 
-private val <T> Queue<T>.condition: MyCondition
-    get() = MyCondition()
 
-@Synchronized
-@InternalAPI
-suspend fun <T> Queue<T>.dequeue(timOut: Long): T? {
-    var t: T? = null
-    if (timOut > 0 && this.isEmpty()) {
-        condition.cAwait(timOut)
-    }
-    lock.withLock {
-        if (peek() != null) {
-            t = dequeue()
-        }
-    }
-   return  t
+
+//val <T> Deque<T>.InstanceRef: AtomicReference<Deque<T>>
+ //   get() = AtomicReference(this)
+val <T> Deque<T>.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun <T> Deque<T>.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
 }
 
-@Synchronized
+//val <T> ArrayList<T>.InstanceRef: AtomicReference<ArrayList<T>>
+//    get() = AtomicReference(this)
+val <T> ArrayList<T>.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun <T> ArrayList<T>.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
+}
+
+//val <T> Array<T>.InstanceRef: AtomicReference<Array<T>>
+//    get() = AtomicReference(this)
+val <T> Array<T>.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun <T> Array<T>.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
+}
+
+//val <T> ArrayDeque<T>.InstanceRef: AtomicReference<ArrayDeque<T>>
+//    get() = AtomicReference(this)
+val <T> ArrayDeque<T>.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun <T> ArrayDeque<T>.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
+}
+
+//val ByteArray.InstanceRef: AtomicReference<ByteArray>
+//    get() = AtomicReference(this)
+val ByteArray.initFroze: Boolean
+    get() = this.ensureNeverFrozenn()
+fun ByteArray.ensureNeverFrozenn():Boolean{
+    ensureNeverFrozen()
+    return true
+}
+
+
+private val <T> ArrayDeque<T>.lockOut
+    get() = Mutex()
+
+private val <T> ArrayDeque<T>.lockIn
+    get() = Mutex()
+
 @InternalAPI
-fun <T> Queue<T>.enqueue(v:T, size:Int = STANDART_QUEUE_SIZE, whatQueue: String) {
-    lock.withLock {
-        if (this.size > size) {
-            condition.cSignal()
-            throw exc_queue_is_full(whatQueue)
-        } else {
-            this.enqueue(v)
-            condition.cSignal()
+@ExperimentalTime
+@KorioExperimentalApi
+private val <T> ArrayDeque<T>.condition: MyCondition
+    get() = MyCondition()
+
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+suspend fun <T> ArrayDeque<T>.dequeue(timOut: Long): T? {
+    var t: T? = removeFirst()
+    if(t == null && timOut > 0){
+        condition.cAwait(timOut)
+    }
+    t = removeFirst()
+    return t
+}
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+suspend fun <T> ArrayDeque<T>.concurentDequeue(timOut: Long): T? {
+    return withTimeoutOrNull(if (Constants.CLIENT_TIMEOUT > timOut) timOut else Constants.CLIENT_TIMEOUT) {
+        lockOut.withLock {
+            var t: T? = removeFirst()
+            if(t == null && timOut > 0){
+                condition.cAwait(timOut)
+            }
+            t = removeFirst()
+            return@withTimeoutOrNull t
         }
     }
+}
 
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+fun <T> ArrayDeque<T>.enqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
+    if (this.size > size) {
+        condition.cSignal()
+        throw my_user_exceptions_class(
+            l_class_name = "BlockedQueue",
+            l_function_name = "enqueue",
+            name_of_exception = "QUEUE FULL",
+            whatQueue
+        )
+    } else {
+        this.addLast(v)
+        condition.cSignal()
+    }
+}
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+suspend fun <T> ArrayDeque<T>.concurentEnqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
+    try {
+        val q: ArrayDeque<T> = this
+        withTimeout(Constants.CLIENT_TIMEOUT) {
+            lockIn.withLock {
+                if (q.size > size) {
+                    condition.cSignal()
+                    throw my_user_exceptions_class(
+                        l_class_name = "BlockedQueue",
+                        l_function_name = "concurentEnqueue",
+                        name_of_exception = "QUEUE FULL",
+                        whatQueue
+                    )
+                } else {
+                    q.addLast(v)
+                    condition.cSignal()
+                }
+            }
+        }
+    } catch (e: my_user_exceptions_class) {
+        throw e
+    } catch (e: Exception) {
+        throw my_user_exceptions_class(
+            l_class_name = "BlockedQueue",
+            l_function_name = "concurentEnqueue",
+            name_of_exception = e.message ?: "EXC_SYSTEM_ERROR",
+            whatQueue
+        )
+    }
 }

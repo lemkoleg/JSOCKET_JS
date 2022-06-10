@@ -7,7 +7,7 @@
 
 package p_jsocket
 
-import CrossPlatforms.MyFile
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.slash
 import kotlin.js.JsName
 
@@ -84,25 +84,25 @@ fun initDirectories(
         pathPicture18 = rootPath.plus("18")
         pathPicture19 = rootPath.plus("19")
 
-        var file = MyFile(rootPath)
+        var file = CrossPlatformFile(rootPath)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathErrors)
+        file = CrossPlatformFile(pathErrors)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathLogs)
+        file = CrossPlatformFile(pathLogs)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTemp)
+        file = CrossPlatformFile(pathTemp)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
@@ -123,73 +123,73 @@ fun initDirectories(
         pathTempPicture19 =
             pathTemp.plus("19")
 
-        file = MyFile(pathMusic14)
+        file = CrossPlatformFile(pathMusic14)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathMusic15)
+        file = CrossPlatformFile(pathMusic15)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathVideo16)
+        file = CrossPlatformFile(pathVideo16)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathVideo17)
+        file = CrossPlatformFile(pathVideo17)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathPicture18)
+        file = CrossPlatformFile(pathPicture18)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathPicture19)
+        file = CrossPlatformFile(pathPicture19)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempMusic14)
+        file = CrossPlatformFile(pathTempMusic14)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempMusic15)
+        file = CrossPlatformFile(pathTempMusic15)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempVideo16)
+        file = CrossPlatformFile(pathTempVideo16)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempVideo17)
+        file = CrossPlatformFile(pathTempVideo17)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempPicture18)
+        file = CrossPlatformFile(pathTempPicture18)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
         file.close()
 
-        file = MyFile(pathTempPicture19)
+        file = CrossPlatformFile(pathTempPicture19)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }

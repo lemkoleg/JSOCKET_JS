@@ -1,30 +1,37 @@
 package atomic
 
-import io.ktor.util.InternalAPI
-import io.ktor.util.Lock
-import io.ktor.util.withLock
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("AtomicString")
 class AtomicString(v: String){
 
-    @InternalAPI
-    private val lock = Lock()
+    private val lock = Mutex()
 
     var value = v
         private set
 
-    @InternalAPI
+    init {
+        ensureNeverFrozen()
+    }
+
     @JsName("setNewValue")
-    fun setNewValue(v: String){
+    suspend fun setNewValue(v: String) {
         lock.withLock {
             value = v
         }
     }
 
-    @InternalAPI
     @JsName("getAndSet")
-    fun getAndSet(v: String):String {
+    suspend fun getAndSet(v: String): String {
         return lock.withLock {
             val old = value
             value = v

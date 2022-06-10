@@ -1,16 +1,25 @@
 package Tables
 
 import CrossPlatforms.WriteExceptionIntoFile
+import co.touchlab.stately.concurrency.value
+import co.touchlab.stately.ensureNeverFrozen
 import io.ktor.util.*
 import kotlinx.coroutines.*
-import p_jsocket.CLIENT_TIMEOUT
+import kotlinx.coroutines.sync.Mutex
 import kotlin.coroutines.CoroutineContext
 
 @InternalAPI
 private val CASH_LAST_UPDATE: MutableMap<Long, KCashLastUpdate> = mutableMapOf()
 
+
 @InternalAPI
 class KCashLastUpdate {
+
+    init {
+        ensureNeverFrozen()
+    }
+
+    //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
     var CASH_SUM: Long = 0
     var LAST_USE: Long = 0
@@ -19,7 +28,7 @@ class KCashLastUpdate {
     var CONNECTION_ID: Long = 0
     val CASH_DATA: ArrayList<KCashData> = arrayListOf()
     private val CASH_DATA_IDS: MutableMap<String, Int> = mutableMapOf()  //OBJECT_ID and POSITION
-    private val KCashLastUpdate_Lock = Lock()
+    private val KCashLastUpdate_Lock = Mutex()
 
     private constructor()
 
@@ -31,7 +40,8 @@ class KCashLastUpdate {
         LAST_USE = L_LAST_USE
         LAST_UPDATE = L_LAST_UPDATE
         OBJECTS_IDS = L_OBJECTS_IDS
-        CONNECTION_ID = myConnectionsID.value
+        CONNECTION_ID = myConnectionsID.value.value
+
     }
 
     private suspend fun INSERT_CASH_DATA(kCashData: KCashData){

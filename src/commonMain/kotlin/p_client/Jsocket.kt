@@ -7,29 +7,23 @@
 
 package p_client
 
-import CrossPlatforms.WriteExceptionIntoFile
-import Tables.myConnectionsCoocki
-import Tables.myConnectionsID
-import Tables.myLang
-import atomic.AtomicBoolean
+
+import Tables.*
 import atomic.AtomicLong
-import com.soywiz.kds.Queue
-import com.soywiz.klock.DateTime
+import co.touchlab.stately.concurrency.AtomicBoolean
+import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import io.ktor.util.collections.*
-import io.ktor.utils.io.core.*
-import io.ktor.utils.io.core.internal.*
 import kotlinx.coroutines.*
-import lib_exceptions.exc_universal_exception.returnException
+import kotlinx.coroutines.sync.Mutex
+import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import sql.Sqlite_service
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 /**
@@ -38,95 +32,88 @@ import kotlin.time.ExperimentalTime
  */
 
 
-@InternalAPI
-@ExperimentalTime
-val OUT_JSOCKETS: ConcurrentMap<Long, Jsocket> = ConcurrentMap()
 
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 var newConnectionCoocki = AtomicLong(0L)
 
-@InternalAPI
 @ExperimentalTime
-private val CLIENT_JSOCKET_POOL: Queue<Jsocket> = Queue()
+@InternalAPI
+@KorioExperimentalApi
+val CLIENT_JSOCKET_POOL: ArrayDeque<Jsocket> = ArrayDeque()
+
 
 @InternalAPI
-private val JsocketLock = Lock()
+private val JsocketLock = Mutex()
 
+private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 
 
 @JsName("Jsocket")
+@ExperimentalTime
 @InternalAPI
-class Jsocket : JSOCKET, CoroutineScope
-{
+@KorioExperimentalApi
+class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
     val JSOCKETScope = CoroutineScope(coroutineContext)
 
-    private constructor():super()
+    //val InstanceRef:AtomicReference<Jsocket> = AtomicReference(this)
 
-    @JsName("onRequestListener")
-    var onRequestListener: OnRequestListener? = null
-
+    override var startLoading: (() -> Any?)?
+    override var finishLoading: ((v: Any?) -> Any?)?
 
     @JsName("clientExecutor")
-    private var clientExecutor :ClientExecutor = ClientExecutor()
+    private var clientExecutor: ClientExecutor = ClientExecutor()
 
-    constructor(onrequestListener: OnRequestListener):this(){
-        this.onRequestListener = onrequestListener
+    val getLocalsValues = GetLocalsValues()
+
+    constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : super(){
+        startLoading = l_startLoading
+        finishLoading = l_finishLoading
+        ensureNeverFrozen()
+
     }
 
 
-    constructor(jsocket: Jsocket):this(){
+    constructor(jsocket: Jsocket) : this() {
         super.set_value(jsocket as JSOCKET)
-        this.onRequestListener = jsocket.onRequestListener
-    }
+        this.startLoading = jsocket.startLoading
+        this.finishLoading = jsocket.finishLoading
+        ensureNeverFrozen()
 
-    constructor(onRequestListener: OnRequestListener?, answer_type: ANSWER_TYPE):this() {
-        this.onRequestListener = onRequestListener
-        if (ANSWER_TYPEs != null) {
-            ANSWER_TYPEs!!.clear()
-        } else {
-            ANSWER_TYPEs = ArrayDeque()
-        }
-        ANSWER_TYPEs!!.add(answer_type)
     }
-
 
 
     ////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////    
     @KorioExperimentalApi
-    @ExperimentalUnsignedTypes
-    @KtorExperimentalAPI
-    @DangerousInternalIoApi
-    @ExperimentalTime
-    @InternalAPI
     @JsName("execute")
-    fun execute() = JSOCKETScope.async {
+    fun execute(l_startLoading:(() -> Any?)? = null, l_finishLoading:((v: Any?) -> Any?)? = null):Promise<Any?> = JSOCKETScope.async {
 
-            super.just_do_it_label = nowNano()
+        if (!InitJsocketJob.isCompleted) {
+            InitJsocketJob.join()
+        }
 
-            if (!InitJsocketJob.isCompleted) {
-                InitJsocketJob.join()
-            }
+        startLoading = l_startLoading
+        finishLoading = l_finishLoading
 
-            onRequestListener?.startLoading()
+        startLoading?.let { it() }
 
+        try {
             try {
-                just_do_it_label = nowNano()
-                just_do_it_successfull = "0"
-                db_massage = ""
                 val command: Command
                 if (!Commands.containsKey(just_do_it)) {
                     Sqlite_service.InitializeCommands().join()
                     if (!Commands.containsKey(just_do_it)) {
-                        just_do_it_successfull = "5"
-                        db_massage = returnException(90032, lang)
-                        return@async null
+                        throw my_user_exceptions_class(
+                            l_class_name = "Jsocket",
+                            l_function_name = "execute",
+                            name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
+                            l_additional_text = "just_do_it not found $just_do_it"
+                        )
                     } else {
                         command = Commands[just_do_it]!!
                     }
@@ -137,232 +124,172 @@ class Jsocket : JSOCKET, CoroutineScope
                             && command.commands_access != "9")
                     && myConnectionsCoocki.value == 0L
                 ) {
-                    just_do_it_successfull = "5"
-                    db_massage = returnException(90031, lang)
-                    return@async null
+                    throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "execute",
+                        name_of_exception = "EXC_CONNECTION_COOCKI_IS_WRONG",
+                        l_additional_text = "coocki equel null"
+                    )
                 } else {
-                    if (myDataBaseID.value.isEmpty() || myRequestProfile.value.isEmpty()) {
+                    if (myConnectionsCoocki.value == 0L) {
                         Sqlite_service.InitializeRegData().join()
                     }
                 }
                 if (command.isForPRO && !isPRO.value) {
-                    just_do_it_successfull = "5"
-                    db_massage = returnException(90027, lang)
-                    return@async null
+                    throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "execute",
+                        name_of_exception = "EXC_THIS_COMMAND_ONLY_FOR_PRO",
+                    )
                 }
                 if (command.isForAcceptedMAIL && !mailConfirm.value) {
-                    just_do_it_successfull = "5"
-                    db_massage = returnException(90028, lang)
-                    return@async null
+                    throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "execute",
+                        name_of_exception = "EXC_WRSOCKETTYPE_MAIL_NOT_CONFIRM",
+                    )
                 }
                 when (just_do_it) {
-                    1011000055 -> return@async FileLoader.setTask(this@Jsocket)
-                    else -> clientExecutor.execute()
+                    1011000024 -> { //PLAY MEDIA;
+                        val f = FileService(this@Jsocket)
+                        f.open_file_channel()
+                        finishLoading = null
+                        return@async f
+                    }
+                    else -> clientExecutor.execute(this@Jsocket)
                 }
-            } catch (ex: Exception) {
-                just_do_it_successfull = "5"
-                db_massage = ex.toString()
-                WriteExceptionIntoFile(ex, "Jsocket.execute")
+
+            } catch (ex: my_user_exceptions_class) {
+                throw ex
+            } catch (e: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Jsocket",
+                    l_function_name = "execute",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = e.message
+                )
+
             }
-            return@async null
-        }.toPromise(EmptyCoroutineContext)
-
-    ////////////////////////////////////////////////////////////////////////////////        
-    @ExperimentalIoApi
-    @ExperimentalTime
-    @InternalAPI
-    fun setValue(myJsocket: Jsocket?) {
-        if (myJsocket != null) {
-            super.set_value(myJsocket as JSOCKET)
-            onRequestListener = myJsocket.onRequestListener
+        } catch (ex: my_user_exceptions_class) {
+            ex.ExceptionHand(this@Jsocket)
+            return@async this@Jsocket
+        }finally {
+            finishLoading?.let {it(this@Jsocket)}
         }
-    }
-
-    @ExperimentalIoApi
-    @ExperimentalTime
-    @InternalAPI
-    fun setValue(myJSOCKET: JSOCKET?) {
-        if (myJSOCKET != null) {
-            super.set_value(myJSOCKET)
-        }
-    }
+        return@async this@Jsocket
+    }.toPromise(EmptyCoroutineContext)
 
     ////////////////////////////////////////////////////////////////////////////////
-    private fun notifyHaveAnswer() {
-        onRequestListener?.finishLoading()
+
+
+    suspend fun send_request(craete_check_sum: Boolean = false, verify_fields: Boolean = true) {
+        this.serialize(craete_check_sum, verify_fields).let { Connection.sendData(it, this) }
+        if(condition.cAwait(Constants.CLIENT_TIMEOUT)){
+            if (Commands[just_do_it]?.whichBlobDataReturned == "4") {
+                deserialize_ANSWERS_TYPES()
+            }
+        }else{
+            throw my_user_exceptions_class(
+                l_class_name = "Jsocket",
+                l_function_name = "send_request",
+                name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
+            )
+        }
     }
 
-    @InternalAPI
+
+    ////////////////////////////////////////////////////////////////////////////////
+
     @JsName("isHaveAnswer")
-    fun isHaveAnswer(Ljust_do_it_label: Long?): Boolean {
-        return OUT_JSOCKETS.containsKey(Ljust_do_it_label)
-    }
-
-    @ExperimentalIoApi
-    @InternalAPI
-    @ExperimentalTime
-    @JsName("getAnswer")
-    fun getAnswer(Ljust_do_it_label: Long?) {
-        try {
-            setValue(OUT_JSOCKETS.remove(Ljust_do_it_label))
-            setRequestProfile(request_profile, true)
-        } catch (e: Exception) {
-            just_do_it_successfull = "5"
-            db_massage = e.toString()
-        }
-    }
-
-    @ExperimentalTime
-    @InternalAPI
-    @JsName("setAnswer")
-    fun setAnswer() {
-        just_do_it_label.let { OUT_JSOCKETS.put(it, this) }
-        notifyHaveAnswer()
+    fun isHaveAnswer(): Boolean {
+        return condition.isAwaited.value
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @KorioExperimentalApi
+
+
     @JsName("setAvatar")
-    fun setAvatar(file_name: String):Promise<Unit> {
-        return JSOCKETScope.launch {
+    suspend fun setAvatar(file_name: String){
             try {
                 val f = FileService()
                 content = f.getImmageAvatarFromFileName(file_name.trim())
                 f.close()
                 value_par1 = file_name.trim()
+            } catch (e: my_user_exceptions_class) {
+                throw e
             } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Jsocket.setAvatar")
+                throw my_user_exceptions_class(
+                    l_class_name = "Jsocket",
+                    l_function_name = "setAvatar",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
             }
-        }.toPromise(EmptyCoroutineContext)
     }
 
     ///////////////////////////////////////////////////////////////////////////
+
     companion object {
-        private var countOfCleaner = 0
-        private var CurentTime = DateTime.nowUnixLong()
-        private const val timeOutPointer = 0L
-
-        private val Cleaner = KorosTimerTask.start(delay = Duration.milliseconds(TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES), repeat = Duration.milliseconds(TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES)){removeOldAll()}
 
 
-
-        @ExperimentalTime
-        @InternalAPI
-        private var LastTimeCleanOutJSOCKETs = nowNano()
-        private var NextTimeCleanOUT_JSOCKETs = CurentTime + TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-
-        @ExperimentalTime
-        @InternalAPI
-        fun removeOldAll() {
-            try {
-                CurentTime = DateTime.nowUnixLong()
-                if (CurentTime > NextTimeCleanOUT_JSOCKETs) {
-                    NextTimeCleanOUT_JSOCKETs = CurentTime + TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-                    countOfCleaner = 0
-                    OUT_JSOCKETS.filterKeys { k -> k < LastTimeCleanOutJSOCKETs}.forEach {
-                        countOfCleaner += 1
-                        OUT_JSOCKETS.remove(it.key)
-                    }
-                    LastTimeCleanOutJSOCKETs = nowNano()
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Jsocket.removeOldAll")
-            }
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-
-
-        @JsName("getANSWER_TYPE")
-        @InternalAPI
-        @ExperimentalTime
-        suspend fun getJsocket(): Jsocket {
-            val jsocket:Jsocket? =
-                try {
-                    withTimeoutOrNull(CLIENT_TIMEOUT) {
-                        JsocketLock.lock()
-                        if (CLIENT_JSOCKET_POOL.peek() == null) {
-                            CoroutineScope(NonCancellable).launch {
-                                Jsocket.fill()
+        fun fill() {
+            if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
+                CoroutineScope(NonCancellable).launch {
+                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                        try {
+                            fillPOOL_IS_RUNNING.value = true
+                            JsocketLock.lock()
+                            while (CLIENT_JSOCKET_POOL.size < Constants.CLIENT_JSOCKET_POOL_SIZE && !Constants.isInterrupted.value) {
+                                CLIENT_JSOCKET_POOL.addLast(Jsocket())
                             }
-                            return@withTimeoutOrNull Jsocket()
-                        } else {
-                            return@withTimeoutOrNull CLIENT_JSOCKET_POOL.dequeue()
+                        } finally {
+                            fillPOOL_IS_RUNNING.value = false
+                            JsocketLock.unlock()
                         }
                     }
-                } catch(ex: Exception) {
-                    CoroutineScope(NonCancellable).launch {
-                        Jsocket.fill()
-                    }
-                    return Jsocket()
-                }finally {
-                    JsocketLock.unlock()
-                }
-            return jsocket?:Jsocket()
-        }
-
-        @ExperimentalTime
-        private fun fill() {
-            if(myConnectionsCoocki.value > 0){
-                while (CLIENT_JSOCKET_POOL.size < CLIENT_JSOCKET_POOL_SIZE && !p_jsocket.isInterrupted.value) {
-                    CLIENT_JSOCKET_POOL.enqueue(Jsocket())
                 }
             }
-        }
 
-        //////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////
 
-        @InternalAPI
-        @JsName("setLang")
-        fun setLang(lLang: String) {
-            try {
-                val v = myLang.getAndSet(lLang)
-                if (!v.equals(myLang.value, true)) {
-                    Sqlite_service.InsertRegData()
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Jsocket.setLang")
-            }
-        }
 
-        @InternalAPI
-        @JsName("setMyDataBaseID")
-        fun setMyDataBaseID(lmyId: String, update_cash: Boolean) {
-            if (lmyId.trim().length == 18) {
-                val s = myDataBaseID.getAndSet(lmyId.trim())
-                if (!s.equals(myDataBaseID.value, true) && update_cash) {
-                    Sqlite_service.InsertRegData()
-                }
-            }
-        }
-
-        @InternalAPI
-        @JsName("setRequestProfile")
-        fun setRequestProfile(lrequestProfile: String, update_cash: Boolean) {
-            try {
-                if (lrequestProfile.trim().isNotEmpty()
-                    && lrequestProfile.trim() != "------------------------------"
-                ) {
-                    myRequestProfile.getAndSet(lrequestProfile.trim())
-                    isPRO.setNewValue(myRequestProfile.value.substring(0, 1) == "1")
-                    mailConfirm.setNewValue(myRequestProfile.value.substring(2, 3) == "1")
-                    if (update_cash) {
+            @JsName("setLang")
+            suspend fun setLang(lLang: String) {
+                try {
+                    val v = myLang.getAndSet(lLang)
+                    if (!v.equals(myLang.value, true)) {
                         Sqlite_service.InsertRegData()
                     }
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                }catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "setLang",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
                 }
-            } catch (ex: Exception) {
             }
-        }
 
-        @KtorExperimentalAPI
-        @DangerousInternalIoApi
-        @ExperimentalTime
-        @InternalAPI
-        @JsName("closeClient")
-        fun closeClient() {
-            OUT_JSOCKETS.clear()
-            Cleaner.shutdown()
-            Listener.get_Instance()?.isInterrupted?.setNewValue(true)
+
+            @JsName("setRequestProfile")
+            suspend fun setRequestProfile(lrequestProfile: String, update_cash: Boolean) {
+                try {
+                    if (lrequestProfile.trim().isNotEmpty()
+                        && lrequestProfile.trim() != "------------------------------"
+                    ) {
+                        myRequestProfile.getAndSet(lrequestProfile.trim())
+                        isPRO.setNewValue(myRequestProfile.value.substring(0, 1) == "1")
+                        mailConfirm.setNewValue(myRequestProfile.value.substring(2, 3) == "1")
+                        if (update_cash) {
+                            Sqlite_service.InsertRegData()
+                        }
+                    }
+                } catch (ex: Exception) {
+                }
+            }
+
         }
     }
-
 }

@@ -5,15 +5,23 @@
  */
 package p_client
 
+import io.ktor.util.*
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
 /**
  *
  * @author User
  */
+@ExperimentalTime
+@InternalAPI
 @JsName("OnRequestListener")
-interface OnRequestListener {
-    fun startLoading() {}
-    fun finishLoading() {}
+interface OnRequestListener{
+
+    @JsName("startLoading")
+    var startLoading: (() -> Any?)?
+
+    @JsName("finishLoading")
+    var finishLoading : ((v: Any?) -> Any?)?
 }

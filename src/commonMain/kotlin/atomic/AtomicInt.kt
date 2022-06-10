@@ -2,47 +2,58 @@
 
 package atomic
 
-import io.ktor.util.InternalAPI
-import io.ktor.util.Lock
-import io.ktor.util.withLock
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("AtomicInt")
-class AtomicInt(v: Int){
+class AtomicInt(v: Int) {
 
-    @InternalAPI
-    private val lock = Lock()
+
+    private val lock = Mutex()
 
     var value = v
         private set
 
-    @InternalAPI
+    init {
+        ensureNeverFrozen()
+    }
+
     @JsName("setNewValue")
-    fun setNewValue(v: Int){
+    suspend fun setNewValue(v: Int) {
         lock.withLock {
             value = v
         }
     }
 
-    @InternalAPI
     @JsName("setGreaterValue")
-    fun setGreaterValue(v: Int){
+    suspend fun setGreaterValue(v: Int) {
         lock.withLock {
-            if(v > value){value =  v}
+            if (v > value) {
+                value = v
+            }
         }
     }
 
-    @InternalAPI
     @JsName("setLowerValue")
-    fun setLowerValue(v: Int){
+    suspend fun setLowerValue(v: Int) {
         lock.withLock {
-            if(v < value){value =  v}
+            if (v < value) {
+                value = v
+            }
         }
     }
 
-    @InternalAPI
+
     @JsName("getAndSet")
-    fun getAndSet(v: Int):Int{
+    suspend fun getAndSet(v: Int): Int {
         return lock.withLock {
             val old = value
             value = v

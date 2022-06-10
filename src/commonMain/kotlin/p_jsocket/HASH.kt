@@ -1,13 +1,13 @@
 @file:Suppress("UNUSED_VARIABLE", "UNREACHABLE_CODE", "unused")
 package p_jsocket
 
-import CrossPlatforms.WriteExceptionIntoFile
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.MD5
 import com.soywiz.krypto.Padding
 import com.soywiz.krypto.md5
 import io.ktor.util.*
-import io.ktor.utils.io.core.toByteArray
+import io.ktor.utils.io.core.*
+import lib_exceptions.my_user_exceptions_class
 import kotlin.js.JsName
 
 
@@ -319,6 +319,7 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
+    @InternalAPI
     @JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
             var newStringMD5 = ""
@@ -343,12 +344,18 @@ class HASH {
                 TokenLong = newStringMD5.toLong(16)
             }
             if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
-                throw lib_exceptions.exc_wrong_format_new_token(TokenLong)
+                throw my_user_exceptions_class(
+                    l_class_name = "HASH",
+                    l_function_name = "getNewTokenLong",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Wrong format new token: $TokenLong"
+                )
             }
             return TokenLong
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    @InternalAPI
     @JsName("getNewCoockiLong")
     fun getNewCoockiLong(stringMD5: String): Long {
         val stringMD5String1: Long = stringMD5.substring(0, 15).toLong(16)
@@ -371,7 +378,12 @@ class HASH {
                 TokenLong = newStringMD5.toLong(16)
             }
             if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
-                throw lib_exceptions.exc_wrong_format_new_coocki(TokenLong)
+                throw my_user_exceptions_class(
+                    l_class_name = "HASH",
+                    l_function_name = "getNewCoockiLong",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Wrong format new token: $TokenLong"
+                )
             }
             return TokenLong
     }
@@ -462,7 +474,12 @@ class HASH {
                     ).encodeBase64()
                 }
             } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "HASH.cryptPass")
+                throw my_user_exceptions_class(
+                    l_class_name = "HASH",
+                    l_function_name = "cryptPass",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
                 return ""
             }
     }

@@ -2,15 +2,21 @@
 
 package CrossPlatforms
 
+
+import co.touchlab.stately.concurrency.AtomicBoolean
+import co.touchlab.stately.ensureNeverFrozen
 import com.badoo.reaktive.utils.lock.Condition
 import com.badoo.reaktive.utils.lock.Lock
 import com.badoo.reaktive.utils.lock.synchronized
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.delay
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.util.OS
 import io.ktor.util.*
-import p_jsocket.TIME_SPAN_FOR_LOOP
+import kotlinx.coroutines.sync.Mutex
+import p_jsocket.Constants
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
 /*
@@ -27,51 +33,58 @@ expect class MyCondition()  {
 
 
 
-
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("MyCondition")
-class MyCondition  {
+class MyCondition {
 
-    var isAwaited: Boolean = false
+    init {
+        ensureNeverFrozen()
+    }
+
+
+    private val mutex = Mutex()
+
+    var isAwaited: AtomicBoolean = AtomicBoolean(false)
         private set
     private var time = 0L
 
-    @InternalAPI
+
     val lock: Lock? = if (!OS.isJs) {
         Lock()
     } else null
 
-    @InternalAPI
+
     val cond: Condition? = if (!OS.isJs) {
         lock?.newCondition()
     } else null
 
-    @InternalAPI
+
     @JsName("cAwait")
     suspend fun cAwait(t: Long): Boolean{
-        isAwaited = false
+        isAwaited.value = false
         if(OS.isJs) {
             time = t + DateTime.nowUnixLong()
-            while (!isAwaited && time > DateTime.nowUnixLong()) {
-                delay(TIME_SPAN_FOR_LOOP)
+            while (!isAwaited.value && time > DateTime.nowUnixLong()) {
+                delay(Constants.TIME_SPAN_FOR_LOOP)
             }
         }
         else{
             lock!!.synchronized { cond!!.await(t * 1000000) }
         }
-         return isAwaited
+         return isAwaited.value
     }
 
 
-    @InternalAPI
     @JsName("cSignal")
     fun cSignal(){
-        isAwaited = true
+        isAwaited.value = true
         if(!OS.isJs){
             lock!!.synchronized {cond!!.signal() }
         }
     }
 
-    @InternalAPI
     @JsName("cDestroy")
     fun cDestroy(){
         if(OS.isJs){

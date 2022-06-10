@@ -1,60 +1,24 @@
 package p_jsocket
 
 import CrossPlatforms.WriteExceptionIntoFile
-import Tables.KBigAvatar
 import Tables.META_DATA
 import Tables.META_DATA_condition
 import com.soywiz.klock.DateTime
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
-import sql.SQLStatement
-import sql.Sqlite_service
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.js.JsName
-import com.soywiz.kds.Queue
+import kotlin.time.ExperimentalTime
 
 
-private val CLIENT_GET_LOCAL_VALUES_POOL: Queue<GetLocalsValues> = Queue()
-
+@KorioExperimentalApi
+@ExperimentalTime
 @InternalAPI
-private val lock = Lock()
-
-class GetLocalsValues: CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
-
-    private val serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
-
-    //////////////////////////////big avatars//////////////////////////////////
-
-    @InternalAPI
-    @JsName("InsertBigAvata")
-    fun InsertBigAvatar(lKBigAvatar: KBigAvatar) =
-        serviceScope.launch {
-            if (lKBigAvatar.getAVATAR()?.size ?: 0 > 0) {
-                try {
-                    withTimeoutOrNull(CLIENT_TIMEOUT) {
-                        lock.lock()
-                        lKBigAvatar.getAVATAR()?.let {
-                            sqlStatement.INSERT_BIG_AVATARS(
-                                lKBigAvatar.getAVATAR_ID(),
-                                lKBigAvatar.getLAST_USE(),
-                                lKBigAvatar.getAVATAR()
-                            )
-                        }
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatar")
-                }
-                finally {
-                    Sqlite_service.lock.unlock()
-                }
-            }
-        }
+@JsName("GetLocalsValues")
+class GetLocalsValues {
 
 
-
-    @OptIn(InternalAPI::class, kotlin.time.ExperimentalTime::class, kotlin.ExperimentalStdlibApi::class)
     @JsName("getMETA_DATA")
     suspend fun getMETA_DATA(n: String):Long {
         try {
@@ -62,7 +26,7 @@ class GetLocalsValues: CoroutineScope {
                 v = META_DATA[n]
                 if(v == null){
                     try {
-                        withContext(this.coroutineContext) {
+                        withContext(coroutineContext) {
                             sqlStatement.SELECT_METADATA(n)
                             v = META_DATA[n]
                             if(v != null){
@@ -95,46 +59,4 @@ class GetLocalsValues: CoroutineScope {
             lock.unlock()
         }
     }
-
-
-    companion object {
-
-        @JsName("getANSWER_TYPE")
-        @InternalAPI
-        fun getGET_LOCAL_VALUES(): GetLocalsValues {
-            val getLocalsValues: GetLocalsValues? =
-                try {
-                    lock.lock()
-                    if (CLIENT_GET_LOCAL_VALUES_POOL.peek() == null) {
-                        CoroutineScope(NonCancellable).launch {
-                            fill()
-                        }
-                        GetLocalsValues()
-                    } else {
-                        CLIENT_GET_LOCAL_VALUES_POOL.dequeue()
-                    }
-                } catch (ex: Exception) {
-                    CoroutineScope(NonCancellable).launch {
-                        fill()
-                    }
-                    return GetLocalsValues()
-                } finally {
-                    lock.unlock()
-                }
-            return getLocalsValues ?: GetLocalsValues()
-        }
-
-        private fun fill() {
-            while (CLIENT_GET_LOCAL_VALUES_POOL.size < CLIENT_ANSWER_TYPE_POOL_SIZE && !isInterrupted.value) {
-                CLIENT_GET_LOCAL_VALUES_POOL.enqueue(GetLocalsValues())
-            }
-        }
-
-        @InternalAPI
-        fun close(){
-            CLIENT_GET_LOCAL_VALUES_POOL.clear()
-        }
-
-
-
 }

@@ -1,17 +1,18 @@
-val kotlinVersion = "1.6.10"
-val ktorVersion = "1.6.7"
+val kotlinVersion = "1.6.20"
+val ktorVersion = "2.0.1"
 val reactiveVersion = "1.2.1"
-val KlockVersion = "2.2.2"
+val KlockVersion = "2.4.13"
 val KorimVersion = "2.2.2"
 val KorioVersion = "2.2.1"
 val KryptoVersion = "2.2.0"
-val SQLDelightVersion = "1.5.3"
+val SQLDelightVersion = "2.0.0"
 val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
 val Fingerprintjs2Version = "2.1.4"
+val StatelyVersion = "1.2.2"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.6.10"
+    id("org.jetbrains.kotlin.multiplatform") version "1.6.20"
     id("com.squareup.sqldelight")  version "1.5.1"
 }
 
@@ -54,7 +55,15 @@ allprojects {
 
 
 
+
 kotlin {
+
+    kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+
     jvm("jvm") {
         withJava()
         compilations["main"].kotlinOptions.jvmTarget = "11"
@@ -121,6 +130,10 @@ kotlin {
         //implementation(npm("alasql","0.0.51"))
         //implementation(npm("@nano-sql/adapter-sqlite-cordova"))
         //implementation(npm("@stevegill/cordova-plugin-device"))
+
+        implementation ("co.touchlab:stately-common:$StatelyVersion")
+        implementation ("co.touchlab:stately-concurrency:$StatelyVersion")
+        implementation ("co.touchlab:stately-isolate:$StatelyVersion")
 
     }
 

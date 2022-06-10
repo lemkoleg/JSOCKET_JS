@@ -8,16 +8,20 @@
 package p_jsocket
 
 import Tables.KCommands
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
 import kotlin.js.JsName
 import kotlin.properties.Delegates
+import kotlin.time.ExperimentalTime
 
 /**
  *
  * @author Oleg
  */
 
-const val AVATARSIZE = 32760
-
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("Command")
 class Command {
     @JsName("commands_id")
@@ -107,7 +111,7 @@ class Command {
 
         isForAcceptedMAIL = commands_profile.substring(1, 2) != "1"
         isForPRO = commands_profile.substring(2, 3) != "1"
-        canEdit  = commands_profile.substring(3, 4)
+        canEdit = commands_profile.substring(3, 4)
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
         isDont_answer = commands_profile.substring(6, 7) != "0"
@@ -135,7 +139,7 @@ class Command {
         commands_necessarily_fields = commnd.commands_necessarily_fields
         isForAcceptedMAIL = commnd.isForAcceptedMAIL
         isForPRO = commnd.isForPRO
-        canEdit  = commnd.canEdit
+        canEdit = commnd.canEdit
         whichBlobDataReturned = commnd.whichBlobDataReturned
         whichSmallAvatarCreate = commnd.whichSmallAvatarCreate
         isDont_answer = commnd.isDont_answer
@@ -167,7 +171,7 @@ class Command {
 
         isForAcceptedMAIL = commands_profile.substring(1, 2) != "1"
         isForPRO = commands_profile.substring(2, 3) != "1"
-        canEdit  = commands_profile.substring(3, 4)
+        canEdit = commands_profile.substring(3, 4)
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
         isDont_answer = commands_profile.substring(6, 7) != "0"
@@ -188,29 +192,35 @@ class Command {
 
     }
 
-    private fun InitializeBlobSize(){
+    private fun InitializeBlobSize() {
         when (whichBlobDataSended) {
-                "0" -> {
-                    this.SendBlobSize  = 0
-                }
-                "4" -> { // ANSWER_TYPE
-                    this.SendBlobSize = MetaData["MAX_REQUEST_SIZE_B"]!!.toInt()
-                }//Avatar
-                "5" -> { // AVATAR
-                    this.SendBlobSize = MetaData["SEND_AVATAR_SIZE"]!!.toInt()
-                }
+            "0" -> {
+                this.SendBlobSize = 0
             }
+            "4" -> { // ANSWER_TYPE
+                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
+            }
+            "5" -> { // AVATAR
+                this.SendBlobSize = Constants.SEND_AVATAR_SIZE
+            }
+            "6" -> {
+                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
+            }// BINARY
+        }
 
         when (whichBlobDataReturned) {
             "0" -> {
-                this.SendBlobSize  = 0
+                this.SendBlobSize = 0
             }
             "4" -> { // ANSWER_TYPE
-                this.SendBlobSize = MetaData["MAX_REQUEST_SIZE_B"]!!.toInt()
+                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
             }//Avatar
             "5" -> { // AVATAR
-                this.SendBlobSize = MetaData["AVATARSIZE"]!!.toInt()
+                this.SendBlobSize = Constants.AVATARSIZE
             }
+            "6" -> {
+                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
+            }// BINARY
         }
     }
 

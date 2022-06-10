@@ -1,18 +1,44 @@
 package Tables
 
 import atomic.AtomicLong
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.toPromise
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
-import p_jsocket.CLIENT_TIMEOUT
+import p_jsocket.Constants
 import sql.Sqlite_service
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 val USERS_EXCEPTIONS: MutableMap<String, KExceptions> = mutableMapOf()
-val EXCEPTION_LAST_UPDATE: AtomicLong = AtomicLong(0L)
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val EXCEPTION_LAST_UPDATE = AtomicLong(0L)
+
+@InternalAPI
+private val KExceptionsLock = Mutex()
+
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
+val NEW_EXCEPTIONS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
+
+
+
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 fun init(): Boolean {
 
     USERS_EXCEPTIONS["EXC_SYSTEM_ERROR"] = KExceptions(
@@ -30,7 +56,7 @@ fun init(): Boolean {
             "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
             "ENG",
             "Command not found",
-            "2",
+            "4",
             0
         )
     )
@@ -68,20 +94,96 @@ fun init(): Boolean {
         KExceptions.KException(
             "EXC_SOCKET_NOT_ALLOWED",
             "ENG",
-            "Connection not available.",
+            "No connection.",
+            "3",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["QUEUE FULL"] = KExceptions(
+        KExceptions.KException(
+            "QUEUE FULL",
+            "ENG",
+            "Queue is full.",
             "2",
             0
         )
     )
+
+    USERS_EXCEPTIONS["EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"] = KExceptions(
+        KExceptions.KException(
+            "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG",
+            "ENG",
+            "Invalid file name.",
+            "3",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_TOO_MANY_SIZE_OF_OBJECT"] = KExceptions(
+        KExceptions.KException(
+            "EXC_TOO_MANY_SIZE_OF_OBJECT",
+            "ENG",
+            "Invalid file size.",
+            "3",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_FILE_IS_NOT_EXISTS"] = KExceptions(
+        KExceptions.KException(
+            "EXC_FILE_IS_NOT_EXISTS",
+            "ENG",
+            "File not found.",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"] = KExceptions(
+        KExceptions.KException(
+            "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID",
+            "ENG",
+            "Connection is not valid. Re-login required!",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS"] = KExceptions(
+        KExceptions.KException(
+            "EXC_MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS",
+            "ENG",
+            "The maximum number of attempts to transfer a file has been exceeded.",
+            "4",
+            0
+        )
+    )
+
     return true
 }
 
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 private var is_init: Boolean = init()
 
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 @JsName("KExceptions")
 class KExceptions {
 
+    init {
+        ensureNeverFrozen()
+    }
+
     class KException {
+
+        init {
+            ensureNeverFrozen()
+        }
+
         val NAME_OF_ECXEPTION: String
         val LANG_OF_ECXEPTION: String
         var TEXT_OF_ECXEPTION: String = ""
@@ -110,8 +212,8 @@ class KExceptions {
         constructor(ans: ANSWER_TYPE) : this(
             ans.STRING_1!!,
             ans.STRING_2!!,
-            ans.STRING_2!!,
             ans.STRING_3!!,
+            ans.STRING_4!!,
             ans.LONG_1!!
         )
 
@@ -139,16 +241,10 @@ class KExceptions {
 
 
     @InternalAPI
-    companion object : CoroutineScope {
-
-        private val KExceptions_Lock = Lock()
-
-        override val coroutineContext: CoroutineContext = Dispatchers.Default
-
-        private val KExceptions_ServiceScope = CoroutineScope(coroutineContext) + SupervisorJob()
+    companion object {
 
 
-        private fun INSERT_EXCEPTION(kException: KException) {
+        private suspend fun INSERT_EXCEPTION(kException: KException) {
             val kExceptions: KExceptions? = USERS_EXCEPTIONS[kException.NAME_OF_ECXEPTION]
             if (kExceptions != null) {
                 kExceptions.EXCEPTIONS_CLASSES[kException.LANG_OF_ECXEPTION] = kException
@@ -169,11 +265,11 @@ class KExceptions {
             ans: ArrayList<KException>,
             is_Update_DB: Boolean
         ) {
-            KExceptions_ServiceScope.launch {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
+            CoroutineScope(NonCancellable).launch {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            KExceptions_Lock.lock()
+                            KExceptionsLock.lock()
                             ans.forEach {
                                 INSERT_EXCEPTION(it)
                             }
@@ -181,9 +277,14 @@ class KExceptions {
                                 Sqlite_service.InsertExceptions(ans)
                             }
                         } catch (ex: Exception) {
-                            throw ex.message?.let { my_user_exceptions_class("KExceptions", "INSERT_EXCEPTIONS", "EXC_SYSTEM_ERROR", it) }!!
+                            throw my_user_exceptions_class(
+                                l_class_name = "KExceptions",
+                                l_function_name = "INSERT_EXCEPTIONS",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
                         } finally {
-                            KExceptions_Lock.unlock()
+                            KExceptionsLock.unlock()
                         }
                     } catch (ex: my_user_exceptions_class) {
                         ex.ExceptionHand(null)
@@ -191,5 +292,35 @@ class KExceptions {
                 }
             }
         }
+
+        @KorioExperimentalApi
+        @JsName("ADD_NEW_EXCEPTIONS")
+        fun ADD_NEW_EXCEPTIONS(): Promise<Boolean> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeout(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        try {
+                            KExceptionsLock.lock()
+                            while (NEW_EXCEPTIONS.isNotEmpty()) {
+                                TODO()
+                            }
+                            return@withTimeout true
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KExceptions",
+                                l_function_name = "ADD_NEW_EXCEPTIONS",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            KExceptionsLock.unlock()
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
+                    }
+                    return@withTimeout false
+                }
+            }.toPromise(EmptyCoroutineContext)
+
     }
 }

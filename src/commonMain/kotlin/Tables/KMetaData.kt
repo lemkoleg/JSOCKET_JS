@@ -1,28 +1,53 @@
 package Tables
 
 import CrossPlatforms.MyCondition
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.toPromise
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import io.ktor.util.collections.*
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
-import p_jsocket.CLIENT_TIMEOUT
+import p_jsocket.Constants
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
+
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val META_DATA: MutableMap<String, Long> = mutableMapOf()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val META_DATA_condition = MyCondition()
 
 
 @InternalAPI
-val META_DATA: ConcurrentMap<String, Long> = ConcurrentMap()
+private val KMetaDataLock = Mutex()
 
-val META_DATA_condition: MyCondition = MyCondition()
-
-
-@InternalAPI
-private val lock = Lock()
 
 private var last_update: Long = 0L
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val NEW_META_DATA: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
+
 @Suppress("unused")
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("KMetaData")
 class KMetaData {
+
+    init {
+        ensureNeverFrozen()
+    }
 
     private var VALUE_NAME: String = ""
     private var VALUE_VALUE: Long = 0L
@@ -30,13 +55,13 @@ class KMetaData {
 
     private constructor()
 
-    constructor(L_VALUE_NAME: String, L_VALUE_VALUE: Long, L_LAST_UPDATE: Long){
+    constructor(L_VALUE_NAME: String, L_VALUE_VALUE: Long, L_LAST_UPDATE: Long) {
         VALUE_NAME = L_VALUE_NAME
         VALUE_VALUE = L_VALUE_VALUE
         LAST_UPDATE = L_LAST_UPDATE
     }
 
-    constructor(ans: ANSWER_TYPE):this(ans.STRING_1!!, ans.LONG_1!!, ans.LONG_2!!)
+    constructor(ans: ANSWER_TYPE) : this(ans.STRING_1!!, ans.LONG_1!!, ans.LONG_2!!)
 
     @JsName("getVALUE_NAME")
     fun getVALUE_NAME(): String {
@@ -69,53 +94,80 @@ class KMetaData {
     }
 
     @JsName("UPDATE_METADATA")
-    fun UPDATE_METADATA(L_VALUE_NAME: String, L_VALUE_VALUE: Long, L_LAST_UPDATE: Long){
+    fun UPDATE_METADATA(L_VALUE_NAME: String, L_VALUE_VALUE: Long, L_LAST_UPDATE: Long) {
         VALUE_NAME = L_VALUE_NAME
         VALUE_VALUE = L_VALUE_VALUE
         LAST_UPDATE = L_LAST_UPDATE
     }
 
-    @JsName("UPDATE_METADATA")
-    fun UPDATE_METADATA(ans: ANSWER_TYPE){
+    @JsName("UPDATE_METADATAS")
+    fun UPDATE_METADATAS(ans: ANSWER_TYPE) {
         UPDATE_METADATA(ans.STRING_1!!, ans.LONG_1!!, ans.LONG_2!!)
     }
 
     companion object {
 
         @InternalAPI
-        @JsName("setMETA_DATA")
-        suspend fun setIN_COLLECTION(kMetaData: KMetaData) {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lock.lock()
-                    META_DATA[kMetaData.getVALUE_NAME()] = kMetaData.getVALUE_VALUE()
-                    if (last_update < kMetaData.getLATS_UPDATE()) {
-                        last_update = kMetaData.getLATS_UPDATE()
+        @JsName("LOAD_META_DATA")
+        fun LOAD_META_DATA(kMetaDatas: ArrayList<KMetaData>) {
+            CoroutineScope(NonCancellable).launch {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        try {
+                            KMetaDataLock.lock()
+                            kMetaDatas.forEach {
+                                META_DATA[it.getVALUE_NAME()] = it.getVALUE_VALUE()
+                                if (last_update < it.getLATS_UPDATE()) {
+                                    last_update = it.getLATS_UPDATE()
+                                }
+                            }
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KMetaData",
+                                l_function_name = "LOAD_META_DATA",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            KMetaDataLock.unlock()
+                            META_DATA_condition.cSignal()
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
                     }
-
                 }
-            } finally {
-                lock.unlock()
-                META_DATA_condition.cSignal()
             }
         }
 
-        @OptIn(InternalAPI::class)
-        @JsName("setMETA_DATA")
-        suspend fun setMETA_DATA(n: String, v: Long, d: Long) {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lock.lock()
-                    META_DATA[n] = v
-                    if (last_update < d) {
-                        last_update = d
+
+        @KorioExperimentalApi
+        @JsName("ADD_NEW_META_DATA")
+        fun ADD_NEW_META_DATA(): Promise<Boolean> =
+            CoroutineScope(Dispatchers.Default).async {
+            withTimeout(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KMetaDataLock.lock()
+                        while (NEW_META_DATA.isNotEmpty()) {
+                            TODO()
+                        }
+                        return@withTimeout true
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashData",
+                            l_function_name = "ADD_NEW_META_DATA",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KMetaDataLock.unlock()
                     }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
                 }
-            } finally {
-                lock.unlock()
-                META_DATA_condition.cSignal()
+                return@withTimeout false
             }
-        }
+        }.toPromise(EmptyCoroutineContext)
     }
 
 }

@@ -7,28 +7,22 @@
 
 package sql
 
-import CrossPlatforms.MyFile
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.*
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.Lock
 import io.ktor.util.collections.ConcurrentMap
-import io.ktor.util.withLock
-import io.ktor.utils.io.core.ExperimentalIoApi
 import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.*
-import lib_exceptions.exc_file_not_exists
-import lib_exceptions.exc_file_size_is_wrong
+import kotlinx.coroutines.sync.Mutex
 import p_client.*
 import p_jsocket.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 /**
  *
@@ -48,7 +42,7 @@ object Sqlite_service : CoroutineScope {
 
     private val statBIG_AVATARS = Connection.createStatement()
     @InternalAPI
-    private val lockBIG_AVATARS = Lock()
+    private val lockBIG_AVATARS = Mutex()
 
     @InternalAPI
     @JsName("InsertBigAvatars")
@@ -185,7 +179,7 @@ object Sqlite_service : CoroutineScope {
 
     private val statEXCEPTIONS = Connection.createStatement()
     @InternalAPI
-    private val lockEXCEPTIONS = Lock()
+    private val lockEXCEPTIONS = Mutex()
 
     @InternalAPI
     @JsName("InsertExceptions")
@@ -230,7 +224,7 @@ object Sqlite_service : CoroutineScope {
 
     private val statCASHDATA = Connection.createStatement()
     @InternalAPI
-    private val lockCASHDATA = Lock()
+    private val lockCASHDATA = Mutex()
 
     @InternalAPI
     @JsName("InsertCashData")
@@ -282,7 +276,7 @@ object Sqlite_service : CoroutineScope {
     private val MySend_JSOCKETs: Send_JSOCKETs = Send_JSOCKETs()
 
     @InternalAPI
-    private val lock = Lock()
+    private val lock = Mutex()
     private const val time_wait = 10000L
     private var curCommand: Command? = null
 
@@ -577,7 +571,7 @@ object Sqlite_service : CoroutineScope {
                 val rs = statement.SELECT_ALL_SAVEMEDIA(myConnectionsID.value)
                 while (rs.isNotEmpty()) {
                     val s = rs.removeFirst()
-                    val file = MyFile(s.getOBJECT_FULL_NAME())
+                    val file = CrossPlatformFile(s.getOBJECT_FULL_NAME())
                     if (!file.isExists() || file.isPath()) {
                         continue
                     }
@@ -967,12 +961,12 @@ object Sqlite_service : CoroutineScope {
                 try {
                     withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
                         lock.lock()
-                            val myFile = MyFile(lKSaveMedia.getOBJECT_FULL_NAME())
-                            if (!myFile.isExists() || myFile.isPath()) {
+                            val crossPlatformFile = CrossPlatformFile(lKSaveMedia.getOBJECT_FULL_NAME())
+                            if (!crossPlatformFile.isExists() || crossPlatformFile.isPath()) {
                                 throw exc_file_not_exists(lKSaveMedia.getOBJECT_FULL_NAME())
                             }
-                            if (myFile.size() != lKSaveMedia.getOBJECTS_SIZE()) {
-                                myFile.delete()
+                            if (crossPlatformFile.size() != lKSaveMedia.getOBJECTS_SIZE()) {
+                                crossPlatformFile.delete()
                                 throw exc_file_size_is_wrong(
                                         lKSaveMedia.getOBJECT_FULL_NAME(),
                                         lKSaveMedia.getOBJECTS_SIZE()
@@ -1046,7 +1040,7 @@ object Sqlite_service : CoroutineScope {
                             if (lSAVEMEDIA.isNotEmpty()) {
                                 val m: KSaveMedia? = SAVEMEDIA.remove(lSAVEMEDIA)
                                 if (m != null) {
-                                    val file = MyFile(m.getOBJECT_FULL_NAME())
+                                    val file = CrossPlatformFile(m.getOBJECT_FULL_NAME())
                                     if (file.isExists() && !file.isPath()) {
                                         if (file.delete()) {
                                             Connection.createStatement().DELETE_SAVEMEDIA(lSAVEMEDIA)

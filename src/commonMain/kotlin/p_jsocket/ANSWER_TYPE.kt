@@ -5,16 +5,26 @@
  * and open the template in the editor.
  */
 package p_jsocket
-
-import com.soywiz.kds.Queue
+import co.touchlab.stately.concurrency.AtomicBoolean
+import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withTimeoutOrNull
+import p_client.CLIENT_JSOCKET_POOL
+import p_client.Jsocket
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 @JsName("FIELDS_SUBSCRIBE_ANSWER_TYPES")
-val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
+val FIELDS_SUBSCRIBE_ANSWER_TYPES: MutableMap<Int, ANSWER_TYPE_Subscribe> = mutableMapOf(
     1 to ANSWER_TYPE_Subscribe(1, "IDENTIFICATOR_1", 18, true, 0),
     2 to ANSWER_TYPE_Subscribe(2, "IDENTIFICATOR_2", 18, true, 0),
     3 to ANSWER_TYPE_Subscribe(3, "IDENTIFICATOR_3", 18, true, 0),
@@ -95,29 +105,51 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: Map<Int, ANSWER_TYPE_Subscribe?> = mapOf(
     78 to ANSWER_TYPE_Subscribe(78, "STRING_18", 4000, false, 0),
     79 to ANSWER_TYPE_Subscribe(79, "STRING_19", 4000, false, 0),
     80 to ANSWER_TYPE_Subscribe(80, "STRING_20", 4000, false, 0),
-    81 to ANSWER_TYPE_Subscribe(81, "BLOB_1", MAX_SMALL_AVATAR_SIZE_B, false, 4),
-    82 to ANSWER_TYPE_Subscribe(82, "BLOB_2", MAX_CUT_BIG_AVATAR_SIZE_B, false, 4),
-    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", MAX_BIG_AVATAR_SIZE_B, false, 4)
+    81 to ANSWER_TYPE_Subscribe(81, "BLOB_1", Constants.MAX_SMALL_AVATAR_SIZE_B, false, 4),
+    82 to ANSWER_TYPE_Subscribe(82, "BLOB_2", Constants.MAX_CUT_BIG_AVATAR_SIZE_B, false, 4),
+    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", Constants.MAX_BIG_AVATAR_SIZE_B, false, 4)
 )
 
-private val CLIENT_ANSWER_TYPE_POOL: Queue<ANSWER_TYPE> = Queue()
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val CLIENT_ANSWER_TYPE_POOL: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
 
 @InternalAPI
-private val lock = Lock()
+@ExperimentalTime
+@KorioExperimentalApi
+val CLIENT_ANSWER_TYPE_POOLS: ArrayDeque<ArrayDeque<ANSWER_TYPE>> = ArrayDeque()
+
+
+@InternalAPI
+private val CLIENT_ANSWER_TYPE_POOL_Lock = Mutex()
+private val CLIENT_ANSWER_TYPE_POOLS_Lock = Mutex()
+private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
+private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 
 /**
  *
  * @author Oleg
  */
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 @JsName("ANSWER_TYPE")
-open class ANSWER_TYPE : CoroutineScope {
+class ANSWER_TYPE() {
 
-    final override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+    var SELF_Jsockt: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
 
-    val LocalScope = CoroutineScope(coroutineContext)
-
-    protected constructor()
+    init {
+        if(SELF_Jsockt == null){
+            SELF_Jsockt =  Jsocket()
+            Jsocket.fill()
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                println("CLIENT_JSOCKET_POOL is emprty")
+            }
+        }
+        ensureNeverFrozen()
+    }
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
@@ -433,7 +465,7 @@ open class ANSWER_TYPE : CoroutineScope {
     var STRING_19: String? = ""
 
     @JsName("STRING_20")
-    private var STRING_20: String? = ""
+    var STRING_20: String? = ""
 
     @JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
@@ -462,14 +494,11 @@ open class ANSWER_TYPE : CoroutineScope {
     @JsName("IS_UPDATED_BY_MERGE")
     var IS_UPDATED_BY_MERGE: Boolean = false
 
-    @InternalAPI
-    private val getLocalsValues: GetLocalsValues = GetLocalsValues.getGET_LOCAL_VALUES()
-
 
     @InternalAPI
     constructor(
         lOBJECTS_ID: String,
-        lCASH_SUM:Long,
+        lCASH_SUM: Long,
         lNUMBER_POSITION: Int?,
         lLAST_UPDATE: Long,
         lIDENTIFICATOR_1: String?,
@@ -758,9 +787,9 @@ open class ANSWER_TYPE : CoroutineScope {
         LAST_UPDATE = MyANSWER_TYPE.LAST_UPDATE
 
         setRECORD_TYPE()
+
     }
 
-    fun setOBJECT_ID() {}
 
     @JsName("merge")
     fun merge(v: ANSWER_TYPE?) {
@@ -881,7 +910,7 @@ open class ANSWER_TYPE : CoroutineScope {
         }
 
         if (v.LONG_3 != null && v.LONG_3 != this.LONG_3) {
-            this.LONG_3 = v.LONG_3     
+            this.LONG_3 = v.LONG_3
             IS_UPDATED_BY_MERGE = true
         }
 
@@ -899,7 +928,7 @@ open class ANSWER_TYPE : CoroutineScope {
             this.LONG_6 = v.LONG_6
             IS_UPDATED_BY_MERGE = true
         }
-        
+
         if (v.LONG_7 != null && v.LONG_7 != this.LONG_7) {
             this.LONG_7 = v.LONG_7
             IS_UPDATED_BY_MERGE = true
@@ -954,118 +983,118 @@ open class ANSWER_TYPE : CoroutineScope {
             this.LONG_17 = v.LONG_17
             IS_UPDATED_BY_MERGE = true
         }
-        
+
         if (v.LONG_18 != null && v.LONG_18 != this.LONG_18) {
             this.LONG_18 = v.LONG_18
             IS_UPDATED_BY_MERGE = true
         }
-        
+
         if (v.LONG_19 != null && v.LONG_19 != this.LONG_19) {
             this.LONG_19 = v.LONG_19
             IS_UPDATED_BY_MERGE = true
         }
-        
+
         if (v.LONG_20 != null && v.LONG_20 != this.LONG_20) {
             this.LONG_20 = v.LONG_20
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_1 != null  && v.INTEGER_1 != this.INTEGER_1) {
-            this.INTEGER_1 = v.INTEGER_1  
+        if (v.INTEGER_1 != null && v.INTEGER_1 != this.INTEGER_1) {
+            this.INTEGER_1 = v.INTEGER_1
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_2 != null  && v.INTEGER_2 != this.INTEGER_2) {
-            this.INTEGER_2 = v.INTEGER_2  
+        if (v.INTEGER_2 != null && v.INTEGER_2 != this.INTEGER_2) {
+            this.INTEGER_2 = v.INTEGER_2
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_3 != null  && v.INTEGER_3 != this.INTEGER_3) {
-            this.INTEGER_3 = v.INTEGER_3  
+        if (v.INTEGER_3 != null && v.INTEGER_3 != this.INTEGER_3) {
+            this.INTEGER_3 = v.INTEGER_3
             IS_UPDATED_BY_MERGE = true
         }
-        
-        if (v.INTEGER_4 != null  && v.INTEGER_4 != this.INTEGER_4) {
+
+        if (v.INTEGER_4 != null && v.INTEGER_4 != this.INTEGER_4) {
             this.INTEGER_4 = v.INTEGER_4  //object size
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_5 != null  && v.INTEGER_5 != this.INTEGER_5) {
+        if (v.INTEGER_5 != null && v.INTEGER_5 != this.INTEGER_5) {
             this.INTEGER_5 = v.INTEGER_5  // object length seconds
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_6 != null  && v.INTEGER_6 != this.INTEGER_6) {
+        if (v.INTEGER_6 != null && v.INTEGER_6 != this.INTEGER_6) {
             this.INTEGER_6 = v.INTEGER_6
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_7 != null  && v.INTEGER_7 != this.INTEGER_7) {
+        if (v.INTEGER_7 != null && v.INTEGER_7 != this.INTEGER_7) {
             this.INTEGER_7 = v.INTEGER_7
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_8 != null  && v.INTEGER_8 != this.INTEGER_8) {
+        if (v.INTEGER_8 != null && v.INTEGER_8 != this.INTEGER_8) {
             this.INTEGER_8 = v.INTEGER_8
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_9 != null  && v.INTEGER_9 != this.INTEGER_9) {
+        if (v.INTEGER_9 != null && v.INTEGER_9 != this.INTEGER_9) {
             this.INTEGER_9 = v.INTEGER_9
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_10 != null  && v.INTEGER_10 != this.INTEGER_10) {
+        if (v.INTEGER_10 != null && v.INTEGER_10 != this.INTEGER_10) {
             this.INTEGER_10 = v.INTEGER_10
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_11 != null  && v.INTEGER_11 != this.INTEGER_11) {
+        if (v.INTEGER_11 != null && v.INTEGER_11 != this.INTEGER_11) {
             this.INTEGER_11 = v.INTEGER_11
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_12 != null  && v.INTEGER_12 != this.INTEGER_12) {
+        if (v.INTEGER_12 != null && v.INTEGER_12 != this.INTEGER_12) {
             this.INTEGER_12 = v.INTEGER_12
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_13 != null  && v.INTEGER_13 != this.INTEGER_13) {
+        if (v.INTEGER_13 != null && v.INTEGER_13 != this.INTEGER_13) {
             this.INTEGER_13 = v.INTEGER_13
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_14 != null  && v.INTEGER_14 != this.INTEGER_14) {
+        if (v.INTEGER_14 != null && v.INTEGER_14 != this.INTEGER_14) {
             this.INTEGER_14 = v.INTEGER_14
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_15 != null  && v.INTEGER_15 != this.INTEGER_15) {
+        if (v.INTEGER_15 != null && v.INTEGER_15 != this.INTEGER_15) {
             this.INTEGER_15 = v.INTEGER_15
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_16 != null  && v.INTEGER_16 != this.INTEGER_16) {
+        if (v.INTEGER_16 != null && v.INTEGER_16 != this.INTEGER_16) {
             this.INTEGER_16 = v.INTEGER_16
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_17 != null  && v.INTEGER_17 != this.INTEGER_17) {
+        if (v.INTEGER_17 != null && v.INTEGER_17 != this.INTEGER_17) {
             this.INTEGER_17 = v.INTEGER_17
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_18 != null  && v.INTEGER_18 != this.INTEGER_18) {
+        if (v.INTEGER_18 != null && v.INTEGER_18 != this.INTEGER_18) {
             this.INTEGER_18 = v.INTEGER_18
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_19 != null  && v.INTEGER_19 != this.INTEGER_19) {
+        if (v.INTEGER_19 != null && v.INTEGER_19 != this.INTEGER_19) {
             this.INTEGER_19 = v.INTEGER_19
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (v.INTEGER_20 != null  && v.INTEGER_20 != this.INTEGER_20) {
+        if (v.INTEGER_20 != null && v.INTEGER_20 != this.INTEGER_20) {
             this.INTEGER_20 = v.INTEGER_20
             IS_UPDATED_BY_MERGE = true
         }
@@ -1146,12 +1175,12 @@ open class ANSWER_TYPE : CoroutineScope {
 
 
     @JsName("getACCOUNT_ID")
-    open fun getACCOUNT_ID(): String {
+    fun getACCOUNT_ID(): String {
         return IDENTIFICATOR_1 ?: ""
     }
 
     @JsName("setACCOUNT_ID")
-    open fun setACCOUNT_ID(v: String) {
+    fun setACCOUNT_ID(v: String) {
         IDENTIFICATOR_1 = v
     }
 
@@ -1313,7 +1342,7 @@ open class ANSWER_TYPE : CoroutineScope {
 
     @JsName("setORIGINAL_AVATAR_SIZE")
     fun setORIGINAL_AVATAR_SIZE(v: Int?) {
-        this.INTEGER_19 = v?: 0
+        this.INTEGER_19 = v ?: 0
     }
 
     @JsName("getAVATAR_SERVER")
@@ -1429,132 +1458,65 @@ open class ANSWER_TYPE : CoroutineScope {
         LONG_19 = v
     }
 
-    fun setValue(MyANSWER_TYPE: ANSWER_TYPE) {
-        IDENTIFICATOR_1 = MyANSWER_TYPE.IDENTIFICATOR_1?.trim() ?: ""
-        IDENTIFICATOR_2 = MyANSWER_TYPE.IDENTIFICATOR_2?.trim() ?: ""
-        IDENTIFICATOR_3 = MyANSWER_TYPE.IDENTIFICATOR_3?.trim() ?: ""
-        IDENTIFICATOR_4 = MyANSWER_TYPE.IDENTIFICATOR_4?.trim() ?: ""
-        IDENTIFICATOR_5 = MyANSWER_TYPE.IDENTIFICATOR_5?.trim() ?: ""
-        IDENTIFICATOR_6 = MyANSWER_TYPE.IDENTIFICATOR_6?.trim() ?: ""
-        IDENTIFICATOR_7 = MyANSWER_TYPE.IDENTIFICATOR_7?.trim() ?: ""
-        IDENTIFICATOR_8 = MyANSWER_TYPE.IDENTIFICATOR_8?.trim() ?: ""
-        IDENTIFICATOR_9 = MyANSWER_TYPE.IDENTIFICATOR_9?.trim() ?: ""
-        IDENTIFICATOR_10 = MyANSWER_TYPE.IDENTIFICATOR_10?.trim() ?: ""
-        IDENTIFICATOR_11 = MyANSWER_TYPE.IDENTIFICATOR_11?.trim() ?: ""
-        IDENTIFICATOR_12 = MyANSWER_TYPE.IDENTIFICATOR_12?.trim() ?: ""
-        IDENTIFICATOR_13 = MyANSWER_TYPE.IDENTIFICATOR_13?.trim() ?: ""
-        IDENTIFICATOR_14 = MyANSWER_TYPE.IDENTIFICATOR_14?.trim() ?: ""
-        IDENTIFICATOR_15 = MyANSWER_TYPE.IDENTIFICATOR_15?.trim() ?: ""
-        IDENTIFICATOR_16 = MyANSWER_TYPE.IDENTIFICATOR_16?.trim() ?: ""
-        IDENTIFICATOR_17 = MyANSWER_TYPE.IDENTIFICATOR_17?.trim() ?: ""
-        IDENTIFICATOR_18 = MyANSWER_TYPE.IDENTIFICATOR_18?.trim() ?: ""
-        IDENTIFICATOR_19 = MyANSWER_TYPE.IDENTIFICATOR_19?.trim() ?: ""
-        IDENTIFICATOR_20 = MyANSWER_TYPE.IDENTIFICATOR_20?.trim() ?: ""
-        INTEGER_1 = MyANSWER_TYPE.INTEGER_1 ?: 0
-        INTEGER_2 = MyANSWER_TYPE.INTEGER_2 ?: 0
-        INTEGER_3 = MyANSWER_TYPE.INTEGER_3 ?: 0
-        INTEGER_4 = MyANSWER_TYPE.INTEGER_4 ?: 0
-        INTEGER_5 = MyANSWER_TYPE.INTEGER_5 ?: 0
-        INTEGER_6 = MyANSWER_TYPE.INTEGER_6 ?: 0
-        INTEGER_7 = MyANSWER_TYPE.INTEGER_7 ?: 0
-        INTEGER_8 = MyANSWER_TYPE.INTEGER_8 ?: 0
-        INTEGER_9 = MyANSWER_TYPE.INTEGER_9 ?: 0
-        INTEGER_10 = MyANSWER_TYPE.INTEGER_10 ?: 0
-        INTEGER_11 = MyANSWER_TYPE.INTEGER_11 ?: 0
-        INTEGER_12 = MyANSWER_TYPE.INTEGER_12 ?: 0
-        INTEGER_13 = MyANSWER_TYPE.INTEGER_13 ?: 0
-        INTEGER_14 = MyANSWER_TYPE.INTEGER_14 ?: 0
-        INTEGER_15 = MyANSWER_TYPE.INTEGER_15 ?: 0
-        INTEGER_16 = MyANSWER_TYPE.INTEGER_16 ?: 0
-        INTEGER_17 = MyANSWER_TYPE.INTEGER_17 ?: 0
-        INTEGER_18 = MyANSWER_TYPE.INTEGER_18 ?: 0
-        INTEGER_19 = MyANSWER_TYPE.INTEGER_19 ?: 0
-        INTEGER_20 = MyANSWER_TYPE.INTEGER_20 ?: 0
-        LONG_1 = MyANSWER_TYPE.LONG_1 ?: 0L
-        LONG_2 = MyANSWER_TYPE.LONG_2 ?: 0L
-        LONG_3 = MyANSWER_TYPE.LONG_3 ?: 0L
-        LONG_4 = MyANSWER_TYPE.LONG_4 ?: 0L
-        LONG_5 = MyANSWER_TYPE.LONG_5 ?: 0L
-        LONG_6 = MyANSWER_TYPE.LONG_6 ?: 0L
-        LONG_7 = MyANSWER_TYPE.LONG_7 ?: 0L
-        LONG_8 = MyANSWER_TYPE.LONG_8 ?: 0L
-        LONG_9 = MyANSWER_TYPE.LONG_9 ?: 0L
-        LONG_10 = MyANSWER_TYPE.LONG_10 ?: 0L
-        LONG_11 = MyANSWER_TYPE.LONG_11 ?: 0L
-        LONG_12 = MyANSWER_TYPE.LONG_12 ?: 0L
-        LONG_13 = MyANSWER_TYPE.LONG_13 ?: 0L
-        LONG_14 = MyANSWER_TYPE.LONG_14 ?: 0L
-        LONG_15 = MyANSWER_TYPE.LONG_15 ?: 0L
-        LONG_16 = MyANSWER_TYPE.LONG_16 ?: 0L
-        LONG_17 = MyANSWER_TYPE.LONG_17 ?: 0L
-        LONG_18 = MyANSWER_TYPE.LONG_18 ?: 0L
-        LONG_19 = MyANSWER_TYPE.LONG_19 ?: 0L
-        LONG_20 = MyANSWER_TYPE.LONG_20 ?: 0L
-        STRING_1 = MyANSWER_TYPE.STRING_1?.trim() ?: ""
-        STRING_2 = MyANSWER_TYPE.STRING_2?.trim() ?: ""
-        STRING_3 = MyANSWER_TYPE.STRING_3?.trim() ?: ""
-        STRING_4 = MyANSWER_TYPE.STRING_4?.trim() ?: ""
-        STRING_5 = MyANSWER_TYPE.STRING_5?.trim() ?: ""
-        STRING_6 = MyANSWER_TYPE.STRING_6?.trim() ?: ""
-        STRING_7 = MyANSWER_TYPE.STRING_7?.trim() ?: ""
-        STRING_8 = MyANSWER_TYPE.STRING_8?.trim() ?: ""
-        STRING_9 = MyANSWER_TYPE.STRING_9?.trim() ?: ""
-        STRING_10 = MyANSWER_TYPE.STRING_10?.trim() ?: ""
-        STRING_11 = MyANSWER_TYPE.STRING_11?.trim() ?: ""
-        STRING_12 = MyANSWER_TYPE.STRING_12?.trim() ?: ""
-        STRING_13 = MyANSWER_TYPE.STRING_13?.trim() ?: ""
-        STRING_14 = MyANSWER_TYPE.STRING_14?.trim() ?: ""
-        STRING_15 = MyANSWER_TYPE.STRING_15?.trim() ?: ""
-        STRING_16 = MyANSWER_TYPE.STRING_16?.trim() ?: ""
-        STRING_17 = MyANSWER_TYPE.STRING_17?.trim() ?: ""
-        STRING_18 = MyANSWER_TYPE.STRING_18?.trim() ?: ""
-        STRING_19 = MyANSWER_TYPE.STRING_19?.trim() ?: ""
-        STRING_20 = MyANSWER_TYPE.STRING_20?.trim() ?: ""
-        BLOB_1 = MyANSWER_TYPE.BLOB_1
-        BLOB_2 = MyANSWER_TYPE.BLOB_2
-        BLOB_3 = MyANSWER_TYPE.BLOB_3
+    ///////////////////////////////////////////////////////////////////////////////
 
-    }
-
-
+    ///////////////////////////////////////////////////////////////////////////////
     companion object {
 
-        @JsName("getANSWER_TYPE")
-        @InternalAPI
-        suspend fun getANSWER_TYPE(): ANSWER_TYPE {
-            val answe_type:ANSWER_TYPE? =
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lock.lock()
-                    if (CLIENT_ANSWER_TYPE_POOL.peek() == null) {
-                        CoroutineScope(NonCancellable).launch {
-                            fill()
+
+        @JsName("fillPOOL")
+        fun fillPOOL() {
+            if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
+                CoroutineScope(NonCancellable).launch {
+                    try {
+                        fillPOOL_IS_RUNNING.value = true
+                        while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
+                            CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())
                         }
-                        return@withTimeoutOrNull ANSWER_TYPE()
-                    } else {
-                        return@withTimeoutOrNull CLIENT_ANSWER_TYPE_POOL.dequeue()
+                    } finally {
+                        fillPOOL_IS_RUNNING.value = false
                     }
                 }
-            } catch(ex: Exception) {
-                CoroutineScope(NonCancellable).launch {
-                    fill()
-                }
-                return ANSWER_TYPE()
-            }finally {
-                lock.unlock()
             }
-            return answe_type?:ANSWER_TYPE()
         }
 
-        private fun fill() {
-            while (CLIENT_ANSWER_TYPE_POOL.size < CLIENT_ANSWER_TYPE_POOL_SIZE && !isInterrupted.value) {
-                CLIENT_ANSWER_TYPE_POOL.enqueue(ANSWER_TYPE())
+        @JsName("fillPOOLS")
+        fun fillPOOLS() {
+            if (fillPOOLS_IS_RUNNING.compareAndSet(expected = false, new = true)) {
+                CoroutineScope(NonCancellable).launch {
+                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                        try {
+                            fillPOOLS_IS_RUNNING.value = true
+                            CLIENT_ANSWER_TYPE_POOLS_Lock.lock()
+                            while (CLIENT_ANSWER_TYPE_POOLS.size < Constants.CLIENT_ANSWER_TYPE_POOLS_SIZE && !Constants.isInterrupted.value) {
+                                val ar: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
+
+                                while (ar.size < Constants.CLIENT_ANSWER_TYPE_POOLS_CHUNK_SIZE) {
+                                    var v: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
+                                    if(v == null){
+                                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                            println("CLIENT_ANSWER_TYPE_POOL is emprty")
+                                        }
+                                        fillPOOL()
+                                        v = ANSWER_TYPE()
+                                    }
+                                    ar.addLast(v)
+                                }
+                                CLIENT_ANSWER_TYPE_POOLS.addLast(ar)
+                            }
+                        } finally {
+                            fillPOOLS_IS_RUNNING.value = false
+                            CLIENT_ANSWER_TYPE_POOLS_Lock.unlock()
+                        }
+                    }
+                }
             }
         }
 
         @InternalAPI
-        fun close(){
+        fun close() {
             CLIENT_ANSWER_TYPE_POOL.clear()
+            CLIENT_ANSWER_TYPE_POOLS.clear()
         }
     }
 

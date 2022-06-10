@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  OBJECT_EXTENSION TEXT,                                --STRING_9
  AVATAR_LINK TEXT,                                     --STRING_18
  AVATAR_SERVER TEXT,                                   --STRING_16
- ORIGINAL_AVATAR_SIZE TEXT,                            --STRING_17
+ ORIGINAL_AVATAR_SIZE INTEGER,                         --STRING_17
  SMALL_AVATAR BLOB,
  BIG_AVATAR BLOB,
  IS_TEMP INTEGER NOT NULL,                             --INTEGER_6

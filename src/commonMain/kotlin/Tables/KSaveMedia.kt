@@ -7,24 +7,45 @@
 
 package Tables
 
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.slash
+import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import p_client.Jsocket
+import p_jsocket.pathTemp
+import p_jsocket.rootPath
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
 /**
  *
  * @author User
  */
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("KSaveMedia")
 class KSaveMedia{
+
+    init {
+        ensureNeverFrozen()
+    }
 
     private var OBJECT_ID: String = ""
     private var CONNECTION_ID: String = ""
     private var AVATAR_ID: String = ""
     private var OBJECT_OWNER: String = ""
     private var OBJECT_NAME: String = ""
-    private var OBJECT_SIZE: Int = 0
+    private var OBJECT_SIZE: Long = 0
     private var OBJECT_LENGTH_SECONDS: Int = 0
     private var OBJECT_SERVER: String = ""
     private var OBJECT_PROFILE_STRING: String = ""
@@ -32,12 +53,14 @@ class KSaveMedia{
     private var OBJECT_EXTENSION: String = ""
     private var AVATAR_LINK: String = ""
     private var AVATAR_SERVER: String = ""
-    private var ORIGINAL_AVATAR_SIZE: Int = 0
+    private var ORIGINAL_AVATAR_SIZE = 0
     private var SMALL_AVATAR: ByteArray? = null
     private var BIG_AVATAR: ByteArray? = null
     private var IS_TEMP: Int = 0
     private var IS_DOWNLOAD: Int = 0
     private var LAST_USED: Long = 0
+
+    var FILE_FULL_NAME: String = ""
 
 
     private constructor()
@@ -46,7 +69,7 @@ class KSaveMedia{
                 L_AVATAR_ID: String?,
                 L_OBJECT_OWNER: String?,
                 L_OBJECT_NAME: String,
-                L_OBJECT_SIZE: Int,
+                L_OBJECT_SIZE: Long,
                 L_OBJECT_LENGTH_SECONDS: Int,
                 L_OBJECT_SERVER: String,
                 L_OBJECT_PROFILE_STRING: String,
@@ -79,28 +102,70 @@ class KSaveMedia{
          IS_TEMP = L_IS_TEMP
          IS_DOWNLOAD = L_IS_DOWNLOAD
          LAST_USED = L_LAST_USED
-        
+         FILE_FULL_NAME = createFullFileName(OBJECT_LINK, OBJECT_EXTENSION)
+
     }
 
-    constructor(kMessege : KMessege): this(kMessege.getOBJECT_ID(),
-                                           kMessege.getOBJECT_AVATAR_ID(),
-                                           kMessege.getOBJECT_OWNER(),
-                                           kMessege.getOBJECT_NAME(),
-                                           kMessege.getOBJECT_SIZE(),
-                                           kMessege.getOBJECT_LENGTH_SECONDS(),
-                                           kMessege.getOBJECT_SERVER(),
-                                           kMessege.getOBJECT_PROFILE_STRING(),
-                                           kMessege.getOBJECT_LINK(),
-                                           kMessege.getOBJECT_EXTENSION(),
-                                           kMessege.getAVATAR_LINK(),
-                                           kMessege.getAVATAR_SERVER(),
-                                           kMessege.getORIGINAL_AVATAR_SIZE().toInt(),
-                                           kMessege.BLOB_1,
-                                           null,
-                                           1,
-                                           1,
-                                           DateTime.nowUnixLong()
-     )
+    @InternalAPI
+    constructor(ljsocket: Jsocket) {
+        ljsocket.value_id1,
+        ljsocket_id3,
+        kMessege.getOBJECT_OWNER(),
+        kMessege.getOBJECT_NAME(),
+        kMessege.getOBJECT_SIZE(),
+        kMessege.getOBJECT_LENGTH_SECONDS(),
+        kMessege.getOBJECT_SERVER(),
+        kMessege.getOBJECT_PROFILE_STRING(),
+        kMessege.getOBJECT_LINK(),
+        kMessege.getOBJECT_EXTENSION(),
+        kMessege.getAVATAR_LINK(),
+        kMessege.getAVATAR_SERVER(),
+        kMessege.getORIGINAL_AVATAR_SIZE().toInt(),
+        kMessege.BLOB_1,
+        null,
+        1,
+        1,
+        DateTime.nowUnixLong()
+        FILE_FULL_NAME = createTempFullFileName(OBJECT_LINK, OBJECT_EXTENSION)
+    }
+
+    private fun createFullFileName(LFileName: String, LFileExtencion: String):String{
+        return rootPath.plus(LFileName.substring(0,2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+    }
+
+    private fun createTempFullFileName(LFileName: String, LFileExtencion: String): String {
+        return pathTemp.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+    }
+
+    fun SET_BIG_AVATAR(v: ByteArray?, avatar_id: String){
+        if(avatar_id == AVATAR_ID && v != null){
+            BIG_AVATAR = v
+        }
+    }
+
+
+    fun setIsPerminent(){
+        TODO()
+    }
+
+    @JsName("getIS_TEMP")
+    fun getIS_TEMP():Int{
+        return IS_TEMP
+    }
+
+    @JsName("setLAST_USED")
+    fun setLAST_USED(){
+        TODO()
+    }
+
+    @JsName("verifysDownLoaded")
+    private suspend fun verifysDownLoaded():Boolean{
+        val f = CrossPlatformFile(FILE_FULL_NAME)
+        if(!f.exists() || f.isDirectory()){
+            return false
+        }
+        return true
+    }
 
     @JsName("getOBJECT_ID")
     fun getOBJECT_ID():String{
@@ -143,12 +208,12 @@ class KSaveMedia{
     }
 
     @JsName("getOBJECT_SIZE")
-    fun getOBJECT_SIZE():Int{
+    fun getOBJECT_SIZE():Long{
         return OBJECT_SIZE
     }
 
     @JsName("setOBJECT_SIZE")
-    fun setOBJECT_SIZE(v:Int){
+    fun setOBJECT_SIZE(v:Long){
         OBJECT_SIZE = v
     }
 
@@ -252,41 +317,8 @@ class KSaveMedia{
         BIG_AVATAR = v
     }
 
-    @JsName("getIS_TEMP")
-    fun getIS_TEMP():Int{
-        return IS_TEMP
-    }
 
-    @JsName("setIS_TEMP")
-    fun setIS_TEMP(v:Int?){
-        IS_TEMP = v?:1
-    }
 
-    @JsName("getIS_DOWNLOAD")
-    fun getIS_DOWNLOAD():Int{
-        return IS_DOWNLOAD
-    }
-
-    @JsName("setIS_DOWNLOAD")
-    fun setIS_DOWNLOAD(v:Int?){
-        IS_DOWNLOAD = v?:1
-    }
-
-    @JsName("getLAST_USED")
-    fun getLAST_USED():Long{
-        return LAST_USED
-    }
-
-    @JsName("setLAST_USED")
-    fun setTIME_ADDED(v:Long){
-        LAST_USED = v
-    }
-
-   
-    @JsName("CreateFileFullName")
-    private fun CreateFileFullName(): String {
-        return getOBJECT_ID().substring(0, 2) + slash + getOBJECT_ID() + "." + getOBJECT_EXTENSION()
-    }
 
     @JsName("setIsTemp")
     fun setIsTemp(lIsTemp: Boolean) {
@@ -308,5 +340,12 @@ class KSaveMedia{
     @JsName("IsDownLoaded")
     fun IsDownLoaded(): Boolean {
         return getIS_DOWNLOAD() == 1
+    }
+
+    companion object{
+
+        fun DeleteSaveMedia(name: String){
+           TODO()
+        }
     }
 }

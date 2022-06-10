@@ -2,10 +2,10 @@
 
 package p_client
 
-import CrossPlatforms.WriteExceptionIntoFile
 import atomic.AtomicBoolean
-import io.ktor.util.InternalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.*
+import lib_exceptions.my_user_exceptions_class
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
@@ -18,12 +18,13 @@ import kotlin.time.ExperimentalTime
  * Initiates an orderly shutdown, where if the timer task is currently running,
  * we will let it finish, but not run it again.
  * Invocation has no additional effect if already shut down.
- */ @InternalAPI @ExperimentalTime
+ */
+@InternalAPI
 class KorosTimerTask(
-    _delay: Duration = Duration.ZERO,
-    _repeat: Duration? = null,
+    _delay: Long = 0,
+    _repeat: Long = 0,
     action: suspend () -> Unit
-): CoroutineScope {
+) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
     val KorosTimerTask = CoroutineScope(coroutineContext)
@@ -34,7 +35,12 @@ class KorosTimerTask(
         try {
             action()
         } catch (e: Exception) {
-            WriteExceptionIntoFile(e, "KorosTimerTask")
+            throw my_user_exceptions_class(
+                l_class_name = "KorosTimerTask",
+                l_function_name = "constructor",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = e.message
+            )
         }
     }
     private val delay = _delay
@@ -45,7 +51,7 @@ class KorosTimerTask(
     fun start() {
         job = KorosTimerTask.launch {
             delay(delay)
-            if (repeat != null) {
+            if (repeat > 0L) {
                 while (keepRunning.value) {
                     tryAction()
                     delay(repeat)
@@ -69,7 +75,9 @@ class KorosTimerTask(
      */
     @InternalAPI
     fun shutdown() {
-        keepRunning.setNewValue(true)
+        KorosTimerTask.launch {
+            keepRunning.setNewValue(true)
+        }
     }
 
     /**
@@ -93,10 +101,10 @@ class KorosTimerTask(
         @InternalAPI
         @ExperimentalTime
         fun start(
-            delay: Duration = Duration.ZERO,
-            repeat: Duration? = null,
+            delay: Long = 0L,
+            repeat: Long = 0L,
             action: suspend () -> Unit
         ): KorosTimerTask =
-            KorosTimerTask(delay, repeat,  action).also { it.start() }
+            KorosTimerTask(delay, repeat, action).also { it.start() }
     }
 }

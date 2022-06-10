@@ -6,23 +6,23 @@
  */
 package p_jsocket
 
-import CrossPlatforms.WriteExceptionIntoFile
-import atomic.dequeue
-import atomic.enqueue
-import com.soywiz.kds.Queue
+import CrossPlatforms.GC
+import Tables.myConnectionsCoocki
+import Tables.myConnectionsID
+import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Signal
 import com.soywiz.korio.async.addSuspend
 import com.soywiz.korio.async.delay
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.InternalAPI
-import io.ktor.util.Lock
-import io.ktor.util.withLock
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.ChunkBuffer
-import io.ktor.utils.io.errors.IOException
-import io.ktor.utils.io.writer
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
+import p_client.*
+import sql.Sqlite_service
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -31,55 +31,40 @@ import kotlin.time.ExperimentalTime
 private const val COUNT_OF_0_BYTES = 9
 private const val MIN_SIZE_OF_REQUEST: Int = 17
 
-private val QUEUE_OF_RAW_MESSEGES: Queue<ByteArray> = Queue()
-
-@ExperimentalIoApi
-private val REQUEST_PREFIX = returnRequestPrefix()
 
 
-private val REQUEST_POSTFIX = returnRequestPostfix()
-
-@ExperimentalIoApi
-private fun returnRequestPrefix(): ByteArray {
-    val b = BytePacketBuilder(0, ChunkBuffer.Pool)
-    b.writeByte(0.toByte())
-    b.writeLong(0L)
-    b.writeLong(9223372036854775807L)
-    return b.build().readBytes()
-}
-
-private fun returnRequestPostfix(): ByteArray {
-    val b = BytePacketBuilder(0, ChunkBuffer.Pool)
-    b.writeLong(7085774586302733229L)
-    return b.build().readBytes()
-}
-
-@Suppress("unused")
 @InternalAPI
-@ExperimentalIoApi
+@ExperimentalTime
+@KorioExperimentalApi
+@JsName("BetweenJSOCKETs")
+private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
+
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
+private val  DECODER_REQUEST_POOL: ArrayDeque<DecoderRequest> = ArrayDeque()
+
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 @JsName("Connection")
-class Connection(
-    _connectionDNSName: String = "",
-    _connPort: Int = 0
-) : CoroutineScope {
+object Connection : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
     val ConnectionScope = CoroutineScope(coroutineContext)
 
-    private val connectionDNSName = _connectionDNSName
+    private var connectionDNSName = Constants.SERVER_DNS_NAME
 
-    private val ServerConnPort = if (_connPort == 0) {
-        22237
-    } else {
-        _connPort
-    }
+    private val ServerConnPort = 22237
+
     private lateinit var MyConnection: Job
 
     @JsName("MyWebSocketChannel")
     private var MyWebSocketChannel: WebSocketClient? = null
 
-    private lateinit var addressByteArray: ByteReadPacket
+    public var addressByteArray: ByteArray? = null
     private var connectionIpAddress: String = ""
     private var signalonBinaryMessage: Signal<ByteArray>? = null
     private var signalonAnyMessage: Signal<Any>? = null
@@ -94,13 +79,13 @@ class Connection(
 
     init {
         if (connectionDNSName.isNotEmpty()) {
-            MyConnection = ConnectionScope.launch { setConn() }
+            setConn()
         }
     }
 
 
     private fun returnConnAddress(): ByteReadPacket {
-        val bb = BytePacketBuilder(0, ChunkBuffer.Pool)
+        val bb = BytePacketBuilder(ChunkBuffer.Pool)
         bb.writeInt(ServerConnPort)
         val current_position = bb.size + 23
         val ipArray = connectionIpAddress.encodeToByteArray()
@@ -115,266 +100,119 @@ class Connection(
     private var globalBuf: ByteArray? = null
 
     @InternalAPI
-    private val ConnectionLock = Lock()
+    private val ConnectionLock = Mutex()
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
-    @ExperimentalIoApi
+    @ExperimentalTime
     @JsName("setConn")
-    private suspend fun setConn() {
-        try {
-            MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
-            signalonOpen = MyWebSocketChannel!!.onOpen
-            signalonOpen?.add {
-                isConnect = true
-                isClosed = false
-                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("connect")
-                }
+    private fun setConn() {
+        MyConnection = ConnectionScope.launch {
+            try {
+                MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
+                signalonOpen = MyWebSocketChannel!!.onOpen
+                signalonOpen?.add {
+                    isConnect = true
+                    isClosed = false
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("connect")
+                    }
 
-            }
-            signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-            signalonBinaryMessage?.addSuspend { v ->
-                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("read size: ${v.size}")
                 }
-                QUEUE_OF_RAW_MESSEGES.enqueue(
-                    v,
-                    MAX_COUNT_OF_REQUEST_ON_CLIENT_REQUESTS_QUEUE,
-                    "Connection.QUEUE_OF_RAW_MESSEGES"
-                )
-            }
-            signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
-            signalonStringMessage = MyWebSocketChannel!!.onStringMessage
-            signalonClose = MyWebSocketChannel!!.onClose
-            signalonClose?.add {
+                signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
+                signalonBinaryMessage?.addSuspend { v ->
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("read size: ${v.size}")
+                    }
+                    var l = DECODER_REQUEST_POOL.removeFirstOrNull()
+                    if(l == null){
+                        l = DecoderRequest()
+                    }
+                    Connection.ConnectionScope.launch { l.decode(v)}
+                }
+                signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
+                signalonStringMessage = MyWebSocketChannel!!.onStringMessage
+                signalonClose = MyWebSocketChannel!!.onClose
+                signalonClose?.add {
+                    isConnect = false
+                    isClosed = true
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("disconnect")
+                    }
+                }
+                signalonError = MyWebSocketChannel!!.onError
+                signalonError?.add { v ->
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("error on connection: $v\n")
+                    }
+                    //val e = v.printStackTrace()
+                    isConnect = false
+                    isClosed = true
+                    MyWebSocketChannel?.close()
+                }
+                connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
+
+
+                if (connectionIpAddress.isNotEmpty()) {
+                    if (connectionIpAddress.length > 23) {
+                        connectionIpAddress = connectionIpAddress.substring(0, 23)
+                    }
+                    addressByteArray = returnConnAddress().readBytes()
+                }
+            } catch (e: Exception) {
                 isConnect = false
                 isClosed = true
-                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("disconnect")
-                }
-            }
-            signalonError = MyWebSocketChannel!!.onError
-            signalonError?.add { v ->
-                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("error on connection: $v\n")
-                }
-                //val e = v.printStackTrace()
-                isConnect = false
-                isClosed = true
-                MyWebSocketChannel?.close()
-            }
-            connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
-
-
-            if (connectionIpAddress.isNotEmpty()) {
-                if (connectionIpAddress.length > 23) {
-                    connectionIpAddress = connectionIpAddress.substring(0, 23)
-                }
-                addressByteArray = returnConnAddress()
-            }
-        } catch (e: Exception) {
-            isConnect = false
-            isClosed = true
-            throw e.message?.let {
-                my_user_exceptions_class(
+                throw my_user_exceptions_class(
                     "Connection",
                     "setConn",
                     "EXC_SOCKET_NOT_ALLOWED",
-                    it
+                    e.message
                 )
-            }!!
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    @ExperimentalIoApi
-    @InternalAPI
-    @JsName("send_request")
-    fun send_request(MySOCKETSBytes: ByteReadPacket) {
-        if (MySOCKETSBytes.isNotEmpty) {
-            ConnectionScope.writer {
-                try {
-                    val buf = BytePacketBuilder(0, ChunkBuffer.Pool)
-                    buf.writeFully(REQUEST_PREFIX)
-                    buf.writeInt(MySOCKETSBytes.remaining.toInt())
-                    buf.writePacket(MySOCKETSBytes)
-                    buf.writeFully(REQUEST_POSTFIX)
-                    val b = buf.build().readBytes()
-                    sendData(b)
-                } catch (e: Exception) {
-                    throw e.message?.let {
-                        my_user_exceptions_class(
-                            "Connection",
-                            "send_request",
-                            "EXC_SOCKET_NOT_ALLOWED",
-                            it
-                        )
-                    }!!
-                }
-            }
-        }
-    }
-
-    @JsName("send_raw_data")
-    fun send_raw_data(data: ByteArray) {
-        if (data.isNotEmpty()) {
-            ConnectionScope.writer {
-                try {
-                    sendData(data)
-                } catch (e: Exception) {
-                    throw e.message?.let {
-                        my_user_exceptions_class(
-                            "Connection",
-                            "send_raw_data",
-                            "EXC_SOCKET_NOT_ALLOWED",
-                            it
-                        )
-                    }!!
-                }
             }
         }
     }
 
     @InternalAPI
-    @ExperimentalIoApi
-    private suspend fun sendData(b: ByteArray) {
-        withTimeoutOrNull(CLIENT_TIMEOUT) {
-            /*if (!MyConnection.isCompleted) {
-                MyConnection.join()
-            }*/
-            while (!isConnected()) {
-                if (isClosed) {
-                    setConn()
+    public suspend fun sendData(b: ByteArray, j: Jsocket) {
+        ConnectionScope.launch {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                BetweenJSOCKETs[j.just_do_it_label] = j
+                /*if (!MyConnection.isCompleted) {
+                    MyConnection.join()
+                }*/
+                while (!isConnected()) {
+                    if (isClosed) {
+                        setConn()
+                    }
+                    delay(Constants.TIME_SPAN_FOR_LOOP)
                 }
-                delay(TIME_SPAN_FOR_LOOP)
-            }
 
-            try {
-                MyWebSocketChannel!!.send(b)
-                if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("send size: ${b.size}")
-                }
-            } catch (ex1: Exception) {
-                setConn()
                 try {
                     MyWebSocketChannel!!.send(b)
-                    if (PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("send size2: ${b.size}")
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("send size: ${b.size}")
                     }
                 } catch (ex1: Exception) {
-                    throw ex1.message?.let {
-                        my_user_exceptions_class(
+                    setConn()
+                    try {
+                        MyWebSocketChannel!!.send(b)
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("send size2: ${b.size}")
+                        }
+                    } catch (ex1: Exception) {
+                        throw my_user_exceptions_class(
                             "Connection",
                             "sendData",
                             "EXC_SOCKET_NOT_ALLOWED",
-                            it
+                            ex1.message
                         )
-                    }!!
-                }
-            }
-            // }
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    @ExperimentalTime
-    @InternalAPI
-    @JsName("read_request")
-    suspend fun read_request(timeOut: Long): ByteReadPacket? {
-        var ch: ByteReadPacket? = null
-        val l = QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)
-        if (l != null) {
-            ch = DecodeRequest(l)
-        }
-        return ch
-    }
-
-
-    @ExperimentalTime
-    @JsName("read_raw_data")
-    suspend fun read_raw_data(timeOut: Long): ByteArray? {
-        var ch: ByteArray? = null
-        if (QUEUE_OF_RAW_MESSEGES.isNotEmpty()) {
-            ch = QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)
-        }
-        return ch
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-
-    @InternalAPI
-    private suspend fun DecodeRequest(buffer: ByteArray?): ByteReadPacket? {
-        var buf: ByteReadPacket? = null
-        var Request_size: Int
-        var x = 0
-        var b: ByteReadPacket? = null
-        try {
-            if (buffer != null && buffer.isNotEmpty()) {
-                globalBuf = if (globalBuf == null || globalBuf!!.isEmpty()) {
-                    buffer
-                } else {
-                    globalBuf!!.plus(buffer)
-                }
-            }
-
-            if (globalBuf != null && globalBuf!!.isNotEmpty()) {
-                if (globalBuf!!.size < MIN_SIZE_OF_REQUEST) {
-                    return null
-                }
-                buf = ByteReadPacket(globalBuf!!)
-                FirstLoop@
-                while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
-                    if (buf.readByte() == 0.toByte()) {
-                        x++
-                        if (x == COUNT_OF_0_BYTES) {
-                            x = if (buf.readLong() == 9223372036854775807L) {
-                                break@FirstLoop
-                            } else {
-                                0
-                            }
-                        }
-                    } else {
-                        x = 0
                     }
                 }
-                if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
-                    return@withLock null
-                }
-                Request_size = buf.readInt()
-                if (Request_size > MAX_REQUEST_SIZE_B) {
-                    throw exc_error_on_read_request("Request size is to big: ${Request_size.toString()}")
-                }
-
-                if (buf.remaining < Request_size + 8) {
-                    return@withLock null
-                }
-
-                b = ByteReadPacket(returnConnAddress().readBytes().plus(buf!!.readBytes(Request_size)))
-
-                if (buf.readLong() != 7085774586302733229L) {
-                    throw exc_error_on_read_request("Final code is wrong!")
-                } else {
-                    return@withLock b
-                }
-            } else return null
-        } catch (io: IOException) {
-            this.close()
-        } catch (e: Exception) {
-            b?.close()
-            WriteExceptionIntoFile(e, "Connection.DecodeRequest")
-        } finally {
-            if (buf != null && buf!!.isNotEmpty) {
-                globalBuf = buf!!.readBytes()
-
-            } else globalBuf = null
+            }
         }
-        return b
     }
 
-
-    fun isConnected(): Boolean {
+    private fun isConnected(): Boolean {
         if (MyWebSocketChannel == null) {
             return false
         } else {
@@ -382,12 +220,6 @@ class Connection(
         }
     }
 
-    @ExperimentalTime
-    suspend fun skip(timeOut: Long): Long {
-        return QUEUE_OF_RAW_MESSEGES.dequeue(timeOut)?.size?.toLong() ?: 0L
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("close")
     fun close() {
@@ -400,5 +232,180 @@ class Connection(
             }
         }
     }
-
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+private class DecoderRequest() {
+
+    suspend fun decode(buffer: ByteArray) {
+        try {
+            try {
+
+                val buf: ByteReadPacket = ByteReadPacket(buffer)
+                var Request_size: Int
+                var x = 0
+                var b: ByteReadPacket?
+
+
+                if (!buf.isEmpty) {
+                    if (buf.remaining < MIN_SIZE_OF_REQUEST) {
+                        return
+                    }
+                    FirstLoop@
+                    while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
+                        if (buf.readByte() == 0.toByte()) {
+                            x++
+                            if (x == COUNT_OF_0_BYTES) {
+                                x = if (buf.readLong() == 9223372036854775807L) {
+                                    break@FirstLoop
+                                } else {
+                                    0
+                                }
+                            }
+                        } else {
+                            x = 0
+                        }
+                    }
+                    if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
+                        return
+                    }
+                    Request_size = buf.readInt()
+                    if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "DecoderRequest",
+                            l_function_name = "decode",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                        )
+                    }
+
+                    if (buf.remaining < Request_size + 8) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "DecoderRequest",
+                            l_function_name = "decode",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                        )
+                    }
+
+                    b = ByteReadPacket(Connection.addressByteArray!!.plus(buf.readBytes(Request_size)))
+
+                    if (buf.readLong() != 7085774586302733229L) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "DecoderRequest",
+                            l_function_name = "decode",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "Final code is wrong!"
+                        )
+                    } else {
+                        var jsocketRet: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+                        if (jsocketRet == null) {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("CLIENT_JSOCKET_POOL is emprty")
+                            }
+                            jsocketRet = Jsocket()
+                        }
+                        var jsocket: Jsocket?
+                        jsocketRet.deserialize(b, myConnectionsCoocki.value, true, newConnectionCoocki.value)
+                        if (jsocketRet.just_do_it != 0) {
+                            jsocket = BetweenJSOCKETs.remove(jsocketRet.just_do_it_label)
+
+                            if (jsocket != null) {
+                                when (jsocketRet.just_do_it) {
+                                    1011000058 -> {
+                                        jsocket.send_request()
+                                    }
+                                    1011000069 -> {
+                                        myConnectionsID.setNewValue(0L)
+                                        myConnectionsCoocki.setNewValue(0L)
+                                        Sqlite_service.ClearRegData()
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "DecoderRequest",
+                                            l_function_name = "decode",
+                                            name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
+                                        )
+                                    }
+
+
+                                    else -> {
+                                        jsocket.merge(jsocketRet)
+                                        jsocket.condition.cSignal()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Connection",
+                    l_function_name = "DecoderRequest",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = e.message
+                )
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        } finally {
+            DECODER_REQUEST_POOL.addLast(this)
+        }
+    }
+
+    companion object {
+
+        private var countOfCleaner = 0
+        private var CurentTime = DateTime.nowUnixLong()
+        private var NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+        private var LastTimeCleanOutJSOCKETs = nowNano()
+
+        private val Cleaner = KorosTimerTask.start(
+            delay = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES,
+            repeat = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+        ) { removeOldAll()
+          }
+
+        fun removeOldAll() {
+            try {
+                try {
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        println("Start Connection.removeOldAll()")
+                    }
+                    CurentTime = DateTime.nowUnixLong()
+                    if (CurentTime > NextTimeCleanOUT_JSOCKETs) {
+                        NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+
+                        countOfCleaner = 0
+                        BetweenJSOCKETs.filterKeys { k -> k < LastTimeCleanOutJSOCKETs }.forEach {
+                            countOfCleaner++
+                            it.value.condition.cSignal()
+                            BetweenJSOCKETs.remove(it.key)
+                        }
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            if (countOfCleaner > 0) {
+                                println("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
+                            }
+                        }
+
+                        LastTimeCleanOutJSOCKETs = nowNano()
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Connection",
+                        l_function_name = "removeOldAll",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }finally {
+                CoroutineScope(NonCancellable).launch {GC.collect()}
+            }
+        }
+    }
