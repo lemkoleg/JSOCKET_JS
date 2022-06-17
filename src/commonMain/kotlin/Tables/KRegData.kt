@@ -101,7 +101,7 @@ var LANG = AtomicString("")
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var AVATAR_ID: = AtomicString("")
+var AVATAR_ID = AtomicString("")
 
 @KorioExperimentalApi
 @ExperimentalTime

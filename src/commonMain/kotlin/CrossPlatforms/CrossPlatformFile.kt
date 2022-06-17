@@ -44,8 +44,10 @@ expect class CrossPlatformFile(fullName: String = "", mode : Int = 0) {
     @JsName("renameTo")
     suspend fun renameTo(path: String): Boolean
 
+    @JsName("getFileName")
     fun getFileName(): String
 
+    @JsName("getFileExtension")
     fun getFileExtension(): String
 
 }
