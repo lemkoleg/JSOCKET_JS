@@ -25,11 +25,12 @@ import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
-import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.stream.asVfsFile
 import com.soywiz.korio.stream.openAsync
 import io.ktor.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
@@ -62,6 +63,8 @@ class FileService(jsocket: Jsocket? = null) {
     private val IsInterrupted = AtomicInt(0)
 
     val condition: MyCondition = MyCondition()
+
+    var avatar: ByteArray? = null
 
 
     var file: CrossPlatformFile? = null
@@ -97,7 +100,7 @@ class FileService(jsocket: Jsocket? = null) {
             }
         } else {
             if (command.equals(1011000056)) { // take_a_new_file();
-                if (SELF_Jsocket!!.value_par8.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
+                if (SELF_Jsocket!!.FileFullPathForSend.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
                     throw my_user_exceptions_class(
                         l_class_name = "FileService",
                         l_function_name = "constructor",
@@ -105,7 +108,7 @@ class FileService(jsocket: Jsocket? = null) {
                     )
                 } else {
                     if (file == null) {
-                        file = CrossPlatformFile(SELF_Jsocket.value_par8)
+                        file = CrossPlatformFile(SELF_Jsocket.FileFullPathForSend)
                     }
                     file!!.getFileName()
                 }
@@ -127,7 +130,7 @@ class FileService(jsocket: Jsocket? = null) {
             }
         } else {
             if (command.equals(1011000056)) { // take_a_new_file();
-                if (SELF_Jsocket!!.value_par8.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
+                if (SELF_Jsocket!!.FileFullPathForSend.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
                     throw my_user_exceptions_class(
                         l_class_name = "FileService",
                         l_function_name = "constructor",
@@ -135,7 +138,7 @@ class FileService(jsocket: Jsocket? = null) {
                     )
                 } else {
                     if (file == null) {
-                        file = CrossPlatformFile(SELF_Jsocket.value_par8)
+                        file = CrossPlatformFile(SELF_Jsocket.FileFullPathForSend)
                     }
                     file!!.getFileExtension().lowercase()
                 }
@@ -164,7 +167,7 @@ class FileService(jsocket: Jsocket? = null) {
         ""
     } else {
         if (command.equals(1011000056)) { // take_a_new_file();
-            SELF_Jsocket.value_par8.ifEmpty {
+            SELF_Jsocket.FileFullPathForSend.ifEmpty {
                 throw my_user_exceptions_class(
                     l_class_name = "FileService",
                     l_function_name = "constructor",
@@ -274,6 +277,8 @@ class FileService(jsocket: Jsocket? = null) {
     @JsName("open_file_channel")
     suspend fun open_file_channel(): Promise<Boolean>? {
 
+        SELF_Jsocket!!.FileFullPathForSend = ""
+
         if (file == null) {
             file = CrossPlatformFile(fIleFullName)
         }
@@ -282,11 +287,12 @@ class FileService(jsocket: Jsocket? = null) {
 
             if (!IsDownloaded) {
 
-                if (KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(SELF_Jsocket!!.value_id3)) {
+                if (KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(SELF_Jsocket.value_id3)) {
                     save_media!!.SET_BIG_AVATAR(
-                        KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(L_AVATAR_ID = SELF_Jsocket.value_id3).await()
+                        KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(P_AVATAR_ID = SELF_Jsocket.value_id3).await()
                             ?.getAVATAR(), SELF_Jsocket.value_id3
                     )
+                    avatar = save_media.getBIG_AVATAR()
                 }
                 if (save_media!!.getBIG_AVATAR() == null) {
                     SELF_Jsocket.value_par1 = if (SELF_Jsocket.value_par6.equals("NO_ORIGINAL")) "2" else "1"
@@ -307,7 +313,16 @@ class FileService(jsocket: Jsocket? = null) {
                 NotSendedChunks = Chunks!!.size
 
                 if (SELF_Jsocket.value_par2.equals("A")) {
-                    save_media.SET_BIG_AVATAR(SELF_Jsocket.content, SELF_Jsocket.value_id3)
+                    if (SELF_Jsocket.content != null) {
+                        save_media.SET_BIG_AVATAR(SELF_Jsocket.content, SELF_Jsocket.value_id3)
+                        avatar = SELF_Jsocket.content
+                        KBigAvatar.ADD_NEW_BIG_AVATAR(
+                            KBigAvatar(
+                                L_AVATAR_ID = SELF_Jsocket.value_id3,
+                                L_AVATAR = SELF_Jsocket.content!!,
+                            )
+                        )
+                    }
                 } else if (SELF_Jsocket.value_par2.equals("0") && SELF_Jsocket.content != null) {
                     if (Chunks!!.size == 1) {
                         if (SELF_Jsocket.content!!.size != EndFIleBytes.toInt()) {
@@ -330,7 +345,7 @@ class FileService(jsocket: Jsocket? = null) {
 
         } else if (command.equals(1011000056)) { // take_a_new_file();
             ExpectedFIleSize = file!!.size()
-            SELF_Jsocket!!.send_request()
+            SELF_Jsocket.send_request()
             ServerFileName = SELF_Jsocket.value_par4
             CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
             return send_file()
@@ -527,7 +542,7 @@ class FileService(jsocket: Jsocket? = null) {
                         }
                     }
                 }
-           }
+            }
         } finally {
             IsDownloaded = this@FileService.FinishDownloadedFile()
         }
@@ -535,11 +550,13 @@ class FileService(jsocket: Jsocket? = null) {
     }.toPromise(EmptyCoroutineContext)
 
     @JsName("get_file_chunk")
-    suspend fun get_file_chunk(offset: Long,
-                                startLoading: (() -> Any?)? = null,
-                                finishLoading: ((v: Any?) -> Any?)? = null): ByteArray {
+    suspend fun get_file_chunk(
+        offset: Long,
+        startLoading: (() -> Any?)? = null,
+        finishLoading: ((v: Any?) -> Any?)? = null
+    ): ByteArray {
 
-        if(IsInterrupted.get() == 1 && !IsDownloaded){
+        if (IsInterrupted.get() == 1 && !IsDownloaded) {
             throw my_user_exceptions_class(
                 l_class_name = "FileService",
                 l_function_name = "receive_file",
@@ -557,15 +574,15 @@ class FileService(jsocket: Jsocket? = null) {
                 }
                 val chunk_size: Int = (offset / CURRENT_CHUNK_SIZE).toInt()
 
-                val is_download: Boolean = FileServiceLock.withLock {Chunks!![chunk_size] == 1}
-                if(is_download){
-                    b =  file!!.read(offset, CURRENT_CHUNK_SIZE)
-                }else{
+                val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
+                if (is_download) {
+                    b = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                } else {
 
-                    FileServiceLock.withLock {CurrentChunkReceiveFile.set(chunk_size)}
+                    FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
 
                     if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                        b =  file!!.read(offset, CURRENT_CHUNK_SIZE)
+                        b = file!!.read(offset, CURRENT_CHUNK_SIZE)
                     } else {
                         throw my_user_exceptions_class(
                             l_class_name = "FileService",
@@ -576,10 +593,10 @@ class FileService(jsocket: Jsocket? = null) {
                     }
                 }
             }
-        }catch (e: my_user_exceptions_class){
+        } catch (e: my_user_exceptions_class) {
             e.ExceptionHand(null)
-        }finally {
-            if( finishLoading != null){
+        } finally {
+            if (finishLoading != null) {
                 finishLoading(b)
             }
             return b
@@ -588,14 +605,14 @@ class FileService(jsocket: Jsocket? = null) {
 
     /////////////////////////////////////////////////////////////////////////////////////
     @JsName("SaveDownloadedFile")
-    suspend fun FinishDownloadedFile():Boolean {
-        if (IsDownloaded) {
-            if(file!!.renameTo(save_media!!.ReturnDownloadedFullFileName())){
-                return KSaveMedia.AddNewSaveMedia(save_media)
-            } else return false
-        }else{
+    suspend fun FinishDownloadedFile(): Boolean {
+        return if (IsDownloaded) {
+            if (file!!.renameTo(save_media!!.ReturnDownloadedFullFileName())) {
+                KSaveMedia.AddNewSaveMedia(save_media)
+            } else false
+        } else {
             file!!.delete()
-            return false
+            false
         }
     }
 
@@ -609,10 +626,10 @@ class FileService(jsocket: Jsocket? = null) {
 
         if (Chunks!![current_chank] == 0) {
             return current_chank
-        }else {
+        } else {
             for (x in 0..Chunks!!.size) {
                 current_chank++
-                if(current_chank >= Chunks!!.size){
+                if (current_chank >= Chunks!!.size) {
                     current_chank = 0
                 }
                 if (Chunks!![current_chank] == 0) return current_chank
@@ -630,8 +647,7 @@ class FileService(jsocket: Jsocket? = null) {
     @JsName("getImmageAvatarFromFileName")
 
     suspend fun getImmageAvatarFromFileName(lFullFileName: String): ByteArray? {
-        val fileName = resourcesVfs[lFullFileName]
-        fileName.readAsSyncStream()
+        val fileName = CrossPlatformFile(lFullFileName)
         if (!fileName.exists() || fileName.isDirectory()) {
             throw my_user_exceptions_class(
                 l_class_name = "FileService",

@@ -72,7 +72,7 @@ class KBigAvatar {
 
     constructor(
         L_AVATAR_ID: String,
-        L_LAST_USE: Long,
+        L_LAST_USE: Long = DateTime.nowUnixLong(),
         L_AVATAR: ByteArray
     ) {
         AVATAR_ID = L_AVATAR_ID
@@ -120,6 +120,36 @@ class KBigAvatar {
         private val KBigAvatar_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
 
 
+        @KorioExperimentalApi
+        @JsName("ADD_NEW_BIG_AVATAR")
+        fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar):Promise<Boolean>  =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeout(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        try {
+                            KBigAvatarLock.lock()
+                                if (!BIG_AVATARS_IDS.containsKey(avatar.AVATAR_ID)) {
+                                    Sqlite_service.InsertBigAvatar(avatar)
+                                    BIG_AVATARS_IDS[avatar.AVATAR_ID] = avatar.AVATAR_ID
+                                }
+                            return@withTimeout true
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KBigAvatar",
+                                l_function_name = "ADD_NEW_BIG_AVATAR",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            KBigAvatarLock.unlock()
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
+                    }
+                    return@withTimeout false
+                }
+            }.toPromise(EmptyCoroutineContext)
+
 
         @KorioExperimentalApi
         @JsName("ADD_NEW_BIG_AVATARS")
@@ -161,14 +191,15 @@ class KBigAvatar {
         @KorioExperimentalApi
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
-            L_OBJECT_ID: String? = null,
-            L_AVATAR_ID: String,
-            L_CHATS_ID: String? = null,
-            L_FROM_SELECT: String = "1",   // (none, server, DB)
-            L_MESS_COUNT: String? = null,
-            L_AVATARS_LINK: String? = null,
-            L_AVATARS_SERVER: String? = null
+            jsocket: Jsocket? = null,
+            P_AVATAR_ID: String? = null
         ): Promise<KBigAvatar?> = KBigAvatar_serviceScope.async {
+
+            if(jsocket == null && P_AVATAR_ID == null){
+                return@async null
+            }
+
+            val L_AVATAR_ID = P_AVATAR_ID?:jsocket!!.value_id3
 
             var kBigAvatar: KBigAvatar? = null
 
@@ -199,23 +230,7 @@ class KBigAvatar {
                     e.ExceptionHand(null)
                 }
             }
-            if (kBigAvatar == null && L_AVATARS_LINK != null && L_AVATARS_SERVER != null) {
-                var jsocket: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
-                if(jsocket == null){
-                    jsocket =  Jsocket()
-                    Jsocket.fill()
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("CLIENT_JSOCKET_POOL is emprty")
-                    }
-                }
-                jsocket.value_id1 = L_OBJECT_ID ?: ""
-                jsocket.value_id3 = L_AVATAR_ID
-                jsocket.value_id4 = L_CHATS_ID ?: ""
-                jsocket.value_par2 = L_FROM_SELECT
-                jsocket.value_par3 = L_MESS_COUNT ?: ""
-                jsocket.value_par5 = L_AVATARS_LINK
-                jsocket.value_par6 = L_AVATARS_SERVER
-                jsocket.just_do_it = 1011000028
+            if (kBigAvatar == null && jsocket != null) {
                 jsocket.execute().await()
                 if (jsocket.content != null && jsocket.content!!.size > 0) {
                     kBigAvatar = KBigAvatar(jsocket)

@@ -16,120 +16,44 @@ import kotlin.js.JsName
 @JsName("PictureSet")
 val PictureSet: List<String> by lazy {
     listOf(
-        //"asf",
         "bmp",
-        //"cdw",
-        //"cr2",
-        //"cs",
-        //"cur",
-        //"dm",
-        //"drv",
         "jpg",
         "jpeg",
-        //"gif",
-        //"icns",
-        //"ico",
-        //"max",
-        //"mds",
-        //"mng",
-        "msv",
-        //"odt",
-        //"ogg",
-        //"pct",
-        //"pict",
-        "png"
-        //"pps",
-        //"prf",
-        //"tex",
-        //"tif",
-        //"ttf",
-        //"xps"
+        "webp",
+        "png",
+        "tif"
     ).sorted()
 }
 
 @JsName("VideoSet")
 val VideoSet: List<String> by lazy {
     listOf(
-        "3g2",
-        "3gp",
-        "3gp2",
-        "3gpp",
-        "asx",
-        "avi",
-        "dat",
-        "f4v",
-        "flv",
-        "gtp",
-        "h264",
-        "m4v",
-        "mkv",
-        "mod",
-        "moov",
-        "mov",
         "mp4",
         "mpeg",
-        "mpg",
-        "rm",
-        "rmvb",
-        "spl",
-        "stl",
-        "swf",
-        "ts",
-        "vcd",
-        "vid",
-        "vob",
+        "mov",
         "webm",
-        "wm",
-        "wmv",
-        "yuv"
+        "3gp"
     ).sorted()
 }
 
 @JsName("MusicSet")
 val MusicSet: List<String> by lazy {
     listOf(
-        "aac",
-        "ac3",
-        "aif",
-        "aiff",
-        "amr",
-        "aob",
-        "ape",
-        "awb",
-        "bwg",
-        "cdr",
-        "flac",
-        "gpx",
-        "ics",
-        "iff",
-        "m3u",
-        "m3u8",
-        "m4a",
-        "m4b",
-        "m4p",
-        "m4r",
-        "mid",
-        "midi",
-        "mp3",
-        "mpa",
-        "mpp",
-        "msc",
-        "mts",
-        "nkc",
-        "ps",
-        "ra",
-        "ram",
-        "sdf",
-        "sib",
-        "sln",
-        "srt",
-        "temp",
-        "vb",
-        "wav",
-        "wave",
-        "wma",
-        "wpd",
-        "xsb",
-        "xwb"
+        "mp3"
         ).sorted()
+}
+
+@JsName("GifSet")
+val GifSet: List<String> by lazy {
+    listOf(
+        "gif"
+    ).sorted()
+}
+
+@JsName("VoiceSet")
+val VoiceSet: List<String> by lazy {
+    listOf(
+        "m4a",
+        "opus"
+    ).sorted()
 }

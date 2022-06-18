@@ -160,6 +160,56 @@ fun init(): Boolean {
         )
     )
 
+    USERS_EXCEPTIONS["EXC_EMPTY_ACC_MAIL_INSERT"] = KExceptions(
+        KExceptions.KException(
+            "EXC_EMPTY_ACC_MAIL_INSERT",
+            "ENG",
+            "Mail canot be is empty.",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_EMPTY_ACC_PASS_INSERT"] = KExceptions(
+        KExceptions.KException(
+            "EXC_EMPTY_ACC_PASS_INSERT",
+            "ENG",
+            "Password canot be is empty.",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_OBJECTS_EXTENSION_NOT_VALID"] = KExceptions(
+        KExceptions.KException(
+            "EXC_OBJECTS_EXTENSION_NOT_VALID",
+            "ENG",
+            "Invalid file extension.",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_WRSOCKETTYPE_COMMAND_NOT_ALLOWED"] = KExceptions(
+        KExceptions.KException(
+            "EXC_WRSOCKETTYPE_COMMAND_NOT_ALLOWED",
+            "ENG",
+            "Command not allowed.",
+            "4",
+            0
+        )
+    )
+
+    USERS_EXCEPTIONS["EXC_ERROR_SEND_FILE"] = KExceptions(
+        KExceptions.KException(
+            "EXC_ERROR_SEND_FILE",
+            "ENG",
+            "Failed to send file. Please try again.",
+            "4",
+            0
+        )
+    )
+
     return true
 }
 

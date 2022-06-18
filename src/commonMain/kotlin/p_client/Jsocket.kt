@@ -68,6 +68,9 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
     @JsName("clientExecutor")
     private var clientExecutor: ClientExecutor = ClientExecutor()
 
+    var FileFullPathForSend: String = ""
+    var AvatarFullPathForSend: String = ""
+
     val getLocalsValues = GetLocalsValues()
 
     constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : super(){
