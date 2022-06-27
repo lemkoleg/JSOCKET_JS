@@ -132,6 +132,7 @@ private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
  *
  * @author Oleg
  */
+@Suppress("SetterBackingFieldAssignment")
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
@@ -139,6 +140,9 @@ private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 class ANSWER_TYPE() {
 
     var SELF_Jsockt: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+
+    @JsName("answerTypeValues")
+    val answerTypeValues = AnswerTypeValues(this)
 
     init {
         if(SELF_Jsockt == null){
@@ -466,6 +470,13 @@ class ANSWER_TYPE() {
 
     @JsName("STRING_20")
     var STRING_20: String? = ""
+    set(v){
+        val v2 = v?:""
+        if(!v2.equals(field)){
+            field = v2
+            answerTypeValues.INIT_STRING20()
+        }
+    }
 
     @JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
@@ -479,8 +490,8 @@ class ANSWER_TYPE() {
     @JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
 
-    @JsName("OBJECTS_ID")
-    var OBJECTS_ID: String = ""
+    @JsName("RECORD_ID")
+    var RECORD_ID: String = ""
 
     @JsName("CASH_SUM")
     var CASH_SUM: Long = 0
@@ -495,9 +506,11 @@ class ANSWER_TYPE() {
     var IS_UPDATED_BY_MERGE: Boolean = false
 
 
+
+
     @InternalAPI
     constructor(
-        lOBJECTS_ID: String,
+        lRECORD_ID: String,
         lCASH_SUM: Long,
         lNUMBER_POSITION: Int?,
         lLAST_UPDATE: Long,
@@ -685,15 +698,14 @@ class ANSWER_TYPE() {
         STRING_17 = lSTRING_17?.trim() ?: ""
         STRING_18 = lSTRING_18?.trim() ?: ""
         STRING_19 = lSTRING_19?.trim() ?: ""
-        STRING_20 = lSTRING_20?.trim() ?: ""
         BLOB_1 = lBLOB_1
         BLOB_2 = lBLOB_2
         BLOB_3 = lBLOB_3
-        OBJECTS_ID = lOBJECTS_ID
+        RECORD_ID = lRECORD_ID
         CASH_SUM = lCASH_SUM
         NUMBER_POSITION = lNUMBER_POSITION ?: INTEGER_20 ?: 1
         LAST_UPDATE = lLAST_UPDATE
-        setRECORD_TYPE()
+        STRING_20 = lSTRING_20?.trim() ?: ""
 
     }
 
@@ -777,16 +789,14 @@ class ANSWER_TYPE() {
         STRING_17 = MyANSWER_TYPE.STRING_17?.trim() ?: ""
         STRING_18 = MyANSWER_TYPE.STRING_18?.trim() ?: ""
         STRING_19 = MyANSWER_TYPE.STRING_19?.trim() ?: ""
-        STRING_20 = MyANSWER_TYPE.STRING_20?.trim() ?: ""
         BLOB_1 = MyANSWER_TYPE.BLOB_1
         BLOB_2 = MyANSWER_TYPE.BLOB_2
         BLOB_3 = MyANSWER_TYPE.BLOB_3
-        OBJECTS_ID = MyANSWER_TYPE.OBJECTS_ID
+        RECORD_ID = MyANSWER_TYPE.RECORD_ID
         CASH_SUM = MyANSWER_TYPE.CASH_SUM
         NUMBER_POSITION = MyANSWER_TYPE.NUMBER_POSITION
         LAST_UPDATE = MyANSWER_TYPE.LAST_UPDATE
-
-        setRECORD_TYPE()
+        STRING_20 = MyANSWER_TYPE.STRING_20?.trim() ?: ""
 
     }
 
@@ -1154,283 +1164,22 @@ class ANSWER_TYPE() {
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (getIS_UPDATE_BLOB() == "1") {
+        if (answerTypeValues.getIS_UPDATE_BLOB() == "1") {
             this.IDENTIFICATOR_2 = v.IDENTIFICATOR_2
             this.BLOB_1 = v.BLOB_1
             this.BLOB_2 = v.BLOB_2
             this.BLOB_3 = v.BLOB_3
-            setAVATAR_LINK(v.getAVATAR_LINK())
-            setAVATAR_SERVER(v.getAVATAR_SERVER())
-            setORIGINAL_AVATAR_SIZE(v.getORIGINAL_AVATAR_SIZE())
+            this.STRING_17 = v.answerTypeValues.GetAvatarServer()
+            this.STRING_18 = v.answerTypeValues.GetAvatarLink()
+            this.INTEGER_19 = v.answerTypeValues.GetAvatarOriginalSize()
             IS_UPDATED_BY_MERGE = true
         }
 
-        if (getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())) {
+        if (answerTypeValues.getIS_UPDATE_SUBSCRIBE() == "1" || (v.STRING_14 != null && v.STRING_14!!.isNotEmpty())) {
             this.STRING_14 = v.STRING_14
             IS_UPDATED_BY_MERGE = true
         }
 
-        setRECORD_TYPE()
-    }
-
-
-    @JsName("getACCOUNT_ID")
-    fun getACCOUNT_ID(): String {
-        return IDENTIFICATOR_1 ?: ""
-    }
-
-    @JsName("setACCOUNT_ID")
-    fun setACCOUNT_ID(v: String) {
-        IDENTIFICATOR_1 = v
-    }
-
-    @JsName("getACCOUNT_AVATAR_ID")
-    fun getACCOUNT_AVATAR_ID(): String {
-        return IDENTIFICATOR_2 ?: ""
-    }
-
-    @JsName("setACCOUNT_AVATAR_ID")
-    fun setACCOUNT_AVATAR_ID(v: String?) {
-        IDENTIFICATOR_2 = v ?: ""
-    }
-
-    @JsName("getOBJECT_ID")
-    fun getOBJECT_ID(): String {
-        return this.IDENTIFICATOR_5 ?: ""
-    }
-
-    @JsName("setOBJECT_ID")
-    fun setOBJECT_ID(v: String?) {
-        this.IDENTIFICATOR_5 = v ?: ""
-    }
-
-    @JsName("getOBJECT_AVATAR_ID")
-    fun getOBJECT_AVATAR_ID(): String {
-        return IDENTIFICATOR_6 ?: ""
-    }
-
-    @JsName("setOBJECT_AVATAR_ID")
-    fun setOBJECT_AVATARID(v: String?) {
-        IDENTIFICATOR_6 = v?.trim() ?: ""
-    }
-
-    @JsName("getOBJECT_OWNER")
-    fun getOBJECT_OWNER(): String {
-        return IDENTIFICATOR_7 ?: ""
-    }
-
-    @JsName("setOBJECT_OWNER")
-    fun setOBJECT_OWNER(v: String?) {
-        IDENTIFICATOR_7 = v?.trim() ?: ""
-    }
-
-    @JsName("getOBJECT_SIZE")
-    fun getOBJECT_SIZE(): Int {
-        return this.INTEGER_4 ?: 0
-    }
-
-    @JsName("setOBJECT_SIZE")
-    fun setOBJECT_SIZE(v: Int?) {
-        this.INTEGER_4 = v ?: 0
-    }
-
-    @JsName("getOBJECT_LENGTH_SECONDS")
-    fun getOBJECT_LENGTH_SECONDS(): Int {
-        return this.INTEGER_5 ?: 0
-    }
-
-    @JsName("setOBJECT_LENGTH_SECONDS")
-    fun setOBJECT_LENGTH_SECONDS(v: Int?) {
-        this.INTEGER_5 = v ?: 0
-    }
-
-
-    @JsName("getACCOUNT_NAME")
-    fun getACCOUNT_NAME(): String {
-        return STRING_1 ?: ""
-    }
-
-    @JsName("setACCOUNT_NAME")
-    fun setACCOUNT_NAME(v: String) {
-        STRING_1 = v
-    }
-
-    @JsName("getOBJECT_NAME")
-    fun getOBJECT_NAME(): String {
-        return STRING_5 ?: ""
-    }
-
-    @JsName("setOBJECT_NAME")
-    fun setOBJECT_NAME(v: String) {
-        STRING_5 = v.trim()
-    }
-
-    @JsName("getOBJECT_SERVER")
-    fun getOBJECT_SERVER(): String {
-        return this.STRING_6 ?: ""
-    }
-
-    @JsName("setOBJECT_SERVER")
-    fun setOBJECT_SERVER(v: String?) {
-        this.STRING_6 = v ?: ""
-    }
-
-    @JsName("getOBJECT_PROFILE_STRING")
-    fun getOBJECT_PROFILE_STRING(): String {
-        return STRING_7 ?: ""
-    }
-
-    @JsName("setOBJECT_PROFILE_STRING")
-    fun setOBJECT_PROFILE_STRING(v: String) {
-        STRING_7 = v.trim()
-    }
-
-    @JsName("getOBJECT_LINK")
-    fun getOBJECT_LINK(): String {
-        return STRING_8 ?: ""
-    }
-
-    @JsName("setOBJECT_LINK")
-    fun setOBJECT_LINK(v: String) {
-        STRING_8 = v.trim()
-    }
-
-    @JsName("getOBJECT_EXTENSION")
-    fun getOBJECT_EXTENSION(): String {
-        return this.STRING_9 ?: ""
-    }
-
-    @JsName("setOBJECT_EXTENSION")
-    fun setOBJECT_EXTENSION(v: String?) {
-        this.STRING_9 = v ?: ""
-    }
-
-    @JsName("getSUBSCRIBE")
-    fun getSUBSCRIBE(): String {
-        return this.STRING_14 ?: ""
-    }
-
-    @JsName("setSUBSCRIBE")
-    fun setSUBSCRIBE(v: String?) {
-        this.STRING_14 = v ?: ""
-    }
-
-    @JsName("getAVATAR_TYPE")
-    fun getAVATAR_TYPE(): String {
-        return this.STRING_19 ?: ""
-    }
-
-    @JsName("setAVATAR_TYPE")
-    fun setAVATAR_TYPE(v: String?) {
-        this.STRING_19 = v ?: ""
-    }
-
-    @JsName("getAVATAR_LINK")
-    fun getAVATAR_LINK(): String {
-        return this.STRING_18 ?: ""
-    }
-
-    @JsName("setAVATAR_LINK")
-    fun setAVATAR_LINK(v: String?) {
-        this.STRING_18 = v ?: ""
-    }
-
-    @JsName("getORIGINAL_AVATAR_SIZE")
-    fun getORIGINAL_AVATAR_SIZE(): Int {
-        return this.INTEGER_19 ?: 0
-    }
-
-    @JsName("setORIGINAL_AVATAR_SIZE")
-    fun setORIGINAL_AVATAR_SIZE(v: Int?) {
-        this.INTEGER_19 = v ?: 0
-    }
-
-    @JsName("getAVATAR_SERVER")
-    fun getAVATAR_SERVER(): String {
-        return this.STRING_17 ?: ""
-    }
-
-    @JsName("setAVATAR_SERVER")
-    fun setAVATAR_SERVER(v: String?) {
-        this.STRING_17 = v ?: ""
-    }
-
-    @JsName("getIS_UPDATE_BLOB")
-    fun getIS_UPDATE_BLOB(): String {
-        if (this.STRING_20 == null || this.STRING_20!!.length < 2) {
-            return "0"
-        }
-        return this.STRING_20!!.substring(1, 2)
-    }
-
-    @JsName("getSTRING_20")
-    fun getSTRING_20(): String {
-        return STRING_20 ?: ""
-    }
-
-    @JsName("setSTRING_20")
-    fun setSTRING_20(v: String?) {
-        this.STRING_20 = v ?: ""
-        setRECORD_TYPE()
-    }
-
-    @JsName("getRECORD_TYPE")
-    fun getRECORD_TYPE(): String {
-        return RECORD_TYPE
-    }
-
-    @JsName("setRECORD_TYPE")
-    private fun setRECORD_TYPE() {
-        if (this.STRING_20 == null || this.STRING_20!!.length < 8) {
-            return
-        }
-        RECORD_TYPE = STRING_20!!.substring(7, 8)
-    }
-
-    @JsName("getIS_UPDATE_SUBSCRIBE")
-    fun getIS_UPDATE_SUBSCRIBE(): String {
-        if (this.STRING_20 == null || this.STRING_20!!.length < 3) {
-            return ""
-        }
-        return this.STRING_20!!.substring(2, 3)
-    }
-
-    @JsName("getIS_DELETE_RECORD")
-    fun getIS_DELETE_RECORD(): String {
-        if (this.STRING_20 == null || this.STRING_20!!.length < 7) {
-            return ""
-        }
-        return this.STRING_20!!.substring(6, 7)
-    }
-
-    @JsName("getAVATAR1")
-    fun getAVATAR1(): ByteArray? {
-        return this.BLOB_1
-    }
-
-    @JsName("setAVATAR1")
-    fun setAVATAR1(v: ByteArray?) {
-        this.BLOB_1 = v
-    }
-
-    @JsName("getAVATAR2")
-    fun getAVATAR2(): ByteArray? {
-        return this.BLOB_2
-    }
-
-    @JsName("setAVATAR2")
-    fun setAVATAR2(v: ByteArray?) {
-        this.BLOB_2 = v
-    }
-
-    @JsName("getAVATAR3")
-    fun getAVATAR3(): ByteArray? {
-        return this.BLOB_3
-    }
-
-    @JsName("setAVATAR3")
-    fun setAVATAR3(v: ByteArray?) {
-        this.BLOB_3 = v
     }
 
     @JsName("get_BLOB_1_size")
