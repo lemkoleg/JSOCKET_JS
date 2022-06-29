@@ -31,58 +31,58 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     //////////////////////// common ////////////////////////////////////
 
     @JsName("GetRecordOwnerId")
-    var GetRecordOwnerId: ()->String = { getEMPTY_STRING() }
+    var GetRecordOwnerId: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetSecondAccountId")
-    var GetSecondAccountId: ()->String = { getEMPTY_STRING() }
+    var GetSecondAccountId: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetMainAvatarId")
-    var GetMainAvatarId: ()->String = { getIDENTIFICATOR_2() }
+    var GetMainAvatarId: ()-> String = { getIDENTIFICATOR_2() }
 
     @JsName("GetSecondAvatarId")
-    var GetSecondAvatarId: ()->String = { getIDENTIFICATOR_4() }
+    var GetSecondAvatarId: ()-> String = { getIDENTIFICATOR_4() }
 
     @JsName("GetRecordOwnerName")
-    var GetRecordOwnerName: ()->String = { getSTRING_1() }
+    var GetRecordOwnerName: ()-> String = { getSTRING_1() }
 
     @JsName("GetSecondAccountName")
-    var GetSecondAccountName: ()->String = { getSTRING_4() }
+    var GetSecondAccountName: ()-> String = { getSTRING_4() }
 
     @JsName("GetAvatarServer")
-    var GetAvatarServer: ()->String = { getSTRING_17() }
+    var GetAvatarServer: ()-> String = { getSTRING_17() }
 
     @JsName("GetAvatarLink")
-    var GetAvatarLink: ()->String = { getSTRING_18() }
+    var GetAvatarLink: ()-> String = { getSTRING_18() }
 
     @JsName("GetAvatarType")
-    var GetAvatarType: ()->String = { getSTRING_19() }
+    var GetAvatarType: ()-> String = { getSTRING_19() }
 
     @JsName("GetAvatarOriginalSize")
     var GetAvatarOriginalSize: ()->Int = { getINTEGER_19() }
 
     @JsName("GetObjectId")
-    var GetObjectId: ()->String = { getEMPTY_STRING() }
+    var GetObjectId: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetSubscribe")
-    var GetSubscribe: ()->String = { getSTRING_14() }
+    var GetSubscribe: ()-> String = { getSTRING_14() }
 
     @JsName("GetMainAccountAccess")
-    var GetMainAccountAccess: ()->String = { getSTRING_2() }
+    var GetMainAccountAccess: ()-> String = { getSTRING_2() }
 
     @JsName("GetSecondAccountAccess")
-    var GetSecondAccountAccess: ()->String = { getSTRING_4() }
+    var GetSecondAccountAccess: ()-> String = { getSTRING_4() }
 
     @JsName("GetObjectProfile")
-    var GetObjectProfile: ()->String = { getEMPTY_STRING() }
+    var GetObjectProfile: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectType")
-    var GetObjectType: ()->String = { getEMPTY_STRING() }
+    var GetObjectType: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectAccess")
-    var GetObjectAccess: ()->String = { getEMPTY_STRING() }
+    var GetObjectAccess: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectStatus")
-    var GetObjectStatus: ()->String = { getEMPTY_STRING() }
+    var GetObjectStatus: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectLikes")
     var GetObjectLikes: ()-> Long = { getEMPTY_LONG() }
@@ -94,16 +94,16 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetObjectComments: ()-> Long = { getEMPTY_LONG() }
 
     @JsName("GetLinkProfile")
-    var GetLinkProfile: ()->String = { getEMPTY_STRING() }
+    var GetLinkProfile: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetLinkType")
-    var GetLinkType: ()->String = { getEMPTY_STRING() }
+    var GetLinkType: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetLinkAccess")
-    var GetLinkAccess: ()->String = { getEMPTY_STRING() }
+    var GetLinkAccess: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetLinkStatus")
-    var GetLinkStatus: ()->String = { getEMPTY_STRING() }
+    var GetLinkStatus: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetLinkLikes")
     var GetLinkLikes: ()-> Long = { getEMPTY_LONG() }
@@ -117,16 +117,25 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetAddingDate")
     var GetAddingDate: ()-> Long = { getEMPTY_LONG() }
 
+    @JsName("GetDateDelete")
+    var GetDateDelete: ()-> Long = { getEMPTY_LONG() }
+
     @JsName("GetLinkAddingDate")
     var GetLinkAddingDate: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetObjectLastUpdate")
+    var GetRecordLastUpdate: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetLinkLastUpdate")
+    var GetLinkLastUpdate: ()-> Long = { getEMPTY_LONG() }
 
     //////////////////// albums /////////////////////////////
 
     @JsName("GetAlbumId")
-    var GetAlbumId: ()->String = { getEMPTY_STRING() }
+    var GetAlbumId: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetAlbumName")
-    var GetAlbumName: ()->String = { getEMPTY_STRING() }
+    var GetAlbumName: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetAlbumsSubscibeStartText")
     var GetAlbumsDescribeStartText: ()-> String = { getEMPTY_STRING() }
@@ -155,10 +164,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetAnswerCommentId: ()-> Long  = { getEMPTY_LONG() }
 
     @JsName("GetCommentsStartText")
-    var GetCommentsStartText: ()->String = { getEMPTY_STRING() }
+    var GetCommentsStartText: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetCommentsHaveFullText")
-    var GetCommentsHaveFullText: ()->String = { getEMPTY_STRING() }
+    var GetCommentsHaveFullText: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetCommentsCountsAnswers")
     var GetCommentsCountsAnswers: ()->Int = { getEMPTY_INTEGER() }
@@ -172,21 +181,30 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetLengthSeconds: ()-> Int = { getEMPTY_INTEGER() }
 
     @JsName("GetObjectName")
-    var GetObjectName: ()->String = { getEMPTY_STRING() }
+    var GetObjectName: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectServer")
-    var GetObjectServer: ()->String = { getEMPTY_STRING() }
+    var GetObjectServer: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectLink")
-    var GetObjectLink: ()->String = { getEMPTY_STRING() }
+    var GetObjectLink: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetObjectExtension")
-    var GetObjectExtension: ()->String = { getEMPTY_STRING() }
+    var GetObjectExtension: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetObjectListens")
+    var GetObjectListens: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetObjectDescriptors")
+    var GetObjectDescriptors: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetObjectListensPeriod")
+    var GetObjectListensPeriod: ()-> Int = { getEMPTY_INTEGER() }
 
     /////////////////////// links ///////////////////////////
 
     @JsName("GetLinkOwner")
-    var GetLinkOwner: ()->String = { getEMPTY_STRING() }
+    var GetLinkOwner: ()-> String = { getEMPTY_STRING() }
 
     @JsName("GetAlbumsLinkCountOfNewContent")
     var GetAlbumsLinkCountOfNewContent: ()-> Int = { getEMPTY_INTEGER() }
@@ -196,11 +214,92 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetMessegeId")
     var GetMessegeId: ()-> Long = { getEMPTY_LONG() }
 
+    @JsName("GetChatsCostTypeId")
+    var GetChatsCostTypeId: ()-> Int = { getEMPTY_INTEGER() }
+
+    @JsName("GetMessegeStartText")
+    var GetMessegeStartText: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeType")
+    var GetMessegeType: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeAccess")
+    var GetMessegeAccess: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeStatus")
+    var GetMessegeStatus: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeHaveFullText")
+    var GetMessegeHaveFullText: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeHaveAnswer")
+    var GetMessegeHaveAnswer: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegeObjectType")
+    var GetMessegeObjectType: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetMessegePeriodFor")
+    var GetMessegePeriodFor: ()-> Long = { getEMPTY_LONG() }
+
     @JsName("GetAnswerMessegeId")
     var GetAnswerMessegeId: ()-> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsCostTypeId")
-    var GetChatsCostTypeId: ()-> Int = { getEMPTY_INTEGER() }
+    @JsName("GetMessegeCost")
+    var GetMessegeCost: ()-> Int = { getEMPTY_INTEGER() }
+
+    ///////////////////// chats //////////////////////////
+
+    @JsName("GetChatsMessegeCount")
+    var GetChatsMessegeCount: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsDateClosed")
+    var GetChatsDateClosed: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLastMessegeAdding")
+    var GetChatsLastMessegeAdding: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsCountOfMembers")
+    var GetChatsCountOfMembers: ()-> Int = { getEMPTY_INTEGER() }
+
+    @JsName("GetChatsBalance")
+    var GetChatsBalance: ()-> Int = { getEMPTY_INTEGER() }
+
+    ///////////////////// chats likes //////////////////////////
+
+    @JsName("GetChatsLikesRelations")
+    var GetChatsLikesRelations: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetChatsLikesLastConnect")
+    var GetChatsLikesLastConnect: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesFirstMessegeCount")
+    var GetChatsLikesFirstMessegeCount: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesLastMessegeCount")
+    var GetChatsLikesLastMessegeCount: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesLastDateDilivered")
+    var GetChatsLikesLastDateDilivered: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesLastReadedMessegeId")
+    var GetChatsLikesLastReadedMessegeId: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesLastMessegeAdding")
+    var GetChatsLikesLastMessegeAdding: ()-> Long = { getEMPTY_LONG() }
+
+    @JsName("GetChatsLikesBalance")
+    var GetChatsLikesBalance: ()-> Int = { getEMPTY_INTEGER() }
+
+    ////////////////////////// chats_cost_types ////////////////////
+
+    @JsName("GetChatsCostTypesStartText")
+    var GetChatsCostTypesStartText: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetChatsCostTypesHaveFullText")
+    var GetChatsCostTypesHaveFullText: ()-> String = { getEMPTY_STRING() }
+
+    @JsName("GetChatsCostTypesHaveMesseges")
+    var GetChatsCostTypesHaveMesseges: ()-> String = { getEMPTY_STRING() }
 
 
 
@@ -224,12 +323,38 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
                 GetObjectId = { getIDENTIFICATOR_5() }
                 GetAddingDate = { getLONG_4() }
+                GetObjectProfile = { getSTRING_7().substring(0, 5) }
+                GetObjectType = { getSTRING_7().substring(5, 6) }
+                GetObjectAccess = { getSTRING_7().substring(6, 7) }
+                GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                GetAddingDate = { getLONG_4() }
+                GetChatsMessegeCount = { getLONG_5() }
+                GetChatsDateClosed = { getLONG_6() }
+                GetRecordLastUpdate = { getLONG_7() }
+                GetChatsLastMessegeAdding = { getLONG_8() }
+                GetChatsCountOfMembers = { getINTEGER_5() }
+                GetChatsBalance = { getINTEGER_6() }
             }
             "4" //MESSEGES
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_12() }
                 GetSecondAccountId = { getIDENTIFICATOR_13() }
-                when(getMESS_OBJECT_TYPE()){
+                GetMessegeId = { getLONG_12()}
+                GetAddingDate = { getLONG_11() }
+                GetMessegeStartText = { getSTRING_11() }
+                GetMessegeType = { getSTRING_12().substring( 0, 1) }
+                GetMessegeAccess = { getSTRING_12().substring( 1, 2) }
+                GetMessegeStatus = { getSTRING_12().substring( 2, 3) }
+                GetMessegeHaveFullText = { getSTRING_12().substring( 3, 4) }
+                GetMessegeHaveAnswer = { getSTRING_12().substring( 4, 5) }
+                GetMessegeObjectType = { getSTRING_12().substring( 5, 6) }
+                GetMessegePeriodFor = { getLONG_13() }
+                GetAnswerMessegeId = { getLONG_14() }
+                GetRecordLastUpdate = { getLONG_14() }
+                GetMessegeCost = { getINTEGER_11() }
+                GetChatsCostTypeId = { getINTEGER_12() }
+
+                when(GetMessegeObjectType()){
                     "0" -> { //withot object
                         GetObjectId = { getEMPTY_STRING() }
                     }
@@ -248,6 +373,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectLikes = { getLONG_5() }
                         GetObjectDisLikes = { getLONG_6() }
                         GetObjectComments = { getLONG_7() }
+                        GetObjectListens = { getLONG_8() }
+                        GetObjectDescriptors = { getLONG_9() }
+                        GetObjectListensPeriod = { getINTEGER_6() }
                     }
                     "2" -> { // VIDEO
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -264,6 +392,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectLikes = { getLONG_5() }
                         GetObjectDisLikes = { getLONG_6() }
                         GetObjectComments = { getLONG_7() }
+                        GetObjectListens = { getLONG_8() }
+                        GetObjectDescriptors = { getLONG_9() }
+                        GetObjectListensPeriod = { getINTEGER_6() }
                     }
                     "3" -> { // PICTURE
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -286,27 +417,27 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     "5" -> { // FILE
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
-                        GetLengthSeconds = { getINTEGER_5() }
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
                     }
                     "6" -> { // GIF
                         GetObjectId = { getIDENTIFICATOR_5() }
+                        GetObjectSize = { getINTEGER_4() }
+                        GetObjectServer = { getSTRING_6() }
+                        GetObjectLink = { getSTRING_8() }
+                        GetObjectExtension = { getSTRING_9() }
                     }
                     "7" -> {  // ALBUMS
                         GetObjectId = { getIDENTIFICATOR_10() }
                         GetAlbumId = { getIDENTIFICATOR_10() }
                         GetAlbumName = { getSTRING_10() }
-                        GetLinkOwner = { getIDENTIFICATOR_9() }
                         GetAlbumsDescribeStartText = { getSTRING_6() }
                         GetObjectProfile = { getSTRING_7().substring(0, 5) }
                         GetObjectType = { getSTRING_7().substring(5, 6) }
                         GetObjectAccess = { getSTRING_7().substring(6, 7) }
                         GetObjectStatus = { getSTRING_7().substring(7, 8) }
                         GetAlbumsTypeContent = { getSTRING_7().substring(8, 9) }
-                        GetAddingDate = { getLONG_4() }
-                        GetLinkAddingDate = { getLONG_11() }
                         GetObjectComments = { getINTEGER_4().toLong() }
                         GetObjectLikes = { getINTEGER_5().toLong() }
                         GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -322,10 +453,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     }
 
                 }
-                GetMessegeId = { getLONG_12()}
-                GetChatsCostTypeId = { getINTEGER_12() }
-                GetAnswerMessegeId = { getLONG_14() }
-                GetAddingDate = { getLONG_11() }
+
             }
             "5" //EXCEPTIONS
             -> {
@@ -337,31 +465,52 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "7" //REG_DATA
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
+
             }
             "8" //CHATS_LIKES
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_7() }
                 GetObjectId = { getIDENTIFICATOR_5() }
+                GetObjectProfile = { getSTRING_5().substring(0, 5) }
+                GetChatsLikesRelations = { getSTRING_5().substring(5, 7) }
                 GetAddingDate = { getLONG_4() }
+                GetChatsMessegeCount = { getLONG_5() }
+                GetChatsLikesLastConnect = { getLONG_6() }
+                GetChatsLikesFirstMessegeCount = { getLONG_7() }
+                GetChatsLikesLastMessegeCount = { getLONG_8() }
+                GetChatsLikesLastDateDilivered = { getLONG_9() }
+                GetChatsLikesLastReadedMessegeId = { getLONG_10() }
+                GetChatsLikesLastMessegeAdding = { getLONG_11() }
+                GetRecordLastUpdate = { getLONG_12() }
+                GetDateDelete = { getLONG_13() }
+                GetChatsLikesBalance = { getINTEGER_5() }
             }
             "9" //CHATS_COST_TYPES
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_7() }
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
+                GetObjectId = { getIDENTIFICATOR_5() }
                 GetChatsCostTypeId = { getINTEGER_5() }
+                GetChatsCostTypesStartText = { getSTRING_5() }
+                GetObjectType = { getSTRING_7().substring(0, 1) }
+                GetObjectAccess = { getSTRING_7().substring(1, 2) }
+                GetObjectStatus = { getSTRING_7().substring(2, 3) }
+                GetChatsCostTypesHaveFullText = { getSTRING_7().substring(3, 4) }
+                GetChatsCostTypesHaveMesseges = { getSTRING_7().substring(4, 5) }
 
             }
             "A" //ALBUMS_COMMENTS
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_1() }
-                GetSecondAccountId = { getIDENTIFICATOR_13() }
+                GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetAlbumId = { getIDENTIFICATOR_9() }
+                GetLinkOwner = { getIDENTIFICATOR_9() }
                 GetObjectId = { getIDENTIFICATOR_9() }
                 GetCommentId = { getLONG_5() }
                 GetRootCommentId = { getLONG_6() }
                 GetAnswerCommentId = { getLONG_7() }
                 GetAddingDate = { getLONG_4() }
+                GetLinkAddingDate = { getLONG_11() }
                 GetCommentsStartText = { getSTRING_5() }
                 GetObjectProfile = { getSTRING_7().substring(0, 5) }
                 GetObjectType = { getSTRING_7().substring(5, 6) }
@@ -377,8 +526,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetObjectId = { getIDENTIFICATOR_10() }
                 GetAlbumId = { getIDENTIFICATOR_10() }
+                GetAlbumId = { getIDENTIFICATOR_8() }
                 GetAlbumName = { getSTRING_10() }
-                GetLinkOwner = { getIDENTIFICATOR_9() }
                 GetAlbumsDescribeStartText = { getSTRING_6() }
                 GetObjectProfile = { getSTRING_7().substring(0, 5) }
                 GetObjectType = { getSTRING_7().substring(5, 6) }
@@ -386,7 +535,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
                 GetAlbumsTypeContent = { getSTRING_7().substring(8, 9) }
                 GetAddingDate = { getLONG_4() }
-                GetLinkAddingDate = { getLONG_11() }
                 GetObjectComments = { getINTEGER_4().toLong() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -394,6 +542,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetAlbumsMembers = { getINTEGER_8() }
                 GetAlbumsListeners = { getINTEGER_9() }
 
+                GetLinkOwner = { getIDENTIFICATOR_9() }
+                GetLinkAddingDate = { getLONG_11() }
                 GetLinkProfile = { getSTRING_11().substring(0, 5) }
                 GetLinkType = { getSTRING_11().substring(5, 6) }
                 GetLinkAccess = { getSTRING_11().substring(6, 7) }
@@ -427,17 +577,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "D" //OBJECTS_LINKS
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_1() }
-                GetObjectId = { getIDENTIFICATOR_10() }
-                GetLinkOwner = { getIDENTIFICATOR_9() }
-                GetObjectSize = { getINTEGER_4() }
-                GetLengthSeconds = { getINTEGER_5() }
-                GetAddingDate = { getLONG_4() }
-                GetLinkAddingDate = { getLONG_11() }
 
                 GetAlbumId = { getIDENTIFICATOR_8() }
                 GetAlbumName = { getSTRING_10() }
 
-                GetObjectId = { getIDENTIFICATOR_5() }
+                GetObjectId = { getIDENTIFICATOR_10() }
                 GetObjectSize = { getINTEGER_4() }
                 GetLengthSeconds = { getINTEGER_5() }
                 GetObjectName = { getSTRING_5() }
@@ -451,7 +595,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectLikes = { getLONG_5() }
                 GetObjectDisLikes = { getLONG_6() }
                 GetObjectComments = { getLONG_7() }
+                GetObjectListens = { getLONG_8() }
+                GetObjectDescriptors = { getLONG_9() }
+                GetObjectListensPeriod = { getINTEGER_6() }
 
+                GetLinkOwner = { getIDENTIFICATOR_9() }
+                GetLinkAddingDate = { getLONG_11() }
                 GetLinkProfile = { getSTRING_11().substring(0, 5) }
                 GetLinkType = { getSTRING_11().substring(5, 6) }
                 GetLinkAccess = { getSTRING_11().substring(6, 7) }
@@ -484,10 +633,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "F" //OBJECTS
             -> {
                 GetRecordOwnerId = { getIDENTIFICATOR_1() }
-                GetAddingDate = { getLONG_4() }
-                GetAlbumId = { getIDENTIFICATOR_8() }
-                GetAlbumName = { getSTRING_10() }
-                GetObjectId = { getIDENTIFICATOR_5() }
                 GetObjectSize = { getINTEGER_4() }
                 GetLengthSeconds = { getINTEGER_5() }
                 GetObjectName = { getSTRING_5() }
@@ -501,6 +646,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectLikes = { getLONG_5() }
                 GetObjectDisLikes = { getLONG_6() }
                 GetObjectComments = { getLONG_7() }
+                GetObjectListens = { getLONG_8() }
+                GetObjectDescriptors = { getLONG_9() }
+                GetObjectListensPeriod = { getINTEGER_6() }
 
             }
             "G" //OBJECTS_COMMENTS
@@ -508,10 +656,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetObjectId = {getIDENTIFICATOR_9() }
+                GetLinkOwner = { getIDENTIFICATOR_9() }
                 GetCommentId = { getLONG_5() }
                 GetRootCommentId = { getLONG_6() }
                 GetAnswerCommentId = { getLONG_7() }
                 GetAddingDate = { getLONG_4() }
+                GetLinkAddingDate = { getLONG_11() }
                 GetCommentsStartText = { getSTRING_5() }
                 GetObjectProfile = { getSTRING_7().substring(0, 5) }
                 GetObjectType = { getSTRING_7().substring(5, 6) }
@@ -1416,19 +1566,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     fun INIT_STRING20(){
         initValues()
-    }
-
-    @JsName("getMESS_OBJECT_TYPE")
-    private fun getMESS_OBJECT_TYPE():String {
-        if (answerType.STRING_12 == null || answerType.STRING_12!!.length < 6) {
-            throw my_user_exceptions_class(
-                l_class_name = "AnswerTypeValues",
-                l_function_name = "getMESS_OBJECT_TYPE",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Insufficient length of STRING_12"
-            )
-        }
-        return answerType.STRING_12!!.substring(5, 6)
     }
 
 
