@@ -139,12 +139,10 @@ private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 @JsName("ANSWER_TYPE")
 class ANSWER_TYPE() {
 
-    var SELF_Jsockt: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
-
-    @JsName("answerTypeValues")
-    val answerTypeValues = AnswerTypeValues(this)
+    //var SELF_Jsockt: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
 
     init {
+        /*
         if(SELF_Jsockt == null){
             SELF_Jsockt =  Jsocket()
             Jsocket.fill()
@@ -152,8 +150,12 @@ class ANSWER_TYPE() {
                 println("CLIENT_JSOCKET_POOL is emprty")
             }
         }
+         */
         ensureNeverFrozen()
     }
+
+    @JsName("answerTypeValues")
+    val answerTypeValues = AnswerTypeValues(this)
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
@@ -472,9 +474,9 @@ class ANSWER_TYPE() {
     var STRING_20: String? = ""
     set(v){
         val v2 = v?:""
-        if(!v2.equals(field)){
+        if(v2.isNotEmpty() && !v2.equals(field)){
             field = v2
-            answerTypeValues.INIT_STRING20()
+            answerTypeValues.setRECORD_TYPE(v2)
         }
     }
 
@@ -489,6 +491,13 @@ class ANSWER_TYPE() {
 
     @JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
+        set(v){
+            val v2 = v
+            if(!v2.equals(field)){
+                field = v2
+                answerTypeValues.INIT_STRING20()
+            }
+        }
 
     @JsName("RECORD_ID")
     var RECORD_ID: String = ""
@@ -1208,6 +1217,18 @@ class ANSWER_TYPE() {
     }
 
     ///////////////////////////////////////////////////////////////////////////////
+
+    fun GetJsocket():Jsocket{
+        var j: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+        if(j == null){
+            j =  Jsocket()
+            Jsocket.fill()
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                println("CLIENT_JSOCKET_POOL is emprty")
+            }
+        }
+        return j
+    }
 
     ///////////////////////////////////////////////////////////////////////////////
     companion object {

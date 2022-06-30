@@ -331,6 +331,14 @@ class ClientExecutor {
         val f = FileService(j)
         if(f.open_file_channel() != null && f.send_file().await()){
            if(f.send_file().await()){
+               jsocket.value_par1 = f.ServerFileName
+               if(jsocket.value_par1.isEmpty()){
+                   throw my_user_exceptions_class(
+                       l_class_name = "ClientExecutor",
+                       l_function_name = "execute_with_send_file",
+                       name_of_exception = "EXC_ERROR_SEND_FILE"
+                   )
+               }
                jsocket.send_request(craete_check_sum = false, verify_fields = true)
            }else{
                throw my_user_exceptions_class(

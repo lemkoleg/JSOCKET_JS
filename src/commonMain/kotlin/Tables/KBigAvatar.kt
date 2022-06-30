@@ -161,7 +161,15 @@ class KBigAvatar {
                             KBigAvatarLock.lock()
                             while (NEW_BIG_AVATARS.isNotEmpty()) {
                                 val anwer_type = NEW_BIG_AVATARS.removeFirst()
-                                if (!BIG_AVATARS_IDS.containsKey(anwer_type.IDENTIFICATOR_2!!)) {
+                                if(anwer_type.RECORD_TYPE.equals("6")){
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KBigAvatar",
+                                        l_function_name = "ADD_NEW_BIG_AVATARS",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "Record is not Avatar"
+                                    )
+                                }
+                                if (!BIG_AVATARS_IDS.containsKey(anwer_type.answerTypeValues.GetMainAvatarId())) {
                                     val bigAvatar = KBigAvatar(anwer_type)
                                     Sqlite_service.InsertBigAvatar(bigAvatar)
                                     BIG_AVATARS_IDS[bigAvatar.AVATAR_ID] = bigAvatar.AVATAR_ID
@@ -169,6 +177,8 @@ class KBigAvatar {
                                 }
                             }
                             return@withTimeout true
+                        } catch (e: my_user_exceptions_class){
+                            throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KBigAvatar",

@@ -16,8 +16,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
 
     @JsName("setRECORD_TYPE")
-    private fun setRECORD_TYPE() {
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 8) {
+    fun setRECORD_TYPE(v: String?) {
+        if (v == null || v.length < 8) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "setRECORD_TYPE",
@@ -305,8 +305,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
 
     fun initValues(){
-
-        setRECORD_TYPE()
 
         when (answerType.RECORD_TYPE) {
             "1" //COMMANDS

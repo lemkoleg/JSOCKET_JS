@@ -202,7 +202,7 @@ class FileService(jsocket: Jsocket? = null) {
     private var CurrentLoopBytes = 0L
     private var AllBytes = 0L
     private var SendedBytes = 0L
-    private var ServerFileName = ""  // Fale name into Server for send file
+    var ServerFileName = ""  // Fale name into Server for send file
     private var MaxTryingSendReceiveFileChunks = Constants.MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS
 
 
