@@ -1227,6 +1227,34 @@ class ANSWER_TYPE() {
                 println("CLIENT_JSOCKET_POOL is emprty")
             }
         }
+        j.value_id1 = answerTypeValues.GetMainAccountId()
+        j.value_id2 = answerTypeValues.GetAlbumId()
+        j.value_id3 = answerTypeValues.GetMainAvatarId()
+        j.value_id4 = answerTypeValues.GetObjectId()
+        j.value_id5 = answerTypeValues.GetLinkOwner()
+        when (RECORD_TYPE) {
+
+            "4" //MESSEGES
+            -> {
+                j.value_par1 = answerTypeValues.GetMessegeId().toString()
+            }
+            "9" //CHATS_COST_TYPES
+            -> {
+                j.value_par1 = answerTypeValues.GetChatsCostTypeId().toString()
+            }
+            "A" //ALBUMS_COMMENTS
+            -> {
+                j.value_par2 = answerTypeValues.GetCommentId().toString()
+            }
+            "C" //ALBUMS_LINKS_COMMENTS
+            -> {
+                j.value_par2 = answerTypeValues.GetCommentId().toString()
+            }
+            "E" //OBJECTS_LINKS_COMMENTS
+            -> {
+                j.value_par2 = answerTypeValues.GetCommentId().toString()
+            }
+        }
         return j
     }
 

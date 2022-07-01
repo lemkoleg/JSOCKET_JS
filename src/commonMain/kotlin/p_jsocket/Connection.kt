@@ -312,7 +312,7 @@ private class DecoderRequest() {
                             jsocketRet = Jsocket()
                         }
                         var jsocket: Jsocket?
-                        jsocketRet.deserialize(b, myConnectionsCoocki.value, true, newConnectionCoocki.value)
+                        jsocketRet.deserialize(b, myConnectionsCoocki, true, newConnectionCoocki.value)
                         if (jsocketRet.just_do_it != 0) {
                             jsocket = BetweenJSOCKETs.remove(jsocketRet.just_do_it_label)
 
@@ -322,8 +322,8 @@ private class DecoderRequest() {
                                         jsocket.send_request()
                                     }
                                     1011000069 -> {
-                                        myConnectionsID.setNewValue(0L)
-                                        myConnectionsCoocki.setNewValue(0L)
+                                        myConnectionsID = 0L
+                                        myConnectionsCoocki = 0L
                                         Sqlite_service.ClearRegData()
                                         throw my_user_exceptions_class(
                                             l_class_name = "DecoderRequest",

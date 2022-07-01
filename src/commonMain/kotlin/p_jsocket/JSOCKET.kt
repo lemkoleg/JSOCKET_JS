@@ -41,40 +41,6 @@ private fun returnRequestPostfix(): ByteArray {
 }
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
-@JsName("Commands")
-val Commands: MutableMap<Int, Command> = mutableMapOf(
-    1011000010 to Command(
-        1011000010, "9", "111010001410000000000000000000",
-        "202000111222000020000012222202222000000000000000000000000000"
-    ), // RESTORE_PASSWORD
-    1011000026 to Command(
-        1011000026, "9", "111010001410000000000000000000",
-        "202000111222000020002212222202222000000000000000000000000000"
-    ), // INSERT_ACCOUNT
-    1011000027 to Command(
-        1011000027, "2", "111011001410000000000000000000",
-        "202000111222000000000011222202022000000000000000000000000000"
-    ),// CONNECT_ACCOUNT
-    1011000049 to Command(
-        1011000049, "2", "011000000000000000000000000000",
-        "002000111222000000000020022002022000000000000000000000000000"
-    ), // RE_SEND_MAIL_CONFIRM_CODE
-    1011000061 to Command(
-        1011000061, "3", "011011001401000000000000000000",
-        "112000111220000000000000022202022000000000000000000000000000"
-    ), // SELECT_COMMANDS
-    1011000069 to Command(
-        1011000069, "5", "111100101000010000000000000000",
-        "102000111220000000000000022202220000000000000000000000000000"
-    )// QUIT FROM CLIENT
-)
-
-
-
-
 @JsName("FIELDS_SUBSCRIBE")
 @InternalAPI
 val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
@@ -599,6 +565,9 @@ open class JSOCKET() {
     @JsName("bb")
     var bb: ByteReadPacket? = null
 
+    @JsName("is_new_reg_data")
+    var is_new_reg_data: Boolean = false
+
 
     private var start_position = 0
     private var reverse_start_position = 0
@@ -768,14 +737,14 @@ open class JSOCKET() {
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
 
-            connection_id = myConnectionsCoocki.value
-            connection_coocki = myConnectionsCoocki.value
-            device_id = myDeviceId.value
-            lang = myLang.value
+            connection_id = myConnectionsCoocki
+            connection_coocki = myConnectionsCoocki
+            device_id = myDeviceId
+            lang = myLang
             last_messege_update = KChat.globalLastUpdatingDate.value
             db_massage = ""
             just_do_it_successfull = "0"
-            myConnectionContext.value
+            myConnectionContext
             just_do_it_label = nowNano()
 
 
@@ -797,7 +766,7 @@ open class JSOCKET() {
                     l_additional_text = "just_do_it is null"
                 )
             }
-            currentCommand = if (!Commands.containsKey(just_do_it)) {
+            currentCommand = if (!COMMANDS.containsKey(just_do_it)) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "serialize",
@@ -805,7 +774,7 @@ open class JSOCKET() {
                     l_additional_text = "just_do_it not found $just_do_it"
                 )
             } else {
-                Commands[just_do_it] ?: throw my_user_exceptions_class(
+                COMMANDS[just_do_it] ?: throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "serialize",
                     name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
@@ -1074,7 +1043,7 @@ open class JSOCKET() {
                 l_additional_text = "just_do_it is null"
             )
         }
-        currentCommand = if (!Commands.containsKey(just_do_it)) {
+        currentCommand = if (!COMMANDS.containsKey(just_do_it)) {
             throw my_user_exceptions_class(
                 l_class_name = "JSOCKET",
                 l_function_name = "create_check_sum",
@@ -1082,7 +1051,7 @@ open class JSOCKET() {
                 l_additional_text = "just_do_it not found: $just_do_it"
             )
         } else {
-            Commands[just_do_it] ?: throw my_user_exceptions_class(
+            COMMANDS[just_do_it] ?: throw my_user_exceptions_class(
                 l_class_name = "JSOCKET",
                 l_function_name = "create_check_sum",
                 name_of_exception = "EXC_SYSTEM_ERROR",
@@ -1371,7 +1340,9 @@ open class JSOCKET() {
                         "4" -> KMessege.ADD_NEW_MESSEGES()
                         "5" -> KExceptions.ADD_NEW_EXCEPTIONS()
                         "6" -> KBigAvatar.ADD_NEW_BIG_AVATARS()
-                        "7" -> KRegData.ADD_NEW_REG_DATA()
+                        "7" -> {KRegData.ADD_NEW_REG_DATA()
+                               is_new_reg_data = true
+                        }
                         "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                         "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
                         else -> KCashData.ADD_NEW_CASH_DATA()
@@ -1388,7 +1359,10 @@ open class JSOCKET() {
                     "4" -> KMessege.ADD_NEW_MESSEGES()
                     "5" -> KExceptions.ADD_NEW_EXCEPTIONS()
                     "6" -> KBigAvatar.ADD_NEW_BIG_AVATARS()
-                    "7" -> KRegData.ADD_NEW_REG_DATA()
+                    "7" -> {
+                        is_new_reg_data = true
+                        KRegData.ADD_NEW_REG_DATA()
+                    }
                     "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                     "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
                     else -> KCashData.ADD_NEW_CASH_DATA()
@@ -1414,7 +1388,7 @@ open class JSOCKET() {
     //////////////////////////////////////////////////////////////////////////////////
     @JsName("desend_data")
     @InternalAPI
-    suspend fun deserialize(
+    fun deserialize(
         lbb: ByteReadPacket,
         p_original_connection_coocki: Long = 0L,
         ip: Boolean = true,
@@ -1422,6 +1396,7 @@ open class JSOCKET() {
     ) /////////////////////////////verify/////////////////////////////////////////////
     {
         try {
+            is_new_reg_data = false
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
             if (h == null) h = HASH()
             request_size = lbb.remaining
@@ -1434,11 +1409,25 @@ open class JSOCKET() {
             }
             jserver_connection_id = bb!!.readLong()
             connection_id = bb!!.readLong()
+
+            if(connection_id != 0L && myConnectionsID == 0L){
+                is_new_reg_data = true
+            }
+
+            if(connection_id != 0L && myConnectionsID == connection_id){
+                throw my_user_exceptions_class(
+                    l_class_name = "JSOCKET",
+                    l_function_name = "deserialize",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "(connection_id = ${connection_id}) not equal (myConnectionsID = ${myConnectionsID} ;)  "
+                )
+            }
+
             connection_coocki = bb!!.readLong()
             just_do_it = bb!!.readInt()
             just_do_it_label = bb!!.readLong()
 
-            if (!Commands.containsKey(just_do_it)) {
+            if (!COMMANDS.containsKey(just_do_it)) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
@@ -1446,7 +1435,7 @@ open class JSOCKET() {
                     l_additional_text = "just_do_it not found ${just_do_it}"
                 )
             } else {
-                currentCommand = Commands[just_do_it] ?: throw my_user_exceptions_class(
+                currentCommand = COMMANDS[just_do_it] ?: throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
                     name_of_exception = "EXC_SYSTEM_ERROR",
@@ -1494,7 +1483,8 @@ open class JSOCKET() {
                     if (p_new_connection_coocki != 0L) {
                         md5String = h!!.getNewMD5String(p_new_connection_coocki, just_do_it_label)
                         if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
-                            myConnectionsCoocki.setNewValue(p_new_connection_coocki)
+                            myConnectionsCoocki = p_new_connection_coocki
+                            is_new_reg_data = true
                             connection_coocki = p_new_connection_coocki
                         } else {
                             throw my_user_exceptions_class(
@@ -1571,6 +1561,9 @@ open class JSOCKET() {
         } finally {
             try {
                 bbCONTENT_SIZE?.close()
+                if(!connection_context.equals(myConnectionContext)){
+                    is_new_reg_data = true
+                }
             } catch (e: Exception) {
             }
             try {

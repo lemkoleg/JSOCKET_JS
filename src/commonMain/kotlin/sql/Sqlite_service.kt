@@ -17,8 +17,10 @@ import io.ktor.util.collections.ConcurrentMap
 import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import lib_exceptions.my_user_exceptions_class
 import p_client.*
 import p_jsocket.*
+import p_jsocket.Constants.CLIENT_TIMEOUT
 import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.Duration
@@ -28,7 +30,10 @@ import kotlin.time.ExperimentalTime
  *
  * @author Oleg
  */
-@ExperimentalStdlibApi
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("Sqlite_service")
 object Sqlite_service : CoroutineScope {
 
@@ -41,136 +46,250 @@ object Sqlite_service : CoroutineScope {
     ///////////////////////////////////big avatars///////////////////////////
 
     private val statBIG_AVATARS = Connection.createStatement()
-    @InternalAPI
     private val lockBIG_AVATARS = Mutex()
 
-    @InternalAPI
     @JsName("InsertBigAvatars")
-    fun InsertBigAvatars(kBigAvatar: KBigAvatar) {
+    fun InsertBigAvatars(kBigAvatars: ArrayList<KBigAvatar>) {
         Sqlite_serviceScope.launch {
             try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        kBigAvatars.forEach { statBIG_AVATARS.INSERT_BIG_AVATAR(it) }
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertBigAvatars",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
                 }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }
 
-    @InternalAPI
+
     @JsName("SelectBigAvatar")
     suspend fun SelectBigAvatar(OBJECTS_ID: String, IS_UPDATE_LAST_USE: Boolean): KBigAvatar? {
         try {
-            withTimeoutOrNull(CLIENT_TIMEOUT) {
-                lockBIG_AVATARS.lock()
-                if(IS_UPDATE_LAST_USE){
-                    statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockBIG_AVATARS.lock()
+                    if (IS_UPDATE_LAST_USE) {
+                        statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                    }
+                    return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
                 }
-                return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "SelectBigAvatar",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statBIG_AVATARS.clear_parameters()
+                lockBIG_AVATARS.unlock()
             }
-        } catch (ex: Exception) {
-            WriteExceptionIntoFile(ex, "Sqlite_service.SelectBigAvatar")
-            return null
-        } finally {
-            statBIG_AVATARS.clear_parameters()
-            lockBIG_AVATARS.unlock()
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
         }
         return null
     }
 
-    @InternalAPI
-    @JsName("UpdateBigAvatarsLastUse")
-    suspend fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) {
-        Sqlite_serviceScope.launch {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.SelectBigAvatar")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
-            }
-        }
-    }
 
-    @InternalAPI
-    @JsName("DeleteBigAvatars")
-    fun DeleteBigAvatars(kBigAvatar: KBigAvatar) {
-        Sqlite_serviceScope.launch {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
-            }
-        }
-    }
-
-    @InternalAPI
-    @JsName("ClearBigAvatars")
-    fun ClearBigAvatars() {
-        Sqlite_serviceScope.launch {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    statBIG_AVATARS.CLEAR_BIG_AVATARS()
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatars")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
-            }
-        }
-    }
-
-    @InternalAPI
     @JsName("LoadBigAvatarsIds")
-    private fun LoadBigAvatarsIds() {
+    suspend fun LoadBigAvatarsIds() {
         Sqlite_serviceScope.launch {
             try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    var arr:ArrayList<String> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL_ID()
-                    KBigAvatar.LOAD_BIG_AVATAR_ADS(arr)
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        val arr: ArrayList<String> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL_ID()
+                        KBigAvatar.LOAD_BIG_AVATARS_IDS(arr)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "LoadBigAvatarsIds",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
                 }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.LoadBigAvatarsIds")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }
 
-    @InternalAPI
     @JsName("LoadBigAvatars")
     private fun LoadBigAvatars() {
         Sqlite_serviceScope.launch {
             try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockBIG_AVATARS.lock()
-                    var arr:ArrayList<KBigAvatar> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL()
-                    KBigAvatar.LOAD_BIG_AVATARS(arr)
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        val arr: ArrayList<KBigAvatar> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL()
+                        KBigAvatar.LOAD_BIG_AVATARS(arr)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "LoadBigAvatars",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
                 }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.LoadBigAvatars")
-            } finally {
-                statBIG_AVATARS.clear_parameters()
-                lockBIG_AVATARS.unlock()
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("UpdateBigAvatarsLastUse")
+    suspend fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "UpdateBigAvatarsLastUse",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("DeleteBigAvatars")
+    fun DeleteBigAvatars(kBigAvatar: KBigAvatar) {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "DeleteBigAvatars",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("ClearBigAvatars")
+    fun ClearBigAvatars() {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockBIG_AVATARS.lock()
+                        statBIG_AVATARS.CLEAR_BIG_AVATARS()
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "ClearBigAvatars",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statBIG_AVATARS.clear_parameters()
+                    lockBIG_AVATARS.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    ///////////// commands ///////////////////////////
+
+    private val statCOMMANDS = Connection.createStatement()
+    private val lockCOMMANDS = Mutex()
+
+    @JsName("InsertCommands")
+    fun InsertCommands(arr: ArrayList<KCommands>) {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockCOMMANDS.lock()
+                        arr.forEach { statCOMMANDS.INSERT_COMMAND(it) }
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertCommands",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statCOMMANDS.clear_parameters()
+                    lockCOMMANDS.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("LoadCommands")
+    private fun LoadCommands() {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockCOMMANDS.lock()
+                        val arr: ArrayList<KCommands> = statCOMMANDS.SELECT_COMMANDS_ALL()
+                        KCommands.LOAD_COMMANDS(arr)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "LoadCommands",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statCOMMANDS.clear_parameters()
+                    lockCOMMANDS.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }
@@ -178,44 +297,179 @@ object Sqlite_service : CoroutineScope {
     ///////////// Exceptions ///////////////////////////
 
     private val statEXCEPTIONS = Connection.createStatement()
-    @InternalAPI
     private val lockEXCEPTIONS = Mutex()
 
-    @InternalAPI
+
     @JsName("InsertExceptions")
     fun InsertExceptions(ans: ArrayList<KExceptions.KException>) {
         Sqlite_serviceScope.launch {
             try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockEXCEPTIONS.lock()
-                    ans.forEach {
-                        statEXCEPTIONS.INSERT_EXCEPTION(it)
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockEXCEPTIONS.lock()
+                        ans.forEach {
+                            statEXCEPTIONS.INSERT_EXCEPTION(it)
+                        }
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertExceptions",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statEXCEPTIONS.clear_parameters()
+                    lockEXCEPTIONS.unlock()
                 }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.InsertExceptions")
-            } finally {
-                statEXCEPTIONS.clear_parameters()
-                lockEXCEPTIONS.unlock()
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }
 
-    @InternalAPI
     @JsName("LoadExceptions")
-    fun LoadExceptions(){
+    fun LoadExceptions() {
         Sqlite_serviceScope.launch {
             try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockEXCEPTIONS.lock()
-                    val arr: ArrayList<KExceptions.KException> = statEXCEPTIONS.SELECT_EXCEPTION_ALL()
-                    KExceptions.INSERT_EXCEPTIONS(arr, false)
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockEXCEPTIONS.lock()
+                        val arr: ArrayList<KExceptions.KException> = statEXCEPTIONS.SELECT_EXCEPTION_ALL()
+                        KExceptions.LOAD_EXCEPTIONS(arr)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "LoadExceptions",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statEXCEPTIONS.clear_parameters()
+                    lockEXCEPTIONS.unlock()
                 }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.LoadExceptions")
-            } finally {
-                statEXCEPTIONS.clear_parameters()
-                lockEXCEPTIONS.unlock()
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    ///////////// Meta_data ///////////////////////////
+
+    private val statMETA_DATA = Connection.createStatement()
+    private val lockMETA_DATA = Mutex()
+
+
+    @JsName("InsertMetaData")
+    fun InsertMetaData(ans: ArrayList<KMetaData>) {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockMETA_DATA.lock()
+                        ans.forEach {
+                            statMETA_DATA.INSERT_METADATA(it)
+                        }
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertMetaData",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statMETA_DATA.clear_parameters()
+                    lockMETA_DATA.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("LoadMetaData")
+    fun LoadMetaData() {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockMETA_DATA.lock()
+                        val arr: ArrayList<KMetaData> = statMETA_DATA.SELECT_ALL_METADATA()
+                        KMetaData.LOAD_META_DATA(arr)
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "LoadMetaData",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statMETA_DATA.clear_parameters()
+                    lockMETA_DATA.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    /////////////reg data///////////////////////////
+
+    private val statREG_DATA = Connection.createStatement()
+    private val lockREG_DATA = Mutex()
+
+
+    @JsName("InsertRegData")
+    fun InsertRegData() {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockREG_DATA.lock()
+                        statREG_DATA.INSERT_REGDATA()
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertRegData",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statREG_DATA.clear_parameters()
+                    lockREG_DATA.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+    }
+
+    @JsName("LoadRegData")
+    fun LoadRegData() {
+        Sqlite_serviceScope.launch {
+            try {
+                try {
+                    withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockREG_DATA.lock()
+                        statREG_DATA.SELECT_REGDATA_ALL()
+                    }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Sqlite_service",
+                        l_function_name = "InsertRegData",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    statREG_DATA.clear_parameters()
+                    lockREG_DATA.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }
@@ -223,6 +477,7 @@ object Sqlite_service : CoroutineScope {
     /////////////cash data///////////////////////////
 
     private val statCASHDATA = Connection.createStatement()
+
     @InternalAPI
     private val lockCASHDATA = Mutex()
 
@@ -245,8 +500,6 @@ object Sqlite_service : CoroutineScope {
     }
 
 
-
-
     @InternalAPI
     internal val SAVEMEDIA: ConcurrentMap<String, KSaveMedia> = ConcurrentMap()
 
@@ -266,8 +519,8 @@ object Sqlite_service : CoroutineScope {
     @DangerousInternalIoApi
     @ExperimentalTime
     private val Cleaner = KorosTimerTask.start(
-            delay = Duration.seconds(VERIFYTABLES),
-            repeat = Duration.seconds(VERIFYTABLES)
+        delay = Duration.seconds(VERIFYTABLES),
+        repeat = Duration.seconds(VERIFYTABLES)
     ) { removeOldAll() }
 
     @ExperimentalIoApi
@@ -300,7 +553,7 @@ object Sqlite_service : CoroutineScope {
                         if (CurrentTask!!.check_sum > 0L) {
                             try {
                                 val lasUpdate =
-                                        Connection.createStatement().SELECT_LASTUPDATE(CurrentTask!!.check_sum)
+                                    Connection.createStatement().SELECT_LASTUPDATE(CurrentTask!!.check_sum)
                                 CurrentTask!!.last_date_of_update = lasUpdate ?: 0L
                             } catch (e: Exception) {
                                 WriteExceptionIntoFile(e, "Sqlite_service.SELECT_LASTUPDATE")
@@ -308,15 +561,15 @@ object Sqlite_service : CoroutineScope {
                             }
                         }
                         var j =
-                                Jsocket(CurrentTask!!)
+                            Jsocket(CurrentTask!!)
                         j = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(j, null, true)
                         if (curCommand == null || curCommand!!.commands_id != j.just_do_it) {
-                            curCommand = Commands[j.just_do_it]
+                            curCommand = COMMANDS[j.just_do_it]
                         }
                         if (j.just_do_it_successfull == "0"
-                                && j.ANSWER_TYPEs != null
-                                && j.ANSWER_TYPEs!!.isNotEmpty()
-                                && curCommand!!.isCaching
+                            && j.ANSWER_TYPEs != null
+                            && j.ANSWER_TYPEs!!.isNotEmpty()
+                            && curCommand!!.isCaching
                         ) {
                             CurrentTask!!.ANSWER_TYPEs = j.ANSWER_TYPEs
                             CurrentTask!!.last_date_of_update = j.last_date_of_update
@@ -347,24 +600,24 @@ object Sqlite_service : CoroutineScope {
     @InternalAPI
     @JsName("removeSyncJsocket")
     fun removeSyncJsocket() =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                        if (CurrentTask == null) {
-                            CurrentTask = Jsocket()
-                            CurrentTask!!.connection_id = myConnectionsID.value
-                            CurrentTask!!.connection_coocki = myConnectionsCoocki.value
-                        }
-                        CurrentTask!!.just_do_it = 1011000068 //RE_SEND_REQUEST_PROFILE
-                        CurrentTask!!.ANSWER_TYPEs?.clear()
-                        CurrentTask!!.content = null
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    if (CurrentTask == null) {
+                        CurrentTask = Jsocket()
+                        CurrentTask!!.connection_id = myConnectionsID.value
+                        CurrentTask!!.connection_coocki = myConnectionsCoocki.value
                     }
-                } catch (e: Exception) {
-                } finally {
-                    lock.unlock()
+                    CurrentTask!!.just_do_it = 1011000068 //RE_SEND_REQUEST_PROFILE
+                    CurrentTask!!.ANSWER_TYPEs?.clear()
+                    CurrentTask!!.content = null
                 }
+            } catch (e: Exception) {
+            } finally {
+                lock.unlock()
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @KtorExperimentalAPI
@@ -619,25 +872,25 @@ object Sqlite_service : CoroutineScope {
                     val v = CurrentTask!!.ANSWER_TYPEs!!.removeFirst()
                     try {
                         InsertCashData(
-                                v,
-                                CurrentTask!!.check_sum,
-                                statement
+                            v,
+                            CurrentTask!!.check_sum,
+                            statement
                         )
                     } catch (ex: Exception) {
                     }
                 }
                 statement.INSERT_LASTUPDATE(
-                        CurrentTask!!.check_sum,
-                        CurrentTask!!.last_date_of_update,
-                        CurrentTask!!.last_date_of_update,
-                        0
+                    CurrentTask!!.check_sum,
+                    CurrentTask!!.last_date_of_update,
+                    CurrentTask!!.last_date_of_update,
+                    0
                 )
                 CurrentTask!!.last_date_of_update = 0L
                 CurrentTask =
-                        lSelectCashData(
-                                CurrentTask!!,
-                                false
-                        )
+                    lSelectCashData(
+                        CurrentTask!!,
+                        false
+                    )
             }
         } catch (ex: Exception) {
             WriteExceptionIntoFile(ex, "Sqlite_service.lUpdateCashData")
@@ -682,7 +935,7 @@ object Sqlite_service : CoroutineScope {
         }
         val statement = Connection.createStatement()
         j.ANSWER_TYPEs =
-                withContext(Sqlite_serviceScope.coroutineContext) { statement.SELECT_CASHDATA(j.check_sum) }
+            withContext(Sqlite_serviceScope.coroutineContext) { statement.SELECT_CASHDATA(j.check_sum) }
         if (update_cash && j.ANSWER_TYPEs != null && !j.ANSWER_TYPEs!!.isEmpty()) {
             statement.UPDATE_LAST_USE_LASTUPDATE(DateTime.nowUnixLong(), j.check_sum)
         }
@@ -696,22 +949,22 @@ object Sqlite_service : CoroutineScope {
     @InternalAPI
     @JsName("ClearCashData")
     internal fun ClearCashData() =
-            Sqlite_serviceScope.launch {
-                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                    try {
+        Sqlite_serviceScope.launch {
+            withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                try {
 
-                        lock.lock()
-                        val statement = Connection.createStatement()
-                        statement.CLEAR_CASHDATA()
+                    lock.lock()
+                    val statement = Connection.createStatement()
+                    statement.CLEAR_CASHDATA()
 
-                        statement.CLEAR_LASTUPDATE()
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.ClearCashData")
-                    } finally {
-                        lock.unlock()
-                    }
+                    statement.CLEAR_LASTUPDATE()
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.ClearCashData")
+                } finally {
+                    lock.unlock()
                 }
             }
+        }
 
     @ExperimentalStdlibApi
     @InternalAPI
@@ -726,26 +979,6 @@ object Sqlite_service : CoroutineScope {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @ExperimentalIoApi
-    @InternalAPI
-    @JsName("InsertRegData")
-    fun InsertRegData() =
-            Sqlite_serviceScope.launch {
-                try {
-                    Connection.createStatement().INSERT_REGDATA(
-                            myConnectionsID.value,
-                            myConnectionsCoocki.value,
-                            myDataBaseID.value,
-                            myLang.value,
-                            myRequestProfile.value,
-                            myAccountProfile.value
-                    )
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertRegData")
-                } finally {
-                    removeSyncJsocket()
-                }
-            }
 
     @ExperimentalIoApi
     @InternalAPI
@@ -775,55 +1008,54 @@ object Sqlite_service : CoroutineScope {
     @ExperimentalTime
     @JsName("InitializeRegData")
     internal fun InitializeRegData() =
-            Sqlite_serviceScope.launch {
-                if (myConnectionsID.value != 0L) {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        try {
-                            var l_MyJSocket = Jsocket()
-                            lock.lock()
-                            l_MyJSocket.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE
+        Sqlite_serviceScope.launch {
+            if (myConnectionsID.value != 0L) {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    try {
+                        var l_MyJSocket = Jsocket()
+                        lock.lock()
+                        l_MyJSocket.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE
 
-                            l_MyJSocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(l_MyJSocket, null, true)
+                        l_MyJSocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(l_MyJSocket, null, true)
 
-                            if (l_MyJSocket.just_do_it_successfull == "0") {
-                                if (l_MyJSocket.value_id1.trim().isNotEmpty()) {
-                                    myDataBaseID.setNewValue(l_MyJSocket.value_id1)
-                                }
-                                if (l_MyJSocket.value_par2.trim().isNotEmpty()) {
-                                    myAccountProfile.setNewValue(l_MyJSocket.value_par2.trim())
-                                }
-                                if (l_MyJSocket.request_profile.trim().isNotEmpty()) {
-                                    Jsocket.setRequestProfile(l_MyJSocket.request_profile, false)
-                                }
-
-                                InsertRegData()
+                        if (l_MyJSocket.just_do_it_successfull == "0") {
+                            if (l_MyJSocket.value_id1.trim().isNotEmpty()) {
+                                myDataBaseID.setNewValue(l_MyJSocket.value_id1)
+                            }
+                            if (l_MyJSocket.value_par2.trim().isNotEmpty()) {
+                                myAccountProfile.setNewValue(l_MyJSocket.value_par2.trim())
+                            }
+                            if (l_MyJSocket.request_profile.trim().isNotEmpty()) {
+                                Jsocket.setRequestProfile(l_MyJSocket.request_profile, false)
                             }
 
-                        } catch (e: Exception) {
-                            WriteExceptionIntoFile(e, "Sqlite_service.InitializeRegData")
-                        } finally {
-                            lock.unlock()
+                            InsertRegData()
                         }
+
+                    } catch (e: Exception) {
+                        WriteExceptionIntoFile(e, "Sqlite_service.InitializeRegData")
+                    } finally {
+                        lock.unlock()
                     }
                 }
             }
+        }
 
     @InternalAPI
     @JsName("ClearRegData")
     internal fun ClearRegData() =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().CLEAR_REGDATA()
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.ClearRegData")
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().CLEAR_REGDATA()
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.ClearRegData")
+            } finally {
+                lock.unlock()
             }
+        }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @ExperimentalStdlibApi
@@ -833,52 +1065,52 @@ object Sqlite_service : CoroutineScope {
     @ExperimentalTime
     @ExperimentalIoApi
     internal fun InitializeCommands() =
-            Sqlite_serviceScope.launch {
-                if (myConnectionsID.value != 0L) {
-                    try {
-                        var l_MyJSocket = Jsocket()
-                        l_MyJSocket.just_do_it = 1011000061 // SELECT_COMMANDS
-                        l_MyJSocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(l_MyJSocket, null, true)
-                        if (l_MyJSocket.just_do_it_successfull == "0"
-                                && l_MyJSocket.ANSWER_TYPEs != null
-                                && !l_MyJSocket.ANSWER_TYPEs!!.isEmpty()
-                        ) {
-                            InitializeCommands(l_MyJSocket)
-                        }
-                    } catch (e: Exception) {
-                        WriteExceptionIntoFile(e, "Sqlite_service.InitializeCommands()")
+        Sqlite_serviceScope.launch {
+            if (myConnectionsID.value != 0L) {
+                try {
+                    var l_MyJSocket = Jsocket()
+                    l_MyJSocket.just_do_it = 1011000061 // SELECT_COMMANDS
+                    l_MyJSocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(l_MyJSocket, null, true)
+                    if (l_MyJSocket.just_do_it_successfull == "0"
+                        && l_MyJSocket.ANSWER_TYPEs != null
+                        && !l_MyJSocket.ANSWER_TYPEs!!.isEmpty()
+                    ) {
+                        InitializeCommands(l_MyJSocket)
                     }
+                } catch (e: Exception) {
+                    WriteExceptionIntoFile(e, "Sqlite_service.InitializeCommands()")
                 }
-                SelectAllComands()
             }
+            SelectAllComands()
+        }
 
     @InternalAPI
     @ExperimentalIoApi
     @JsName("InitializeCommands")
     fun InitializeCommands(l_MyJSocket: JSOCKET) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.withLock {
-                            while (l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
-                                val MyANSWER_TYPE: ANSWER_TYPE = l_MyJSocket.ANSWER_TYPEs!!.removeFirst()
-                                val comm = KCommands(MyANSWER_TYPE)
-                                if (comm.getCOMMANDS_ID() != 0) {
-                                    val c = Command(comm)
-                                    Commands[c.commands_id] = c
-                                } else {
-                                    val meta = KMetaData(MyANSWER_TYPE)
-                                    META_DATA[meta.getVALUE_NAME()] = meta.getVALUE_VALUE()
-                                }
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.withLock {
+                        while (l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
+                            val MyANSWER_TYPE: ANSWER_TYPE = l_MyJSocket.ANSWER_TYPEs!!.removeFirst()
+                            val comm = KCommands(MyANSWER_TYPE)
+                            if (comm.getCOMMANDS_ID() != 0) {
+                                val c = Command(comm)
+                                COMMANDS[c.commands_id] = c
+                            } else {
+                                val meta = KMetaData(MyANSWER_TYPE)
+                                META_DATA[meta.getVALUE_NAME()] = meta.getVALUE_VALUE()
                             }
-                            InsertCommands()
-                            InsertMetaData()
                         }
+                        InsertCommands()
+                        InsertMetaData()
                     }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InitializeCommands(l_MyJSocket: JSOCKET)")
                 }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InitializeCommands(l_MyJSocket: JSOCKET)")
             }
+        }
 
     @InternalAPI
     private suspend fun SelectAllComands() {
@@ -887,29 +1119,29 @@ object Sqlite_service : CoroutineScope {
         }
         rs.forEach {
             val c = Command(it)
-            Commands[c.commands_id] = c
+            COMMANDS[c.commands_id] = c
         }
         rs.clear()
     }
 
     @InternalAPI
     private fun InsertCommands() =
-            Sqlite_serviceScope.launch {
-                val statement = Connection.createStatement()
-                statement.CLEAR_COMMANDS()
-                Commands.forEach {
-                    try {
-                        statement.INSERT_COMMANDS(
-                                it.value.commands_id,
-                                it.value.commands_access,
-                                it.value.commands_profile,
-                                it.value.commands_necessarily_fields
-                        )
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.InsertCommands")
-                    }
+        Sqlite_serviceScope.launch {
+            val statement = Connection.createStatement()
+            statement.CLEAR_COMMANDS()
+            COMMANDS.forEach {
+                try {
+                    statement.INSERT_COMMANDS(
+                        it.value.commands_id,
+                        it.value.commands_access,
+                        it.value.commands_profile,
+                        it.value.commands_necessarily_fields
+                    )
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertCommands")
                 }
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////
     @InternalAPI
@@ -937,380 +1169,370 @@ object Sqlite_service : CoroutineScope {
 
     @InternalAPI
     private fun InsertMetaData() =
-            Sqlite_serviceScope.launch {
-                val statement = Connection.createStatement()
-                statement.CLEAR_METADATA()
-                META_DATA.forEach {
-                    try {
-                        statement.INSERT_METADATA(
-                                it.key,
-                                it.value
-                        )
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.InsertMetaData")
-                    }
+        Sqlite_serviceScope.launch {
+            val statement = Connection.createStatement()
+            statement.CLEAR_METADATA()
+            META_DATA.forEach {
+                try {
+                    statement.INSERT_METADATA(
+                        it.key,
+                        it.value
+                    )
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertMetaData")
                 }
-                KChat.maxCountOfMessegesIntoDB.setNewValue(SelectMetaData("MAX_COUNT_OF_MESSEGES").toLong())
             }
+            KChat.maxCountOfMessegesIntoDB.setNewValue(SelectMetaData("MAX_COUNT_OF_MESSEGES").toLong())
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("InsertSaveMedia")
     internal fun InsertSaveMedia(lKSaveMedia: KSaveMedia) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            val crossPlatformFile = CrossPlatformFile(lKSaveMedia.getOBJECT_FULL_NAME())
-                            if (!crossPlatformFile.isExists() || crossPlatformFile.isPath()) {
-                                throw exc_file_not_exists(lKSaveMedia.getOBJECT_FULL_NAME())
-                            }
-                            if (crossPlatformFile.size() != lKSaveMedia.getOBJECTS_SIZE()) {
-                                crossPlatformFile.delete()
-                                throw exc_file_size_is_wrong(
-                                        lKSaveMedia.getOBJECT_FULL_NAME(),
-                                        lKSaveMedia.getOBJECTS_SIZE()
-                                )
-                            }
-                            SAVEMEDIA[lKSaveMedia.getOBJECTS_ID()] = lKSaveMedia
-                            Connection.createStatement().INSERT_SAVEMEDIA(
-                                    lKSaveMedia.getOBJECTS_ID(),
-                                    lKSaveMedia.getOBJECTS_EXTENSION(),
-                                    myConnectionsID.value,
-                                    lKSaveMedia.getOBJECT_NAME(),
-                                    lKSaveMedia.getOBJECT_INFO(),
-                                    lKSaveMedia.getSMALL_AVATAR(),
-                                    lKSaveMedia.getIS_TEMP(),
-                                    lKSaveMedia.getIS_DOWNLOAD(),
-                                    if (lKSaveMedia.getTIME_ADDED() == 0L) {
-                                        DateTime.nowUnixLong()
-                                    } else {
-                                        lKSaveMedia.getTIME_ADDED()
-                                    },
-                                    lKSaveMedia.getOBJECTS_SIZE()
-                            )
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    val crossPlatformFile = CrossPlatformFile(lKSaveMedia.getOBJECT_FULL_NAME())
+                    if (!crossPlatformFile.isExists() || crossPlatformFile.isPath()) {
+                        throw exc_file_not_exists(lKSaveMedia.getOBJECT_FULL_NAME())
                     }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertSaveMedia")
+                    if (crossPlatformFile.size() != lKSaveMedia.getOBJECTS_SIZE()) {
+                        crossPlatformFile.delete()
+                        throw exc_file_size_is_wrong(
+                            lKSaveMedia.getOBJECT_FULL_NAME(),
+                            lKSaveMedia.getOBJECTS_SIZE()
+                        )
+                    }
+                    SAVEMEDIA[lKSaveMedia.getOBJECTS_ID()] = lKSaveMedia
+                    Connection.createStatement().INSERT_SAVEMEDIA(
+                        lKSaveMedia.getOBJECTS_ID(),
+                        lKSaveMedia.getOBJECTS_EXTENSION(),
+                        myConnectionsID.value,
+                        lKSaveMedia.getOBJECT_NAME(),
+                        lKSaveMedia.getOBJECT_INFO(),
+                        lKSaveMedia.getSMALL_AVATAR(),
+                        lKSaveMedia.getIS_TEMP(),
+                        lKSaveMedia.getIS_DOWNLOAD(),
+                        if (lKSaveMedia.getTIME_ADDED() == 0L) {
+                            DateTime.nowUnixLong()
+                        } else {
+                            lKSaveMedia.getTIME_ADDED()
+                        },
+                        lKSaveMedia.getOBJECTS_SIZE()
+                    )
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertSaveMedia")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     private fun DeleteLastSaveMedia(lTemp: Int) =
-            Sqlite_serviceScope.launch {
-                var i = 0
-                if (lTemp == 1) {
-                    i = META_DATA["MAX_COUNT_OF_TEMP_SAVEMEDIA"]!!
-                }
-                if (lTemp == 0) {
-                    i = META_DATA["MAX_COUNT_OF_SAVEMEDIA"]!!
-                }
-                if (i != 0) {
-                    try {
-                        val statement = Connection.createStatement()
-                        while (true) {
-                            val rs = statement.SELECT_COUNT_SAVEMEDIA(lTemp)
-                            if (rs > i) {
-                                val rs1 = statement.SELECT_LAST_SAVEMEDIA(lTemp)
-                                rs1.forEach {
-                                    DeleteSaveMedia(it)
-                                }
-                                rs1.clear()
-                            } else {
-                                break
+        Sqlite_serviceScope.launch {
+            var i = 0
+            if (lTemp == 1) {
+                i = META_DATA["MAX_COUNT_OF_TEMP_SAVEMEDIA"]!!
+            }
+            if (lTemp == 0) {
+                i = META_DATA["MAX_COUNT_OF_SAVEMEDIA"]!!
+            }
+            if (i != 0) {
+                try {
+                    val statement = Connection.createStatement()
+                    while (true) {
+                        val rs = statement.SELECT_COUNT_SAVEMEDIA(lTemp)
+                        if (rs > i) {
+                            val rs1 = statement.SELECT_LAST_SAVEMEDIA(lTemp)
+                            rs1.forEach {
+                                DeleteSaveMedia(it)
                             }
+                            rs1.clear()
+                        } else {
+                            break
                         }
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.DeleteLastSaveMedia")
                     }
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteLastSaveMedia")
                 }
             }
+        }
 
 
     @InternalAPI
     @JsName("DeleteSaveMedia")
     internal fun DeleteSaveMedia(lSAVEMEDIA: String) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            if (lSAVEMEDIA.isNotEmpty()) {
-                                val m: KSaveMedia? = SAVEMEDIA.remove(lSAVEMEDIA)
-                                if (m != null) {
-                                    val file = CrossPlatformFile(m.getOBJECT_FULL_NAME())
-                                    if (file.isExists() && !file.isPath()) {
-                                        if (file.delete()) {
-                                            Connection.createStatement().DELETE_SAVEMEDIA(lSAVEMEDIA)
-                                        } else {
-                                            SAVEMEDIA[m.getOBJECTS_ID()] = m
-                                        }
-                                    } else {
-                                        Connection.createStatement().DELETE_SAVEMEDIA(lSAVEMEDIA)
-                                    }
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    if (lSAVEMEDIA.isNotEmpty()) {
+                        val m: KSaveMedia? = SAVEMEDIA.remove(lSAVEMEDIA)
+                        if (m != null) {
+                            val file = CrossPlatformFile(m.getOBJECT_FULL_NAME())
+                            if (file.isExists() && !file.isPath()) {
+                                if (file.delete()) {
+                                    Connection.createStatement().DELETE_SAVEMEDIA(lSAVEMEDIA)
+                                } else {
+                                    SAVEMEDIA[m.getOBJECTS_ID()] = m
                                 }
+                            } else {
+                                Connection.createStatement().DELETE_SAVEMEDIA(lSAVEMEDIA)
                             }
+                        }
                     }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteSaveMedia")
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteSaveMedia")
+            } finally {
+                lock.unlock()
             }
+        }
 
 
     @InternalAPI
     @JsName("DeleteAllSaveMedia")
     internal fun DeleteAllSaveMedia(IsTemp: Boolean) =
-            Sqlite_serviceScope.launch {
-                try {
-                    val save = SAVEMEDIA.keys
-                    save.forEach {
-                        val v = SAVEMEDIA[it]
-                        if (v != null) {
-                            if (v.IsTemp() == IsTemp) {
-                                DeleteSaveMedia(v.getOBJECTS_ID())
-                            }
+        Sqlite_serviceScope.launch {
+            try {
+                val save = SAVEMEDIA.keys
+                save.forEach {
+                    val v = SAVEMEDIA[it]
+                    if (v != null) {
+                        if (v.IsTemp() == IsTemp) {
+                            DeleteSaveMedia(v.getOBJECTS_ID())
                         }
                     }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSaveMedia")
                 }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSaveMedia")
             }
+        }
 
     @InternalAPI
     @JsName("ClearSaveMedia")
     internal fun ClearSaveMedia() =
-            Sqlite_serviceScope.launch {
-                try {
-                    val save = SAVEMEDIA.keys
-                    save.forEach {
-                        DeleteSaveMedia(it)
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSaveMedia")
+        Sqlite_serviceScope.launch {
+            try {
+                val save = SAVEMEDIA.keys
+                save.forEach {
+                    DeleteSaveMedia(it)
                 }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSaveMedia")
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("InsertBigAvata")
     internal fun InsertBigAvatar(lKBigAvatar: KBigAvatar) =
-            Sqlite_serviceScope.launch {
-                if (lKBigAvatar.getAVATAR()?.size ?: 0 > 0) {
-                    try {
-                        withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                            lock.lock()
-                                lKBigAvatar.getAVATAR()?.let {
-                                    Connection.createStatement().INSERT_BIG_AVATARS(
-                                            lKBigAvatar.getOBJECTS_ID(),
-                                            lKBigAvatar.getTIME_ADDED(),
-                                            lKBigAvatar.getIS_TEMP(),
-                                            lKBigAvatar.getSMALL_AVATAR_SIZE(),
-                                            it
-                                    )
-                                }
+        Sqlite_serviceScope.launch {
+            if (lKBigAvatar.getAVATAR()?.size ?: 0 > 0) {
+                try {
+                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                        lock.lock()
+                        lKBigAvatar.getAVATAR()?.let {
+                            Connection.createStatement().INSERT_BIG_AVATARS(
+                                lKBigAvatar.getOBJECTS_ID(),
+                                lKBigAvatar.getTIME_ADDED(),
+                                lKBigAvatar.getIS_TEMP(),
+                                lKBigAvatar.getSMALL_AVATAR_SIZE(),
+                                it
+                            )
                         }
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatar")
                     }
-                    finally {
-                        lock.unlock()
-                    }
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertBigAvatar")
+                } finally {
+                    lock.unlock()
                 }
             }
+        }
 
 
     @InternalAPI
     private fun ClearBigAvatar() =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().CLEAR_BIG_AVATARS()
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.ClearBigAvatar")
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().CLEAR_BIG_AVATARS()
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.ClearBigAvatar")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     @JsName("DeleteBigAvatar")
 
     internal fun DeleteBigAvatar(lOBJECTID: String) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().DELETE_BIG_AVATARS(lOBJECTID)
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteBigAvatar")
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().DELETE_BIG_AVATARS(lOBJECTID)
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteBigAvatar")
+            } finally {
+                lock.unlock()
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("InsertSendMedia")
     internal fun InsertSendMedia(lKSendMedia: KSendMedia) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().INSERT_SENDMEDIA(
-                                    lKSendMedia.getOBJECTS_ID(),
-                                    lKSendMedia.getOBJECTS_EXTENSION(),
-                                    lKSendMedia.getOBJECT_NAME(),
-                                    myConnectionsID.value,
-                                    lKSendMedia.getIS_DOWNLOAD()
-                            )
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().INSERT_SENDMEDIA(
+                        lKSendMedia.getOBJECTS_ID(),
+                        lKSendMedia.getOBJECTS_EXTENSION(),
+                        lKSendMedia.getOBJECT_NAME(),
+                        myConnectionsID.value,
+                        lKSendMedia.getIS_DOWNLOAD()
+                    )
 
-                            SENDMEDIA[lKSendMedia.getOBJECTS_ID()] = lKSendMedia
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertSendMedia")
+                    SENDMEDIA[lKSendMedia.getOBJECTS_ID()] = lKSendMedia
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertSendMedia")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     @JsName("DeleteAllSendMedia")
     private fun DeleteAllSendMedia() =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            val statement = Connection.createStatement()
-                            statement.DELETE_ALL_SENDMEDIA(myConnectionsID.value)
-                            SENDMEDIA.clear()
-                            val rs = statement.SELECT_ALL_SENDMEDIA(myConnectionsID.value)
-                            rs.forEach {
-                                SENDMEDIA[it.getOBJECTS_ID()] = it
-                            }
-                            rs.clear()
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    val statement = Connection.createStatement()
+                    statement.DELETE_ALL_SENDMEDIA(myConnectionsID.value)
+                    SENDMEDIA.clear()
+                    val rs = statement.SELECT_ALL_SENDMEDIA(myConnectionsID.value)
+                    rs.forEach {
+                        SENDMEDIA[it.getOBJECTS_ID()] = it
                     }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSendMedia")
+                    rs.clear()
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteAllSendMedia")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     @JsName("DeleteSendMedia")
     internal fun DeleteSendMedia(lSAVEMEDIA: String) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().DELETE_SENDMEDIA(lSAVEMEDIA)
-                            SENDMEDIA.remove(lSAVEMEDIA)
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteSendMedia")
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().DELETE_SENDMEDIA(lSAVEMEDIA)
+                    SENDMEDIA.remove(lSAVEMEDIA)
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteSendMedia")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     private fun ClearSendMedia() =
-            Sqlite_serviceScope.launch {
-                try {
-                    val send = SENDMEDIA.keys
-                    send.forEach {
-                        DeleteSendMedia(it)
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.ClearSendMedia")
+        Sqlite_serviceScope.launch {
+            try {
+                val send = SENDMEDIA.keys
+                send.forEach {
+                    DeleteSendMedia(it)
                 }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.ClearSendMedia")
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("InsertChat")
     internal fun InsertChat(KChat: KChat) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().INSERT_CHATS(
-                                    KChat.getCHATS_ID(),
-                                    KChat.getCHATS_OWNER(),
-                                    KChat.getLAST_MESSEGES_ID(),
-                                    KChat.getCHATS_OPPONENT(),
-                                    KChat.getMESSEGES_COUNT(),
-                                    KChat.getCHATS_NAME(),
-                                    KChat.getCHATS_SMALL_AVATAR(),
-                                    KChat.getCHATS_PROFILE(),
-                                    KChat.getCHATS_ACCESS(),
-                                    KChat.getCHATS_TYPE(),
-                                    KChat.getCHATS_STATUS(),
-                                    KChat.getLAST_UPDATING_DATE(),
-                                    KChat.getCHATS_SUBSCRIBE(),
-                                    myConnectionsID.value.toString(),
-                                    KChat.isUpdateChatBlob()
-                            )
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().INSERT_CHATS(
+                        KChat.getCHATS_ID(),
+                        KChat.getCHATS_OWNER(),
+                        KChat.getLAST_MESSEGES_ID(),
+                        KChat.getCHATS_OPPONENT(),
+                        KChat.getMESSEGES_COUNT(),
+                        KChat.getCHATS_NAME(),
+                        KChat.getCHATS_SMALL_AVATAR(),
+                        KChat.getCHATS_PROFILE(),
+                        KChat.getCHATS_ACCESS(),
+                        KChat.getCHATS_TYPE(),
+                        KChat.getCHATS_STATUS(),
+                        KChat.getLAST_UPDATING_DATE(),
+                        KChat.getCHATS_SUBSCRIBE(),
+                        myConnectionsID.value.toString(),
+                        KChat.isUpdateChatBlob()
+                    )
 
 
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertChat")
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertChat")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     @JsName("InsertMessege")
     internal fun InsertMessege(ms: KMessege) =
-            Sqlite_serviceScope.launch {
-                try {
-                    withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-                        lock.lock()
-                            Connection.createStatement().INSERT_MESSEGES(
-                                    ms.getCHATS_ID(),
-                                    ms.getMESSEGES_ID(),
-                                    ms.getMESSEGES_CHATS_COUNT(),
-                                    ms.getMESSEGES_OWNER(),
-                                    ms.getMESSEGES_ANSWER(),
-                                    ms.getMESSEGES_ADRESSER(),
-                                    ms.getOBJECTS_LINK(),
-                                    ms.getMESSEGE_TEXT(),
-                                    ms.getMESSEGES_AVATAR(),
-                                    ms.getMESSEGES_LIKES(),
-                                    ms.getMESSEGES_DISLIKES(),
-                                    ms.getNOT_DELIVERIED(),
-                                    ms.getNOT_READED(),
-                                    ms.getMESSEGES_ACCESS(),
-                                    ms.getMESSEGES_TYPE(),
-                                    ms.getDATE_ADDING(),
-                                    ms.getLAST_UPDATING_DATE(),
-                                    ms.getOBJECTS_LINK_SUBSCRIBE(),
-                                    ms.getOBJECTS_LINK_SMALL_AVATAR()
-                            )
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.InsertMessege")
+        Sqlite_serviceScope.launch {
+            try {
+                withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
+                    lock.lock()
+                    Connection.createStatement().INSERT_MESSEGES(
+                        ms.getCHATS_ID(),
+                        ms.getMESSEGES_ID(),
+                        ms.getMESSEGES_CHATS_COUNT(),
+                        ms.getMESSEGES_OWNER(),
+                        ms.getMESSEGES_ANSWER(),
+                        ms.getMESSEGES_ADRESSER(),
+                        ms.getOBJECTS_LINK(),
+                        ms.getMESSEGE_TEXT(),
+                        ms.getMESSEGES_AVATAR(),
+                        ms.getMESSEGES_LIKES(),
+                        ms.getMESSEGES_DISLIKES(),
+                        ms.getNOT_DELIVERIED(),
+                        ms.getNOT_READED(),
+                        ms.getMESSEGES_ACCESS(),
+                        ms.getMESSEGES_TYPE(),
+                        ms.getDATE_ADDING(),
+                        ms.getLAST_UPDATING_DATE(),
+                        ms.getOBJECTS_LINK_SUBSCRIBE(),
+                        ms.getOBJECTS_LINK_SMALL_AVATAR()
+                    )
                 }
-                finally {
-                    lock.unlock()
-                }
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.InsertMessege")
+            } finally {
+                lock.unlock()
             }
+        }
 
     @InternalAPI
     private suspend fun InitChats() {
@@ -1331,7 +1553,7 @@ object Sqlite_service : CoroutineScope {
         }
         CHATS.forEach {
             InitMesseges(
-                    it.value
+                it.value
             )
         }
     }
@@ -1351,65 +1573,65 @@ object Sqlite_service : CoroutineScope {
             WriteExceptionIntoFile(ex, "Sqlite_service.InitMesseges")
         }
     }
-    
+
     @ExperimentalTime
     @DangerousInternalIoApi
     @InternalAPI
     @ExperimentalIoApi
     @JsName("InitializeUpdatesChats")
     internal fun InitializeUpdatesChats(l_MyJSocket: Jsocket) =
-            Sqlite_serviceScope.launch {
-                if (l_MyJSocket.content != null && l_MyJSocket.content!!.isNotEmpty()) {
-                    val updatesChats: MutableMap<String, KChat> = mutableMapOf()
-                    try {
-                        l_MyJSocket.deserialized_ANSWERS_TYPES()
-                        var long_10: String
-                        if (l_MyJSocket.ANSWER_TYPEs != null && l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
-                            val mess = ArrayDeque<ANSWER_TYPE>()
-                            while (l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
-                                val ch = KChat(l_MyJSocket.ANSWER_TYPEs!!.removeFirst(), false)
-                                long_10 = ch.getANSWER_TYPE().LONG_10.toString()
-                                if (long_10.substring(12, 13) == "1") {
-                                    CHATS[ch.getCHATS_ID()] = ch
-                                    updatesChats[ch.getCHATS_ID()] = ch
-                                } else {
-                                    mess.addLast(ch.getANSWER_TYPE())
-                                }
+        Sqlite_serviceScope.launch {
+            if (l_MyJSocket.content != null && l_MyJSocket.content!!.isNotEmpty()) {
+                val updatesChats: MutableMap<String, KChat> = mutableMapOf()
+                try {
+                    l_MyJSocket.deserialized_ANSWERS_TYPES()
+                    var long_10: String
+                    if (l_MyJSocket.ANSWER_TYPEs != null && l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
+                        val mess = ArrayDeque<ANSWER_TYPE>()
+                        while (l_MyJSocket.ANSWER_TYPEs!!.isNotEmpty()) {
+                            val ch = KChat(l_MyJSocket.ANSWER_TYPEs!!.removeFirst(), false)
+                            long_10 = ch.getANSWER_TYPE().LONG_10.toString()
+                            if (long_10.substring(12, 13) == "1") {
+                                CHATS[ch.getCHATS_ID()] = ch
+                                updatesChats[ch.getCHATS_ID()] = ch
+                            } else {
+                                mess.addLast(ch.getANSWER_TYPE())
                             }
-                            while (mess.isNotEmpty()) {
-                                val ms = KMessege(mess.removeFirst())
-                                long_10 = ms.getANSWER_TYPE().LONG_10.toString()
-                                if (long_10.substring(12, 13) == "2") {
-                                    if (!CHATS.containsKey(ms.getCHATS_ID())) {
-                                        var jsocket = Jsocket()
-                                        jsocket.just_do_it = 1011000089 // SELECT_CHATS_INFO
-                                        jsocket.value_id1 = ms.getCHATS_ID()
-                                        jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
-                                        if (jsocket.ANSWER_TYPEs != null && jsocket.ANSWER_TYPEs!!.size > 0) {
-                                            val c = KChat(jsocket.ANSWER_TYPEs!!.removeFirst(), false)
-                                            CHATS[c.getCHATS_ID()] = c
-                                            updatesChats[c.getCHATS_ID()] = c
-                                        }
+                        }
+                        while (mess.isNotEmpty()) {
+                            val ms = KMessege(mess.removeFirst())
+                            long_10 = ms.getANSWER_TYPE().LONG_10.toString()
+                            if (long_10.substring(12, 13) == "2") {
+                                if (!CHATS.containsKey(ms.getCHATS_ID())) {
+                                    var jsocket = Jsocket()
+                                    jsocket.just_do_it = 1011000089 // SELECT_CHATS_INFO
+                                    jsocket.value_id1 = ms.getCHATS_ID()
+                                    jsocket = MySend_JSOCKETs.send_JSOCKET_with_TimeOut(jsocket, null, true)
+                                    if (jsocket.ANSWER_TYPEs != null && jsocket.ANSWER_TYPEs!!.size > 0) {
+                                        val c = KChat(jsocket.ANSWER_TYPEs!!.removeFirst(), false)
+                                        CHATS[c.getCHATS_ID()] = c
+                                        updatesChats[c.getCHATS_ID()] = c
                                     }
-                                    if (CHATS.containsKey(ms.getCHATS_ID())) {
-                                        CHATS[ms.getCHATS_ID()]!!.InsertNewMessege(ms)
-                                    }
+                                }
+                                if (CHATS.containsKey(ms.getCHATS_ID())) {
+                                    CHATS[ms.getCHATS_ID()]!!.InsertNewMessege(ms)
                                 }
                             }
                         }
-                    } catch (ex: Exception) {
-                        WriteExceptionIntoFile(ex, "Sqlite_service.InitializeUpdatesChats")
-                    } finally {
-                        l_MyJSocket.ANSWER_TYPEs?.clear()
-                        l_MyJSocket.content = null
-                        updatesChats.forEach {
-                            InsertChat(
-                                    CHATS[it.key]!!
-                            )
-                        }
+                    }
+                } catch (ex: Exception) {
+                    WriteExceptionIntoFile(ex, "Sqlite_service.InitializeUpdatesChats")
+                } finally {
+                    l_MyJSocket.ANSWER_TYPEs?.clear()
+                    l_MyJSocket.content = null
+                    updatesChats.forEach {
+                        InsertChat(
+                            CHATS[it.key]!!
+                        )
                     }
                 }
             }
+        }
 
     @InternalAPI
     @JsName("DeleteChat")
@@ -1424,27 +1646,27 @@ object Sqlite_service : CoroutineScope {
 
     @InternalAPI
     private fun ClearChats() =
-            Sqlite_serviceScope.launch {
-                try {
-                    Connection.createStatement().CLEAR_CHATS()
-                    CHATS.clear()
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.ClearChats")
-                }
+        Sqlite_serviceScope.launch {
+            try {
+                Connection.createStatement().CLEAR_CHATS()
+                CHATS.clear()
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.ClearChats")
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("DeleteMesseges")
     internal fun DeleteMesseges(lChatsId: String, lMessegesId: Long) =
-            Sqlite_serviceScope.launch {
-                try {
-                    Connection.createStatement().DELETE_MESSEGE(lChatsId, lMessegesId)
-                    CHATS[lChatsId]?.DeleteMessege(lMessegesId)
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "Sqlite_service.DeleteMesseges")
-                }
+        Sqlite_serviceScope.launch {
+            try {
+                Connection.createStatement().DELETE_MESSEGE(lChatsId, lMessegesId)
+                CHATS[lChatsId]?.DeleteMessege(lMessegesId)
+            } catch (ex: Exception) {
+                WriteExceptionIntoFile(ex, "Sqlite_service.DeleteMesseges")
             }
+        }
 
     ////////////////////////////////////////////////////////////////////////////////
     @KtorExperimentalAPI

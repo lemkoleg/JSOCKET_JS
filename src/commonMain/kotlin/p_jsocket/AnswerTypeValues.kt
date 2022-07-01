@@ -30,11 +30,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     //////////////////////// common ////////////////////////////////////
 
-    @JsName("GetRecordOwnerId")
-    var GetRecordOwnerId: ()-> String = { getEMPTY_STRING() }
+    @JsName("GetMainAccountId")
+    var GetMainAccountId: ()-> String = { getIDENTIFICATOR_1() }
 
     @JsName("GetSecondAccountId")
-    var GetSecondAccountId: ()-> String = { getEMPTY_STRING() }
+    var GetSecondAccountId: ()-> String = { getIDENTIFICATOR_3() }
 
     @JsName("GetMainAvatarId")
     var GetMainAvatarId: ()-> String = { getIDENTIFICATOR_2() }
@@ -42,8 +42,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetSecondAvatarId")
     var GetSecondAvatarId: ()-> String = { getIDENTIFICATOR_4() }
 
-    @JsName("GetRecordOwnerName")
-    var GetRecordOwnerName: ()-> String = { getSTRING_1() }
+    @JsName("GetMainAccountName")
+    var GetMainAccountName: ()-> String = { getSTRING_1() }
 
     @JsName("GetSecondAccountName")
     var GetSecondAccountName: ()-> String = { getSTRING_4() }
@@ -317,7 +317,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "3" //CHATS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_7() }
+                GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
                 GetObjectId = { getIDENTIFICATOR_5() }
                 GetAddingDate = { getLONG_4() }
@@ -335,7 +335,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "4" //MESSEGES
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_12() }
+                GetMainAccountId = { getIDENTIFICATOR_12() }
                 GetSecondAccountId = { getIDENTIFICATOR_13() }
                 GetMessegeId = { getLONG_12()}
                 GetAddingDate = { getLONG_11() }
@@ -357,6 +357,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectId = { getEMPTY_STRING() }
                     }
                     "1" -> { // MUSIC
+
+                        GetAlbumId = { getIDENTIFICATOR_8() }
+                        GetAlbumName = { getSTRING_10() }
+
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
                         GetLengthSeconds = { getINTEGER_5() }
@@ -376,6 +380,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectListensPeriod = { getINTEGER_6() }
                     }
                     "2" -> { // VIDEO
+
+                        GetAlbumId = { getIDENTIFICATOR_8() }
+                        GetAlbumName = { getSTRING_10() }
+
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
                         GetLengthSeconds = { getINTEGER_5() }
@@ -395,6 +403,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectListensPeriod = { getINTEGER_6() }
                     }
                     "3" -> { // PICTURE
+                        
+                        GetAlbumId = { getIDENTIFICATOR_8() }
+                        GetAlbumName = { getSTRING_10() }
+
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectProfile = { getSTRING_7().substring(0, 5) }
                         GetObjectType = { getSTRING_7().substring(5, 6) }
@@ -467,7 +479,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "8" //CHATS_LIKES
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_7() }
+                GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetObjectId = { getIDENTIFICATOR_5() }
                 GetObjectProfile = { getSTRING_5().substring(0, 5) }
                 GetChatsLikesRelations = { getSTRING_5().substring(5, 7) }
@@ -485,7 +497,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "9" //CHATS_COST_TYPES
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_7() }
+                GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
                 GetObjectId = { getIDENTIFICATOR_5() }
                 GetChatsCostTypeId = { getINTEGER_5() }
@@ -499,8 +511,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "A" //ALBUMS_COMMENTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
-                GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetAlbumId = { getIDENTIFICATOR_9() }
                 GetLinkOwner = { getIDENTIFICATOR_9() }
                 GetObjectId = { getIDENTIFICATOR_9() }
@@ -521,10 +531,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "B" //ALBUMS_LINKS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetObjectId = { getIDENTIFICATOR_10() }
                 GetAlbumId = { getIDENTIFICATOR_10() }
-                GetAlbumId = { getIDENTIFICATOR_8() }
                 GetAlbumName = { getSTRING_10() }
                 GetAlbumsDescribeStartText = { getSTRING_6() }
                 GetObjectProfile = { getSTRING_7().substring(0, 5) }
@@ -552,7 +560,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "C" //ALBUMS_LINKS_COMMENTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetObjectId = { getIDENTIFICATOR_10() }
                 GetAlbumId = { getIDENTIFICATOR_10() }
@@ -574,8 +581,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "D" //OBJECTS_LINKS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
-
                 GetAlbumId = { getIDENTIFICATOR_8() }
                 GetAlbumName = { getSTRING_10() }
 
@@ -609,8 +614,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "E" //OBJECTS_LINKS_COMMENTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
-                GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetObjectId = { getIDENTIFICATOR_10() }
                 GetLinkOwner = { getIDENTIFICATOR_9() }
                 GetCommentId = { getLONG_5() }
@@ -630,7 +633,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "F" //OBJECTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
+                GetAlbumId = { getIDENTIFICATOR_8() }
+                GetAlbumName = { getSTRING_10() }
+
+                GetObjectId = {getIDENTIFICATOR_5() }
                 GetObjectSize = { getINTEGER_4() }
                 GetLengthSeconds = { getINTEGER_5() }
                 GetObjectName = { getSTRING_5() }
@@ -651,7 +657,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "G" //OBJECTS_COMMENTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetSecondAccountId = { getIDENTIFICATOR_2() }
                 GetObjectId = {getIDENTIFICATOR_9() }
                 GetLinkOwner = { getIDENTIFICATOR_9() }
@@ -672,11 +677,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "H" //ACCOUNTS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
+
             }
             "I" //ALBUMS
             -> {
-                GetRecordOwnerId = { getIDENTIFICATOR_1() }
                 GetObjectId = {getIDENTIFICATOR_8() }
                 GetAlbumId = { getIDENTIFICATOR_8() }
                 GetAlbumName = { getSTRING_10() }

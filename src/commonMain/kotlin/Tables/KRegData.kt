@@ -2,10 +2,6 @@
 
 package Tables
 
-import atomic.AtomicBoolean
-import atomic.AtomicLong
-import atomic.AtomicString
-import co.touchlab.stately.concurrency.AtomicReference
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
@@ -15,9 +11,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
-import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
+import p_jsocket.JSOCKET
+import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -27,55 +24,55 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 @InternalAPI
 @JsName("myConnectionsID")
-val myConnectionsID = AtomicLong(0L)
+var myConnectionsID = 0L
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myConnectionsCoocki")
-val myConnectionsCoocki = AtomicLong(0L)
+var myConnectionsCoocki = 0L
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myConnectionContext")
-val myConnectionContext = AtomicString(Constants.myOS)
+val myConnectionContext = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myLang")
-val myLang = AtomicString("ENG")
+var myLang = "ENG"
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myDeviceId")
-var myDeviceId = AtomicString("")
+var myDeviceId = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myRequestProfile")
-val myRequestProfile = AtomicString("")
+var myRequestProfile = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("myAccountProfile")
-val myAccountProfile = AtomicString("")
+var myAccountProfile = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("isPRO")
-val isPRO = AtomicBoolean(false)
+var isPRO = false
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("mailConfirm")
-val mailConfirm = AtomicBoolean(false)
+var mailConfirm = false
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -86,42 +83,42 @@ private val KRegDataLock = Mutex()
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var ACCOUNT_ID = AtomicString("")
+var Account_Id = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var ACCOUNT_NAME = AtomicString("")
+var Account_Name = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var LANG = AtomicString("")
+var Account_Access = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var AVATAR_ID = AtomicString("")
+var Avatar_Id = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var ORIGINAL_AVATAR_SIZE = AtomicString("")
+var ORIGINAL_AVATAR_SIZE = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var AVATAR_SERVER = AtomicString("")
+var AVATAR_SERVER = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var AVATAR_LINK = AtomicString("")
+var AVATAR_LINK = ""
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var BALANCE_OF_CHATS = AtomicLong(0L)
+var BALANCE_OF_CHATS = 0
 
 var AVATAR_1: ByteArray? = null
 var AVATAR_2: ByteArray? = null
@@ -146,27 +143,42 @@ class KRegData {
             ensureNeverFrozen()
         }
 
-        val InstanceRef: AtomicReference<KRegData.Companion> = AtomicReference(this)
 
+        suspend fun setNEW_REG_DATA(v: JSOCKET? = null) {
 
-        suspend fun setCONNECTION_COOCKI(v: Long) {
-            try {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    KRegDataLock.withLock {
-                        if (v != 0L && Constants.CONNECTION_COOCKI != v) {
-                            CONNECTION_COOCKI = v
-                            CoroutineScope(NonCancellable).launch {
-                                Jsocket.ClearAndfill()
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KRegDataLock.withLock {
+                            if(v != null){
+                                if(v.request_profile.isNotEmpty()
+                                    && v.request_profile.length == 30
+                                    && !v.request_profile.equals("------------------------------") ){
+                                    myRequestProfile = v.request_profile
+                                    isPRO = myRequestProfile.substring(0, 1) == "1"
+                                    mailConfirm = myRequestProfile.substring(2, 3) == "1"
+
+                                }
                             }
+                            Sqlite_service.InsertRegData()
                         }
-                    }
 
+                    } catch (e: my_user_exceptions_class){
+                        throw  e
+                    }catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KRegData",
+                            l_function_name = "ADD_NEW_REG_DATA",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
                 }
-            } catch (ex: Exception) {
             }
         }
 
-        @KorioExperimentalApi
         @JsName("ADD_NEW_REG_DATA")
         fun ADD_NEW_REG_DATA(): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
@@ -174,13 +186,64 @@ class KRegData {
                     try {
                         try {
                             KRegDataLock.lock()
+                            if (NEW_REG_DATA.size > 0) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "KRegData",
+                                    l_function_name = "ADD_NEW_REG_DATA",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "NEW_REG_DATA.size > 0"
+                                )
+                            }
                             while (NEW_REG_DATA.isNotEmpty()) {
-                                TODO()
+                                val anwer_type = NEW_REG_DATA.removeFirst()
+                                if (anwer_type.RECORD_TYPE.equals("7")) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KRegData",
+                                        l_function_name = "ADD_NEW_REG_DATA",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "Record is not RegData"
+                                    )
+                                }
+                                if (anwer_type.STRING_5 != null && anwer_type.STRING_5!!.isNotEmpty()) {
+                                    myAccountProfile = anwer_type.STRING_5!!
+                                }
+
+                                if (anwer_type.IDENTIFICATOR_1 != null && anwer_type.IDENTIFICATOR_1!!.isNotEmpty()) {
+                                    Account_Id = anwer_type.IDENTIFICATOR_1!!
+                                }
+
+                                if (anwer_type.IDENTIFICATOR_2 != null && anwer_type.IDENTIFICATOR_2!!.isNotEmpty()) {
+                                    Account_Id = anwer_type.IDENTIFICATOR_2!!
+                                }
+
+                                if (anwer_type.STRING_1 != null && anwer_type.STRING_1!!.isNotEmpty()) {
+                                    Account_Name = anwer_type.STRING_1!!
+                                }
+
+                                if (anwer_type.STRING_2 != null && anwer_type.STRING_2!!.isNotEmpty()) {
+                                    Account_Access = anwer_type.STRING_2!!
+                                }
+
+                                if (anwer_type.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                    Account_Access = anwer_type.STRING_2!!
+                                }
+
+                                BALANCE_OF_CHATS = anwer_type.INTEGER_1 ?: 0
+
+                                if (anwer_type.answerTypeValues.getIS_UPDATE_BLOB() == "1") {
+                                    ORIGINAL_AVATAR_SIZE =
+                                        anwer_type.answerTypeValues.GetAvatarOriginalSize().toString()
+                                    AVATAR_SERVER = anwer_type.answerTypeValues.GetAvatarServer()
+                                    AVATAR_LINK = anwer_type.answerTypeValues.GetAvatarLink()
+                                    AVATAR_1 = anwer_type.BLOB_1
+                                    AVATAR_2 = anwer_type.BLOB_2
+                                    AVATAR_3 = anwer_type.BLOB_3
+                                }
                             }
                             return@withTimeout true
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
-                                l_class_name = "KRegDataLock",
+                                l_class_name = "KRegData",
                                 l_function_name = "ADD_NEW_REG_DATA",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = ex.message
@@ -195,43 +258,4 @@ class KRegData {
                 }
             }.toPromise(EmptyCoroutineContext)
     }
-}
-
-
-@JsName("getACCOUNT_PROFILE")
-fun getACCOUNT_PROFILE(): String {
-    return ACCOUNT_PROFILE
-}
-
-@JsName("setACCOUNT_PROFILE")
-fun setACCOUNT_PROFILE(v: String?) {
-    if (v != null && v.isNotEmpty()) {
-        ACCOUNT_PROFILE = v
-    }
-}
-
-@JsName("getREQUEST_PROFILE")
-fun getREQUEST_PROFILE(): String {
-    return REQUEST_PROFILE
-}
-
-@JsName("setREQUEST_PROFILE")
-fun setREQUEST_PROFILE(v: String) {
-    if (v != null && v.isNotEmpty()) {
-        REQUEST_PROFILE = v
-    }
-
-}
-
-
-@JsName("getBALANCE_OF_CHATS")
-fun getBALANCE_OF_CHATS(): Long {
-    return LONG_3 ?: 0L
-}
-
-@JsName("setBALANCE_OF_CHATS")
-fun setBALANCE_OF_CHATS(v: Long?) {
-    LONG_3 = v ?: 0L
-}
-
 }

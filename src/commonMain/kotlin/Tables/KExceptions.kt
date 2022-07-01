@@ -35,7 +35,6 @@ private val KExceptionsLock = Mutex()
 val NEW_EXCEPTIONS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
 
-
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
@@ -290,8 +289,52 @@ class KExceptions {
     }
 
 
-    @InternalAPI
     companion object {
+
+        @JsName("ADD_NEW_EXCEPTIONS")
+        fun ADD_NEW_EXCEPTIONS(): Promise<Boolean> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeout(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        val arr: ArrayList<KException> = ArrayList()
+                        try {
+                            KExceptionsLock.lock()
+                            while (NEW_EXCEPTIONS.isNotEmpty()) {
+                                val anwer_type = NEW_EXCEPTIONS.removeFirst()
+                                if (anwer_type.RECORD_TYPE.equals("5")) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KException",
+                                        l_function_name = "ADD_NEW_EXCEPTIONS",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "Record is not Exception"
+                                    )
+                                }
+                                val e = KException(anwer_type)
+                                INSERT_EXCEPTION(e)
+                                arr.add(e)
+                            }
+                            return@withTimeout true
+                        } catch (e: my_user_exceptions_class) {
+                            throw e
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KExceptions",
+                                l_function_name = "ADD_NEW_EXCEPTIONS",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            KExceptionsLock.unlock()
+                            if(!arr.isEmpty()){
+                                Sqlite_service.InsertExceptions(arr)
+                            }
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
+                    }
+                    return@withTimeout false
+                }
+            }.toPromise(EmptyCoroutineContext)
 
 
         private suspend fun INSERT_EXCEPTION(kException: KException) {
@@ -309,22 +352,14 @@ class KExceptions {
             }
         }
 
-        @ExperimentalStdlibApi
-        @InternalAPI
-        fun INSERT_EXCEPTIONS(
-            ans: ArrayList<KException>,
-            is_Update_DB: Boolean
-        ) {
+        fun LOAD_EXCEPTIONS(arr: ArrayList<KException>) {
             CoroutineScope(NonCancellable).launch {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KExceptionsLock.lock()
-                            ans.forEach {
+                            arr.forEach {
                                 INSERT_EXCEPTION(it)
-                            }
-                            if (is_Update_DB) {
-                                Sqlite_service.InsertExceptions(ans)
                             }
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -343,34 +378,6 @@ class KExceptions {
             }
         }
 
-        @KorioExperimentalApi
-        @JsName("ADD_NEW_EXCEPTIONS")
-        fun ADD_NEW_EXCEPTIONS(): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
-                withTimeout(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KExceptionsLock.lock()
-                            while (NEW_EXCEPTIONS.isNotEmpty()) {
-                                TODO()
-                            }
-                            return@withTimeout true
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KExceptions",
-                                l_function_name = "ADD_NEW_EXCEPTIONS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KExceptionsLock.unlock()
-                        }
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
-                    }
-                    return@withTimeout false
-                }
-            }.toPromise(EmptyCoroutineContext)
 
     }
 }

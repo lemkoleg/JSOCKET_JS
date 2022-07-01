@@ -5,10 +5,15 @@ import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.InternalAPI
 import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 expect var sqlDriver: SqlDriver?
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 @JsName("SQLStatement")
 expect class SQLStatement() {
 
@@ -34,15 +39,76 @@ expect class SQLStatement() {
     @JsName("SELECT_BIGAVATARS_ALL")  //for save in memory
     suspend fun SELECT_BIGAVATARS_ALL():ArrayList<KBigAvatar>
 
+    @JsName("UPDATE_BIG_AVATAR_LAST_USE")
+    suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long)
+
     @JsName("CLEAR_BIG_AVATARS")
     suspend fun CLEAR_BIG_AVATARS()
 
     @JsName("DELETE_BIG_AVATARS")
     suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String)
 
-    @JsName("UPDATE_BIG_AVATAR_LAST_USE")
-    suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long)
+    ///////////// commands ///////////////////////////
 
+    @JsName("TABLE_COMMANDS")
+    suspend fun TABLE_COMMANDS()
+
+    @JsName("INSERT_COMMAND")
+    suspend fun INSERT_COMMAND(kCommand: KCommands)
+
+    @JsName("SELECT_COMMANDS_ALL")
+    suspend fun SELECT_COMMANDS_ALL():ArrayList<KCommands>
+
+    @JsName("CLEAR_COMMANDS")
+    suspend fun CLEAR_COMMANDS()
+
+    /////////////exceptions///////////////////////////
+
+    @JsName("TABLE_EXCEPTION")
+    suspend fun TABLE_EXCEPTION()
+
+    @JsName("INSERT_EXCEPTION")
+    suspend fun INSERT_EXCEPTION(kException: KExceptions.KException)
+
+    @JsName("SELECT_EXCEPTION_ALL")
+    suspend fun SELECT_EXCEPTION_ALL():ArrayList<KExceptions.KException>
+
+    @JsName("CLEAR_EXCEPTION")
+    suspend fun CLEAR_EXCEPTION()
+
+    /////////////meta data///////////////////////////
+
+    @JsName("TABLE_METADATA")
+    suspend fun TABLE_METADATA()
+
+    @JsName("INSERT_METADATA")
+    suspend fun INSERT_METADATA(kMetaData: KMetaData)
+
+    @JsName("CLEAR_METADATA")
+    suspend fun CLEAR_METADATA()
+
+    @JsName("SELECT_ALL_METADATA")
+    suspend fun SELECT_ALL_METADATA():ArrayList<KMetaData>
+
+    /////////////reg data///////////////////////////
+
+    @JsName("TABLE_REGDATA")
+    suspend fun TABLE_REGDATA()
+
+    @JsName("TRIGGER_REGDATA_INSERT")
+    suspend fun TRIGGER_REGDATA_INSERT()
+
+    @JsName("TRIGGER_REGDATA_DELETE")
+    suspend fun TRIGGER_REGDATA_DELETE()
+
+    @JsName("INSERT_REGDATA")
+    suspend fun INSERT_REGDATA()
+
+    @JsName("CLEAR_REGDATA")
+    suspend fun CLEAR_REGDATA()
+
+    @JsName("SELECT_REGDATA_ALL")
+    suspend fun SELECT_REGDATA_ALL()
 
     /////////////cash data///////////////////////////
 
@@ -168,33 +234,6 @@ expect class SQLStatement() {
     @JsName("SELECT_CHATSLIKES_ALL")
     suspend fun SELECT_CHATSLIKES_ALL()
 
-    /////////////commands///////////////////////////
-
-    @JsName("TABLE_COMMANDS")
-    suspend fun TABLE_COMMANDS()
-
-    @JsName("INSERT_COMMANDS")
-    suspend fun INSERT_COMMANDS(kCommands: KCommands)
-
-    @JsName("SELECT_COMMANDS_ALL")
-    suspend fun SELECT_COMMANDS_ALL():ArrayList<KCommands>
-
-    @JsName("CLEAR_COMMANDS")
-    suspend fun CLEAR_COMMANDS()
-
-    /////////////exceptions///////////////////////////
-
-    @JsName("TABLE_EXCEPTION")
-    suspend fun TABLE_EXCEPTION()
-
-    @JsName("INSERT_EXCEPTION")
-    suspend fun INSERT_EXCEPTION(kException: KExceptions.KException)
-
-    @JsName("SELECT_EXCEPTION_ALL")
-    suspend fun SELECT_EXCEPTION_ALL():ArrayList<KExceptions.KException>
-
-    @JsName("CLEAR_EXCEPTION")
-    suspend fun CLEAR_EXCEPTION()
 
     /////////////messeges///////////////////////////
 
@@ -218,40 +257,6 @@ expect class SQLStatement() {
 
     @JsName("CLEAR_MESSEGES")
     suspend fun CLEAR_MESSEGES()
-
-    /////////////meta data///////////////////////////
-
-    @JsName("TABLE_METADATA")
-    suspend fun TABLE_METADATA()
-
-    @JsName("INSERT_METADATA")
-    suspend fun INSERT_METADATA(kMetaData: KMetaData)
-
-    @JsName("CLEAR_METADATA")
-    suspend fun CLEAR_METADATA()
-
-    @JsName("SELECT_ALL_METADATA")
-    suspend fun SELECT_ALL_METADATA()
-
-    /////////////reg data///////////////////////////
-
-    @JsName("TABLE_REGDATA")
-    suspend fun TABLE_REGDATA()
-
-    @JsName("TRIGGER_REGDATA_INSERT")
-    suspend fun TRIGGER_REGDATA_INSERT()
-
-    @JsName("TRIGGER_REGDATA_DELETE")
-    suspend fun TRIGGER_REGDATA_DELETE()
-
-    @JsName("INSERT_REGDATA")
-    suspend fun INSERT_REGDATA(kRegData: KRegData)
-
-    @JsName("CLEAR_REGDATA")
-    suspend fun CLEAR_REGDATA()
-
-    @JsName("SELECT_REGDATA_ALL")
-    suspend fun SELECT_REGDATA_ALL()
 
     /////////////save media///////////////////////////
 

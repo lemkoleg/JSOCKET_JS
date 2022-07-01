@@ -1,6 +1,7 @@
 package Tables
 
 import CrossPlatforms.MyCondition
+import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
@@ -11,6 +12,7 @@ import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
+import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -30,8 +32,10 @@ val META_DATA_condition = MyCondition()
 @InternalAPI
 private val KMetaDataLock = Mutex()
 
-
-private var last_update: Long = 0L
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+var meta_data_last_update: AtomicLong = AtomicLong(0L)
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -117,9 +121,7 @@ class KMetaData {
                             KMetaDataLock.lock()
                             kMetaDatas.forEach {
                                 META_DATA[it.getVALUE_NAME()] = it.getVALUE_VALUE()
-                                if (last_update < it.getLATS_UPDATE()) {
-                                    last_update = it.getLATS_UPDATE()
-                                }
+                                meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                             }
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -146,21 +148,36 @@ class KMetaData {
             CoroutineScope(Dispatchers.Default).async {
             withTimeout(Constants.CLIENT_TIMEOUT) {
                 try {
+                    val arr: ArrayList<KMetaData> = ArrayList()
                     try {
                         KMetaDataLock.lock()
                         while (NEW_META_DATA.isNotEmpty()) {
-                            TODO()
+                            val anwer_type = NEW_META_DATA.removeFirst()
+                            if(anwer_type.RECORD_TYPE.equals("2")){
+                                throw my_user_exceptions_class(
+                                    l_class_name = "KMetaData",
+                                    l_function_name = "ADD_NEW_META_DATA",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "Record is not MetaData"
+                                )
+                            }
+                            val k = KMetaData(anwer_type)
+                            META_DATA[k.VALUE_NAME] = k.VALUE_VALUE
+                            arr.add(k)
                         }
                         return@withTimeout true
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
-                            l_class_name = "KCashData",
+                            l_class_name = "KMetaData",
                             l_function_name = "ADD_NEW_META_DATA",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
                     } finally {
                         KMetaDataLock.unlock()
+                        if(!arr.isEmpty()){
+                            Sqlite_service.InsertMetaData(arr)
+                        }
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)

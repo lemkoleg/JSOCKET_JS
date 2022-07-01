@@ -46,7 +46,7 @@ class ClientExecutor {
     suspend fun execute(lJsocket: Jsocket) {
         try {
             jsocket = lJsocket
-            curCommand = Commands[jsocket.just_do_it]
+            curCommand = COMMANDS[jsocket.just_do_it]
 
             // what dowload
 
@@ -97,7 +97,7 @@ class ClientExecutor {
                 if (curCommand!!.commands_id.equals(1011000078)) { // INSERT_MESSEGE
                     if (w.equals(1) || w.equals(2) || w.equals(2)) {
                         jsocket.just_do_it = 1011000094 // INSERT_MESSEGE_WITH_OBJECT
-                        curCommand = Commands[jsocket.just_do_it]
+                        curCommand = COMMANDS[jsocket.just_do_it]
                         jsocket.AvatarFullPathForSend = ""
                     }
                 }

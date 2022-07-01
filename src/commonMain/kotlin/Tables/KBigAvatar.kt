@@ -17,7 +17,6 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
-import p_client.CLIENT_JSOCKET_POOL
 import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
@@ -120,7 +119,6 @@ class KBigAvatar {
         private val KBigAvatar_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
 
 
-        @KorioExperimentalApi
         @JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar):Promise<Boolean>  =
             CoroutineScope(Dispatchers.Default).async {
@@ -151,12 +149,12 @@ class KBigAvatar {
             }.toPromise(EmptyCoroutineContext)
 
 
-        @KorioExperimentalApi
         @JsName("ADD_NEW_BIG_AVATARS")
         fun ADD_NEW_BIG_AVATARS():Promise<Boolean>  =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeout(Constants.CLIENT_TIMEOUT) {
                     try {
+                        val arr: ArrayList<KBigAvatar> = ArrayList()
                         try {
                             KBigAvatarLock.lock()
                             while (NEW_BIG_AVATARS.isNotEmpty()) {
@@ -171,10 +169,11 @@ class KBigAvatar {
                                 }
                                 if (!BIG_AVATARS_IDS.containsKey(anwer_type.answerTypeValues.GetMainAvatarId())) {
                                     val bigAvatar = KBigAvatar(anwer_type)
-                                    Sqlite_service.InsertBigAvatar(bigAvatar)
+                                    arr.add(bigAvatar)
                                     BIG_AVATARS_IDS[bigAvatar.AVATAR_ID] = bigAvatar.AVATAR_ID
                                     BIG_AVATARS[bigAvatar.AVATAR_ID] = bigAvatar
                                 }
+
                             }
                             return@withTimeout true
                         } catch (e: my_user_exceptions_class){
@@ -188,6 +187,9 @@ class KBigAvatar {
                             )
                         } finally {
                             KBigAvatarLock.unlock()
+                            if(!arr.isEmpty()){
+                                Sqlite_service.InsertBigAvatars(arr)
+                            }
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
@@ -198,7 +200,6 @@ class KBigAvatar {
 
 
 
-        @KorioExperimentalApi
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             jsocket: Jsocket? = null,
@@ -242,10 +243,14 @@ class KBigAvatar {
             }
             if (kBigAvatar == null && jsocket != null) {
                 jsocket.execute().await()
-                if (jsocket.content != null && jsocket.content!!.size > 0) {
+                if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
                     kBigAvatar = KBigAvatar(jsocket)
-                    INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar!!)
-                    Sqlite_service.InsertBigAvatars(kBigAvatar!!)
+                    if(kBigAvatar != null){
+                        INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar!!)
+                        val arr: ArrayList<KBigAvatar> = ArrayList()
+                        arr.add(kBigAvatar!!)
+                        Sqlite_service.InsertBigAvatars(arr)
+                    }
                 }
             }
             return@async kBigAvatar
@@ -277,12 +282,11 @@ class KBigAvatar {
                     e.ExceptionHand(null)
                     return@withTimeoutOrNull false
                 }
-            } == true
+            }?: false
         }
 
-        @InternalAPI
-        @JsName("LOAD_BIG_AVATAR_ADS")
-        fun LOAD_BIG_AVATAR_ADS(ids: ArrayList<String>) {
+        @JsName("LOAD_BIG_AVATARS_IDS")
+        fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
             KBigAvatar_serviceScope.launch {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
