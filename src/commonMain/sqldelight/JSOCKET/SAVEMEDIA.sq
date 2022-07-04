@@ -1,29 +1,24 @@
 table_SaveMedia:
 CREATE TABLE IF NOT EXISTS SaveMedia
-(OBJECT_ID TEXT PRIMARY KEY,                           --IDENTIFICATOR5
- CONNECTION_ID INTEGER NOT NULL,                       --LONG_19
- AVATAR_ID TEXT,                                       --IDENTIFICATOR6
- OBJECT_OWNER TEXT,                                    --IDENTIFICATOR7
- OBJECT_NAME TEXT,                                     --STRING_5
- OBJECT_SIZE INTEGER,                                  --INTEGER_4
- OBJECT_LENGTH_SECONDS INTEGER,                        --INTEGER_5
- OBJECT_SERVER TEXT,                                   --STRING_6
- OBJECT_PROFILE_STRING TEXT,                           --STRING_7
- OBJECT_LINK TEXT,                                     --STRING_8
- OBJECT_EXTENSION TEXT,                                --STRING_9
- AVATAR_LINK TEXT,                                     --STRING_18
- AVATAR_SERVER TEXT,                                   --STRING_16
- ORIGINAL_AVATAR_SIZE INTEGER,                         --STRING_17
+(OBJECT_ID TEXT PRIMARY KEY,
+ CONNECTION_ID INTEGER NOT NULL,
+ AVATAR_ID TEXT,
+ OBJECT_NAME TEXT,
+ OBJECT_SIZE INTEGER,
+ OBJECT_LENGTH_SECONDS INTEGER,
+ OBJECT_SERVER TEXT,
+ OBJECT_LINK TEXT,
+ OBJECT_EXTENSION TEXT,
+ AVATAR_LINK TEXT,
+ AVATAR_SERVER TEXT,
+ ORIGINAL_AVATAR_SIZE INTEGER,
  SMALL_AVATAR BLOB,
  BIG_AVATAR BLOB,
- IS_TEMP INTEGER NOT NULL,                             --INTEGER_6
- IS_DOWNLOAD INTEGER NOT NULL,                         --INTEGER_7
- LAST_USED INTEGER NOT NULL,                           --LONG_20
-
+ IS_TEMP INTEGER NOT NULL,
+ LAST_USED INTEGER NOT NULL,
  CHECK (length(CONNECTION_ID) = 18
  AND length(OBJECT_ID) = 18
- AND (IS_TEMP BETWEEN 0 AND 1)
- AND (IS_DOWNLOAD BETWEEN 0 AND 1)));
+ AND (IS_TEMP BETWEEN 0 AND 1)));
 
 index_SaveMedia_ConnectionId:
 CREATE INDEX ISaveMediaConnectionId ON SaveMedia(CONNECTION_ID);
@@ -90,12 +85,10 @@ INSERT OR REPLACE INTO SaveMedia
 (OBJECT_ID,
   CONNECTION_ID,
   AVATAR_ID,
-  OBJECT_OWNER,
   OBJECT_NAME,
   OBJECT_SIZE,
   OBJECT_LENGTH_SECONDS,
   OBJECT_SERVER,
-  OBJECT_PROFILE_STRING,
   OBJECT_LINK,
   OBJECT_EXTENSION,
   AVATAR_LINK,
@@ -104,10 +97,9 @@ INSERT OR REPLACE INTO SaveMedia
   SMALL_AVATAR,
   BIG_AVATAR,
   IS_TEMP,
-  IS_DOWNLOAD,
   LAST_USED)
 VALUES 
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 
 select_SaveMedia_all:

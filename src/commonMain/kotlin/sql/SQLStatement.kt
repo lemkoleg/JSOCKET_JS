@@ -110,6 +110,38 @@ expect class SQLStatement() {
     @JsName("SELECT_REGDATA_ALL")
     suspend fun SELECT_REGDATA_ALL()
 
+    /////////////save media///////////////////////////
+
+    @JsName("TABLE_SAVEMEDIA")
+    suspend fun TABLE_SAVEMEDIA()
+
+    @JsName("INDEX_SAVEMEDIA_CONNECTIONID")
+    suspend fun INDEX_SAVEMEDIA_CONNECTIONID()
+
+    @JsName("INDEX_SAVEMEDIA_LASTUSED")
+    suspend fun INDEX_SAVEMEDIA_LASTUSED()
+
+    @JsName("INDEX_SAVEMEDIA_ISTEMP")
+    suspend fun INDEX_SAVEMEDIA_ISTEMP()
+
+    @JsName("INDEX_SAVEMEDIA_AVATARID")
+    suspend fun INDEX_SAVEMEDIA_AVATARID()
+
+    @JsName("TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT")
+    suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
+
+    @JsName("TRIGGER_SAVEMEDIA_CONTROL_COUNT")
+    suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT()
+
+    @JsName("INSERT_SAVEMEDIA")
+    suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia)
+
+    @JsName("SELECT_SAVEMEDIA_ALL")
+    suspend fun SELECT_SAVEMEDIA_ALL():ArrayList<KSaveMedia>
+
+    @JsName("DELETE_SAVEMEDIA")
+    suspend fun DELETE_SAVEMEDIA(v: String)
+
     /////////////cash data///////////////////////////
 
     @JsName("TABLE_CASHDATA")
@@ -258,37 +290,7 @@ expect class SQLStatement() {
     @JsName("CLEAR_MESSEGES")
     suspend fun CLEAR_MESSEGES()
 
-    /////////////save media///////////////////////////
 
-    @JsName("TABLE_SAVEMEDIA")
-    suspend fun TABLE_SAVEMEDIA()
-
-    @JsName("INDEX_SAVEMEDIA_CONNECTIONID")
-    suspend fun INDEX_SAVEMEDIA_CONNECTIONID()
-
-    @JsName("INDEX_SAVEMEDIA_LASTUSED")
-    suspend fun INDEX_SAVEMEDIA_LASTUSED()
-
-    @JsName("INDEX_SAVEMEDIA_ISTEMP")
-    suspend fun INDEX_SAVEMEDIA_ISTEMP()
-
-    @JsName("INDEX_SAVEMEDIA_AVATARID")
-    suspend fun INDEX_SAVEMEDIA_AVATARID()
-
-    @JsName("TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT")
-    suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
-
-    @JsName("TRIGGER_SAVEMEDIA_CONTROL_COUNT")
-    suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT()
-
-    @JsName("INSERT_SAVEMEDIA")
-    suspend fun INSERT_SAVEMEDIA()
-
-    @JsName("SELECT_SAVEMEDIA_ALL")
-    suspend fun SELECT_SAVEMEDIA_ALL(kSaveMedia: KSaveMedia)
-
-    @JsName("DELETE_SAVEMEDIA")
-    suspend fun DELETE_SAVEMEDIA()
 
     /////////////////////////////////////////////////////////////////////////
     @JsName("connect")

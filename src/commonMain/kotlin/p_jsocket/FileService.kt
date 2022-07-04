@@ -15,6 +15,7 @@ import Tables.SAVE_MEDIA
 import co.touchlab.stately.concurrency.AtomicInt
 import co.touchlab.stately.concurrency.value
 import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.klock.DateTime
 import com.soywiz.korim.bitmap.Bitmap32
 import com.soywiz.korim.color.RGB_555
 import com.soywiz.korim.format.ImageEncodingProps
@@ -34,7 +35,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
-import p_client.CLIENT_JSOCKET_POOL
 import p_client.Jsocket
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
@@ -73,95 +73,52 @@ class FileService(jsocket: Jsocket? = null) {
 
     val command: Int = jsocket?.just_do_it ?: 0
 
-    val SELF_Jsocket: Jsocket? = if (jsocket == null) {
-        null
-    } else {
-        var j: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
-        if (j == null) {
-            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_JSOCKET_POOL is emprty")
-            }
-            j = Jsocket()
-            j!!.set_value(jsocket)
-        }
-        j
-    }
+    val SELF_Jsocket: Jsocket? = if (jsocket != null) jsocket.local_answer_type!!.GetJsocket() else null
 
-    val fIleName: String =
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            if (SELF_Jsocket!!.value_par4.isEmpty()) { // object_link
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "constructor",
-                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
-                )
-            } else {
-                DeleteSymbols(SELF_Jsocket.value_par4) // OBJECT_LINK
-            }
-        } else {
-            if (command.equals(1011000056)) { // take_a_new_file();
-                if (SELF_Jsocket!!.FileFullPathForSend.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
-                    throw my_user_exceptions_class(
-                        l_class_name = "FileService",
-                        l_function_name = "constructor",
-                        name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
-                    )
-                } else {
-                    if (file == null) {
-                        file = CrossPlatformFile(SELF_Jsocket.FileFullPathForSend)
-                    }
-                    file!!.getFileName()
-                }
-
-            } else ""
-        }
-
-    var fileExtension: String =
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            if (SELF_Jsocket!!.object_extension.isEmpty()) { // object_link
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "constructor",
-                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY",
-                    l_additional_text = "FileExtension is empty"
-                )
-            } else {
-                DeleteSymbols(SELF_Jsocket.object_extension).lowercase()
-            }
-        } else {
-            if (command.equals(1011000056)) { // take_a_new_file();
-                if (SELF_Jsocket!!.FileFullPathForSend.isEmpty()) { // FILE FULL PATH into CLIENT SIZE
-                    throw my_user_exceptions_class(
-                        l_class_name = "FileService",
-                        l_function_name = "constructor",
-                        name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
-                    )
-                } else {
-                    if (file == null) {
-                        file = CrossPlatformFile(SELF_Jsocket.FileFullPathForSend)
-                    }
-                    file!!.getFileExtension().lowercase()
-                }
-
-            } else ""
-        }
 
     val save_media: KSaveMedia? =
+
         if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
 
-            var s = SAVE_MEDIA[fIleName]
-
-            if (s != null) {
+            var s: KSaveMedia? = SAVE_MEDIA[SELF_Jsocket!!.local_answer_type!!.answerTypeValues.GetObjectId()]
+            if (s == null) {
+                s = KSaveMedia(
+                    L_OBJECT_ID = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectId(),
+                    L_AVATAR_ID = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetMainAvatarId(),
+                    L_OBJECT_NAME = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectName(),
+                    L_OBJECT_SIZE = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectSize(),
+                    L_OBJECT_LENGTH_SECONDS = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetLengthSeconds(),
+                    L_OBJECT_SERVER = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectServer(),
+                    L_OBJECT_LINK = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectLink(),
+                    L_OBJECT_EXTENSION = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectExtension(),
+                    L_AVATAR_LINK = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarLink(),
+                    L_AVATAR_SERVER = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarServer(),
+                    L_ORIGINAL_AVATAR_SIZE = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarOriginalSize(),
+                    L_SMALL_AVATAR = SELF_Jsocket.local_answer_type!!.BLOB_1,
+                    L_BIG_AVATAR = null,
+                    L_IS_TEMP = if(command.equals(1011000007)) 0 else 1,
+                    L_IS_DOWNLOAD = 0,
+                    L_LAST_USED = 0,
+                )
+            }else{
                 if (command.equals(1011000007) && s!!.getIS_TEMP()) {
                     s!!.setIsPerminent()
+                }else{
+                    s!!.setLAST_USED()
                 }
-                s!!.setLAST_USED()
-                IsDownloaded = true
-            } else {
-                s = SELF_Jsocket?.let { KSaveMedia(it) }
+
+                IsDownloaded = s!!.IS_DOWNLOAD == 1
             }
+
+            SELF_Jsocket.object_size = s!!.OBJECT_SIZE.toLong()
+            SELF_Jsocket.object_extension = s!!.OBJECT_EXTENSION
+            SELF_Jsocket.object_server = s!!.OBJECT_SERVER
+            SELF_Jsocket.value_par4 = s!!.OBJECT_LINK
+            SELF_Jsocket.value_par5 = s!!.AVATAR_LINK
+            SELF_Jsocket.value_par6 = s!!.AVATAR_SERVER
             s
         } else null
+
 
     val fIleFullName: String = if (SELF_Jsocket == null) {
         ""
@@ -182,34 +139,45 @@ class FileService(jsocket: Jsocket? = null) {
 
     private var ExpectedFIleSize: Long =
         if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            SELF_Jsocket!!.object_size
+            save_media!!.OBJECT_SIZE.toLong()
         } else {
             0L
         }
 
     var currentFIleSize: Long = 0L
         private set
+
     private var CURRENT_CHUNK_SIZE: Int =
         if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
             if (IsDownloaded) Constants.CHUNK_SIZE else 0
         } else 0
+
+
+    private var Chunks: IntArray? = null
+
+    private var NotSendedChunks: Int = 0
+
+    private var EndFIleBytes: Long = 0L
+
+    private var CurrentLoopBytes = 0L
+
+    private var AllBytes = 0L
+
+    private var SendedBytes = 0L
+
+    var ServerFileName = ""  // Fale name into Server for send file
+
     private var SEND_AVATAR_SIZE = Constants.SEND_AVATAR_SIZE
     private var MAX_FILE_SIZE = Constants.MAX_FILES_SIZE_B
     private val AVATAR_MAX_SIZE = Constants.AVATAR_MAX_SIZE_FOR_LOADING
-    private var Chunks: IntArray? = null
-    private var NotSendedChunks: Int = 0
-    private var EndFIleBytes: Long = 0L
-    private var CurrentLoopBytes = 0L
-    private var AllBytes = 0L
-    private var SendedBytes = 0L
-    var ServerFileName = ""  // Fale name into Server for send file
+
     private var MaxTryingSendReceiveFileChunks = Constants.MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS
 
 
     init {
         ensureNeverFrozen()
         if (!command.equals(0)) {
-            if (fIleName.isEmpty() || fileExtension.isEmpty()) {
+            if (SELF_Jsocket == null) {
                 throw my_user_exceptions_class(
                     l_class_name = "FileService",
                     l_function_name = "constructor",
@@ -220,8 +188,19 @@ class FileService(jsocket: Jsocket? = null) {
         if (SELF_Jsocket != null) {
             if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
                 SELF_Jsocket.just_do_it = 1011000055 // GIVE_ME_THAT_FILE;
+                SELF_Jsocket.value_par4 = save_media!!.OBJECT_LINK
+                SELF_Jsocket.value_par5 = save_media.AVATAR_LINK
+                SELF_Jsocket.value_par6 = save_media.AVATAR_SERVER
+                SELF_Jsocket.content = null
+            }else if(command.equals(1011000056)) { // take_a_new_file();
+                SELF_Jsocket.FileFullPathForSend = jsocket!!.FileFullPathForSend
+                SELF_Jsocket.AvatarFullPathForSend = jsocket.AvatarFullPathForSend
+                SELF_Jsocket.content = jsocket.content //avatar
+                jsocket.content = null
             }
+            SELF_Jsocket.local_answer_type = jsocket!!.local_answer_type
         }
+
     }
 
     private fun DeleteSymbols(InputString: String): String {
@@ -233,7 +212,7 @@ class FileService(jsocket: Jsocket? = null) {
     private fun createFileExtensionFromFullFIleName(LFileFullName: String): String {
         return try {
             if (save_media != null) {
-                return save_media.getOBJECT_EXTENSION()
+                return save_media.OBJECT_EXTENSION
             }
             val extension: String = DeleteSymbols(LFileFullName.trim()).substringAfterLast(".")
             if (extension.trim().isEmpty()) {
@@ -292,14 +271,18 @@ class FileService(jsocket: Jsocket? = null) {
                         KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(P_AVATAR_ID = SELF_Jsocket.value_id3).await()
                             ?.getAVATAR(), SELF_Jsocket.value_id3
                     )
-                    avatar = save_media.getBIG_AVATAR()
+                    avatar = save_media.BIG_AVATAR
                 }
-                if (save_media!!.getBIG_AVATAR() == null) {
-                    SELF_Jsocket.value_par1 = if (SELF_Jsocket.value_par6.equals("NO_ORIGINAL")) "2" else "1"
+
+                if (save_media!!.BIG_AVATAR == null) {
+                    SELF_Jsocket.value_par3 = if (SELF_Jsocket.value_par6.equals("NO_ORIGINAL")) "2" else "1"
+                } else{
+                    SELF_Jsocket.value_par3 = "0"
                 }
+
                 SELF_Jsocket.send_request()
 
-                CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
+                CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
 
                 file!!.create(ExpectedFIleSize) // create full size file
 
@@ -310,6 +293,7 @@ class FileService(jsocket: Jsocket? = null) {
                 } else {
                     IntArray(i)
                 }
+
                 NotSendedChunks = Chunks!!.size
 
                 if (SELF_Jsocket.value_par2.equals("A")) {
@@ -344,21 +328,33 @@ class FileService(jsocket: Jsocket? = null) {
             } else return null
 
         } else if (command.equals(1011000056)) { // take_a_new_file();
+
+            if (!file!!.exists() || !file!!.isFile()) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "open_file_channel",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "file not exists"
+                )
+            }
+
+            if (file!!.size() == 0L || file!!.size() > Constants.MAX_FILES_SIZE_B) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "open_file_channel",
+                    name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                )
+            }
+
             ExpectedFIleSize = file!!.size()
+            SELF_Jsocket.object_size = ExpectedFIleSize
             SELF_Jsocket.send_request()
             ServerFileName = SELF_Jsocket.value_par4
-            CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
+            CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
             return send_file()
         }
 
-        if (!file!!.exists() || !file!!.isFile() || file!!.size() != ExpectedFIleSize) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "open_file_channel",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "file not exists"
-            )
-        }
+
         return null
     }
 
@@ -608,7 +604,7 @@ class FileService(jsocket: Jsocket? = null) {
     suspend fun FinishDownloadedFile(): Boolean {
         return if (IsDownloaded) {
             if (file!!.renameTo(save_media!!.ReturnDownloadedFullFileName())) {
-                KSaveMedia.AddNewSaveMedia(save_media)
+                KSaveMedia.AddNewSaveMedia(save_media).await()
             } else false
         } else {
             file!!.delete()
@@ -655,9 +651,9 @@ class FileService(jsocket: Jsocket? = null) {
                 name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
             )
         }
-        if (fileExtension.trim().isEmpty()) {
-            fileExtension = createFileExtensionFromFullFIleName(lFullFileName)
-        }
+
+        val fileExtension = createFileExtensionFromFullFIleName(lFullFileName)
+
         if (!PictureSet.contains(fileExtension)) {
             throw my_user_exceptions_class(
                 l_class_name = "FileService",

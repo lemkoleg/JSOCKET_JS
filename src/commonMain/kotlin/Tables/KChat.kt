@@ -372,7 +372,7 @@ class KChat{
         val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
 
 
-        private fun setGlobalLastUpdatingDate(lUpdatingDate: Long) {
+        private suspend fun setGlobalLastUpdatingDate(lUpdatingDate: Long) {
             globalLastUpdatingDate.setGreaterValue(lUpdatingDate)
         }
 

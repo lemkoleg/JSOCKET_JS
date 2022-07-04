@@ -162,6 +162,7 @@ class KMetaData {
                                 )
                             }
                             val k = KMetaData(anwer_type)
+                            meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
                             META_DATA[k.VALUE_NAME] = k.VALUE_VALUE
                             arr.add(k)
                         }

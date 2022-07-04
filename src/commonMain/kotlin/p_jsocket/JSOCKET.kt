@@ -569,6 +569,10 @@ open class JSOCKET() {
     var is_new_reg_data: Boolean = false
 
 
+    @JsName("local_answer_type")
+    var local_answer_type: ANSWER_TYPE? = null
+
+
     private var start_position = 0
     private var reverse_start_position = 0
     private var md5String: String = ""
@@ -742,9 +746,10 @@ open class JSOCKET() {
             device_id = myDeviceId
             lang = myLang
             last_messege_update = KChat.globalLastUpdatingDate.value
+            last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
-            myConnectionContext
+            connection_context = myConnectionContext
             just_do_it_label = nowNano()
 
 
@@ -1419,7 +1424,7 @@ open class JSOCKET() {
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "(connection_id = ${connection_id}) not equal (myConnectionsID = ${myConnectionsID} ;)  "
+                    l_additional_text = "(connection_id = $connection_id) not equal (myConnectionsID = $myConnectionsID ;)  "
                 )
             }
 

@@ -310,6 +310,7 @@ class KExceptions {
                                     )
                                 }
                                 val e = KException(anwer_type)
+                                meta_data_last_update.setGreaterValue(e.LAST_UPDATE)
                                 INSERT_EXCEPTION(e)
                                 arr.add(e)
                             }
@@ -360,6 +361,7 @@ class KExceptions {
                             KExceptionsLock.lock()
                             arr.forEach {
                                 INSERT_EXCEPTION(it)
+                                meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                             }
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -377,7 +379,5 @@ class KExceptions {
                 }
             }
         }
-
-
     }
 }

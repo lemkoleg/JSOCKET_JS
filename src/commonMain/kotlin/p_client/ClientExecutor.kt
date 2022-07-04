@@ -8,10 +8,7 @@
 package p_client
 
 import CrossPlatforms.CrossPlatformFile
-import Tables.JsocketValues
-import Tables.KBigAvatar
-import Tables.myConnectionsCoocki
-import Tables.myConnectionsID
+import Tables.*
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -113,7 +110,7 @@ class ClientExecutor {
             }
 
             if (jsocket.AvatarFullPathForSend.isNotEmpty()) {
-                if(file == null){
+                if (file == null) {
                     file = CrossPlatformFile(jsocket.AvatarFullPathForSend)
                     if (!file.exists() || file.isDirectory()) {
                         throw my_user_exceptions_class(
@@ -244,7 +241,7 @@ class ClientExecutor {
                     }
                     when (jsocket.just_do_it) {
                         1011000010, 1011000026, 1011000027 -> {
-                            myConnectionsCoocki.setNewValue(l1)
+                            myConnectionsCoocki = l1
                         }
                         else -> {
                         }
@@ -309,7 +306,15 @@ class ClientExecutor {
     @KorioExperimentalApi
     private suspend fun self_execute() {
         when (jsocket.just_do_it) {
-            1011000057 -> Sqlite_service.DeleteSaveMedia(jsocket.value_id1) // DELETE_SAVE_MEDIA
+            1011000057 -> {// DELETE_SAVE_MEDIA
+                val s = SAVE_MEDIA[jsocket.local_answer_type!!.answerTypeValues.GetObjectId()]
+                if(s != null){
+                    KSaveMedia.DeleteSaveMedia(s.OBJECT_ID)
+                }
+            }
+            1011000025 -> {// CLEAR_SAVE_MEDIA
+                KSaveMedia.ClearSaveMedia()
+            }
             1011000007 -> { // SAVE SAVE_MEDIA (DOWNLOAD FILE)
                 val f = FileService(jsocket)
                 f.open_file_channel()
@@ -326,33 +331,35 @@ class ClientExecutor {
     @KorioExperimentalApi
     private suspend fun execute_with_send_file() {
 
-        val jsocketValues = JsocketValues()
-        val j = jsocketValues.GetFileMetaDataForDownload(jsocket)
-        val f = FileService(j)
-        if(f.open_file_channel() != null && f.send_file().await()){
-           if(f.send_file().await()){
-               jsocket.value_par1 = f.ServerFileName
-               if(jsocket.value_par1.isEmpty()){
-                   throw my_user_exceptions_class(
-                       l_class_name = "ClientExecutor",
-                       l_function_name = "execute_with_send_file",
-                       name_of_exception = "EXC_ERROR_SEND_FILE"
-                   )
-               }
-               jsocket.send_request(craete_check_sum = false, verify_fields = true)
-           }else{
-               throw my_user_exceptions_class(
-                   l_class_name = "ClientExecutor",
-                   l_function_name = "execute_with_send_file",
-                   name_of_exception = "EXC_ERROR_SEND_FILE"
-               )
-           }
-        }else{
-            throw my_user_exceptions_class(
-                l_class_name = "ClientExecutor",
-                l_function_name = "update_account",
-                name_of_exception = "EXC_ERROR_SEND_FILE"
-            )
+        if (jsocket.FileFullPathForSend.isNotEmpty()) {
+            val f = FileService(jsocket)
+            if (f.open_file_channel() != null && f.send_file().await()) {
+                if (f.send_file().await()) {
+                    jsocket.value_par3 = f.ServerFileName
+                    if (jsocket.value_par3.isEmpty()) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "ClientExecutor",
+                            l_function_name = "execute_with_send_file",
+                            name_of_exception = "EXC_ERROR_SEND_FILE"
+                        )
+                    }
+                    jsocket.send_request(craete_check_sum = false, verify_fields = true)
+                } else {
+                    throw my_user_exceptions_class(
+                        l_class_name = "ClientExecutor",
+                        l_function_name = "execute_with_send_file",
+                        name_of_exception = "EXC_ERROR_SEND_FILE"
+                    )
+                }
+            } else {
+                throw my_user_exceptions_class(
+                    l_class_name = "ClientExecutor",
+                    l_function_name = "update_account",
+                    name_of_exception = "EXC_ERROR_SEND_FILE"
+                )
+            }
+        } else {
+            jsocket.send_request(craete_check_sum = false, verify_fields = true)
         }
     }
 
@@ -365,8 +372,8 @@ class ClientExecutor {
         jsocket.send_request(craete_check_sum = false, verify_fields = true)
         if (jsocket.just_do_it_successfull == "0") {
             Sqlite_service.ClearRegData()
-            myConnectionsCoocki.setNewValue(0L)
-            myConnectionsID.setNewValue(0L)
+            myConnectionsCoocki = 0L
+            myConnectionsID = 0L
         }
     } ////////////////////////////////////////////////////////////////////////////////
 }

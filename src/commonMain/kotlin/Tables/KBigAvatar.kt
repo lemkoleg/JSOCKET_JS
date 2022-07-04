@@ -50,7 +50,6 @@ private val KBigAvatarLock = Mutex()
 val NEW_BIG_AVATARS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
 
-
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -82,7 +81,12 @@ class KBigAvatar {
 
     constructor(jsocket: Jsocket) {
         if (jsocket.value_par1.isEmpty() || jsocket.content == null || jsocket.content!!.isEmpty()) {
-            return
+            throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "constructor",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Empty jsocket's data for KBirAvatar"
+            )
         }
         AVATAR_ID = jsocket.value_id3
         LAST_USE = DateTime.nowUnixLong()
@@ -91,9 +95,17 @@ class KBigAvatar {
 
 
     constructor(answerType: ANSWER_TYPE) {
+        if (answerType.IDENTIFICATOR_2 == null || answerType.IDENTIFICATOR_2!!.isEmpty() || answerType.BLOB_3 == null || answerType.BLOB_3!!.isEmpty()) {
+            throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "constructor",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Empty jsocket's data for KBirAvatar"
+            )
+        }
         AVATAR_ID = answerType.IDENTIFICATOR_2!!
         LAST_USE = DateTime.nowUnixLong()
-        AVATAR = answerType.BLOB_3
+        AVATAR = answerType.BLOB_3!!
     }
 
 
@@ -120,16 +132,18 @@ class KBigAvatar {
 
 
         @JsName("ADD_NEW_BIG_AVATAR")
-        fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar):Promise<Boolean>  =
+        fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeout(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KBigAvatarLock.lock()
-                                if (!BIG_AVATARS_IDS.containsKey(avatar.AVATAR_ID)) {
-                                    Sqlite_service.InsertBigAvatar(avatar)
-                                    BIG_AVATARS_IDS[avatar.AVATAR_ID] = avatar.AVATAR_ID
-                                }
+                            if (!BIG_AVATARS_IDS.containsKey(avatar.AVATAR_ID)) {
+                                BIG_AVATARS_IDS[avatar.AVATAR_ID] = avatar.AVATAR_ID
+                                val arr: ArrayList<KBigAvatar> = ArrayList()
+                                arr.add(avatar)
+                                Sqlite_service.InsertBigAvatars(arr)
+                            }
                             return@withTimeout true
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -150,7 +164,7 @@ class KBigAvatar {
 
 
         @JsName("ADD_NEW_BIG_AVATARS")
-        fun ADD_NEW_BIG_AVATARS():Promise<Boolean>  =
+        fun ADD_NEW_BIG_AVATARS(): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeout(Constants.CLIENT_TIMEOUT) {
                     try {
@@ -159,7 +173,7 @@ class KBigAvatar {
                             KBigAvatarLock.lock()
                             while (NEW_BIG_AVATARS.isNotEmpty()) {
                                 val anwer_type = NEW_BIG_AVATARS.removeFirst()
-                                if(anwer_type.RECORD_TYPE.equals("6")){
+                                if (anwer_type.RECORD_TYPE.equals("6")) {
                                     throw my_user_exceptions_class(
                                         l_class_name = "KBigAvatar",
                                         l_function_name = "ADD_NEW_BIG_AVATARS",
@@ -176,7 +190,7 @@ class KBigAvatar {
 
                             }
                             return@withTimeout true
-                        } catch (e: my_user_exceptions_class){
+                        } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -187,7 +201,7 @@ class KBigAvatar {
                             )
                         } finally {
                             KBigAvatarLock.unlock()
-                            if(!arr.isEmpty()){
+                            if (!arr.isEmpty()) {
                                 Sqlite_service.InsertBigAvatars(arr)
                             }
                         }
@@ -199,18 +213,17 @@ class KBigAvatar {
             }.toPromise(EmptyCoroutineContext)
 
 
-
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             jsocket: Jsocket? = null,
             P_AVATAR_ID: String? = null
         ): Promise<KBigAvatar?> = KBigAvatar_serviceScope.async {
 
-            if(jsocket == null && P_AVATAR_ID == null){
+            if (jsocket == null && P_AVATAR_ID == null) {
                 return@async null
             }
 
-            val L_AVATAR_ID = P_AVATAR_ID?:jsocket!!.value_id3
+            val L_AVATAR_ID = P_AVATAR_ID ?: jsocket!!.value_id3
 
             var kBigAvatar: KBigAvatar? = null
 
@@ -245,7 +258,7 @@ class KBigAvatar {
                 jsocket.execute().await()
                 if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
                     kBigAvatar = KBigAvatar(jsocket)
-                    if(kBigAvatar != null){
+                    if (kBigAvatar != null) {
                         INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar!!)
                         val arr: ArrayList<KBigAvatar> = ArrayList()
                         arr.add(kBigAvatar!!)
@@ -255,7 +268,6 @@ class KBigAvatar {
             }
             return@async kBigAvatar
         }.toPromise()
-
 
 
         @JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
@@ -282,7 +294,7 @@ class KBigAvatar {
                     e.ExceptionHand(null)
                     return@withTimeoutOrNull false
                 }
-            }?: false
+            } ?: false
         }
 
         @JsName("LOAD_BIG_AVATARS_IDS")

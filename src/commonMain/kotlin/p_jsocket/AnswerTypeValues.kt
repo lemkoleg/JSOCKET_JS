@@ -1,5 +1,7 @@
 package p_jsocket
 
+import Tables.KSaveMedia
+import Tables.SAVE_MEDIA
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
@@ -27,6 +29,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
         answerType.RECORD_TYPE = answerType.STRING_20!!.substring(7, 8)
     }
+
+    @JsName("local_save_media")
+    var local_save_media: KSaveMedia? = null
 
     //////////////////////// common ////////////////////////////////////
 
@@ -303,7 +308,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
 
 
-
     fun initValues(){
 
         when (answerType.RECORD_TYPE) {
@@ -378,6 +382,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectListens = { getLONG_8() }
                         GetObjectDescriptors = { getLONG_9() }
                         GetObjectListensPeriod = { getINTEGER_6() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
                     }
                     "2" -> { // VIDEO
 
@@ -401,6 +408,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectListens = { getLONG_8() }
                         GetObjectDescriptors = { getLONG_9() }
                         GetObjectListensPeriod = { getINTEGER_6() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
                     }
                     "3" -> { // PICTURE
                         
@@ -415,6 +425,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectLikes = { getLONG_5() }
                         GetObjectDisLikes = { getLONG_6() }
                         GetObjectComments = { getLONG_7() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
                     }
                     "4" -> { // VOICE
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -423,6 +435,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
                     }
                     "5" -> { // FILE
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -430,6 +445,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
                     }
                     "6" -> { // GIF
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -437,6 +455,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+
+                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
                     }
                     "7" -> {  // ALBUMS
                         GetObjectId = { getIDENTIFICATOR_10() }
@@ -611,6 +632,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetLinkLikes = { getINTEGER_11().toLong() }
                 GetLinkDisLikes = { getINTEGER_12().toLong() }
                 GetLinkComments = { getINTEGER_11().toLong() }
+
             }
             "E" //OBJECTS_LINKS_COMMENTS
             -> {
@@ -653,6 +675,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectListens = { getLONG_8() }
                 GetObjectDescriptors = { getLONG_9() }
                 GetObjectListensPeriod = { getINTEGER_6() }
+
 
             }
             "G" //OBJECTS_COMMENTS

@@ -120,6 +120,11 @@ var AVATAR_LINK = ""
 @InternalAPI
 var BALANCE_OF_CHATS = 0
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+var LAST_UPDATE = 0L
+
 var AVATAR_1: ByteArray? = null
 var AVATAR_2: ByteArray? = null
 var AVATAR_3: ByteArray? = null
@@ -172,6 +177,8 @@ class KRegData {
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
+                    }finally {
+                        KRegDataLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
@@ -226,6 +233,11 @@ class KRegData {
 
                                 if (anwer_type.answerTypeValues.GetAvatarOriginalSize() > 0) {
                                     Account_Access = anwer_type.STRING_2!!
+                                }
+
+                                if (anwer_type.LONG_1 != null && anwer_type.LONG_1!! > LAST_UPDATE) {
+                                    LAST_UPDATE = anwer_type.LONG_1!!
+                                    meta_data_last_update.setGreaterValue(LAST_UPDATE)
                                 }
 
                                 BALANCE_OF_CHATS = anwer_type.INTEGER_1 ?: 0

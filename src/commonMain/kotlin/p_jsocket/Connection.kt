@@ -20,6 +20,7 @@ import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.ChunkBuffer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_client.*
 import sql.Sqlite_service
@@ -32,7 +33,6 @@ private const val COUNT_OF_0_BYTES = 9
 private const val MIN_SIZE_OF_REQUEST: Int = 17
 
 
-
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
@@ -42,7 +42,7 @@ private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-private val  DECODER_REQUEST_POOL: ArrayDeque<DecoderRequest> = ArrayDeque()
+private val DECODER_REQUEST_POOL: ArrayDeque<DecoderRequest> = ArrayDeque()
 
 
 @InternalAPI
@@ -108,66 +108,76 @@ object Connection : CoroutineScope {
     @JsName("setConn")
     private fun setConn() {
         MyConnection = ConnectionScope.launch {
-            try {
-                MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
-                signalonOpen = MyWebSocketChannel!!.onOpen
-                signalonOpen?.add {
-                    isConnect = true
-                    isClosed = false
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("connect")
-                    }
 
-                }
-                signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                signalonBinaryMessage?.addSuspend { v ->
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("read size: ${v.size}")
-                    }
-                    var l = DECODER_REQUEST_POOL.removeFirstOrNull()
-                    if(l == null){
-                        l = DecoderRequest()
-                    }
-                    Connection.ConnectionScope.launch { l.decode(v)}
-                }
-                signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
-                signalonStringMessage = MyWebSocketChannel!!.onStringMessage
-                signalonClose = MyWebSocketChannel!!.onClose
-                signalonClose?.add {
-                    isConnect = false
-                    isClosed = true
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("disconnect")
-                    }
-                }
-                signalonError = MyWebSocketChannel!!.onError
-                signalonError?.add { v ->
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("error on connection: $v\n")
-                    }
-                    //val e = v.printStackTrace()
-                    isConnect = false
-                    isClosed = true
-                    MyWebSocketChannel?.close()
-                }
-                connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
+            ConnectionLock.withLock {
+
+                var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
+
+                while (count_of_try > 0 && !isConnect) {
+                    count_of_try--
+                    try {
+                        MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
+                        signalonOpen = MyWebSocketChannel!!.onOpen
+                        signalonOpen?.add {
+                            isConnect = true
+                            isClosed = false
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("connect")
+                            }
+                        }
+                        signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
+                        signalonBinaryMessage?.addSuspend { v ->
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("read size: ${v.size}")
+                            }
+                            var l = DECODER_REQUEST_POOL.removeFirstOrNull()
+                            if (l == null) {
+                                l = DecoderRequest()
+                            }
+                            Connection.ConnectionScope.launch { l.decode(v) }
+                        }
+                        signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
+                        signalonStringMessage = MyWebSocketChannel!!.onStringMessage
+                        signalonClose = MyWebSocketChannel!!.onClose
+                        signalonClose?.add {
+                            isConnect = false
+                            isClosed = true
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("disconnect")
+                            }
+                        }
+                        signalonError = MyWebSocketChannel!!.onError
+                        signalonError?.add { v ->
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("error on connection: $v\n")
+                            }
+                            //val e = v.printStackTrace()
+                            isConnect = false
+                            isClosed = true
+                            MyWebSocketChannel?.close()
+                        }
+                        connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
 
 
-                if (connectionIpAddress.isNotEmpty()) {
-                    if (connectionIpAddress.length > 23) {
-                        connectionIpAddress = connectionIpAddress.substring(0, 23)
+                        if (connectionIpAddress.isNotEmpty()) {
+                            if (connectionIpAddress.length > 23) {
+                                connectionIpAddress = connectionIpAddress.substring(0, 23)
+                            }
+                            addressByteArray = returnConnAddress().readBytes()
+                        }
+                    } catch (e: Exception) {
+                        isConnect = false
+                        isClosed = true
+                        if (count_of_try < 1) {
+                            throw my_user_exceptions_class(
+                                "Connection",
+                                "setConn",
+                                "EXC_SOCKET_NOT_ALLOWED",
+                                e.message
+                            )
+                        }
                     }
-                    addressByteArray = returnConnAddress().readBytes()
                 }
-            } catch (e: Exception) {
-                isConnect = false
-                isClosed = true
-                throw my_user_exceptions_class(
-                    "Connection",
-                    "setConn",
-                    "EXC_SOCKET_NOT_ALLOWED",
-                    e.message
-                )
             }
         }
     }
@@ -367,8 +377,9 @@ private class DecoderRequest() {
         private val Cleaner = KorosTimerTask.start(
             delay = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES,
             repeat = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-        ) { removeOldAll()
-          }
+        ) {
+            removeOldAll()
+        }
 
         fun removeOldAll() {
             try {
@@ -404,8 +415,8 @@ private class DecoderRequest() {
                 }
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
-            }finally {
-                CoroutineScope(NonCancellable).launch {GC.collect()}
+            } finally {
+                CoroutineScope(NonCancellable).launch { GC.collect() }
             }
         }
     }

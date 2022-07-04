@@ -515,8 +515,6 @@ class ANSWER_TYPE() {
     var IS_UPDATED_BY_MERGE: Boolean = false
 
 
-
-
     @InternalAPI
     constructor(
         lRECORD_ID: String,
@@ -1227,11 +1225,15 @@ class ANSWER_TYPE() {
                 println("CLIENT_JSOCKET_POOL is emprty")
             }
         }
+        j.object_size = answerTypeValues.GetObjectSize().toLong()
+        j.object_extension = answerTypeValues.GetObjectExtension()
+        j.object_server = answerTypeValues.GetObjectServer()
         j.value_id1 = answerTypeValues.GetMainAccountId()
         j.value_id2 = answerTypeValues.GetAlbumId()
         j.value_id3 = answerTypeValues.GetMainAvatarId()
         j.value_id4 = answerTypeValues.GetObjectId()
         j.value_id5 = answerTypeValues.GetLinkOwner()
+        j.local_answer_type = this
         when (RECORD_TYPE) {
 
             "4" //MESSEGES
