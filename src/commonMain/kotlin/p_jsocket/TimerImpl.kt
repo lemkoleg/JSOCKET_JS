@@ -8,6 +8,8 @@ package p_jsocket
 
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
@@ -23,12 +25,12 @@ private val time_now = DateTime.nowUnixLong() * 1_000_000
 @ExperimentalTime
 private val clock : TimeMark = Monotonic.markNow()
 @InternalAPI
-private val lock = Lock()
+private val lock = Mutex()
 @InternalAPI
 @ExperimentalTime
 
 @JsName("nowNano")
-fun nowNano(): Long {
+suspend fun nowNano(): Long {
     return lock.withLock {
         return@withLock clock.elapsedNow().inWholeNanoseconds
     }

@@ -9,12 +9,20 @@ import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import io.ktor.util.InternalAPI
 import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import p_jsocket.Constants
 import p_jsocket.rootPath
+import kotlin.time.ExperimentalTime
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${rootPath}${slash}${Constants.dbLocalName}.db""")
 
 
-actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${rootPath}${slash}$dbLocalName.db""")
-
-
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 actual class SQLStatement actual constructor() {
 
 
@@ -80,6 +88,9 @@ actual class SQLStatement actual constructor() {
     /////////////cash data///////////////////////////
 
     actual suspend fun TABLE_CASHDATA(){
+    }
+
+    actual suspend fun INDEX_CASHDATA_NUMBER_POSITION(){
     }
 
     actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE){

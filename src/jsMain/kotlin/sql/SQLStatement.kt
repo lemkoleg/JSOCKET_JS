@@ -15,6 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
 import p_jsocket.dbLocalName
+import kotlin.time.ExperimentalTime
 
 actual var sqlDriver: SqlDriver? = null
 
@@ -26,7 +27,9 @@ val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 //val sql = require("MyAlaSQL")
 //js("debugger;")
 
-
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 actual class SQLStatement actual constructor() {
 
     @KorioExperimentalApi
@@ -125,6 +128,9 @@ actual class SQLStatement actual constructor() {
 
     }
 
+    actual suspend fun INDEX_CASHDATA_NUMBER_POSITION(){
+    }
+
     actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE){
 
     }
@@ -141,6 +147,10 @@ actual class SQLStatement actual constructor() {
 
 
     actual suspend fun CLEAR_CASHDATA(){
+
+    }
+
+    actual fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(){
 
     }
 

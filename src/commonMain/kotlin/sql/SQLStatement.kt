@@ -147,6 +147,18 @@ expect class SQLStatement() {
     @JsName("TABLE_CASHDATA")
     suspend fun TABLE_CASHDATA()
 
+    @JsName("INDEX_CASHDATA_NUMBER_POSITION")
+    suspend fun INDEX_CASHDATA_NUMBER_POSITION()
+
+    @JsName("INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE")
+    suspend fun INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE()
+
+    @JsName("TRIGGER_CASHDATA_INSERT")
+    suspend fun TRIGGER_CASHDATA_INSERT()
+
+    @JsName("TRIGGER_CASHDATA_UPDATE")
+    suspend fun TRIGGER_CASHDATA_UPDATE()
+
     @JsName("INSERT_CASHDATA")
     suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
 
@@ -156,12 +168,14 @@ expect class SQLStatement() {
     @JsName("SELECT_CASHDATA_ALL")
     suspend fun SELECT_CASHDATA_ALL()
 
-    @ExperimentalStdlibApi
     @JsName("SELECT_CASHDATA_ALL_ON_CASH_SUM")
     suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long)
 
     @JsName("CLEAR_CASHDATA")
     suspend fun CLEAR_CASHDATA()
+
+    @JsName("CASHDATA_SORT_NEW_NUMBER_POSITIONS")
+    suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS()
 
     /////////////last update///////////////////////////
 

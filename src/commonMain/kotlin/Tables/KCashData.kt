@@ -46,7 +46,7 @@ class KCashData {
 
         @KorioExperimentalApi
         @JsName("ADD_NEW_CASH_DATA")
-        fun ADD_NEW_CASH_DATA(): Promise<Boolean> =
+        fun ADD_NEW_CASH_DATA(checkSum: Long, lastSelect: Long): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeout(Constants.CLIENT_TIMEOUT) {
                     try {

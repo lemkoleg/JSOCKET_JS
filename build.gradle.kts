@@ -13,7 +13,7 @@ val StatelyVersion = "1.2.2"
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform") version "1.6.20"
-    id("com.squareup.sqldelight")  version "1.5.1"
+    id("com.squareup.sqldelight")  version "2.0.0-alpha03"
 }
 
 buildscript {

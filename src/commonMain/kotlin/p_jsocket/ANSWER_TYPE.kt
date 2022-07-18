@@ -499,28 +499,23 @@ class ANSWER_TYPE() {
             }
         }
 
-    @JsName("RECORD_ID")
-    var RECORD_ID: String = ""
+    @JsName("RECORD_TABLE_ID")
+    var RECORD_TABLE_ID: String = ""
 
     @JsName("CASH_SUM")
     var CASH_SUM: Long = 0
 
-    @JsName("NUMBER_POSITION")
-    var NUMBER_POSITION: Int = 0
-
-    @JsName("LAST_UPDATE")
-    var LAST_UPDATE: Long = 0L
-
     @JsName("IS_UPDATED_BY_MERGE")
     var IS_UPDATED_BY_MERGE: Boolean = false
+
+    @JsName("OBJECT_ID_LAST_SELECT")
+    var OBJECT_ID_LAST_SELECT = ""
 
 
     @InternalAPI
     constructor(
-        lRECORD_ID: String,
+        lRECORD_TABLE_ID: String,
         lCASH_SUM: Long,
-        lNUMBER_POSITION: Int?,
-        lLAST_UPDATE: Long,
         lIDENTIFICATOR_1: String?,
         lIDENTIFICATOR_2: String?,
         lIDENTIFICATOR_3: String?,
@@ -708,102 +703,9 @@ class ANSWER_TYPE() {
         BLOB_1 = lBLOB_1
         BLOB_2 = lBLOB_2
         BLOB_3 = lBLOB_3
-        RECORD_ID = lRECORD_ID
+        RECORD_TABLE_ID = lRECORD_TABLE_ID
         CASH_SUM = lCASH_SUM
-        NUMBER_POSITION = lNUMBER_POSITION ?: INTEGER_20 ?: 1
-        LAST_UPDATE = lLAST_UPDATE
         STRING_20 = lSTRING_20?.trim() ?: ""
-
-    }
-
-    constructor(MyANSWER_TYPE: ANSWER_TYPE) : this() {
-        IDENTIFICATOR_1 = MyANSWER_TYPE.IDENTIFICATOR_1?.trim() ?: ""
-        IDENTIFICATOR_2 = MyANSWER_TYPE.IDENTIFICATOR_2?.trim() ?: ""
-        IDENTIFICATOR_3 = MyANSWER_TYPE.IDENTIFICATOR_3?.trim() ?: ""
-        IDENTIFICATOR_4 = MyANSWER_TYPE.IDENTIFICATOR_4?.trim() ?: ""
-        IDENTIFICATOR_5 = MyANSWER_TYPE.IDENTIFICATOR_5?.trim() ?: ""
-        IDENTIFICATOR_6 = MyANSWER_TYPE.IDENTIFICATOR_6?.trim() ?: ""
-        IDENTIFICATOR_7 = MyANSWER_TYPE.IDENTIFICATOR_7?.trim() ?: ""
-        IDENTIFICATOR_8 = MyANSWER_TYPE.IDENTIFICATOR_8?.trim() ?: ""
-        IDENTIFICATOR_9 = MyANSWER_TYPE.IDENTIFICATOR_9?.trim() ?: ""
-        IDENTIFICATOR_10 = MyANSWER_TYPE.IDENTIFICATOR_10?.trim() ?: ""
-        IDENTIFICATOR_11 = MyANSWER_TYPE.IDENTIFICATOR_11?.trim() ?: ""
-        IDENTIFICATOR_12 = MyANSWER_TYPE.IDENTIFICATOR_12?.trim() ?: ""
-        IDENTIFICATOR_13 = MyANSWER_TYPE.IDENTIFICATOR_13?.trim() ?: ""
-        IDENTIFICATOR_14 = MyANSWER_TYPE.IDENTIFICATOR_14?.trim() ?: ""
-        IDENTIFICATOR_15 = MyANSWER_TYPE.IDENTIFICATOR_15?.trim() ?: ""
-        IDENTIFICATOR_16 = MyANSWER_TYPE.IDENTIFICATOR_16?.trim() ?: ""
-        IDENTIFICATOR_17 = MyANSWER_TYPE.IDENTIFICATOR_17?.trim() ?: ""
-        IDENTIFICATOR_18 = MyANSWER_TYPE.IDENTIFICATOR_18?.trim() ?: ""
-        IDENTIFICATOR_19 = MyANSWER_TYPE.IDENTIFICATOR_19?.trim() ?: ""
-        IDENTIFICATOR_20 = MyANSWER_TYPE.IDENTIFICATOR_20?.trim() ?: ""
-        INTEGER_1 = MyANSWER_TYPE.INTEGER_1 ?: 0
-        INTEGER_2 = MyANSWER_TYPE.INTEGER_2 ?: 0
-        INTEGER_3 = MyANSWER_TYPE.INTEGER_3 ?: 0
-        INTEGER_4 = MyANSWER_TYPE.INTEGER_4 ?: 0
-        INTEGER_5 = MyANSWER_TYPE.INTEGER_5 ?: 0
-        INTEGER_6 = MyANSWER_TYPE.INTEGER_6 ?: 0
-        INTEGER_7 = MyANSWER_TYPE.INTEGER_7 ?: 0
-        INTEGER_8 = MyANSWER_TYPE.INTEGER_8 ?: 0
-        INTEGER_9 = MyANSWER_TYPE.INTEGER_9 ?: 0
-        INTEGER_10 = MyANSWER_TYPE.INTEGER_10 ?: 0
-        INTEGER_11 = MyANSWER_TYPE.INTEGER_11 ?: 0
-        INTEGER_12 = MyANSWER_TYPE.INTEGER_12 ?: 0
-        INTEGER_13 = MyANSWER_TYPE.INTEGER_13 ?: 0
-        INTEGER_14 = MyANSWER_TYPE.INTEGER_14 ?: 0
-        INTEGER_15 = MyANSWER_TYPE.INTEGER_15 ?: 0
-        INTEGER_16 = MyANSWER_TYPE.INTEGER_16 ?: 0
-        INTEGER_17 = MyANSWER_TYPE.INTEGER_17 ?: 0
-        INTEGER_18 = MyANSWER_TYPE.INTEGER_18 ?: 0
-        INTEGER_19 = MyANSWER_TYPE.INTEGER_19 ?: 0
-        INTEGER_20 = MyANSWER_TYPE.INTEGER_20 ?: 0
-        LONG_1 = MyANSWER_TYPE.LONG_1 ?: 0L
-        LONG_2 = MyANSWER_TYPE.LONG_2 ?: 0L
-        LONG_3 = MyANSWER_TYPE.LONG_3 ?: 0L
-        LONG_4 = MyANSWER_TYPE.LONG_4 ?: 0L
-        LONG_5 = MyANSWER_TYPE.LONG_5 ?: 0L
-        LONG_6 = MyANSWER_TYPE.LONG_6 ?: 0L
-        LONG_7 = MyANSWER_TYPE.LONG_7 ?: 0L
-        LONG_8 = MyANSWER_TYPE.LONG_8 ?: 0L
-        LONG_9 = MyANSWER_TYPE.LONG_9 ?: 0L
-        LONG_10 = MyANSWER_TYPE.LONG_10 ?: 0L
-        LONG_11 = MyANSWER_TYPE.LONG_11 ?: 0L
-        LONG_12 = MyANSWER_TYPE.LONG_12 ?: 0L
-        LONG_13 = MyANSWER_TYPE.LONG_13 ?: 0L
-        LONG_14 = MyANSWER_TYPE.LONG_14 ?: 0L
-        LONG_15 = MyANSWER_TYPE.LONG_15 ?: 0L
-        LONG_16 = MyANSWER_TYPE.LONG_16 ?: 0L
-        LONG_17 = MyANSWER_TYPE.LONG_17 ?: 0L
-        LONG_18 = MyANSWER_TYPE.LONG_18 ?: 0L
-        LONG_19 = MyANSWER_TYPE.LONG_19 ?: 0L
-        LONG_20 = MyANSWER_TYPE.LONG_20 ?: 0L
-        STRING_1 = MyANSWER_TYPE.STRING_1?.trim() ?: ""
-        STRING_2 = MyANSWER_TYPE.STRING_2?.trim() ?: ""
-        STRING_3 = MyANSWER_TYPE.STRING_3?.trim() ?: ""
-        STRING_4 = MyANSWER_TYPE.STRING_4?.trim() ?: ""
-        STRING_5 = MyANSWER_TYPE.STRING_5?.trim() ?: ""
-        STRING_6 = MyANSWER_TYPE.STRING_6?.trim() ?: ""
-        STRING_7 = MyANSWER_TYPE.STRING_7?.trim() ?: ""
-        STRING_8 = MyANSWER_TYPE.STRING_8?.trim() ?: ""
-        STRING_9 = MyANSWER_TYPE.STRING_9?.trim() ?: ""
-        STRING_10 = MyANSWER_TYPE.STRING_10?.trim() ?: ""
-        STRING_11 = MyANSWER_TYPE.STRING_11?.trim() ?: ""
-        STRING_12 = MyANSWER_TYPE.STRING_12?.trim() ?: ""
-        STRING_13 = MyANSWER_TYPE.STRING_13?.trim() ?: ""
-        STRING_14 = MyANSWER_TYPE.STRING_14?.trim() ?: ""
-        STRING_15 = MyANSWER_TYPE.STRING_15?.trim() ?: ""
-        STRING_16 = MyANSWER_TYPE.STRING_16?.trim() ?: ""
-        STRING_17 = MyANSWER_TYPE.STRING_17?.trim() ?: ""
-        STRING_18 = MyANSWER_TYPE.STRING_18?.trim() ?: ""
-        STRING_19 = MyANSWER_TYPE.STRING_19?.trim() ?: ""
-        BLOB_1 = MyANSWER_TYPE.BLOB_1
-        BLOB_2 = MyANSWER_TYPE.BLOB_2
-        BLOB_3 = MyANSWER_TYPE.BLOB_3
-        RECORD_ID = MyANSWER_TYPE.RECORD_ID
-        CASH_SUM = MyANSWER_TYPE.CASH_SUM
-        NUMBER_POSITION = MyANSWER_TYPE.NUMBER_POSITION
-        LAST_UPDATE = MyANSWER_TYPE.LAST_UPDATE
-        STRING_20 = MyANSWER_TYPE.STRING_20?.trim() ?: ""
 
     }
 
@@ -1186,7 +1088,6 @@ class ANSWER_TYPE() {
             this.STRING_14 = v.STRING_14
             IS_UPDATED_BY_MERGE = true
         }
-
     }
 
     @JsName("get_BLOB_1_size")
@@ -1270,6 +1171,9 @@ class ANSWER_TYPE() {
                 CoroutineScope(NonCancellable).launch {
                     try {
                         fillPOOL_IS_RUNNING.value = true
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("ANSEWR_TYPE's fill pool is run...")
+                        }
                         while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
                             CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())
                         }

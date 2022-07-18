@@ -222,6 +222,9 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                 CoroutineScope(NonCancellable).launch {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         try {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("Jsocet's fill pool is run...")
+                            }
                             try {
                                 fillPOOL_IS_RUNNING.value = true
                                 JsocketLock.lock()

@@ -117,7 +117,7 @@ class ANSWER_TYPE_Subscribe(
         77 -> { j: ANSWER_TYPE -> j.STRING_17 }
         78 -> { j: ANSWER_TYPE -> j.STRING_18 }
         79 -> { j: ANSWER_TYPE -> j.STRING_19 }
-        80 -> { j: ANSWER_TYPE -> j.getSTRING_20() }
+        80 -> { j: ANSWER_TYPE -> j.STRING_20 }
         81 -> { j: ANSWER_TYPE -> j.BLOB_1 }
         82 -> { j: ANSWER_TYPE -> j.BLOB_2 }
         83 -> { j: ANSWER_TYPE -> j.BLOB_3 }
@@ -212,7 +212,7 @@ class ANSWER_TYPE_Subscribe(
         77 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_17 = (v as String?) ?: "" }
         78 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_18 = (v as String?) ?: "" }
         79 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_19 = (v as String?) ?: "" }
-        80 -> { j: ANSWER_TYPE, v: Any? -> j.setSTRING_20(v as String? ?: "") }
+        80 -> { j: ANSWER_TYPE, v: Any? -> j.STRING_20 = (v as String? ?: "") }
         81 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_1 = (v as ByteArray?) }
         82 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_2 = (v as ByteArray?) }
         83 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_3 = (v as ByteArray?) }

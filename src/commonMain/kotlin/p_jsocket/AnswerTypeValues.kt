@@ -1,7 +1,6 @@
 package p_jsocket
 
 import Tables.KSaveMedia
-import Tables.SAVE_MEDIA
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
@@ -549,6 +548,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
+                answerType.RECORD_TABLE_ID = GetObjectId() + GetCommentId().toString()
             }
             "B" //ALBUMS_LINKS
             -> {
@@ -578,6 +578,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetLinkLikes = { getINTEGER_11().toLong() }
                 GetLinkDisLikes = { getINTEGER_12().toLong() }
                 GetAlbumsLinkCountOfNewContent = { getINTEGER_11() }
+
+                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId()
             }
             "C" //ALBUMS_LINKS_COMMENTS
             -> {
@@ -599,6 +601,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
+
+                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId() + GetCommentId().toString()
             }
             "D" //OBJECTS_LINKS
             -> {
@@ -633,6 +637,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetLinkDisLikes = { getINTEGER_12().toLong() }
                 GetLinkComments = { getINTEGER_11().toLong() }
 
+                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId()
+
             }
             "E" //OBJECTS_LINKS_COMMENTS
             -> {
@@ -652,6 +658,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
+
+                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId() + GetCommentId().toString()
             }
             "F" //OBJECTS
             -> {
@@ -676,6 +684,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectDescriptors = { getLONG_9() }
                 GetObjectListensPeriod = { getINTEGER_6() }
 
+                answerType.RECORD_TABLE_ID = GetObjectId()
+
 
             }
             "G" //OBJECTS_COMMENTS
@@ -697,6 +707,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
+
+                answerType.RECORD_TABLE_ID = GetObjectId() + GetCommentId().toString()
             }
             "H" //ACCOUNTS
             -> {
@@ -721,13 +733,15 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetAlbumsMembers = { getINTEGER_8() }
                 GetAlbumsListeners = { getINTEGER_9() }
 
+                answerType.RECORD_TABLE_ID = GetObjectId()
+
             }
             else
             -> {
 
             }
-
         }
+        setOBJECT_ID_LAST_SELECT()
     }
 
     @JsName("getIS_UPDATE_BLOB")
@@ -770,7 +784,98 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return answerType.STRING_20!!.substring(6, 7)
     }
 
+    fun setOBJECT_ID_LAST_SELECT(){
+        var object_id: String = ""
+        var last_select: String = getLONG_20().toString()
+        when (answerType.RECORD_TYPE) {
+            "1" //COMMANDS
+            -> {
 
+            }
+            "2" //METADATA
+            -> {
+
+            }
+            "3" //CHATS
+            -> {
+                object_id = GetObjectId()
+            }
+            "4" //MESSEGES
+            -> {
+                object_id = GetMessegeId().toString()
+            }
+            "5" //EXCEPTIONS
+            -> {
+
+            }
+            "6" //AVATAR
+            -> {
+
+            }
+            "7" //REG_DATA
+            -> {
+
+            }
+            "8" //CHATS_LIKES
+            -> {
+                object_id = GetMainAccountId()
+            }
+            "9" //CHATS_COST_TYPES
+            -> {
+                object_id = GetChatsCostTypeId().toString()
+            }
+            "A" //ALBUMS_COMMENTS
+            -> {
+                object_id = GetCommentId().toString()
+            }
+            "B" //ALBUMS_LINKS
+            -> {
+                object_id = GetObjectId()
+            }
+            "C" //ALBUMS_LINKS_COMMENTS
+            -> {
+                object_id = GetCommentId().toString()
+            }
+            "D" //OBJECTS_LINKS
+            -> {
+                object_id = GetObjectId()
+
+            }
+            "E" //OBJECTS_LINKS_COMMENTS
+            -> {
+                object_id = GetCommentId().toString()
+            }
+            "F" //OBJECTS
+            -> {
+                object_id = GetObjectId()
+
+
+            }
+            "G" //OBJECTS_COMMENTS
+            -> {
+                object_id = GetCommentId().toString()
+            }
+            "H" //ACCOUNTS
+            -> {
+                object_id = GetMainAccountId()
+            }
+            "I" //ALBUMS
+            -> {
+                object_id = GetObjectId()
+
+            }
+            else
+            -> {
+
+            }
+        }
+        craeteOBJECT_ID_LAST_SELECT(object_id, last_select)
+    }
+
+
+    fun craeteOBJECT_ID_LAST_SELECT(object_id: String, last_select: String){
+        answerType.OBJECT_ID_LAST_SELECT = "000000000000000000".substring(0, (18 - object_id.length)) + object_id + "0000000000000".substring(0, (13 - last_select.length)) + last_select
+    }
 
     /////////////////////////////////////////////////////////////////////////
 

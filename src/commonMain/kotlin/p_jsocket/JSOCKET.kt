@@ -736,7 +736,7 @@ open class JSOCKET() {
     @JsName("serialize")
     @InternalAPI
     @ExperimentalTime
-    fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): ByteArray {
+    suspend fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): ByteArray {
 
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
@@ -1322,6 +1322,15 @@ open class JSOCKET() {
 
                 }
 
+                if(answer_type.RECORD_TYPE.isEmpty()){
+                    throw my_user_exceptions_class(
+                        l_class_name = "JSOCKET",
+                        l_function_name = "deserialize_ANSWERS_TYPES",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "answer_type.RECORD_TYPE is empty"
+                    )
+                }
+
                 when (answer_type.RECORD_TYPE) {
                     "1" -> NEW_COMMANDS.add(answer_type)
                     "2" -> NEW_META_DATA.add(answer_type)
@@ -1332,7 +1341,9 @@ open class JSOCKET() {
                     "7" -> NEW_REG_DATA.add(answer_type)
                     "8" -> NEW_CHATS_LIKES.add(answer_type)
                     "9" -> NEW_CHATS_COST_TYPES.add(answer_type)
-                    else -> NEW_CASH_DATA.add(answer_type)
+                    else -> {
+                        NEW_CASH_DATA.add(answer_type)
+                    }
                 }
 
                 if (record_type == "0") {
@@ -1350,12 +1361,12 @@ open class JSOCKET() {
                         }
                         "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                         "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
-                        else -> KCashData.ADD_NEW_CASH_DATA()
+                        else -> KCashData.ADD_NEW_CASH_DATA( this.check_sum, this.last_date_of_update)
                     }
                     record_type = answer_type.RECORD_TYPE
                 }
-
             }
+
             if (record_type != "0") {
                 promise = when (record_type) {
                     "1" -> KCommands.ADD_NEW_COMMANDS()
@@ -1370,10 +1381,14 @@ open class JSOCKET() {
                     }
                     "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                     "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
-                    else -> KCashData.ADD_NEW_CASH_DATA()
+                    else -> KCashData.ADD_NEW_CASH_DATA(this.check_sum, this.last_date_of_update)
                 }
             }
+
             promise?.await()
+
+        } catch (e: my_user_exceptions_class) {
+            throw e
         } catch (n: Exception) {
             throw my_user_exceptions_class(
                 l_class_name = "JSOCKET",
