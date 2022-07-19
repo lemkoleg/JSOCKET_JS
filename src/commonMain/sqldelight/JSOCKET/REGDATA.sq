@@ -30,7 +30,7 @@ CHECK (
  AND (REQUEST_PROFILE = "" OR length(REQUEST_PROFILE)= 30)));
 
 trigger_RegData_insert:
-CREATE TRIGGER TRegData_Insert
+CREATE TRIGGER IF NOT EXISTS TRegData_Insert
  BEFORE INSERT ON RegData
  BEGIN
  DELETE FROM RegData
@@ -38,7 +38,7 @@ CREATE TRIGGER TRegData_Insert
 END;
 
 trigger_RegData_delete:
-CREATE TRIGGER TRegData_Delete
+CREATE TRIGGER IF NOT EXISTS TRegData_Delete
  AFTER DELETE ON RegData
  FOR EACH ROW
  BEGIN

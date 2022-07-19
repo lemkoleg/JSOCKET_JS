@@ -29,16 +29,16 @@ AND length(CHATS_PROFILE) = 5
 ));
 
 index_Chats_last_mess_adding:
-CREATE INDEX IChatsLastMessAdding ON Chats(LAST_MESSEGES_ADDING DESC);
+CREATE INDEX IF NOT EXISTS IChatsLastMessAdding ON Chats(LAST_MESSEGES_ADDING DESC);
 
 index_Chats_ConnectionId:
-CREATE INDEX IChatsConnectionId ON Chats(CONNECTION_ID);
+CREATE INDEX IF NOT EXISTS IChatsConnectionId ON Chats(CONNECTION_ID);
 
 index_Chats_AvatarId:
-CREATE INDEX IChatsAvatarId ON Chats(AVATAR_ID);
+CREATE INDEX IF NOT EXISTS IChatsAvatarId ON Chats(AVATAR_ID);
 
 trigger_Chats_delete:
-CREATE TRIGGER TChats_DELETE
+CREATE TRIGGER IF NOT EXISTS TChats_DELETE
 AFTER DELETE ON Chats
 FOR EACH ROW
 BEGIN
@@ -48,7 +48,7 @@ DELETE FROM ChatsCostTypes WHERE CHATS_ID = old.CHATS_ID;
 END;
 
 trigger_Chats_control_count:
-CREATE TRIGGER TControlCountsChats
+CREATE TRIGGER IF NOT EXISTS TControlCountsChats
 AFTER INSERT ON Chats
 WHEN
 (SELECT count(*) FROM Chats) > (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS')

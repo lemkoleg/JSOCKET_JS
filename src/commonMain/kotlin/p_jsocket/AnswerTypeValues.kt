@@ -785,8 +785,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     }
 
     fun setOBJECT_ID_LAST_SELECT(){
-        var object_id: String = ""
-        var last_select: String = getLONG_20().toString()
+        var object_id = ""
+        val last_select: String = getLONG_20().toString()
         when (answerType.RECORD_TYPE) {
             "1" //COMMANDS
             -> {

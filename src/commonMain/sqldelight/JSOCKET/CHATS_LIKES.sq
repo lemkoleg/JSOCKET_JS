@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS ChatsLikes
 PRIMARY KEY (CHATS_ID, ACCOUNTS_ID));
 
 index_ChatsLikes_AvatarId:
-CREATE INDEX IChatsLikessAvatarId ON ChatsLikes(AVATAR_ID);
+CREATE INDEX IF NOT EXISTS IChatsLikessAvatarId ON ChatsLikes(AVATAR_ID);
 
 index_ChatsLikes_AccountsId:
-CREATE INDEX IChatsLikessAccountsId ON ChatsLikes(ACCOUNTS_ID);
+CREATE INDEX IF NOT EXISTS IChatsLikessAccountsId ON ChatsLikes(ACCOUNTS_ID);
 
 trigger_ChatsLikes_deleted_record:
-CREATE TRIGGER TChatsLikesDeletedRecocord
+CREATE TRIGGER IF NOT EXISTS TChatsLikesDeletedRecocord
 AFTER UPDATE ON ChatsLikes
 FOR EACH ROW
 WHEN

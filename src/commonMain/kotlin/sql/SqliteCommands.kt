@@ -184,47 +184,86 @@ CREATE TABLE IF NOT EXISTS CashData
  BLOB_1 BLOB ,
  BLOB_2 BLOB ,
  BLOB_3 BLOB,
- INTEGER_20_LAST_UPDATE INTEGER NOT NULL DEFAULT 1, -- for sort NEW NUMBERS POSITION
- IS_UPDATE_NEXT_INTEGER_20 INTEGER NOT NULL DEFAULT 0,
+ INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 0, 
+ NEXT_RECORD_TABLE_ID TEXT NOT NULL DEFAULT "",  
  PRIMARY KEY (CASH_SUM, RECORD_TABLE_ID)
  );
 """
 
-const val INDEX_CASHDATA_NUMBER_POSITION = """
-CREATE INDEX CashData_NumberPosition ON CashData(CASH_SUM, INTEGER_20 ASC);
-"""
-
 const val INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE = """
-CREATE INDEX CashData_NumberPositionLastUpdate ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LAST_UPDATE DESC, RECORD_TABLE_ID);
+CREATE INDEX CashData_NumberPositionLastUpdate ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
 """
 
 const val TRIGGER_CASHDATA_INSERT = """
- CREATE TRIGGER TCashDataInsert
- BEFORE INSERT ON CashData
+ CREATE TRIGGER IF NOT EXISTS TCashDataInsert
+ AFTER INSERT ON CashData
  FOR EACH ROW
+ WHEN EXISTS (SELECT RECORD_TABLE_ID
+              FROM   CashData
+              WHERE  CASH_SUM = new.CASH_SUM
+              ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+              LIMIT 1 OFFSET new.INTEGER_20 - 1)
  BEGIN
+   WITH tab (record_id, integer_20, integer_20_level)
+   AS (SELECT RECORD_TABLE_ID,
+              INTEGER_20,
+              INTEGER_20_LEVEL
+       FROM   CashData
+       WHERE  CASH_SUM = new.CASH_SUM
+       ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+       LIMIT 1 OFFSET new.INTEGER_20 - 1)
+
   UPDATE CashData
-  SET    INTEGER_20 = INTEGER_20 + 1,
-         INTEGER_20_LAST_UPDATE = new.INTEGER_20_LAST_UPDATE,
-         IS_UPDATE_NEXT_INTEGER_20 = 0
-  WHERE  CASH_SUM = new.CASH_SUM
-  AND    INTEGER_20 = new.INTEGER_20;
+    SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
+           INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
+           INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
+    WHERE  rowid = new.rowid;
+
+  UPDATE CashData
+      SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
+      WHERE  CASH_SUM = new.CASH_SUM
+      AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
+                                FROM CashData
+                                WHERE  rowid = new.rowid);
+
  END;
 """
 
 const val TRIGGER_CASHDATA_UPDATE = """
-  CREATE TRIGGER TCashDataUpdate
-  BEFORE UPDATE ON CashData
+  CREATE TRIGGER IF NOT EXISTS TCashDataUpdate
+  AFTER UPDATE ON CashData
   FOR EACH ROW
-  WHEN new.IS_UPDATE_NEXT_INTEGER_20 = 1
-  BEGIN
-   UPDATE CashData
-   SET    INTEGER_20 = INTEGER_20 + 1,
-          INTEGER_20_LAST_UPDATE = new.INTEGER_20_LAST_UPDATE,
-          IS_UPDATE_NEXT_INTEGER_20 = 0
-   WHERE  CASH_SUM = new.CASH_SUM
-   AND    INTEGER_20 = new.INTEGER_20;
-  END;
+  WHEN old.LONG_20 <> new.LONG_20
+  AND old.INTEGER_20 <> new.INTEGER_20
+  AND EXISTS (SELECT RECORD_TABLE_ID
+                FROM   CashData
+                WHERE  CASH_SUM = new.CASH_SUM
+                ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                LIMIT 1 OFFSET new.INTEGER_20 - 1)
+   BEGIN
+     WITH tab (record_id, integer_20, integer_20_level)
+     AS (SELECT RECORD_TABLE_ID,
+                INTEGER_20,
+                INTEGER_20_LEVEL
+         FROM   CashData
+         WHERE  CASH_SUM = new.CASH_SUM
+         ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+         LIMIT 1 OFFSET new.INTEGER_20 - 1)
+
+    UPDATE CashData
+      SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
+             INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
+             INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
+      WHERE  rowid = new.rowid;
+
+    UPDATE CashData
+        SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
+        WHERE  CASH_SUM = new.CASH_SUM
+        AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
+                                  FROM CashData
+                                  WHERE  rowid = new.rowid);
+
+   END;
 """
 
 const val INSERT_CASHDATA = """
@@ -313,11 +352,9 @@ INSERT OR REPLACE INTO CashData
   STRING_20,
   BLOB_1,
   BLOB_2,
-  BLOB_3,
-  INTEGER_20_LAST_UPDATE,
-  IS_UPDATE_NEXT_INTEGER_20)
+  BLOB_3)
 VALUES 
-(?, ?, ?, ?,
+(?, ?, 
  ?, ?, ?, ?, ?,
  ?, ?, ?, ?, ?,
  ?, ?, ?, ?, ?,
@@ -352,22 +389,20 @@ DELETE FROM CashData;
 """
 
 const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
- WITH s (cash_sum, record_table_id, row_num)
+ WITH s (row_id, row_num)
   AS (SELECT
-        CASH_SUM,
-        RECORD_TABLE_ID,
-        row_number() OVER (ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LAST_UPDATE DESC)
+        rowid,
+        ROW_NUMBER() OVER (ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC)
       FROM
         CashData
       WHERE CASH_SUM = ?
-      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LAST_UPDATE DESC)
+      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC)
 
   UPDATE CashData
-  SET   INTEGER_20 = s.row_num,
-        INTEGER_20_LAST_UPDATE = 0,
-        IS_UPDATE_NEXT_INTEGER_20 = 0
-  WHERE CASH_SUM = s.cash_sum
-  AND   RECORD_TABLE_ID = s.record_table_id;
+  SET   INTEGER_20 = (SELECT row_num FROM s WHERE row_id = rowid),
+        INTEGER_20_LEVEL = 0,
+        NEXT_RECORD_TABLE_ID = ""
+  WHERE rowid = (SELECT row_id FROM s WHERE row_id = rowid);
 """
 
 /////////////last update///////////////////////////

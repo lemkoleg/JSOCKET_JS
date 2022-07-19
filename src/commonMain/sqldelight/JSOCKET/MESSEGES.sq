@@ -42,10 +42,10 @@ CREATE TABLE IF NOT EXISTS Messeges
 PRIMARY KEY (CHATS_ID, MESSEGES_COUNT));
 
 index_Messeges_order_desc:
-CREATE INDEX IMessegesOrderDesc ON Messeges(CHATS_ID, MESSEGES_COUNT DESC);
+CREATE INDEX IF NOT EXISTS IMessegesOrderDesc ON Messeges(CHATS_ID, MESSEGES_COUNT DESC);
 
 trigger_Messeges_control_count:
-CREATE TRIGGER TControlCountsMesseges
+CREATE TRIGGER IF NOT EXISTS TControlCountsMesseges
 AFTER INSERT ON Messeges
 FOR EACH ROW
 WHEN
@@ -65,7 +65,7 @@ BEGIN
 END;
 
 trigger_Messeges_mess_without_cahts:
-CREATE TRIGGER TControlMessWithOutChats
+CREATE TRIGGER IF NOT EXISTS TControlMessWithOutChats
 AFTER INSERT ON Messeges
 BEGIN
   DELETE FROM Messeges

@@ -21,19 +21,19 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  AND (IS_TEMP BETWEEN 0 AND 1)));
 
 index_SaveMedia_ConnectionId:
-CREATE INDEX ISaveMediaConnectionId ON SaveMedia(CONNECTION_ID);
+CREATE INDEX IF NOT EXISTS ISaveMediaConnectionId ON SaveMedia(CONNECTION_ID);
 
 index_SaveMedia_LastUsed:
-CREATE INDEX ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_ID);
+CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_ID);
 
 index_SaveMedia_IsTemp:
-CREATE INDEX ISaveMediaIsTemp ON SaveMedia(IS_TEMP, OBJECT_ID);
+CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, OBJECT_ID);
 
 index_SaveMedia_AvatarId:
-CREATE INDEX ISaveMediaAvatarId ON SaveMedia(AVATAR_ID);
+CREATE INDEX IF NOT EXISTS ISaveMediaAvatarId ON SaveMedia(AVATAR_ID);
 
 trigger_SaveMedia_control_temp_count:
-CREATE TRIGGER TSaveMediaControlTempCounts
+CREATE TRIGGER IF NOT EXISTS TSaveMediaControlTempCounts
 AFTER INSERT ON SaveMedia
 FOR EACH ROW
 WHEN
@@ -57,7 +57,7 @@ DELETE FROM SaveMedia WHERE OBJECT_ID NOT IN
 END;
 
 trigger_SaveMedia_control_count:
-CREATE TRIGGER TSaveMediaControlCounts
+CREATE TRIGGER IF NOT EXISTS TSaveMediaControlCounts
 AFTER INSERT ON SaveMedia
 FOR EACH ROW
 WHEN

@@ -7,10 +7,10 @@ CHECK (
 length(AVATAR_ID) = 18));
 
 index_BigAvatars_lastUse:
-CREATE INDEX IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
+CREATE INDEX IF NOT EXISTS IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
 
 trigger_BigAvatars_control_count:
-CREATE TRIGGER TBigAvatarsControlCounts
+CREATE TRIGGER IF NOT EXISTS TBigAvatarsControlCounts
 AFTER INSERT ON BigAvatars
 WHEN
 (SELECT count(*)
