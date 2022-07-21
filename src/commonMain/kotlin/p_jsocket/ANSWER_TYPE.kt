@@ -1134,6 +1134,7 @@ class ANSWER_TYPE() {
         j.value_id3 = answerTypeValues.GetMainAvatarId()
         j.value_id4 = answerTypeValues.GetObjectId()
         j.value_id5 = answerTypeValues.GetLinkOwner()
+        j.check_sum = CASH_SUM
         j.local_answer_type = this
         when (RECORD_TYPE) {
 

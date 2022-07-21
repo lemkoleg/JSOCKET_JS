@@ -236,10 +236,15 @@ const val TRIGGER_CASHDATA_UPDATE = """
   WHEN old.LONG_20 <> new.LONG_20
   AND old.INTEGER_20 <> new.INTEGER_20
   AND EXISTS (SELECT RECORD_TABLE_ID
-                FROM   CashData
-                WHERE  CASH_SUM = new.CASH_SUM
-                ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                LIMIT 1 OFFSET new.INTEGER_20 - 1)
+              FROM   CashData
+              WHERE  CASH_SUM = new.CASH_SUM
+              ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+              LIMIT 1 OFFSET new.INTEGER_20 - 1)
+   AND new.RECORD_TABLE_ID <> (SELECT RECORD_TABLE_ID
+                               FROM   CashData
+                               WHERE  CASH_SUM = new.CASH_SUM
+                               ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                               LIMIT 1 OFFSET new.INTEGER_20 - 1)
    BEGIN
      WITH tab (record_id, integer_20, integer_20_level)
      AS (SELECT RECORD_TABLE_ID,
@@ -254,14 +259,16 @@ const val TRIGGER_CASHDATA_UPDATE = """
       SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
              INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
              INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
-      WHERE  rowid = new.rowid;
+      WHERE  CASH_SUM = new.CASH_SUM
+      AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
 
     UPDATE CashData
         SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
         WHERE  CASH_SUM = new.CASH_SUM
         AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
                                   FROM CashData
-                                  WHERE  rowid = new.rowid);
+                                  WHERE  CASH_SUM = new.CASH_SUM
+                                  AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
 
    END;
 """

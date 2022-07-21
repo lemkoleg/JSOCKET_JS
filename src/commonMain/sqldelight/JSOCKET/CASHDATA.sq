@@ -116,14 +116,16 @@ CREATE TABLE IF NOT EXISTS CashData
     SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
            INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
            INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
-    WHERE  rowid = new.rowid;
+    WHERE  CASH_SUM = new.CASH_SUM
+    AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
 
   UPDATE CashData
       SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
       WHERE  CASH_SUM = new.CASH_SUM
       AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
-                                FROM CashData
-                                WHERE  rowid = new.rowid);
+                                FROM   CashData
+                                WHERE  CASH_SUM = new.CASH_SUM
+                                AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
 
  END;
 
@@ -134,10 +136,15 @@ CREATE TABLE IF NOT EXISTS CashData
   WHEN old.LONG_20 <> new.LONG_20
   AND old.INTEGER_20 <> new.INTEGER_20
   AND EXISTS (SELECT RECORD_TABLE_ID
-                FROM   CashData
-                WHERE  CASH_SUM = new.CASH_SUM
-                ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                LIMIT 1 OFFSET new.INTEGER_20 - 1)
+              FROM   CashData
+              WHERE  CASH_SUM = new.CASH_SUM
+              ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+              LIMIT 1 OFFSET new.INTEGER_20 - 1)
+   AND new.RECORD_TABLE_ID <> (SELECT RECORD_TABLE_ID
+                               FROM   CashData
+                               WHERE  CASH_SUM = new.CASH_SUM
+                               ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                               LIMIT 1 OFFSET new.INTEGER_20 - 1)
    BEGIN
      WITH tab (record_id, integer_20, integer_20_level)
      AS (SELECT RECORD_TABLE_ID,
@@ -152,14 +159,16 @@ CREATE TABLE IF NOT EXISTS CashData
       SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
              INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
              INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
-      WHERE  rowid = new.rowid;
+      WHERE  CASH_SUM = new.CASH_SUM
+      AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
 
     UPDATE CashData
         SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
         WHERE  CASH_SUM = new.CASH_SUM
         AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
                                   FROM CashData
-                                  WHERE  rowid = new.rowid);
+                                  WHERE  CASH_SUM = new.CASH_SUM
+                                  AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
 
    END;
        
@@ -283,17 +292,26 @@ VALUES
   DELETE FROM CashData;
 
  update_CashData_SortNewNumbersPositions:
-  WITH s (row_id, row_num)
-  AS (SELECT
-        rowid,
-        ROW_NUMBER() OVER (ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC)
-      FROM
-        CashData
-      WHERE CASH_SUM = ?
-      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC)
+  WITH tab AS (SELECT
+                 CASH_SUM AS cash_sum,
+                 RECORD_TABLE_ID AS record_id,
+                 row_number() OVER (
+                      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                 ) AS RowNum
+                 FROM
+                     CashData
+                 WHERE CASH_SUM = ?
+                 ORDER BY CASH_SUM, RECORD_TABLE_ID)
 
   UPDATE CashData
-  SET   INTEGER_20 = (SELECT row_num FROM s WHERE row_id = rowid),
+  SET   INTEGER_20 = (SELECT RowNum FROM tab WHERE CASH_SUM = cash_sum AND RECORD_TABLE_ID = record_id),
         INTEGER_20_LEVEL = 0,
         NEXT_RECORD_TABLE_ID = ""
-  WHERE rowid = (SELECT row_id FROM s WHERE row_id = rowid);
+        WHERE CASH_SUM = ?;
+
+
+  select_CashData_All_ON_CASH_SUM:
+    SELECT  *
+    FROM CashData
+    WHERE CASH_SUM = ?
+    ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;

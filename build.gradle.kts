@@ -1,29 +1,30 @@
-val kotlinVersion = "1.6.20"
+val kotlinVersion = "1.6.21"
 val ktorVersion = "2.0.1"
 val reactiveVersion = "1.2.1"
 val KlockVersion = "2.4.13"
 val KorimVersion = "2.2.2"
 val KorioVersion = "2.2.1"
 val KryptoVersion = "2.2.0"
-val SQLDelightVersion = "2.0.0"
+val SQLDelightVersion = "2.0.0-alpha03"
+val SQLDelightDialect = "sqlite:3.25"
 val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
 val Fingerprintjs2Version = "2.1.4"
 val StatelyVersion = "1.2.2"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.6.20"
+    id("org.jetbrains.kotlin.multiplatform") version "1.6.21"
     id("com.squareup.sqldelight")  version "2.0.0-alpha03"
 }
 
 buildscript {
     repositories {
         google()
-        jcenter()
+        //jcenter()
         gradlePluginPortal()
     }
     dependencies {
-        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.1")
+        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.3")
     }
 
 
@@ -36,7 +37,7 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
+        //jcenter()
         google()
         maven { url = uri("https://kotlin.bintray.com/ktor")}
         maven { url = uri("https://dl.bintray.com/badoo/maven")}
@@ -80,6 +81,7 @@ kotlin {
 
     sqldelight {
         database("AvaClubDB") {
+            dialect = SQLDelightDialect
             packageName = "JSOCKET"
             //sourceFolders = listOf<String>("src/commonMain/kotlin/sqldelight")
             schemaOutputDirectory = file("src/commonMain/kotlin/sqldelight/databases")
@@ -133,6 +135,8 @@ kotlin {
 
         implementation ("co.touchlab:stately-common:$StatelyVersion")
         implementation ("co.touchlab:stately-concurrency:$StatelyVersion")
+        implementation ("co.touchlab:stately-isolate:$StatelyVersion")
+
         implementation ("co.touchlab:stately-isolate:$StatelyVersion")
 
     }
