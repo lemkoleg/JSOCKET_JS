@@ -202,11 +202,14 @@ class KCommands {
 
         @JsName("ADD_NEW_COMMANDS")
         fun ADD_NEW_COMMANDS(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
-            withTimeout(Constants.CLIENT_TIMEOUT) {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     val arr: ArrayList<KCommands> = ArrayList()
                     try {
                         KCommandsLock.lock()
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("ADD_NEW_COMMANDS is running")
+                        }
                         while (NEW_COMMANDS.isNotEmpty()) {
                             val anwer_type = NEW_COMMANDS.removeFirst()
                             if (anwer_type.RECORD_TYPE.equals("1")) {
@@ -223,7 +226,7 @@ class KCommands {
                             COMMANDS[c.commands_id] = c
                             arr.add(k)
                         }
-                        return@withTimeout true
+                        return@withTimeoutOrNull true
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KCommands",
@@ -240,38 +243,39 @@ class KCommands {
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-                return@withTimeout false
-            }
+                return@withTimeoutOrNull false
+            } ?: false
         }.toPromise(EmptyCoroutineContext)
 
         @JsName("LOAD_COMMANDS")
-        fun LOAD_COMMANDS(ids: ArrayList<KCommands>) {
-            CoroutineScope(Dispatchers.Default).launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KCommandsLock.lock()
-                            ids.forEach {
-                                val c = Command(it)
-                                COMMANDS[c.commands_id] = c
-                                meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
-                            }
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KCommands",
-                                l_function_name = "LOAD_COMMANDS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KCommandsLock.unlock()
-                        }
-
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
+        suspend fun LOAD_COMMANDS(ids: ArrayList<KCommands>) {
+            try {
+                try {
+                    KCommandsLock.lock()
+                    ids.forEach {
+                        val c = Command(it)
+                        COMMANDS[c.commands_id] = c
+                        meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KCommands",
+                        l_function_name = "LOAD_COMMANDS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KCommandsLock.unlock()
                 }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
+        }
+
+        @JsName("RE_LOAD_COMMANDS")
+        fun RE_LOAD_COMMANDS():Job {
+            return Sqlite_service.LoadCommands()
         }
     }
 }

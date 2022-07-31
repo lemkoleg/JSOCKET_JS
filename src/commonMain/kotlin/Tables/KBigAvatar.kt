@@ -134,7 +134,7 @@ class KBigAvatar {
         @JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
-                withTimeout(Constants.CLIENT_TIMEOUT) {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KBigAvatarLock.lock()
@@ -144,7 +144,7 @@ class KBigAvatar {
                                 arr.add(avatar)
                                 Sqlite_service.InsertBigAvatars(arr)
                             }
-                            return@withTimeout true
+                            return@withTimeoutOrNull true
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KBigAvatar",
@@ -158,19 +158,22 @@ class KBigAvatar {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeout false
-                }
+                    return@withTimeoutOrNull false
+                } ?: false
             }.toPromise(EmptyCoroutineContext)
 
 
         @JsName("ADD_NEW_BIG_AVATARS")
         fun ADD_NEW_BIG_AVATARS(): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
-                withTimeout(Constants.CLIENT_TIMEOUT) {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         val arr: ArrayList<KBigAvatar> = ArrayList()
                         try {
                             KBigAvatarLock.lock()
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("ADD_NEW_BIG_AVATARS is running")
+                            }
                             while (NEW_BIG_AVATARS.isNotEmpty()) {
                                 val anwer_type = NEW_BIG_AVATARS.removeFirst()
                                 if (anwer_type.RECORD_TYPE.equals("6")) {
@@ -189,7 +192,7 @@ class KBigAvatar {
                                 }
 
                             }
-                            return@withTimeout true
+                            return@withTimeoutOrNull true
                         } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
@@ -208,8 +211,8 @@ class KBigAvatar {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeout false
-                }
+                    return@withTimeoutOrNull false
+                } ?: false
             }.toPromise(EmptyCoroutineContext)
 
 
@@ -298,60 +301,52 @@ class KBigAvatar {
         }
 
         @JsName("LOAD_BIG_AVATARS_IDS")
-        fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
-            KBigAvatar_serviceScope.launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KBigAvatarLock.lock()
-                            ids.forEach {
-                                BIG_AVATARS_IDS[it] = it
-                            }
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KBigAvatar",
-                                l_function_name = "LOAD_BIG_AVATAR_ADS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KBigAvatarLock.unlock()
-                        }
-
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
+        suspend fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
+            try {
+                try {
+                    KBigAvatarLock.lock()
+                    ids.forEach {
+                        BIG_AVATARS_IDS[it] = it
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KBigAvatar",
+                        l_function_name = "LOAD_BIG_AVATAR_ADS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KBigAvatarLock.unlock()
                 }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
 
 
         @JsName("LOAD_BIG_AVATARS")
-        fun LOAD_BIG_AVATARS(irr: ArrayList<KBigAvatar>) {
-            KBigAvatar_serviceScope.launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KBigAvatarLock.lock()
-                            irr.forEach {
-                                BIG_AVATARS_IDS[it.AVATAR_ID] = it.AVATAR_ID
-                                BIG_AVATARS[it.AVATAR_ID] = it
-                            }
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KBigAvatar",
-                                l_function_name = "LOAD_BIG_AVATARS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KBigAvatarLock.unlock()
-                        }
-
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
+        suspend fun LOAD_BIG_AVATARS(irr: ArrayList<KBigAvatar>) {
+            try {
+                try {
+                    KBigAvatarLock.lock()
+                    irr.forEach {
+                        BIG_AVATARS_IDS[it.AVATAR_ID] = it.AVATAR_ID
+                        BIG_AVATARS[it.AVATAR_ID] = it
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KBigAvatar",
+                        l_function_name = "LOAD_BIG_AVATARS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KBigAvatarLock.unlock()
                 }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
 
@@ -381,6 +376,16 @@ class KBigAvatar {
                     }
                 }
             }
+        }
+
+        @JsName("RE_LOAD_BIG_AVATAR_IDS")
+        fun RE_LOAD_BIG_AVATAR_IDS(): Job {
+            return Sqlite_service.LoadBigAvatarsIds()
+        }
+
+        @JsName("RE_LOAD_BIG_AVATAR")
+        fun RE_LOAD_BIG_AVATAR(): Job {
+            return Sqlite_service.LoadBigAvatars()
         }
     }
 }

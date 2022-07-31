@@ -122,7 +122,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 1,
         fields_crypted = 1,
         serialied = false,
-        check_suming = false
+        check_suming = true
     ),
     9 to JSOCKET_Subscribe(
         fields_number = 9,
@@ -172,7 +172,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = true
+        check_suming = false
     ),
     14 to JSOCKET_Subscribe(
         fields_number = 14,
@@ -182,7 +182,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = true
+        check_suming = false
     ),
     15 to JSOCKET_Subscribe(
         fields_number = 15,
@@ -202,7 +202,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = false
+        check_suming = true
     ),
     17 to JSOCKET_Subscribe(
         fields_number = 17,
@@ -212,7 +212,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = true
+        check_suming = false
     ),
     18 to JSOCKET_Subscribe(
         fields_number = 18,
@@ -232,7 +232,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = true
+        check_suming = false
     ),
     20 to JSOCKET_Subscribe(
         fields_number = 20,
@@ -272,7 +272,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
         fields_type = 0,
         fields_crypted = 1,
         serialied = true,
-        check_suming = true
+        check_suming = false
     ),
     24 to JSOCKET_Subscribe(
         fields_number = 24,
@@ -583,7 +583,7 @@ open class JSOCKET() {
     private var h: HASH? = null
 
     @JsName("check_sum")
-    var check_sum: Long = 0
+    var check_sum: String = ""
     private var long_value: Long = 0
     private var nature_connection_coocki: Long = 0L
     private var int_value: Int = 0
@@ -736,7 +736,7 @@ open class JSOCKET() {
     @JsName("serialize")
     @InternalAPI
     @ExperimentalTime
-    suspend fun serialize(craete_check_sum: Boolean, verify_fields: Boolean): ByteArray {
+    suspend fun serialize(verify_fields: Boolean): ByteArray {
 
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
@@ -788,10 +788,14 @@ open class JSOCKET() {
             }
             currentPosition = 0
             currentLimit = 0
+
+            /*
             var lcraete_check_sum: Boolean
             if (craete_check_sum) {
                 check_sum = 0L
             }
+            */
+
             md5String = ""
             object_extension = object_extension.trim().lowercase()
             value_par7 = value_par7.trim().uppercase()
@@ -818,12 +822,16 @@ open class JSOCKET() {
             } else {
                 connection_coocki = 0L
             }
+
+            /*
             if (craete_check_sum && connection_id != 0L) {
                 check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
             }
             if (craete_check_sum) {
                 check_sum = h!!.getCheckSumFromLong(just_do_it.toLong(), check_sum)
             }
+             */
+
             nature_connection_coocki = connection_coocki
             if (connection_coocki != 0L) {
                 md5String = h!!.getNewMD5String(connection_coocki, just_do_it_label)
@@ -859,11 +867,15 @@ open class JSOCKET() {
                 nameField_length = 0
                 nes_fields_symbol = nes_fields.substring(x - 1, x)
                 if ("0" != nes_fields_symbol || !verify_fields) {
+
+                    /*
                     lcraete_check_sum = false
                     if (craete_check_sum) {
                         lcraete_check_sum =
                             subJSOCKET.check_suming && "1" == nes_fields_symbol
                     }
+                     */
+
                     when (subJSOCKET.fields_type) {
                         0 -> {
                             var bbb: ByteArray
@@ -915,7 +927,7 @@ open class JSOCKET() {
                             }
                             bbCONTENT_SIZE!!.writeInt(x)
                             bbCONTENT_SIZE!!.writeInt(nameField_length)
-                            setBytes(bbb, nameField_length, crypt, lcraete_check_sum)
+                            setBytes(bbb, nameField_length, crypt)
                         }
                         1 -> {
                             try {
@@ -964,7 +976,7 @@ open class JSOCKET() {
                             } else {
                                 bbCONTENT_SIZE!!.writeInt(x)
                                 bbCONTENT_SIZE!!.writeInt(8)
-                                setLong(long_value, crypt, lcraete_check_sum)
+                                setLong(long_value, crypt)
                             }
                         }
                         3 -> {
@@ -989,8 +1001,7 @@ open class JSOCKET() {
                                     setBytes(
                                         content!!,
                                         content!!.size,
-                                        crypt && currentCommand!!.cryptContent,
-                                        lcraete_check_sum
+                                        crypt && currentCommand!!.cryptContent
                                     )
                                 }
                             }
@@ -1024,6 +1035,7 @@ open class JSOCKET() {
     }
 
     /////////////////////////////////////////////////////////////////////////////////
+    /*
     @JsName("create_check_sum")
     @InternalAPI
     @ExperimentalTime
@@ -1063,6 +1075,7 @@ open class JSOCKET() {
                 l_additional_text = "just_do_it not found: $just_do_it"
             )
         }
+
         if (connection_id != 0L) {
             check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
         }
@@ -1200,14 +1213,16 @@ open class JSOCKET() {
             }
         }
     }
+     */
 
     /////////////////////////////////////////////////////////////////////////////////
 
     @KorioExperimentalApi
     @JsName("desend_datad_ANSWERS_TYPES")
     suspend fun deserialize_ANSWERS_TYPES() {
+        var promise: Promise<Boolean>? = null
+        var currentCashData: KCashData? = null
         try {
-
             if (content == null || content!!.isEmpty()) {
                 return
             }
@@ -1220,7 +1235,7 @@ open class JSOCKET() {
             bb = ByteReadPacket(content!!)
             var record: ByteReadPacket
             var record_type = "0"
-            var promise: Promise<Boolean>? = null
+
             loopChSum@ while (true) {
                 if (bb!!.remaining >= 4) {
                     if (empty_answer_types.isEmpty()) {
@@ -1332,17 +1347,22 @@ open class JSOCKET() {
                 }
 
                 when (answer_type.RECORD_TYPE) {
-                    "1" -> NEW_COMMANDS.add(answer_type)
-                    "2" -> NEW_META_DATA.add(answer_type)
-                    "3" -> NEW_CHATS.add(answer_type)
-                    "4" -> NEW_MESSEGES.add(answer_type)
-                    "5" -> NEW_EXCEPTIONS.add(answer_type)
-                    "6" -> NEW_BIG_AVATARS.add(answer_type)
-                    "7" -> NEW_REG_DATA.add(answer_type)
-                    "8" -> NEW_CHATS_LIKES.add(answer_type)
-                    "9" -> NEW_CHATS_COST_TYPES.add(answer_type)
+                    "1" -> NEW_COMMANDS.addLast(answer_type)
+                    "2" -> NEW_META_DATA.addLast(answer_type)
+                    "3" -> NEW_CHATS.addLast(answer_type)
+                    "4" -> NEW_MESSEGES.addLast(answer_type)
+                    "5" -> NEW_EXCEPTIONS.addLast(answer_type)
+                    "6" -> NEW_BIG_AVATARS.addLast(answer_type)
+                    "7" -> NEW_REG_DATA.addLast(answer_type)
+                    "8" -> NEW_CHATS_LIKES.addLast(answer_type)
+                    "9" -> NEW_CHATS_COST_TYPES.addLast(answer_type)
                     else -> {
-                        NEW_CASH_DATA.add(answer_type)
+                        if(currentCashData == null){
+                            currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
+                        }
+                        answer_type.INTEGER_20 = answer_type.INTEGER_20 ?: 0
+                        answer_type.LONG_20 = this.last_date_of_update
+                        currentCashData!!.NEW_CASH_DATA.addLast(answer_type)
                     }
                 }
 
@@ -1361,7 +1381,7 @@ open class JSOCKET() {
                         }
                         "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                         "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
-                        else -> KCashData.ADD_NEW_CASH_DATA( this.check_sum, this.last_date_of_update)
+                        else -> currentCashData!!.ADD_NEW_CASH_DATA(this.last_date_of_update)
                     }
                     record_type = answer_type.RECORD_TYPE
                 }
@@ -1381,7 +1401,7 @@ open class JSOCKET() {
                     }
                     "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES()
                     "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES()
-                    else -> KCashData.ADD_NEW_CASH_DATA(this.check_sum, this.last_date_of_update)
+                    else -> currentCashData!!.ADD_NEW_CASH_DATA(this.last_date_of_update)
                 }
             }
 
@@ -1397,6 +1417,12 @@ open class JSOCKET() {
                 l_additional_text = n.message
             )
         } finally {
+            if(currentCommand!!.commands_access == "B"){
+                if(currentCashData == null){
+                    currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
+                    currentCashData!!.UPDATE_LAST_SELECT(this.last_date_of_update, this.value_id1, this.value_par1)
+                }
+            }
             try {
                 bb?.close()
             } catch (e: Exception) {
@@ -1597,12 +1623,14 @@ open class JSOCKET() {
     private fun setBytes(
         input_bytes: ByteArray,
         size: Int,
-        lcrypt: Boolean,
-        lc_craete_check_sum: Boolean
+        lcrypt: Boolean
     ) {
+        /*
         if (lc_craete_check_sum) {
             check_sum = h!!.getCheckSumFromByteArray(data = input_bytes, checksum = check_sum)
         }
+         */
+
         if (lcrypt) {
             setCryptBytes(input_bytes, size)
         } else {
@@ -1611,10 +1639,14 @@ open class JSOCKET() {
     }
 
 
-    private fun setLong(input_long: Long, crypt: Boolean, lc_craete_check_sum: Boolean) {
+    private fun setLong(input_long: Long, crypt: Boolean) {
+
+        /*
         if (lc_craete_check_sum) {
             check_sum = h!!.getCheckSumFromLong(input_long, check_sum)
         }
+         */
+
         if (crypt) {
             bbCONTENT_SIZE!!.writeLong(input_long xor md5LongArray[start_position] xor reverseMD5LongArray[reverse_start_position])
             getNewStartPosition()

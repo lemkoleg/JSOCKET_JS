@@ -1,19 +1,33 @@
 package Tables
 
-import CrossPlatforms.WriteExceptionIntoFile
-import co.touchlab.stately.concurrency.value
 import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.toPromise
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
-import kotlin.coroutines.CoroutineContext
+import lib_exceptions.my_user_exceptions_class
+import p_jsocket.Constants
+import sql.Sqlite_service
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
+@KorioExperimentalApi
+@ExperimentalTime
 @InternalAPI
-private val CASH_LAST_UPDATE: MutableMap<Long, KCashLastUpdate> = mutableMapOf()
+val CASH_LAST_UPDATE: MutableMap<String, KCashLastUpdate> = mutableMapOf()
 
 
+@KorioExperimentalApi
+@ExperimentalTime
 @InternalAPI
-class KCashLastUpdate {
+class KCashLastUpdate(
+    val CASH_SUM: String,
+    val RECORDS_TYPE: String,
+    var LAST_USE: Long
+) {
 
     init {
         ensureNeverFrozen()
@@ -21,125 +35,91 @@ class KCashLastUpdate {
 
     //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
-    var CASH_SUM: Long = 0
-    var LAST_USE: Long = 0
-    var LAST_UPDATE: Long = 0
-    var OBJECTS_IDS: String = ""
-    var CONNECTION_ID: Long = 0
-    val CASH_DATA: ArrayList<KCashData> = arrayListOf()
-    private val CASH_DATA_IDS: MutableMap<String, Int> = mutableMapOf()  //OBJECT_ID and POSITION
     private val KCashLastUpdate_Lock = Mutex()
 
-    private constructor()
+    val CashData: KCashData = CASH_DATAS[CASH_SUM] ?: KCashData(CASH_SUM)
 
-    private constructor(L_CASH_SUM: Long,
-                        L_LAST_USE: Long,
-                        L_LAST_UPDATE: Long,
-                        L_OBJECTS_IDS: String){
-        CASH_SUM = L_CASH_SUM
-        LAST_USE = L_LAST_USE
-        LAST_UPDATE = L_LAST_UPDATE
-        OBJECTS_IDS = L_OBJECTS_IDS
-        CONNECTION_ID = myConnectionsID.value.value
+    fun UPDATE_LAST_USE(last_use: Long): Promise<Boolean> =
+        CoroutineScope(Dispatchers.Default).async {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KCashLastUpdate_Lock.lock()
 
-    }
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashLastUpdate",
+                            l_function_name = "UPDATE_LAST_USE",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KCashLastUpdate_Lock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+                return@withTimeoutOrNull false
+            } ?: false
+        }.toPromise(EmptyCoroutineContext)
 
-    private suspend fun INSERT_CASH_DATA(kCashData: KCashData){
-        withTimeoutOrNull(CLIENT_TIMEOUT) {
+
+    companion object {
+
+        private val KCashLastUpdate_Companion_Lock = Mutex()
+
+        @JsName("GET_CASH_LAST_UPDATE")
+        suspend fun GET_CASH_LAST_UPDATE(checkSum: String): KCashLastUpdate? {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KCashLastUpdate_Companion_Lock.lock()
+                        return@withTimeoutOrNull CASH_LAST_UPDATE[checkSum] ?: KCashLastUpdate(checkSum)
+
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashLastUpdate",
+                            l_function_name = "GET_CASHLAST_UPDATE",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KCashLastUpdate_Companion_Lock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+            }
+            return null
+        }
+
+        @JsName("LOAD_CASH_LAST_UPDATE")
+        suspend fun LOAD_CASH_LAST_UPDATE(arr: ArrayList<KCashLastUpdate>) {
             try {
-                KCashLastUpdate_Lock.lock()
-                if(CASH_DATA_IDS.containsKey(kCashData.OBJECTS_ID)){
-                    val lCashData =  CASH_DATA[CASH_DATA_IDS[kCashData.OBJECTS_ID]!!]
-                    if(lCashData.OBJECTS_ID != kCashData.OBJECTS_ID){
-
-                    }
-                }
-                val kCashData: KCashData? = CASH_DATA_IDS[kCashData.OBJECTS_ID]
-                if(kCashLastUpdate != null){
-                    kCashLastUpdate.LAST_UPDATE =  L_LAST_UPDATE
-                    kCashLastUpdate.LAST_USE =  L_LAST_USE
-                }else{
-                    KCashLastUpdate(
-                        L_CASH_SUM,
-                        L_LAST_USE,
-                        L_LAST_UPDATE,
-                        L_OBJECTS_IDS
-                    ).also { CASH_LAST_UPDATE[L_CASH_SUM] = it }
-                }
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "KCashLastUpdate.INSERT_CASH_LAST_UPDATE_INTO_MAP")
-            } finally {
-                KCashLastUpdate_Lock.unlock()}
-
-        }
-    }
-
-
-
-
-    @InternalAPI
-    companion object : CoroutineScope {
-
-        override val coroutineContext: CoroutineContext = Dispatchers.Default
-
-        private val KCashLastUpdate_Companion_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
-
-        private val KCashLastUpdate_Companion_Lock = Lock()
-
-        suspend fun INSERT_CASH_LAST_UPDATE_INTO_MAP(
-            L_CASH_SUM: Long,
-            L_LAST_USE: Long,
-            L_LAST_UPDATE: Long,
-            L_OBJECTS_IDS: String
-        ) {
-            withTimeoutOrNull(CLIENT_TIMEOUT) {
                 try {
                     KCashLastUpdate_Companion_Lock.lock()
-                    val kCashLastUpdate: KCashLastUpdate? = CASH_LAST_UPDATE[L_CASH_SUM]
-                    if(kCashLastUpdate != null){
-                        kCashLastUpdate.LAST_UPDATE =  L_LAST_UPDATE
-                        kCashLastUpdate.LAST_USE =  L_LAST_USE
-                    }else{
-                        KCashLastUpdate(
-                            L_CASH_SUM,
-                            L_LAST_USE,
-                            L_LAST_UPDATE,
-                            L_OBJECTS_IDS
-                        ).also { CASH_LAST_UPDATE[L_CASH_SUM] = it }
+                    arr.forEach {
+                        CASH_LAST_UPDATE[it.CASH_SUM] = it
                     }
                 } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "KCashLastUpdate.INSERT_CASH_LAST_UPDATE_INTO_MAP")
+                    throw my_user_exceptions_class(
+                        l_class_name = "KCashLastUpdate",
+                        l_function_name = "LOAD_CASH_LAST_UPDATE",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
                 } finally {
                     KCashLastUpdate_Companion_Lock.unlock()
                 }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
 
-        suspend fun INSERT_CASH_DATA(kCashData: KCashData) {
-            withTimeoutOrNull(CLIENT_TIMEOUT) {
-                try {
-                    KCashLastUpdate_Companion_Lock.lock()
-                    val kCashLastUpdate: KCashLastUpdate? = CASH_LAST_UPDATE[L_CASH_SUM]
-                    if(kCashLastUpdate != null){
-                        KCashLastUpdate_Companion_serviceScope.launch {
-
-                        }
-                        kCashLastUpdate.LAST_UPDATE =  L_LAST_UPDATE
-                        kCashLastUpdate.LAST_USE =  L_LAST_USE
-                    }else{
-                        KCashLastUpdate(
-                            L_CASH_SUM,
-                            L_LAST_USE,
-                            L_LAST_UPDATE,
-                            L_OBJECTS_IDS
-                        ).also { CASH_LAST_UPDATE[L_CASH_SUM] = it }
-                    }
-                } catch (ex: Exception) {
-                    WriteExceptionIntoFile(ex, "KCashLastUpdate.INSERT_CASH_LAST_UPDATE_INTO_MAP")
-                } finally {
-                    KCashLastUpdate_Companion_Lock.unlock()
-                }
-            }
+        @JsName("RE_LOAD_CASH_LAST_UPDATE")
+        fun RE_LOAD_CASH_LAST_UPDATE(): Job {
+            return Sqlite_service.LoadCashLastUpdate()
         }
     }
 }

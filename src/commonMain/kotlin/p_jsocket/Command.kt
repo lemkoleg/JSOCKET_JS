@@ -54,9 +54,6 @@ class Command {
     @JsName("isDont_answer")
     var isDont_answer by Delegates.notNull<Boolean>()
 
-    @JsName("isCaching")
-    var isCaching by Delegates.notNull<Boolean>()
-
     @JsName("whichBlobDataSended")
     var whichBlobDataSended by Delegates.notNull<String>()
 
@@ -115,7 +112,6 @@ class Command {
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
         isDont_answer = commands_profile.substring(6, 7) != "0"
-        isCaching = commands_profile.substring(7, 8) != "0"
         whichBlobDataSended = commands_profile.substring(9, 10)
         canChangeCoocki = commands_profile.substring(10, 11) != "0"
         isCrypt = commands_profile.substring(11, 12) != "0"
@@ -143,7 +139,6 @@ class Command {
         whichBlobDataReturned = commnd.whichBlobDataReturned
         whichSmallAvatarCreate = commnd.whichSmallAvatarCreate
         isDont_answer = commnd.isDont_answer
-        isCaching = commnd.isCaching
         whichBlobDataSended = commnd.whichBlobDataSended
         canChangeCoocki = commnd.canChangeCoocki
         isCrypt = commnd.isCrypt
@@ -175,7 +170,6 @@ class Command {
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
         isDont_answer = commands_profile.substring(6, 7) != "0"
-        isCaching = commands_profile.substring(7, 8) != "0"
         whichBlobDataSended = commands_profile.substring(9, 10)
         canChangeCoocki = commands_profile.substring(10, 11) != "0"
         isCrypt = commands_profile.substring(11, 12) != "0"

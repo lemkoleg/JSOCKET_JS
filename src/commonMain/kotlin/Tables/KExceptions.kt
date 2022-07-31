@@ -294,11 +294,14 @@ class KExceptions {
         @JsName("ADD_NEW_EXCEPTIONS")
         fun ADD_NEW_EXCEPTIONS(): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
-                withTimeout(Constants.CLIENT_TIMEOUT) {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         val arr: ArrayList<KException> = ArrayList()
                         try {
                             KExceptionsLock.lock()
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("ADD_NEW_EXCEPTIONS is running")
+                            }
                             while (NEW_EXCEPTIONS.isNotEmpty()) {
                                 val anwer_type = NEW_EXCEPTIONS.removeFirst()
                                 if (anwer_type.RECORD_TYPE.equals("5")) {
@@ -314,7 +317,7 @@ class KExceptions {
                                 INSERT_EXCEPTION(e)
                                 arr.add(e)
                             }
-                            return@withTimeout true
+                            return@withTimeoutOrNull true
                         } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
@@ -326,15 +329,15 @@ class KExceptions {
                             )
                         } finally {
                             KExceptionsLock.unlock()
-                            if(!arr.isEmpty()){
+                            if (!arr.isEmpty()) {
                                 Sqlite_service.InsertExceptions(arr)
                             }
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeout false
-                }
+                    return@withTimeoutOrNull false
+                } ?: false
             }.toPromise(EmptyCoroutineContext)
 
 
@@ -353,31 +356,32 @@ class KExceptions {
             }
         }
 
-        fun LOAD_EXCEPTIONS(arr: ArrayList<KException>) {
-            CoroutineScope(NonCancellable).launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KExceptionsLock.lock()
-                            arr.forEach {
-                                INSERT_EXCEPTION(it)
-                                meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
-                            }
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KExceptions",
-                                l_function_name = "INSERT_EXCEPTIONS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KExceptionsLock.unlock()
-                        }
-                    } catch (ex: my_user_exceptions_class) {
-                        ex.ExceptionHand(null)
+        suspend fun LOAD_EXCEPTIONS(arr: ArrayList<KException>) {
+            try {
+                try {
+                    KExceptionsLock.lock()
+                    arr.forEach {
+                        INSERT_EXCEPTION(it)
+                        meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KExceptions",
+                        l_function_name = "INSERT_EXCEPTIONS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KExceptionsLock.unlock()
                 }
+            } catch (ex: my_user_exceptions_class) {
+                ex.ExceptionHand(null)
             }
+        }
+
+        @JsName("RE_LOAD_EXCEPTIONS")
+        fun RE_LOAD_EXCEPTIONS(): Job {
+            return Sqlite_service.LoadExceptions()
         }
     }
 }

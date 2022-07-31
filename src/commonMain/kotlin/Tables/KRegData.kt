@@ -148,6 +148,8 @@ class KRegData {
             ensureNeverFrozen()
         }
 
+        val SelfAnswerType: ANSWER_TYPE = ANSWER_TYPE()
+
 
         suspend fun setNEW_REG_DATA(v: JSOCKET? = null) {
 
@@ -189,20 +191,24 @@ class KRegData {
         @JsName("ADD_NEW_REG_DATA")
         fun ADD_NEW_REG_DATA(): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
-                withTimeout(Constants.CLIENT_TIMEOUT) {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KRegDataLock.lock()
-                            if (NEW_REG_DATA.size > 0) {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("ADD_NEW_REG_DATA is running")
+                            }
+                            if (NEW_REG_DATA.size > 1) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "KRegData",
                                     l_function_name = "ADD_NEW_REG_DATA",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "NEW_REG_DATA.size > 0"
+                                    l_additional_text = "NEW_REG_DATA.size > 1"
                                 )
                             }
                             while (NEW_REG_DATA.isNotEmpty()) {
                                 val anwer_type = NEW_REG_DATA.removeFirst()
+                                SelfAnswerType.merge(anwer_type)
                                 if (anwer_type.RECORD_TYPE.equals("7")) {
                                     throw my_user_exceptions_class(
                                         l_class_name = "KRegData",
@@ -220,7 +226,7 @@ class KRegData {
                                 }
 
                                 if (anwer_type.IDENTIFICATOR_2 != null && anwer_type.IDENTIFICATOR_2!!.isNotEmpty()) {
-                                    Account_Id = anwer_type.IDENTIFICATOR_2!!
+                                    Avatar_Id = anwer_type.IDENTIFICATOR_2!!
                                 }
 
                                 if (anwer_type.STRING_1 != null && anwer_type.STRING_1!!.isNotEmpty()) {
@@ -228,10 +234,6 @@ class KRegData {
                                 }
 
                                 if (anwer_type.STRING_2 != null && anwer_type.STRING_2!!.isNotEmpty()) {
-                                    Account_Access = anwer_type.STRING_2!!
-                                }
-
-                                if (anwer_type.answerTypeValues.GetAvatarOriginalSize() > 0) {
                                     Account_Access = anwer_type.STRING_2!!
                                 }
 
@@ -252,7 +254,7 @@ class KRegData {
                                     AVATAR_3 = anwer_type.BLOB_3
                                 }
                             }
-                            return@withTimeout true
+                            return@withTimeoutOrNull true
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KRegData",
@@ -266,8 +268,8 @@ class KRegData {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeout false
-                }
+                    return@withTimeoutOrNull false
+                }?:false
             }.toPromise(EmptyCoroutineContext)
     }
 }

@@ -712,7 +712,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
             "H" //ACCOUNTS
             -> {
-
+                answerType.RECORD_TABLE_ID = GetMainAccountId()
             }
             "I" //ALBUMS
             -> {
@@ -734,6 +734,62 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetAlbumsListeners = { getINTEGER_9() }
 
                 answerType.RECORD_TABLE_ID = GetObjectId()
+
+            }
+            "J" //ACCOUNT_INFO;
+            -> {
+                answerType.CASH_SUM = GetMainAccountId().toLong()
+                answerType.RECORD_TABLE_ID = "OBJECT"
+
+            }
+            "K" //ALBUM_INFO;
+            -> {
+                GetObjectId = {getIDENTIFICATOR_8() }
+                GetAlbumId = { getIDENTIFICATOR_8() }
+                GetAlbumName = { getSTRING_10() }
+                GetAlbumsDescribeStartText = { getSTRING_6() }
+                GetObjectProfile = { getSTRING_7().substring(0, 5) }
+                GetObjectType = { getSTRING_7().substring(5, 6) }
+                GetObjectAccess = { getSTRING_7().substring(6, 7) }
+                GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                GetAlbumsTypeContent = { getSTRING_7().substring(8, 9) }
+                GetAddingDate = { getLONG_4() }
+                GetObjectComments = { getINTEGER_4().toLong() }
+                GetObjectLikes = { getINTEGER_5().toLong() }
+                GetObjectDisLikes = { getINTEGER_6().toLong() }
+                GetAlbumsCountOfContents = { getINTEGER_7() }
+                GetAlbumsMembers = { getINTEGER_8() }
+                GetAlbumsListeners = { getINTEGER_9() }
+
+                answerType.CASH_SUM = GetAlbumId().toLong()
+                answerType.RECORD_TABLE_ID = "OBJECT"
+            }
+            "L" //OBJECT_INFO;
+            -> {
+
+                GetAlbumId = { getIDENTIFICATOR_8() }
+                GetAlbumName = { getSTRING_10() }
+
+                GetObjectId = {getIDENTIFICATOR_5() }
+                GetObjectSize = { getINTEGER_4() }
+                GetLengthSeconds = { getINTEGER_5() }
+                GetObjectName = { getSTRING_5() }
+                GetObjectServer = { getSTRING_6() }
+                GetObjectLink = { getSTRING_8() }
+                GetObjectExtension = { getSTRING_9() }
+                GetObjectProfile = { getSTRING_7().substring(0, 5) }
+                GetObjectType = { getSTRING_7().substring(5, 6) }
+                GetObjectAccess = { getSTRING_7().substring(6, 7) }
+                GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                GetObjectLikes = { getLONG_5() }
+                GetObjectDisLikes = { getLONG_6() }
+                GetObjectComments = { getLONG_7() }
+                GetObjectListens = { getLONG_8() }
+                GetObjectDescriptors = { getLONG_9() }
+                GetObjectListensPeriod = { getINTEGER_6() }
+
+                answerType.CASH_SUM = GetObjectId().toLong()
+                answerType.RECORD_TABLE_ID = "OBJECT"
 
             }
             else
@@ -839,7 +895,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "D" //OBJECTS_LINKS
             -> {
                 object_id = GetObjectId()
-
             }
             "E" //OBJECTS_LINKS_COMMENTS
             -> {
@@ -848,8 +903,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "F" //OBJECTS
             -> {
                 object_id = GetObjectId()
-
-
             }
             "G" //OBJECTS_COMMENTS
             -> {
@@ -862,7 +915,18 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "I" //ALBUMS
             -> {
                 object_id = GetObjectId()
-
+            }
+            "J" //ACCOUNT_INFO
+            -> {
+                object_id = GetMainAccountId()
+            }
+            "K" //ALBUM_INFO
+            -> {
+                object_id = GetObjectId()
+            }
+            "L" //OBJECT_INFO
+            -> {
+                object_id = GetObjectId()
             }
             else
             -> {

@@ -1,18 +1,13 @@
 table_CashLastUpdate:
 CREATE TABLE IF NOT EXISTS CashLastUpdate
-(CASH_SUM INTEGER NOT NULL,
+(CASH_SUM TEXT NOT NULL,
+ RECORDS_TYPE TEXT NOT NULL,
  LAST_USE TEXT NOT NULL,
- LAST_UPDATE TEXT NOT NULL,
- OBJECTS_IDS TEXT NOT NULL,
- CONNECTION_ID INTEGER NOT NULL,
  PRIMARY KEY (CASH_SUM)
 );
 
 index_CashLastUpdate_last_use:
 CREATE INDEX ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
-
-index_CashLastUpdate_ConnectionId:
-CREATE INDEX CashLastUpdateConnectionId ON CashLastUpdate(CONNECTION_ID);
 
 trigger_CashLastUpdate_delete:
 CREATE TRIGGER TCashLastUpdate_DELETE
@@ -22,16 +17,6 @@ BEGIN
 DELETE FROM CashData WHERE CASH_SUM = old.CASH_SUM;
 END;
 
-trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
-CREATE TRIGGER TCashLastUpdate_Control_Empty_Blocks_Insert
-AFTER INSERT
-ON CashLastUpdate
-BEGIN
-DELETE FROM CashLastUpdate
-WHERE CASH_SUM NOT IN
-(SELECT CASH_SUM FROM CashData t GROUP BY CASH_SUM);
-END;
-
 trigger_CashLastUpdate_Control_Empty_Blocks_Update:
 CREATE TRIGGER TCashLastUpdate_Control_Empty_Blocks_Update
 AFTER UPDATE
@@ -39,20 +24,7 @@ ON CashLastUpdate
 BEGIN
 DELETE FROM CashLastUpdate
 WHERE CASH_SUM NOT IN
-(SELECT CASH_SUM FROM CashData t GROUP BY CASH_SUM);
-END;
-
-trigger_CashLastUpdate_Update:
-CREATE TRIGGER TCashLastUpdate_Update
-BEFORE UPDATE
-ON CashLastUpdate
-FOR EACH ROW
-WHEN new.LAST_USE < new.LAST_UPDATE
-BEGIN
-  UPDATE CashLastUpdate
-  SET    LAST_USE = new.LAST_UPDATE
-  WHERE  CASH_SUM = new.CASH_SUM
-  AND    LAST_USE < new.LAST_UPDATE;
+(SELECT CASH_SUM FROM CashData t LIMIT 1);
 END;
 
 trigger_CashLastUpdate_Control_Count:
@@ -61,40 +33,38 @@ AFTER INSERT
 ON CashLastUpdate
 WHEN
 (SELECT count(*)
- FROM CashLastUpdate)>
+ FROM CashData) >
 (SELECT  VALUE_VALUE
  FROM MetaData
- WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS')
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA')
 BEGIN
-
-DELETE FROM CashData
-WHERE CASH_SUM =
-(SELECT CASH_SUM FROM CashLastUpdate t ORDER BY LAST_USE DESC LIMIT 1);
 
 DELETE FROM CashLastUpdate
 WHERE CASH_SUM NOT IN
-(SELECT CASH_SUM FROM CashData t GROUP BY CASH_SUM);
+(SELECT CASH_SUM
+ FROM CashLastUpdate t
+ ORDER BY LAST_USE DESC
+ LIMIT (SELECT  VALUE_VALUE
+        FROM MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA'));
 
 END;
 
 insert_CashLastUpdate:
 INSERT OR REPLACE INTO CashLastUpdate
-(CASH_SUM, LAST_USE, LAST_UPDATE, OBJECTS_IDS, CONNECTION_ID)
+(CASH_SUM, RECORDS_TYPE, LAST_USE)
 VALUES
-(?, ?, ?, ?, ?);
+(?, ?, ?);
 
 select_CashLastUpdate:
-SELECT *
-FROM CashLastUpdate
-WHERE CONNECTION_ID = ?;
+SELECT * FROM CashLastUpdate;
 
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
 
 update_CashLastUpdate_last_use:
 UPDATE CashLastUpdate
-SET    LAST_USE = ?
-WHERE  CASH_SUM = ?;
+SET    LAST_USE = ? WHERE  CASH_SUM = ?;
 
 
 

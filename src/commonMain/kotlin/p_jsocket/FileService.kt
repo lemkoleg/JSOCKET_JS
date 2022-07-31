@@ -170,7 +170,7 @@ class FileService(jsocket: Jsocket? = null) {
     private var MAX_FILE_SIZE = Constants.MAX_FILES_SIZE_B
     private val AVATAR_MAX_SIZE = Constants.AVATAR_MAX_SIZE_FOR_LOADING
 
-    private var MaxTryingSendReceiveFileChunks = Constants.MAX_TRYING_SEND_RECEIVE_FILE_CHUNKS
+    private var MaxTryingSendReceiveFileChunks = Constants.MAX_COUNT_TRYING_SEND_RECEIVE_FILE_CHUNKS
 
 
     init {

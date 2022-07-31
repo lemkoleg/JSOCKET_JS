@@ -317,13 +317,21 @@ private class DecoderRequest() {
                         var jsocketRet: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
                         if (jsocketRet == null) {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("CLIENT_JSOCKET_POOL is emprty")
+                                println("CLIENT_JSOCKET_POOL is emptty")
                             }
-                            jsocketRet = Jsocket()
+                            jsocketRet = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+                            if(jsocketRet == null){
+                                jsocketRet =  Jsocket()
+                                Jsocket.fill()
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    println("CLIENT_JSOCKET_POOL is emprty")
+                                }
+                            }
                         }
                         var jsocket: Jsocket?
                         jsocketRet.deserialize(b, myConnectionsCoocki, true, newConnectionCoocki.value)
                         if (jsocketRet.just_do_it != 0) {
+
                             jsocket = BetweenJSOCKETs.remove(jsocketRet.just_do_it_label)
 
                             if (jsocket != null) {
@@ -347,6 +355,18 @@ private class DecoderRequest() {
                                         jsocket.merge(jsocketRet)
                                         jsocket.condition.cSignal()
                                     }
+                                }
+                            }else{
+                                if(jsocketRet.just_do_it != 1011000086){ // SET_NEW_MESSEGES;
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "DecoderRequest",
+                                        l_function_name = "decode",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
+                                    )
+                                }
+                                if(jsocketRet.content != null && jsocketRet.content!!.size > 0){
+                                    jsocketRet.deserialize_ANSWERS_TYPES()
                                 }
                             }
                         }

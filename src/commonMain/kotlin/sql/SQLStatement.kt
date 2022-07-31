@@ -142,6 +142,35 @@ expect class SQLStatement() {
     @JsName("DELETE_SAVEMEDIA")
     suspend fun DELETE_SAVEMEDIA(v: String)
 
+    /////////////last update///////////////////////////
+
+    @JsName("TABLE_CASHLASTUPDATE")
+    suspend fun TABLE_CASHLASTUPDATE()
+
+    @JsName("INDEX_CASHLASTUPDATE_LAST_USE")
+    suspend fun INDEX_CASHLASTUPDATE_LAST_USE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_DELETE")
+    suspend fun TRIGGER_CASHLASTUPDATE_DELETE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT()
+
+    @JsName("INSERT_CASHLASTUPDATE")
+    suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate)
+
+    @JsName("SELECT_CASHLASTUPDATE_ALL")
+    suspend fun SELECT_CASHLASTUPDATE_ALL(): ArrayList<KCashLastUpdate>
+
+    @JsName("CLEAR_LASTUPDATE")
+    suspend fun CLEAR_LASTUPDATE()
+
+    @JsName("UPDATE_CASHLASTUPDATE_LAST_USE")
+    suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate)
+
     /////////////cash data///////////////////////////
 
     @JsName("TABLE_CASHDATA")
@@ -150,8 +179,8 @@ expect class SQLStatement() {
     @JsName("INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE")
     suspend fun INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE()
 
-    @JsName("TRIGGER_CASHDATA_INSERT")
-    suspend fun TRIGGER_CASHDATA_INSERT()
+    @JsName("TRIGGER_CASHDATA_AFTER_INSERT")
+    suspend fun TRIGGER_CASHDATA_AFTER_INSERT()
 
     @JsName("TRIGGER_CASHDATA_UPDATE")
     suspend fun TRIGGER_CASHDATA_UPDATE()
@@ -168,49 +197,21 @@ expect class SQLStatement() {
     @JsName("SELECT_CASHDATA_ALL_ON_CASH_SUM")
     suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long)
 
+    @JsName("SELECT_CASHDATA_ALL_CASH_SUMS")
+    suspend fun SELECT_CASHDATA_ALL_CASH_SUMS()
+
+    @JsName("DELET_CASHDATA")
+    suspend fun DELETE_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
+
     @JsName("CLEAR_CASHDATA")
     suspend fun CLEAR_CASHDATA()
 
     @JsName("CASHDATA_SORT_NEW_NUMBER_POSITIONS")
     suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS()
 
-    /////////////last update///////////////////////////
+    @JsName("UPADTE_CASHDATA_NEW_LAST_SELECT")
+    suspend fun UPADTE_CASHDATA_NEW_LAST_SELECT(last_record_table_id: String, countOfRecords: Int)
 
-    @JsName("TABLE_CASHLASTUPDATE")
-    suspend fun TABLE_CASHLASTUPDATE()
-
-    @JsName("INDEX_CASHLASTUPDATE_LAST_USE")
-    suspend fun INDEX_CASHLASTUPDATE_LAST_USE()
-
-    @JsName("INDEX_CASHLASTUPDATE_CONNECTIONID")
-    suspend fun INDEX_CASHLASTUPDATE_CONNECTIONID()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_DELETE")
-    suspend fun TRIGGER_CASHLASTUPDATE_DELETE()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_UPDATE")
-    suspend fun TRIGGER_CASHLASTUPDATE_UPDATE()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT()
-
-    @JsName("INSERT_CASHLASTUPDATE")
-    suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate)
-
-    @JsName("UPDATE_CASHLASTUPDATE_LAST_USE")
-    suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate)
-
-    @JsName("SELECT_CASHLASTUPDATE")
-    suspend fun SELECT_CASHLASTUPDATE(L_CONNECTION_ID : Long)
-
-    @JsName("CLEAR_LASTUPDATE")
-    suspend fun CLEAR_LASTUPDATE()
 
     /////////////chats///////////////////////////
 

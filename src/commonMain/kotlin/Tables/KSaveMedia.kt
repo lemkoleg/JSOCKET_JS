@@ -189,6 +189,9 @@ class KSaveMedia {
                         try {
                             kSaveMedia.LAST_USED = DateTime.nowUnixLong()
                             KSaveMediaLock.withLock {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    println("AddNewSaveMedia is running")
+                                }
                                 SAVE_MEDIA[kSaveMedia.OBJECT_ID] = kSaveMedia
                                 val arr: ArrayList<KSaveMedia> = ArrayList()
                                 arr.add(kSaveMedia)
@@ -213,39 +216,35 @@ class KSaveMedia {
 
 
         @JsName("LOAD_SAVE_MEDIA")
-        fun LOAD_SAVE_MEDIA(irr: ArrayList<KSaveMedia>) {
-            CoroutineScope(Dispatchers.Default).launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KSaveMediaLock.lock()
-                            irr.forEach {
+        suspend fun LOAD_SAVE_MEDIA(irr: ArrayList<KSaveMedia>) {
+            try {
+                try {
+                    KSaveMediaLock.lock()
+                    irr.forEach {
 
-                                if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
-                                    if (it.verifysDownLoaded()) {
-                                        SAVE_MEDIA[it.OBJECT_ID] = it
-                                    }else{
-                                        it.deleteFile()
-                                    }
-                                } else {
-                                    SAVE_MEDIA[it.OBJECT_ID] = it
-                                }
+                        if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
+                            if (it.verifysDownLoaded()) {
+                                SAVE_MEDIA[it.OBJECT_ID] = it
+                            } else {
+                                it.deleteFile()
                             }
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KSaveMedia",
-                                l_function_name = "LOAD_SAVE_MEDIA",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KSaveMediaLock.unlock()
+                        } else {
+                            SAVE_MEDIA[it.OBJECT_ID] = it
                         }
-
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
                     }
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KSaveMedia",
+                        l_function_name = "LOAD_SAVE_MEDIA",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KSaveMediaLock.unlock()
                 }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
 
@@ -257,8 +256,8 @@ class KSaveMedia {
                         try {
                             KSaveMediaLock.withLock {
                                 val s = SAVE_MEDIA[name]
-                                if(s != null){
-                                   val arr: ArrayList<KSaveMedia> = ArrayList()
+                                if (s != null) {
+                                    val arr: ArrayList<KSaveMedia> = ArrayList()
                                     arr.add(s)
                                     Sqlite_service.DeleteSaveMedia(arr)
                                     s.deleteFile()
@@ -312,5 +311,9 @@ class KSaveMedia {
                 } ?: false
             }.toPromise(EmptyCoroutineContext)
 
+        @JsName("RE_LOAD_SAVE_MEDIA")
+        fun RE_LOAD_SAVE_MEDIA(): Job {
+            return Sqlite_service.LoadSaveMedia()
+        }
     }
 }
