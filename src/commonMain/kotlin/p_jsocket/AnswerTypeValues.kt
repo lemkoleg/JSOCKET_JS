@@ -742,7 +742,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 answerType.RECORD_TABLE_ID = "OBJECT"
 
             }
-            "K" //ALBUM_INFO;
+            "K" //ALBUM_INFO;  
             -> {
                 GetObjectId = {getIDENTIFICATOR_8() }
                 GetAlbumId = { getIDENTIFICATOR_8() }
