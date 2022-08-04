@@ -176,12 +176,12 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("DeleteBigAvatars")
-    fun DeleteBigAvatars(kBigAvatar: KBigAvatar) = Sqlite_serviceScope.launch {
+    fun DeleteBigAvatars(OBJECTS_ID: String) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.lock()
-                    statBIG_AVATARS.INSERT_BIG_AVATAR(kBigAvatar)
+                    statBIG_AVATARS.DELETE_BIG_AVATAR(OBJECTS_ID)
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
@@ -591,7 +591,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.lock()
-                    val arr: ArrayList<KCashLastUpdate> = statCASHLASTUPDATE.SELECT_CASHLASTUPDATE_ALL()
+                    val arr: ArrayList<KCashLastUpdate> = statCASHLASTUPDATE.UPDATE_CASHLASTUPDATE_LAST_USE(DateTime.nowUnixLong())
                     KCashLastUpdate.LOAD_CASH_LAST_UPDATE(arr)
                 }
             } catch (ex: Exception) {

@@ -39,7 +39,7 @@ class KCashLastUpdate(
 
     val CashData: KCashData = CASH_DATAS[CASH_SUM] ?: KCashData(CASH_SUM)
 
-    fun UPDATE_LAST_USE(last_use: Long): Promise<Boolean> =
+    fun UPDATE_LAST_USE(): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {

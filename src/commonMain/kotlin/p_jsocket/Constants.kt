@@ -131,6 +131,14 @@ object Constants {
     @JsName("LIMIT_FOR_SELECT")
     var LIMIT_FOR_SELECT: Int = 100
 
+    @JsName("TIME_OUT_OF_USE_FILE_SERVICE_FOR_CLIENT")
+    var TIME_OUT_OF_USE_FILE_SERVICE_FOR_CLIENT: Long = 55000L
+
+    @JsName("TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR")
+    var TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR: Long = 10000L
+
+
+
 
     fun initialise() {
         CoroutineScope(NonCancellable).launch {

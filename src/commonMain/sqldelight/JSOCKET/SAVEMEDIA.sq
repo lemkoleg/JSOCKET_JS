@@ -104,7 +104,8 @@ VALUES
 
 select_SaveMedia_all:
 SELECT *
-FROM SaveMedia;
+FROM SaveMedia
+WHERE CONNECTION_ID = ?;
 
 delete_SaveMedia:
 DELETE FROM SaveMedia

@@ -132,7 +132,6 @@ CREATE TABLE IF NOT EXISTS CashData
  trigger_CashData_Insert_Control_Count:
    CREATE TRIGGER IF NOT EXISTS TCashDataInsertControlCount
    AFTER INSERT ON CashData
-   FOR EACH ROW
    WHEN (SELECT count(*)
          FROM CashData
          WHERE CASH_SUM = new.CASH_SUM) >

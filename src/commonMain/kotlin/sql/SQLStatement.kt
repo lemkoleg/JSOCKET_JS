@@ -137,7 +137,7 @@ expect class SQLStatement() {
     suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia)
 
     @JsName("SELECT_SAVEMEDIA_ALL")
-    suspend fun SELECT_SAVEMEDIA_ALL():ArrayList<KSaveMedia>
+    suspend fun SELECT_SAVEMEDIA_ALL(conn_id: Long):ArrayList<KSaveMedia>
 
     @JsName("DELETE_SAVEMEDIA")
     suspend fun DELETE_SAVEMEDIA(v: String)
@@ -152,6 +152,9 @@ expect class SQLStatement() {
 
     @JsName("TRIGGER_CASHLASTUPDATE_DELETE")
     suspend fun TRIGGER_CASHLASTUPDATE_DELETE()
+
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT()
 
     @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE")
     suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE()

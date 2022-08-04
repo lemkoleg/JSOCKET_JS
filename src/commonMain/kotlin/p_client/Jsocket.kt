@@ -20,7 +20,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
-import sql.Sqlite_service
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
@@ -107,22 +106,16 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
             try {
                 try {
-                    val command: Command
-                    if (!COMMANDS.containsKey(just_do_it)) {
-                        Sqlite_service.InitializeCommands().join()
-                        if (!COMMANDS.containsKey(just_do_it)) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "Jsocket",
-                                l_function_name = "execute",
-                                name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
-                                l_additional_text = "just_do_it not found $just_do_it"
-                            )
-                        } else {
-                            command = COMMANDS[just_do_it]!!
-                        }
-                    } else {
-                        command = COMMANDS[just_do_it]!!
+                    val command: Command? = COMMANDS[just_do_it]
+                    if(command == null){
+                        throw my_user_exceptions_class(
+                            l_class_name = "Jsocket",
+                            l_function_name = "execute",
+                            name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
+                            l_additional_text = "just_do_it not found $just_do_it"
+                        )
                     }
+
                     if ((command.commands_access != "2"
                                 && command.commands_access != "9")
                         && myConnectionsCoocki == 0L
@@ -133,10 +126,6 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                             name_of_exception = "EXC_CONNECTION_COOCKI_IS_WRONG",
                             l_additional_text = "coocki equel null"
                         )
-                    } else {
-                        if (myConnectionsCoocki == 0L) {
-                            Sqlite_service.InitializeRegData().join()
-                        }
                     }
                     if (command.isForPRO && !isPRO) {
                         throw my_user_exceptions_class(
@@ -185,9 +174,9 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
     ////////////////////////////////////////////////////////////////////////////////
 
 
-    suspend fun send_request(craete_check_sum: Boolean = false, verify_fields: Boolean = true) {
+    suspend fun send_request(verify_fields: Boolean = true) {
         is_new_reg_data = false
-        this.serialize(craete_check_sum, verify_fields).let { Connection.sendData(it, this) }
+        this.serialize(verify_fields).let { Connection.sendData(it, this) }
         if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
             if (COMMANDS[just_do_it]?.whichBlobDataReturned == "4") {
                 deserialize_ANSWERS_TYPES()

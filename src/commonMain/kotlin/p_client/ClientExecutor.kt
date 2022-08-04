@@ -92,10 +92,17 @@ class ClientExecutor {
 
 
                 if (curCommand!!.commands_id.equals(1011000078)) { // INSERT_MESSEGE
-                    if (w.equals(1) || w.equals(2) || w.equals(2)) {
+                    if (!w.equals(3)) {
                         jsocket.just_do_it = 1011000094 // INSERT_MESSEGE_WITH_OBJECT
                         curCommand = COMMANDS[jsocket.just_do_it]
                         jsocket.AvatarFullPathForSend = ""
+                    }
+                }
+
+                if (curCommand!!.commands_id.equals(1011000094)) { // INSERT_MESSEGE_WITH_OBJECT
+                    if (w.equals(3)) {
+                        jsocket.just_do_it = 1011000078 // INSERT_MESSEGE
+                        curCommand = COMMANDS[jsocket.just_do_it]
                     }
                 }
 

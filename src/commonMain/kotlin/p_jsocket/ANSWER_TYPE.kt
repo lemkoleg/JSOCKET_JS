@@ -5,6 +5,7 @@
  * and open the template in the editor.
  */
 package p_jsocket
+
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -107,7 +108,8 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: MutableMap<Int, ANSWER_TYPE_Subscribe> = muta
     80 to ANSWER_TYPE_Subscribe(80, "STRING_20", 4000, false, 0),
     81 to ANSWER_TYPE_Subscribe(81, "BLOB_1", Constants.MAX_SMALL_AVATAR_SIZE_B, false, 4),
     82 to ANSWER_TYPE_Subscribe(82, "BLOB_2", Constants.MAX_CUT_BIG_AVATAR_SIZE_B, false, 4),
-    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", Constants.MAX_BIG_AVATAR_SIZE_B, false, 4)
+    83 to ANSWER_TYPE_Subscribe(83, "BLOB_3", Constants.MAX_BIG_AVATAR_SIZE_B, false, 4),
+    84 to ANSWER_TYPE_Subscribe(83, "BLOB_3", Constants.AVATARSIZE, false, 4)
 )
 
 @InternalAPI
@@ -156,6 +158,9 @@ class ANSWER_TYPE() {
 
     @JsName("answerTypeValues")
     val answerTypeValues = AnswerTypeValues(this)
+
+    @JsName("LocalFileService")
+    var LocalFileService: FileService? = null
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
@@ -394,6 +399,13 @@ class ANSWER_TYPE() {
 
     @JsName("LONG_20")
     var LONG_20: Long? = 0L
+        set(v) {
+            val v2 = v ?: 0
+            if (v2 > 0 && v2 != field) {
+                field = v2
+                answerTypeValues.setOBJECT_ID_LAST_SELECT()
+            }
+        }
 
 
     @JsName("STRING_1")
@@ -472,13 +484,13 @@ class ANSWER_TYPE() {
 
     @JsName("STRING_20")
     var STRING_20: String? = ""
-    set(v){
-        val v2 = v?:""
-        if(v2.isNotEmpty() && !v2.equals(field)){
-            field = v2
-            answerTypeValues.setRECORD_TYPE(v2)
+        set(v) {
+            val v2 = v ?: ""
+            if (v2.isNotEmpty() && !v2.equals(field)) {
+                field = v2
+                answerTypeValues.DefineRECORD_TYPE(v2)
+            }
         }
-    }
 
     @JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
@@ -489,12 +501,14 @@ class ANSWER_TYPE() {
     @JsName("BLOB_3")
     var BLOB_3: ByteArray? = null
 
+    @JsName("BLOB_4")
+    var BLOB_4: ByteArray? = null
+
     @JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
-        set(v){
-            val v2 = v
-            if(!v2.equals(field)){
-                field = v2
+        set(v) {
+            if (!v.equals(field)) {
+                field = v
                 answerTypeValues.INIT_STRING20()
             }
         }
@@ -503,7 +517,7 @@ class ANSWER_TYPE() {
     var RECORD_TABLE_ID: String = ""
 
     @JsName("CASH_SUM")
-    var CASH_SUM: Long = 0
+    var CASH_SUM: String = ""
 
     @JsName("IS_UPDATED_BY_MERGE")
     var IS_UPDATED_BY_MERGE: Boolean = false
@@ -515,7 +529,7 @@ class ANSWER_TYPE() {
     @InternalAPI
     constructor(
         lRECORD_TABLE_ID: String,
-        lCASH_SUM: Long,
+        lCASH_SUM: String,
         lIDENTIFICATOR_1: String?,
         lIDENTIFICATOR_2: String?,
         lIDENTIFICATOR_3: String?,
@@ -598,7 +612,8 @@ class ANSWER_TYPE() {
         lSTRING_20: String?,
         lBLOB_1: ByteArray?,
         lBLOB_2: ByteArray?,
-        lBLOB_3: ByteArray?
+        lBLOB_3: ByteArray?,
+        lBLOB_4: ByteArray?
 
     ) : this() {
         IDENTIFICATOR_1 = lIDENTIFICATOR_1?.trim() ?: ""
@@ -703,6 +718,7 @@ class ANSWER_TYPE() {
         BLOB_1 = lBLOB_1
         BLOB_2 = lBLOB_2
         BLOB_3 = lBLOB_3
+        BLOB_4 = lBLOB_4
         RECORD_TABLE_ID = lRECORD_TABLE_ID
         CASH_SUM = lCASH_SUM
         STRING_20 = lSTRING_20?.trim() ?: ""
@@ -711,10 +727,8 @@ class ANSWER_TYPE() {
 
 
     @JsName("merge")
-    fun merge(v: ANSWER_TYPE?) {
-        if (v == null) {
-            return
-        }
+    fun merge(v: ANSWER_TYPE) {
+
         IS_UPDATED_BY_MERGE = false
 
         if (v.IDENTIFICATOR_1 != null && v.IDENTIFICATOR_1!!.isNotEmpty() && v.IDENTIFICATOR_1 != this.IDENTIFICATOR_1) {
@@ -1078,6 +1092,7 @@ class ANSWER_TYPE() {
             this.BLOB_1 = v.BLOB_1
             this.BLOB_2 = v.BLOB_2
             this.BLOB_3 = v.BLOB_3
+            this.BLOB_4 = v.BLOB_4
             this.STRING_17 = v.answerTypeValues.GetAvatarServer()
             this.STRING_18 = v.answerTypeValues.GetAvatarLink()
             this.INTEGER_19 = v.answerTypeValues.GetAvatarOriginalSize()
@@ -1105,6 +1120,11 @@ class ANSWER_TYPE() {
         return BLOB_3?.size ?: 0
     }
 
+    @JsName("get_BLOB_4_size")
+    fun get_BLOB_4_size(): Int {
+        return BLOB_4?.size ?: 0
+    }
+
     @JsName("getCONNECTION_ID")
     fun getCONNECTION_ID(): Long {
         return LONG_19 ?: 0L
@@ -1117,10 +1137,10 @@ class ANSWER_TYPE() {
 
     ///////////////////////////////////////////////////////////////////////////////
 
-    fun GetJsocket():Jsocket{
+    fun GetJsocket(): Jsocket {
         var j: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
-        if(j == null){
-            j =  Jsocket()
+        if (j == null) {
+            j = Jsocket()
             Jsocket.fill()
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                 println("CLIENT_JSOCKET_POOL is emprty")
@@ -1198,7 +1218,7 @@ class ANSWER_TYPE() {
 
                                 while (ar.size < Constants.CLIENT_ANSWER_TYPE_POOLS_CHUNK_SIZE) {
                                     var v: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
-                                    if(v == null){
+                                    if (v == null) {
                                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                             println("CLIENT_ANSWER_TYPE_POOL is emprty")
                                         }

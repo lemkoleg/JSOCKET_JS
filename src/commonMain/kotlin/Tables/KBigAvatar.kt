@@ -16,7 +16,9 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
+import p_client.CLIENT_JSOCKET_POOL
 import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
@@ -65,8 +67,18 @@ class KBigAvatar {
     private var AVATAR_ID: String = ""
     private var LAST_USE: Long = 0L
     private var AVATAR: ByteArray? = null
+    private var IS_HAVE: Boolean = false
+    private var IS_INIT: Boolean = false
 
     private constructor()
+
+    constructor(
+        L_AVATAR_ID: String,
+    ) {
+        AVATAR_ID = L_AVATAR_ID
+        LAST_USE = DateTime.nowUnixLong()
+        AVATAR = null
+    }
 
     constructor(
         L_AVATAR_ID: String,
@@ -76,6 +88,8 @@ class KBigAvatar {
         AVATAR_ID = L_AVATAR_ID
         LAST_USE = L_LAST_USE
         AVATAR = L_AVATAR
+        IS_HAVE = true
+        IS_INIT = true
     }
 
 
@@ -91,6 +105,8 @@ class KBigAvatar {
         AVATAR_ID = jsocket.value_id3
         LAST_USE = DateTime.nowUnixLong()
         AVATAR = jsocket.content
+        IS_HAVE = true
+        IS_INIT = true
     }
 
 
@@ -106,6 +122,8 @@ class KBigAvatar {
         AVATAR_ID = answerType.IDENTIFICATOR_2!!
         LAST_USE = DateTime.nowUnixLong()
         AVATAR = answerType.BLOB_3!!
+        IS_HAVE = true
+        IS_INIT = true
     }
 
 
@@ -124,182 +142,246 @@ class KBigAvatar {
         return AVATAR
     }
 
+    @JsName("PROMISE_SELECT_BIG_AVATAR")
+    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE): Job = CoroutineScope(Dispatchers.Default).launch {
+
+        if (answerType.answerTypeValues.GetMainAvatarId() != AVATAR_ID) {
+            throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "PROMISE_SELECT_BIG_AVATAR",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "AvatarId not equal ObjectAvatarId"
+            )
+        }
+
+        KBigAvatarLock.withLock {
+            if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
+                AVATAR = BIG_AVATARS[AVATAR_ID]?.AVATAR
+                if (AVATAR != null) {
+                    Sqlite_service.UpdateBigAvatarsLastUse(AVATAR_ID)
+                } else {
+                    AVATAR = Sqlite_service.SelectBigAvatar(AVATAR_ID, true)?.AVATAR
+                }
+            }
+        }
+        if (AVATAR != null) {
+            IS_HAVE = true
+            IS_INIT = true
+        } else {
+
+            var jsocket: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+
+            if (jsocket == null) {
+                jsocket = Jsocket()
+                Jsocket.fill()
+                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("CLIENT_JSOCKET_POOL is emprty")
+                }
+            }
+
+            jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
+            jsocket.value_id3 = answerType.answerTypeValues.GetMainAvatarId()
+            jsocket.value_id5 = answerType.answerTypeValues.GetChatId()
+            jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
+            jsocket.value_par3 = if (answerType.answerTypeValues.GetAvatarOriginalSize() == 0) "1" else "2"
+            jsocket.value_par5 = answerType.answerTypeValues.GetAvatarLink()
+            jsocket.value_par6 = answerType.answerTypeValues.GetAvatarServer()
+
+            jsocket.execute().await()
+            if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
+                AVATAR = jsocket.content
+                INSERT_BIG_AVATAR_INTO_MAP(this@KBigAvatar)
+                val arr: ArrayList<KBigAvatar> = ArrayList()
+                arr.add(this@KBigAvatar)
+                Sqlite_service.InsertBigAvatars(arr)
+            }
+        }
+    }
+
     companion object : CoroutineScope {
 
         override val coroutineContext: CoroutineContext = Dispatchers.Default
 
         private val KBigAvatar_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
 
-
-        @JsName("ADD_NEW_BIG_AVATAR")
-        fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KBigAvatarLock.lock()
-                            if (!BIG_AVATARS_IDS.containsKey(avatar.AVATAR_ID)) {
-                                BIG_AVATARS_IDS[avatar.AVATAR_ID] = avatar.AVATAR_ID
-                                val arr: ArrayList<KBigAvatar> = ArrayList()
-                                arr.add(avatar)
-                                Sqlite_service.InsertBigAvatars(arr)
-                            }
-                            return@withTimeoutOrNull true
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KBigAvatar",
-                                l_function_name = "ADD_NEW_BIG_AVATAR",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KBigAvatarLock.unlock()
-                        }
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
-                    }
-                    return@withTimeoutOrNull false
-                } ?: false
-            }.toPromise(EmptyCoroutineContext)
-
-
-        @JsName("ADD_NEW_BIG_AVATARS")
-        fun ADD_NEW_BIG_AVATARS(): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        val arr: ArrayList<KBigAvatar> = ArrayList()
-                        try {
-                            KBigAvatarLock.lock()
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("ADD_NEW_BIG_AVATARS is running")
-                            }
-                            while (NEW_BIG_AVATARS.isNotEmpty()) {
-                                val anwer_type = NEW_BIG_AVATARS.removeFirst()
-                                if (anwer_type.RECORD_TYPE.equals("6")) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "KBigAvatar",
-                                        l_function_name = "ADD_NEW_BIG_AVATARS",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Record is not Avatar"
-                                    )
-                                }
-                                if (!BIG_AVATARS_IDS.containsKey(anwer_type.answerTypeValues.GetMainAvatarId())) {
-                                    val bigAvatar = KBigAvatar(anwer_type)
-                                    arr.add(bigAvatar)
-                                    BIG_AVATARS_IDS[bigAvatar.AVATAR_ID] = bigAvatar.AVATAR_ID
-                                    BIG_AVATARS[bigAvatar.AVATAR_ID] = bigAvatar
-                                }
-
-                            }
-                            return@withTimeoutOrNull true
-                        } catch (e: my_user_exceptions_class) {
-                            throw e
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KBigAvatar",
-                                l_function_name = "ADD_NEW_BIG_AVATARS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KBigAvatarLock.unlock()
-                            if (!arr.isEmpty()) {
-                                Sqlite_service.InsertBigAvatars(arr)
-                            }
-                        }
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
-                    }
-                    return@withTimeoutOrNull false
-                } ?: false
-            }.toPromise(EmptyCoroutineContext)
+        /*
+               @JsName("ADD_NEW_BIG_AVATAR")
+               fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
+                   CoroutineScope(Dispatchers.Default).async {
+                       withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                           try {
+                               try {
+                                   KBigAvatarLock.lock()
+                                   if (!BIG_AVATARS_IDS.containsKey(avatar.AVATAR_ID)) {
+                                       BIG_AVATARS_IDS[avatar.AVATAR_ID] = avatar.AVATAR_ID
+                                       val arr: ArrayList<KBigAvatar> = ArrayList()
+                                       arr.add(avatar)
+                                       Sqlite_service.InsertBigAvatars(arr)
+                                   }
+                                   return@withTimeoutOrNull true
+                               } catch (ex: Exception) {
+                                   throw my_user_exceptions_class(
+                                       l_class_name = "KBigAvatar",
+                                       l_function_name = "ADD_NEW_BIG_AVATAR",
+                                       name_of_exception = "EXC_SYSTEM_ERROR",
+                                       l_additional_text = ex.message
+                                   )
+                               } finally {
+                                   KBigAvatarLock.unlock()
+                               }
+                           } catch (e: my_user_exceptions_class) {
+                               e.ExceptionHand(null)
+                           }
+                           return@withTimeoutOrNull false
+                       } ?: false
+                   }.toPromise(EmptyCoroutineContext)
+              */
 
 
-        @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
-        suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
-            jsocket: Jsocket? = null,
-            P_AVATAR_ID: String? = null
-        ): Promise<KBigAvatar?> = KBigAvatar_serviceScope.async {
+               @JsName("ADD_NEW_BIG_AVATARS")
+               fun ADD_NEW_BIG_AVATARS(): Promise<Boolean> =
+                   CoroutineScope(Dispatchers.Default).async {
+                       withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                           try {
+                               val arr: ArrayList<KBigAvatar> = ArrayList()
+                               try {
+                                   KBigAvatarLock.lock()
+                                   if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                       println("ADD_NEW_BIG_AVATARS is running")
+                                   }
+                                   while (NEW_BIG_AVATARS.isNotEmpty()) {
+                                       val anwer_type = NEW_BIG_AVATARS.removeFirst()
+                                       if (anwer_type.RECORD_TYPE.equals("6")) {
+                                           throw my_user_exceptions_class(
+                                               l_class_name = "KBigAvatar",
+                                               l_function_name = "ADD_NEW_BIG_AVATARS",
+                                               name_of_exception = "EXC_SYSTEM_ERROR",
+                                               l_additional_text = "Record is not Avatar"
+                                           )
+                                       }
+                                       if (!BIG_AVATARS_IDS.containsKey(anwer_type.answerTypeValues.GetMainAvatarId())) {
+                                           val bigAvatar = KBigAvatar(anwer_type)
+                                           arr.add(bigAvatar)
+                                           BIG_AVATARS_IDS[bigAvatar.AVATAR_ID] = bigAvatar.AVATAR_ID
+                                           BIG_AVATARS[bigAvatar.AVATAR_ID] = bigAvatar
+                                       }
 
-            if (jsocket == null && P_AVATAR_ID == null) {
-                return@async null
-            }
-
-            val L_AVATAR_ID = P_AVATAR_ID ?: jsocket!!.value_id3
-
-            var kBigAvatar: KBigAvatar? = null
-
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                try {
-                    try {
-                        KBigAvatarLock.lock()
-                        if (BIG_AVATARS_IDS.containsKey(L_AVATAR_ID)) {
-                            if (BIG_AVATARS.containsKey(L_AVATAR_ID)) {
-                                kBigAvatar = BIG_AVATARS[L_AVATAR_ID]
-                                Sqlite_service.UpdateBigAvatarsLastUse(L_AVATAR_ID)
-                            } else {
-                                kBigAvatar = Sqlite_service.SelectBigAvatar(L_AVATAR_ID, true)
-                                kBigAvatar?.let { INSERT_BIG_AVATAR_INTO_MAP(it) }
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "KBigAvatar",
-                            l_function_name = "RETURN_PROMISE_SELECT_BIG_AVATAR",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
-                        )
-                    } finally {
-                        KBigAvatarLock.unlock()
-                    }
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
-                }
-            }
-            if (kBigAvatar == null && jsocket != null) {
-                jsocket.execute().await()
-                if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
-                    kBigAvatar = KBigAvatar(jsocket)
-                    if (kBigAvatar != null) {
-                        INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar!!)
-                        val arr: ArrayList<KBigAvatar> = ArrayList()
-                        arr.add(kBigAvatar!!)
-                        Sqlite_service.InsertBigAvatars(arr)
-                    }
-                }
-            }
-            return@async kBigAvatar
-        }.toPromise()
+                                   }
+                                   return@withTimeoutOrNull true
+                               } catch (e: my_user_exceptions_class) {
+                                   throw e
+                               } catch (ex: Exception) {
+                                   throw my_user_exceptions_class(
+                                       l_class_name = "KBigAvatar",
+                                       l_function_name = "ADD_NEW_BIG_AVATARS",
+                                       name_of_exception = "EXC_SYSTEM_ERROR",
+                                       l_additional_text = ex.message
+                                   )
+                               } finally {
+                                   if (!arr.isEmpty()) {
+                                       Sqlite_service.InsertBigAvatars(arr)
+                                   }
+                                   KBigAvatarLock.unlock()
+                               }
+                           } catch (e: my_user_exceptions_class) {
+                               e.ExceptionHand(null)
+                           }
+                           return@withTimeoutOrNull false
+                       } ?: false
+                   }.toPromise(EmptyCoroutineContext)
 
 
-        @JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
-        suspend fun IS_HAVE_LOCAL_AVATAR_AND_RESERVE(L_AVATAR_ID: String): Boolean {
-            return withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                try {
-                    try {
-                        KBigAvatarLock.lock()
-                        if (BIG_AVATARS_IDS.containsKey(L_AVATAR_ID)) {
-                            Sqlite_service.UpdateBigAvatarsLastUse(L_AVATAR_ID)
-                            return@withTimeoutOrNull true
-                        } else return@withTimeoutOrNull false
-                    } catch (ex: Exception) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "KBigAvatar",
-                            l_function_name = "IS_HAVE_LOCAL_AVATAR_AND_RESERVE",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
-                        )
-                    } finally {
-                        KBigAvatarLock.unlock()
-                    }
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
-                    return@withTimeoutOrNull false
-                }
-            } ?: false
-        }
+                  /*
+                       @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
+                       suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
+                           j: Jsocket? = null,
+                           P_AVATAR_ID: String? = null
+                       ): Promise<KBigAvatar?> = KBigAvatar_serviceScope.async {
 
+                           val jsocket = j
+
+                           if (jsocket == null && P_AVATAR_ID == null) {
+                               return@async null
+                           }
+
+                           val L_AVATAR_ID = P_AVATAR_ID ?: jsocket!!.value_id3
+
+                           var kBigAvatar: KBigAvatar? = null
+
+                           withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                               try {
+                                   try {
+                                       KBigAvatarLock.lock()
+                                       if (BIG_AVATARS_IDS.containsKey(L_AVATAR_ID)) {
+                                           if (BIG_AVATARS.containsKey(L_AVATAR_ID)) {
+                                               kBigAvatar = BIG_AVATARS[L_AVATAR_ID]
+                                               Sqlite_service.UpdateBigAvatarsLastUse(L_AVATAR_ID)
+                                           } else {
+                                               kBigAvatar = Sqlite_service.SelectBigAvatar(L_AVATAR_ID, true)
+                                               if(kBigAvatar != null){
+                                                   BIG_AVATARS_IDS[kBigAvatar!!.getAVATAR_ID()] = kBigAvatar!!.getAVATAR_ID()
+                                                   return@withTimeoutOrNull
+                                               }
+                                           }
+                                       }
+                                   } catch (ex: Exception) {
+                                       throw my_user_exceptions_class(
+                                           l_class_name = "KBigAvatar",
+                                           l_function_name = "RETURN_PROMISE_SELECT_BIG_AVATAR",
+                                           name_of_exception = "EXC_SYSTEM_ERROR",
+                                           l_additional_text = ex.message
+                                       )
+                                   } finally {
+                                       KBigAvatarLock.unlock()
+                                   }
+                               } catch (e: my_user_exceptions_class) {
+                                   e.ExceptionHand(null)
+                               }
+                           }
+                           if (kBigAvatar == null && jsocket != null) {
+                               jsocket.execute().await()
+                               if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
+                                   kBigAvatar = KBigAvatar(jsocket)
+                                   if (kBigAvatar != null) {
+                                       INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar!!)
+                                       val arr: ArrayList<KBigAvatar> = ArrayList()
+                                       arr.add(kBigAvatar!!)
+                                       Sqlite_service.InsertBigAvatars(arr)
+                                   }
+                               }
+                           }
+                           return@async kBigAvatar
+                       }.toPromise()
+
+
+                       @JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
+                       suspend fun IS_HAVE_LOCAL_AVATAR_AND_RESERVE(L_AVATAR_ID: String): Boolean {
+                           return withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                               try {
+                                   try {
+                                       KBigAvatarLock.lock()
+                                       if (BIG_AVATARS_IDS.containsKey(L_AVATAR_ID)) {
+                                           Sqlite_service.UpdateBigAvatarsLastUse(L_AVATAR_ID)
+                                           return@withTimeoutOrNull true
+                                       } else return@withTimeoutOrNull false
+                                   } catch (ex: Exception) {
+                                       throw my_user_exceptions_class(
+                                           l_class_name = "KBigAvatar",
+                                           l_function_name = "IS_HAVE_LOCAL_AVATAR_AND_RESERVE",
+                                           name_of_exception = "EXC_SYSTEM_ERROR",
+                                           l_additional_text = ex.message
+                                       )
+                                   } finally {
+                                       KBigAvatarLock.unlock()
+                                   }
+                               } catch (e: my_user_exceptions_class) {
+                                   e.ExceptionHand(null)
+                                   return@withTimeoutOrNull false
+                               }
+                           } ?: false
+                       }
+
+                */
         @JsName("LOAD_BIG_AVATARS_IDS")
         suspend fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
             try {

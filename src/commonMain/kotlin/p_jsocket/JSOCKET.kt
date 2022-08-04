@@ -1222,6 +1222,8 @@ open class JSOCKET() {
     suspend fun deserialize_ANSWERS_TYPES() {
         var promise: Promise<Boolean>? = null
         var currentCashData: KCashData? = null
+        var object_info: ANSWER_TYPE? = null
+        var nameField_number: Int = 0
         try {
             if (content == null || content!!.isEmpty()) {
                 return
@@ -1229,7 +1231,6 @@ open class JSOCKET() {
             var answer_type: ANSWER_TYPE?
             var empty_answer_types: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             var nameField_length: Int
-            var nameField_number: Int
             var recordSize: Int
             var subJSOCKET: ANSWER_TYPE_Subscribe?
             bb = ByteReadPacket(content!!)
@@ -1337,6 +1338,21 @@ open class JSOCKET() {
 
                 }
 
+                if(nameField_number == 84 ){  // big avatar;
+                    if(object_info == null ){
+                        throw my_user_exceptions_class(
+                            l_class_name = "JSOCKET",
+                            l_function_name = "deserialize_ANSWERS_TYPES",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "object_info is empty"
+                        )
+                    }
+                    if(answer_type.BLOB_4 != null && answer_type.BLOB_4!!.isNotEmpty()){
+                        object_info.BLOB_4 = answer_type.BLOB_4
+                    }
+                    break
+                }
+
                 if(answer_type.RECORD_TYPE.isEmpty()){
                     throw my_user_exceptions_class(
                         l_class_name = "JSOCKET",
@@ -1356,6 +1372,25 @@ open class JSOCKET() {
                     "7" -> NEW_REG_DATA.addLast(answer_type)
                     "8" -> NEW_CHATS_LIKES.addLast(answer_type)
                     "9" -> NEW_CHATS_COST_TYPES.addLast(answer_type)
+                    "J", "K", "L" -> {  // object_info
+                        if(currentCommand!!.commands_access != "C"){
+                            throw my_user_exceptions_class(
+                                l_class_name = "JSOCKET",
+                                l_function_name = "deserialize_ANSWERS_TYPES",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "answer is object? but command is not object_info."
+                            )
+                        }
+                        if(object_info != null ){
+                            throw my_user_exceptions_class(
+                                l_class_name = "JSOCKET",
+                                l_function_name = "deserialize_ANSWERS_TYPES",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "object_info is not empty"
+                            )
+                        }
+                        object_info = answer_type
+                    }
                     else -> {
                         if(currentCashData == null){
                             currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
@@ -1423,6 +1458,11 @@ open class JSOCKET() {
                     currentCashData!!.UPDATE_LAST_SELECT(this.last_date_of_update, this.value_id1, this.value_par1)
                 }
             }
+            if(currentCommand!!.commands_access == "C"){
+                if(object_info != null){
+                    OBJECTS_INFO[object_info.RECORD_TABLE_ID]!!.merge(object_info)
+                }
+            }
             try {
                 bb?.close()
             } catch (e: Exception) {
@@ -1432,7 +1472,7 @@ open class JSOCKET() {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    @JsName("desend_data")
+    @JsName("deserialize")
     @InternalAPI
     fun deserialize(
         lbb: ByteReadPacket,

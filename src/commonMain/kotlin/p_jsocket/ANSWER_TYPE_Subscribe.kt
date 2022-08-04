@@ -121,6 +121,7 @@ class ANSWER_TYPE_Subscribe(
         81 -> { j: ANSWER_TYPE -> j.BLOB_1 }
         82 -> { j: ANSWER_TYPE -> j.BLOB_2 }
         83 -> { j: ANSWER_TYPE -> j.BLOB_3 }
+        84 -> { j: ANSWER_TYPE -> j.BLOB_4 }
         else -> {
             throw my_user_exceptions_class(
                 l_class_name = "ANSWER_TYPE_Subscribe",
@@ -216,6 +217,7 @@ class ANSWER_TYPE_Subscribe(
         81 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_1 = (v as ByteArray?) }
         82 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_2 = (v as ByteArray?) }
         83 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_3 = (v as ByteArray?) }
+        84 -> { j: ANSWER_TYPE, v: Any? -> j.BLOB_4 = (v as ByteArray?) }
         else -> {
             throw my_user_exceptions_class(
                 l_class_name = "ANSWER_TYPE_Subscribe",
