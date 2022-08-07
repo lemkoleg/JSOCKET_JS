@@ -7,10 +7,16 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
 );
 
 index_CashLastUpdate_last_use:
-CREATE INDEX ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
+
+index_CashLastUpdate_record_type_cash_sum:
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORDS_TYPE, CASH_SUM);
+
+index_CashLastUpdate_record_type_last_use_cash_sum:
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORDS_TYPE, LAST_USE DESC, CASH_SUM);
 
 trigger_CashLastUpdate_delete:
-CREATE TRIGGER TCashLastUpdate_DELETE
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_DELETE
 AFTER DELETE ON CashLastUpdate
 FOR EACH ROW
 BEGIN
@@ -18,7 +24,7 @@ DELETE FROM CashData WHERE CASH_SUM = old.CASH_SUM;
 END;
 
 trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
-CREATE TRIGGER TCashLastUpdate_Control_Empty_Blocks_Insert
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert
 AFTER INSERT
 ON CashLastUpdate
 BEGIN
@@ -28,7 +34,7 @@ WHERE CASH_SUM NOT IN
 END;
 
 trigger_CashLastUpdate_Control_Empty_Blocks_Update:
-CREATE TRIGGER TCashLastUpdate_Control_Empty_Blocks_Update
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Update
 AFTER UPDATE
 ON CashLastUpdate
 BEGIN
@@ -37,26 +43,87 @@ WHERE CASH_SUM NOT IN
 (SELECT CASH_SUM FROM CashData t ORDER BY CASH_SUM);
 END;
 
-trigger_CashLastUpdate_Control_Count:
-CREATE TRIGGER TCashLastUpdate_Control_Count
+trigger_CashLastUpdate_Control_Count_Links:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinks
 AFTER INSERT
 ON CashLastUpdate
 WHEN
+new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+AND
 (SELECT count(*)
- FROM CashData) >
+ FROM CashLastUpdate
+ WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')) >
 (SELECT  VALUE_VALUE
  FROM MetaData
- WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA')
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS')
 BEGIN
 
 DELETE FROM CashLastUpdate
-WHERE CASH_SUM NOT IN
+WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
+AND CASH_SUM NOT IN
 (SELECT CASH_SUM
  FROM CashLastUpdate t
- ORDER BY LAST_USE DESC
+ WHERE t.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
+ ORDER BY t.LAST_USE DESC
  LIMIT (SELECT  VALUE_VALUE
         FROM MetaData
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA'));
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS'));
+
+END;
+
+trigger_CashLastUpdate_Control_Count_Objects:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjects
+AFTER INSERT
+ON CashLastUpdate
+WHEN
+new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
+AND
+(SELECT count(*)
+ FROM CashLastUpdate
+ WHERE RECORDS_TYPE IN ('J', 'K', 'L')) >
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')
+BEGIN
+
+DELETE FROM CashLastUpdate
+WHERE RECORDS_TYPE IN ('J', 'K', 'L')
+AND CASH_SUM NOT IN
+(SELECT CASH_SUM
+ FROM CashLastUpdate t
+ WHERE t.RECORDS_TYPE IN ('J', 'K', 'L')
+ ORDER BY t.LAST_USE DESC
+ LIMIT (SELECT  VALUE_VALUE
+        FROM MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'));
+
+END;
+
+trigger_CashLastUpdate_Control_Count_TextLists:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextLists
+AFTER INSERT
+ON CashLastUpdate
+WHEN
+new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
+AND
+(SELECT count(*)
+ FROM CashLastUpdate
+ WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')) >
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS')
+BEGIN
+
+DELETE FROM CashLastUpdate
+WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
+AND CASH_SUM NOT IN
+(SELECT CASH_SUM
+ FROM CashLastUpdate t
+ WHERE t.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
+ ORDER BY t.LAST_USE DESC
+ LIMIT (SELECT  VALUE_VALUE
+        FROM MetaData
+        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'));
 
 END;
 

@@ -35,7 +35,6 @@ CREATE INDEX IF NOT EXISTS ISaveMediaAvatarId ON SaveMedia(AVATAR_ID);
 trigger_SaveMedia_control_temp_count:
 CREATE TRIGGER IF NOT EXISTS TSaveMediaControlTempCounts
 AFTER INSERT ON SaveMedia
-FOR EACH ROW
 WHEN
 new.IS_TEMP = 1
 AND
@@ -59,7 +58,6 @@ END;
 trigger_SaveMedia_control_count:
 CREATE TRIGGER IF NOT EXISTS TSaveMediaControlCounts
 AFTER INSERT ON SaveMedia
-FOR EACH ROW
 WHEN
 new.IS_TEMP = 0
 AND

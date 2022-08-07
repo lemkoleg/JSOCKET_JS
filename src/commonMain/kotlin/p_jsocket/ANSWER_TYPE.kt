@@ -159,8 +159,6 @@ class ANSWER_TYPE() {
     @JsName("answerTypeValues")
     val answerTypeValues = AnswerTypeValues(this)
 
-    @JsName("LocalFileService")
-    var LocalFileService: FileService? = null
 
     @JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = ""
@@ -399,6 +397,7 @@ class ANSWER_TYPE() {
 
     @JsName("LONG_20")
     var LONG_20: Long? = 0L
+        /*
         set(v) {
             val v2 = v ?: 0
             if (v2 > 0 && v2 != field) {
@@ -406,6 +405,7 @@ class ANSWER_TYPE() {
                 answerTypeValues.setOBJECT_ID_LAST_SELECT()
             }
         }
+         */
 
 
     @JsName("STRING_1")
@@ -484,6 +484,7 @@ class ANSWER_TYPE() {
 
     @JsName("STRING_20")
     var STRING_20: String? = ""
+        /*
         set(v) {
             val v2 = v ?: ""
             if (v2.isNotEmpty() && !v2.equals(field)) {
@@ -491,6 +492,7 @@ class ANSWER_TYPE() {
                 answerTypeValues.DefineRECORD_TYPE(v2)
             }
         }
+         */
 
     @JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
@@ -506,12 +508,14 @@ class ANSWER_TYPE() {
 
     @JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
+        /*
         set(v) {
             if (!v.equals(field)) {
                 field = v
                 answerTypeValues.INIT_STRING20()
             }
         }
+         */
 
     @JsName("RECORD_TABLE_ID")
     var RECORD_TABLE_ID: String = ""

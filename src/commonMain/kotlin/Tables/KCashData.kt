@@ -47,16 +47,6 @@ class KCashData(val CASH_SUM: String) {
 
     init {
         ensureNeverFrozen()
-        if(CASH_DATAS.containsKey(CASH_SUM)){
-            throw my_user_exceptions_class(
-                l_class_name = "KCashData",
-                l_function_name = "construktor",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "CASH_DATAS alredy contain that Key"
-            )
-        }
-
-        CASH_DATAS[CASH_SUM] = this
     }
 
     var currentJobOrder: Job? = null
