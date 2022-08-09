@@ -846,7 +846,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         setOBJECT_ID_LAST_SELECT()
     }
 
-    fun getACCOUNT_INFO(fupdateObjectInfo: ((v: Any?) -> Any?)? = null): KObjectInfo {
+    fun getACCOUNT_INFO(updateObjectInfo: ((v: Any?) -> Any?)? = null): KObjectInfo {
 
         if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
             throw my_user_exceptions_class(
