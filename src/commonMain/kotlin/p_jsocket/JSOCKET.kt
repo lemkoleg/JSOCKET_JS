@@ -1487,7 +1487,6 @@ open class JSOCKET() {
             if (h == null) h = HASH()
             request_size = lbb.remaining
             bb = lbb
-            md5String = ""
             start_position = 0
             if (ip) {
                 ip_port = bb!!.readInt()
@@ -1562,12 +1561,22 @@ open class JSOCKET() {
                         l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                     )
                 }
-                md5String = h!!.getNewMD5String(p_original_connection_coocki, just_do_it_label)
+                if(md5String.isEmpty()){
+                    md5String = h!!.getNewMD5String(p_original_connection_coocki, just_do_it_label)
+                    reverseMD5String = h!!.getReverseMD5String(md5String)
+                    md5LongArray = h!!.getNewMD5longArray(md5String)
+                    reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
+                }
                 if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
                     connection_coocki = p_original_connection_coocki
                 } else {
                     if (p_new_connection_coocki != 0L) {
+
                         md5String = h!!.getNewMD5String(p_new_connection_coocki, just_do_it_label)
+                        reverseMD5String = h!!.getReverseMD5String(md5String)
+                        md5LongArray = h!!.getNewMD5longArray(md5String)
+                        reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
+
                         if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
                             myConnectionsCoocki = p_new_connection_coocki
                             is_new_reg_data = true
@@ -1589,9 +1598,7 @@ open class JSOCKET() {
                         )
                     }
                 }
-                reverseMD5String = h!!.getReverseMD5String(md5String)
-                md5LongArray = h!!.getNewMD5longArray(md5String)
-                reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
+
                 start_position = md5String.substring(md5String.length - 1, md5String.length).toInt(16)
                 reverse_start_position =
                     reverseMD5String.substring(reverseMD5String.length - 1, reverseMD5String.length).toInt(16)

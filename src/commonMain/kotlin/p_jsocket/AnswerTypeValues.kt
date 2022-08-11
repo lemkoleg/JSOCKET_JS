@@ -47,7 +47,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
         RECORD_TYPE_IS_DEFINED = true
         answerType.RECORD_TYPE = answerType.STRING_20!!.substring(7, 8)
-        initValues()
+        //initValues()
     }
 
     @JsName("setRECORD_TYPE")
@@ -352,7 +352,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetChatsCostTypesHaveMesseges: () -> String = { getEMPTY_STRING() }
 
 
-    private fun initValues() {
+    fun initValues() {
 
         when (answerType.RECORD_TYPE) {
             "1" //COMMANDS
@@ -846,7 +846,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         setOBJECT_ID_LAST_SELECT()
     }
 
-    fun getACCOUNT_INFO(updateObjectInfo: ((v: Any?) -> Any?)? = null): KObjectInfo {
+    fun getACCOUNT_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
             throw my_user_exceptions_class(
@@ -951,7 +951,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    fun getALBUM_INFO(fupdateObjectInfo: ((v: Any?) -> Any?)? = null): KObjectInfo {
+    fun getALBUM_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
             throw my_user_exceptions_class(
@@ -1114,7 +1114,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    fun getOBJECT_INFO(fupdateObjectInfo: ((v: Any?) -> Any?)? = null): KObjectInfo {
+    fun getOBJECT_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
             throw my_user_exceptions_class(
@@ -2243,9 +2243,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return 0L
     }
 
-    fun INIT_STRING20() {
-        initValues()
-    }
 
 
 }

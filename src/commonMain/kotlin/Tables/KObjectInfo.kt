@@ -9,6 +9,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
+import p_jsocket.FileService
 import kotlin.time.ExperimentalTime
 
 @InternalAPI
@@ -27,6 +28,10 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     private val LocalLock = Mutex()
 
     var answerType: ANSWER_TYPE = l_answerType
+
+    val localFileSevice = FileService()
+
+    var updateObjectInfo: ((v: Any?) -> Any?)? = null
 
     init {
         ensureNeverFrozen()
@@ -50,34 +55,15 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         OBJECTS_INFO[answerType.RECORD_TABLE_ID]
     }
 
-    fun merge(v: ANSWER_TYPE) {
-        answerType.merge(v)
+    fun SetCallBackUpdate(lupdateObjectInfo: ((v: Any?) -> Any?)? = null){
+        updateObjectInfo = lupdateObjectInfo
+    }
+
+    fun UpdateObjectInfo{
+
     }
 
     companion object {
 
-        suspend fun GetObjectInfo(ans: ANSWER_TYPE): KObjectInfo {
-            return withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                KObjectInfoLock.withLock {
-                    try {
-                        try {
-                            var o: KObjectInfo = OBJECTS_INFO[object_info.answerType.]
-
-                            return@withTimeoutOrNull o
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KObjectInfo",
-                                l_function_name = "GetObjectInfo",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        }
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
-                    }
-                }
-                return@withTimeoutOrNull KObjectInfo(ans)
-            } ?: KObjectInfo(ans)
-        }
     }
 }

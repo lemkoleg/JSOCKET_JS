@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_VARIABLE", "UNREACHABLE_CODE", "unused")
+
 package p_jsocket
 
 import com.soywiz.krypto.AES
@@ -297,7 +298,7 @@ private val LOOKUPTABLE2 = Array(0x100) { i -> r(i) }
 @JsName("HASH")
 class HASH {
 
-    private val md5 : MD5 = MD5()
+    private val md5: MD5 = MD5()
 
     private fun getIntFromHehSymbol(l_char: String): Int {
         return l_char.toInt(16)
@@ -314,7 +315,8 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
     private fun getXorHexSymbolFrom2HexSymbols(symbol1: String, symbol2: String): String {
-        return xor_map[symbol1.uppercase().plus(symbol2.uppercase())] ?: error("error on seek getXorHexSymbolFrom2HexSymbols")
+        return xor_map[symbol1.uppercase().plus(symbol2.uppercase())]
+            ?: error("error on seek getXorHexSymbolFrom2HexSymbols")
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -322,36 +324,30 @@ class HASH {
     @InternalAPI
     @JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
-            var newStringMD5 = ""
-            val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
+        var newStringMD5 = ""
+        val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
 ////diapazone for 18 digits UnsignedLong: 16345785d8a0001 - de0b6b3a763ffff (15 chars)//////////////////
         val stringMD5String1: Long = md5Hex.substring(0, 15).toLong(16)
         val stringMD5String2: Long = md5Hex.substring(15, 30).toLong(16)
         var TokenLong: Long = stringMD5String1 xor stringMD5String2
-            if (TokenLong > 999999999999999999L) {
-                newStringMD5 = "ddf".plus(
-                        newStringMD5.substring(3)
-                )
-                TokenLong = newStringMD5.toLong(16)
-            }
-            if (TokenLong < 100000000000000001L) {
-                if(TokenLong < 72057594037927936L){
-                    TokenLong += TokenLong
-                }
-                newStringMD5 = "164".plus(
-                        newStringMD5.substring(3)
-                )
-                TokenLong = newStringMD5.toLong(16)
-            }
-            if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
-                throw my_user_exceptions_class(
-                    l_class_name = "HASH",
-                    l_function_name = "getNewTokenLong",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "Wrong format new token: $TokenLong"
-                )
-            }
-            return TokenLong
+        if (TokenLong > 999999999999999999L) {
+            newStringMD5 = "ddf".plus(
+                newStringMD5.substring(3)
+            )
+            TokenLong = newStringMD5.toLong(16)
+        }
+        if (TokenLong < 100000000000000001L) {
+            TokenLong += 100000000000000001L
+        }
+        if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
+            throw my_user_exceptions_class(
+                l_class_name = "HASH",
+                l_function_name = "getNewTokenLong",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Wrong format new token: $TokenLong"
+            )
+        }
+        return TokenLong
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -363,29 +359,24 @@ class HASH {
         var TokenLong: Long = stringMD5String1 xor stringMD5String2
         var newStringMD5: String
         if (TokenLong > 999999999999999999L) {
-                newStringMD5 = TokenLong.toString(16)
-                newStringMD5 = "ddf".plus(
-                        newStringMD5.substring(3, 15)
-                )
-                TokenLong = newStringMD5.toLong(16)
-            }
-            if (TokenLong < 100000000000000001L) {
-                if(TokenLong < 72057594037927936L){
-                    TokenLong += TokenLong
-                }
-                newStringMD5 = TokenLong.toString(16)
-                newStringMD5 = "164".plus(other = newStringMD5.substring(3, 15))
-                TokenLong = newStringMD5.toLong(16)
-            }
-            if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
-                throw my_user_exceptions_class(
-                    l_class_name = "HASH",
-                    l_function_name = "getNewCoockiLong",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "Wrong format new token: $TokenLong"
-                )
-            }
-            return TokenLong
+            newStringMD5 = TokenLong.toString(16)
+            newStringMD5 = "ddf".plus(
+                newStringMD5.substring(3, 15)
+            )
+            TokenLong = newStringMD5.toLong(16)
+        }
+        if (TokenLong < 100000000000000001L) {
+            TokenLong += 100000000000000001L
+        }
+        if (TokenLong > 999999999999999999L || TokenLong < 100000000000000001L) {
+            throw my_user_exceptions_class(
+                l_class_name = "HASH",
+                l_function_name = "getNewCoockiLong",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Wrong format new token: $TokenLong"
+            )
+        }
+        return TokenLong
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -397,11 +388,11 @@ class HASH {
     ////////////////////////////////////////////////////////////////////////////////
     @JsName("getNewMD5LongArray")
     fun getNewMD5LongArray(MD5String: String): LongArray {
-            val l = LongArray(size = 16) { 0L }
-            for (x in 0..15) {
-                l[x] = MD5String.substring(x, x + 15).toLong(16)
-            }
-            return l
+        val l = LongArray(size = 16) { 0L }
+        for (x in 0..15) {
+            l[x] = MD5String.substring(x, x + 15).toLong(16)
+        }
+        return l
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +408,8 @@ class HASH {
         return input_string.reversed()
 
     }
-////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////
     @JsName("getNewMD5longArray")
     fun getNewMD5longArray(MD5String: String): LongArray {
         val l = LongArray(16)
@@ -425,7 +417,8 @@ class HASH {
             l[x] = MD5String.substring(x, x + 15).toLong(16)
         }
         return l
-}
+    }
+
     @JsName("getReverseMD5longArray")
     fun getReverseMD5longArray(reverseMD5String: String): LongArray {
         val l = LongArray(16)
@@ -434,53 +427,56 @@ class HASH {
         }
         return l
     }
-////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     @JsName("getCheckSumFromByteArray")
-     fun getCheckSumFromByteArray(data: ByteArray, checksum: Long): Long {
-            var l: Long = checksum
-            for (element in data) {
-                val lookupidx: Int = ((checksum.toInt() xor element.toInt()) and 0xff)
-                l = ((l ushr 8) xor LOOKUPTABLE2[lookupidx])
-            }
-            return l
+    fun getCheckSumFromByteArray(data: ByteArray, checksum: Long): Long {
+        var l: Long = checksum
+        for (element in data) {
+            val lookupidx: Int = ((checksum.toInt() xor element.toInt()) and 0xff)
+            l = ((l ushr 8) xor LOOKUPTABLE2[lookupidx])
+        }
+        return l
     }
 
-////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     @JsName("getCheckSumFromLong")
     fun getCheckSumFromLong(data: Long, checksum: Long): Long {
-        var l : Long = checksum
-        for(i in 0..7) {
-            val lookupidx : Int = ((l.toInt() xor (data shr (i * 8)).toByte().toInt()) and 0xff)
-            l = (l ushr  8) xor LOOKUPTABLE2[lookupidx]
+        var l: Long = checksum
+        for (i in 0..7) {
+            val lookupidx: Int = ((l.toInt() xor (data shr (i * 8)).toByte().toInt()) and 0xff)
+            l = (l ushr 8) xor LOOKUPTABLE2[lookupidx]
         }
         return l
     }
 
 
-////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @JsName("cryptPass")
-    fun cryptPass(pass: String, mail_code: String, isCrypt : Boolean): String {
-            val mail_codeMD5 = getMD5String(mail_code).substring(0, 16).toByteArray()
-            val passCode = pass.decodeBase64Bytes()
-            return try {
-                if (isCrypt) {
-                    AES.encryptAesCbc(data = passCode, key = mail_codeMD5,
-                        padding = Padding.PKCS7Padding, iv = mail_codeMD5
-                    ).encodeBase64()
-                } else {
-                    AES.decryptAesCbc(data = passCode, key = mail_codeMD5,
-                        padding = Padding.PKCS7Padding, iv = mail_codeMD5
-                    ).encodeBase64()
-                }
-            } catch (ex: Exception) {
-                throw my_user_exceptions_class(
-                    l_class_name = "HASH",
-                    l_function_name = "cryptPass",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
-                )
-                return ""
+    fun cryptPass(pass: String, mail_code: String, isCrypt: Boolean): String {
+        val mail_codeMD5 = getMD5String(mail_code).substring(0, 16).toByteArray()
+        val passCode = pass.decodeBase64Bytes()
+        return try {
+            if (isCrypt) {
+                AES.encryptAesCbc(
+                    data = passCode, key = mail_codeMD5,
+                    padding = Padding.PKCS7Padding, iv = mail_codeMD5
+                ).encodeBase64()
+            } else {
+                AES.decryptAesCbc(
+                    data = passCode, key = mail_codeMD5,
+                    padding = Padding.PKCS7Padding, iv = mail_codeMD5
+                ).encodeBase64()
             }
+        } catch (ex: Exception) {
+            throw my_user_exceptions_class(
+                l_class_name = "HASH",
+                l_function_name = "cryptPass",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = ex.message
+            )
+            return ""
+        }
     }
 }
