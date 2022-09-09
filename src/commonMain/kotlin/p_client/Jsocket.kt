@@ -39,7 +39,7 @@ var newConnectionCoocki = AtomicLong(0L)
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-val CLIENT_JSOCKET_POOL: ArrayDeque<Jsocket> = ArrayDeque()
+private val CLIENT_JSOCKET_POOL: ArrayDeque<Jsocket> = ArrayDeque()
 
 
 @InternalAPI
@@ -60,8 +60,8 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
     //val InstanceRef:AtomicReference<Jsocket> = AtomicReference(this)
 
-    override var startLoading: (() -> Any?)?
-    override var finishLoading: ((v: Any?) -> Any?)?
+    override var startLoading: (() -> Any?) = {}
+    override var finishLoading: ((v: Any?) -> Any?) = {}
 
     @JsName("clientExecutor")
     private var clientExecutor: ClientExecutor = ClientExecutor()
@@ -71,9 +71,11 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
     val getLocalsValues = GetLocalsValues()
 
+    val lock = Mutex()
+
     constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : super() {
-        startLoading = l_startLoading
-        finishLoading = l_finishLoading
+        startLoading = l_startLoading ?: {}
+        finishLoading = l_finishLoading ?: {}
         ensureNeverFrozen()
 
     }
@@ -99,15 +101,15 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                 InitJsocketJob.join()
             }
 
-            startLoading = l_startLoading
-            finishLoading = l_finishLoading
+            startLoading = l_startLoading ?: {}
+            finishLoading = l_finishLoading ?: {}
 
-            startLoading?.let { it() }
+            startLoading()
 
             try {
                 try {
                     val command: Command? = COMMANDS[just_do_it]
-                    if(command == null){
+                    if (command == null) {
                         throw my_user_exceptions_class(
                             l_class_name = "Jsocket",
                             l_function_name = "execute",
@@ -145,7 +147,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                         1011000024 -> { //PLAY MEDIA;
                             val f = FileService(this@Jsocket)
                             f.open_file_channel()
-                            finishLoading = null
+                            finishLoading = {}
                             return@async f
                         }
                         else -> clientExecutor.execute(this@Jsocket)
@@ -166,7 +168,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                 ex.ExceptionHand(this@Jsocket)
                 return@async this@Jsocket
             } finally {
-                finishLoading?.let { it(this@Jsocket) }
+                finishLoading(null)
             }
             return@async this@Jsocket
         }.toPromise(EmptyCoroutineContext)
@@ -176,20 +178,16 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
     suspend fun send_request(verify_fields: Boolean = true) {
         is_new_reg_data = false
+        val command: Command = COMMANDS[just_do_it]!!
         this.serialize(verify_fields).let { Connection.sendData(it, this) }
-        if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-            if (COMMANDS[just_do_it]?.whichBlobDataReturned == "4") {
-                deserialize_ANSWERS_TYPES()
+        if (!command.isDont_answer && command.commands_access != "B") {
+            if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Jsocket",
+                    l_function_name = "send_request",
+                    name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
+                )
             }
-            if (is_new_reg_data) {
-                KRegData.setNEW_REG_DATA(this)
-            }
-        } else {
-            throw my_user_exceptions_class(
-                l_class_name = "Jsocket",
-                l_function_name = "send_request",
-                name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
-            )
         }
     }
 
@@ -204,6 +202,25 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
     ///////////////////////////////////////////////////////////////////////////////
 
     companion object {
+
+        fun GetJsocket(): Jsocket? {
+            if (JsocketLock.tryLock()) {
+                try {
+                    val l: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+                    if (l == null) {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("CLIENT_JSOCKET_POOL is emprty")
+                        }
+                        fill()
+                        return null
+                    }
+                    return l
+                } finally {
+                    JsocketLock.unlock()
+                }
+            }
+            return null
+        }
 
 
         fun fill() {

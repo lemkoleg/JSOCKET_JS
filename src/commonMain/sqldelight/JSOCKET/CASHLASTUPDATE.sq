@@ -2,6 +2,7 @@ table_CashLastUpdate:
 CREATE TABLE IF NOT EXISTS CashLastUpdate
 (CASH_SUM TEXT NOT NULL,
  RECORDS_TYPE TEXT NOT NULL,
+ COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up;
  LAST_USE TEXT NOT NULL,
  PRIMARY KEY (CASH_SUM)
 );
@@ -27,28 +28,28 @@ trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert
 AFTER INSERT
 ON CashLastUpdate
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0)
 BEGIN
 DELETE FROM CashLastUpdate
-WHERE CASH_SUM NOT IN
-(SELECT CASH_SUM FROM CashData t ORDER BY CASH_SUM);
+WHERE rowid = new.rowid;
 END;
 
 trigger_CashLastUpdate_Control_Empty_Blocks_Update:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Update
 AFTER UPDATE
 ON CashLastUpdate
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0)
 BEGIN
 DELETE FROM CashLastUpdate
-WHERE CASH_SUM NOT IN
-(SELECT CASH_SUM FROM CashData t ORDER BY CASH_SUM);
+WHERE rowid = new.rowid;
 END;
 
 trigger_CashLastUpdate_Control_Count_Links:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinks
 AFTER INSERT
 ON CashLastUpdate
-WHEN
-new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
 AND
 (SELECT count(*)
  FROM CashLastUpdate
@@ -75,8 +76,8 @@ trigger_CashLastUpdate_Control_Count_Objects:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjects
 AFTER INSERT
 ON CashLastUpdate
-WHEN
-new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+AND new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
 AND
 (SELECT count(*)
  FROM CashLastUpdate
@@ -103,8 +104,8 @@ trigger_CashLastUpdate_Control_Count_TextLists:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextLists
 AFTER INSERT
 ON CashLastUpdate
-WHEN
-new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
 AND
 (SELECT count(*)
  FROM CashLastUpdate
@@ -129,9 +130,9 @@ END;
 
 insert_CashLastUpdate:
 INSERT OR REPLACE INTO CashLastUpdate
-(CASH_SUM, RECORDS_TYPE, LAST_USE)
+(CASH_SUM, RECORDS_TYPE, COURSE, LAST_USE)
 VALUES
-(?, ?, ?);
+(?, ?, ?, ?);
 
 select_CashLastUpdateAll:
 SELECT * FROM CashLastUpdate;
@@ -139,9 +140,6 @@ SELECT * FROM CashLastUpdate;
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
 
-update_CashLastUpdate_last_use:
-UPDATE CashLastUpdate
-SET    LAST_USE = ? WHERE  CASH_SUM = ?;
 
 
 

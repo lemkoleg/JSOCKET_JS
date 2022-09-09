@@ -36,7 +36,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
+private val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
 
 
 @KorioExperimentalApi

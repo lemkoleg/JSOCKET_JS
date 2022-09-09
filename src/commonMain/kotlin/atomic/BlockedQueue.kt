@@ -92,7 +92,7 @@ suspend fun <T> ArrayDeque<T>.dequeue(timOut: Long): T? {
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-suspend fun <T> ArrayDeque<T>.concurentDequeue(timOut: Long): T? {
+suspend fun <T> ArrayDeque<T>.lockedDequeue(timOut: Long): T? {
     return withTimeoutOrNull(if (Constants.CLIENT_TIMEOUT > timOut) timOut else Constants.CLIENT_TIMEOUT) {
         lockOut.withLock {
             var t: T? = removeFirst()
@@ -127,7 +127,7 @@ fun <T> ArrayDeque<T>.enqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, w
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-suspend fun <T> ArrayDeque<T>.concurentEnqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
+suspend fun <T> ArrayDeque<T>.lockedEnqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
     try {
         val q: ArrayDeque<T> = this
         withTimeout(Constants.CLIENT_TIMEOUT) {

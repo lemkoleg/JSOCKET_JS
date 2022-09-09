@@ -1,6 +1,7 @@
 package Tables
 
 import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -25,42 +26,38 @@ val CASH_LAST_UPDATE: MutableMap<String, KCashLastUpdate> = mutableMapOf()
 @InternalAPI
 class KCashLastUpdate(
     val CASH_SUM: String,
-    val RECORDS_TYPE: String,
-    var LAST_USE: Long
+    val RECORD_TYPE: String,
+    val COURSE: String
 ) {
 
     init {
         ensureNeverFrozen()
     }
 
+    var LAST_USE: Long = DateTime.nowUnixLong()
+
     //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
-    private val KCashLastUpdate_Lock = Mutex()
-
-    val CashData: KCashData = CASH_DATAS[CASH_SUM] ?: KCashData(CASH_SUM)
-
-    fun UPDATE_LAST_USE(): Promise<Boolean> =
+    @JsName("INSERT_CASH_LASTUPDATE")
+    fun INSERT_CASH_LASTUPDATE(value: KCashLastUpdate = this): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default).async {
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            try {
                 try {
-                    try {
-                        KCashLastUpdate_Lock.lock()
+                    value.LAST_USE = DateTime.nowUnixLong()
+                    Sqlite_service.InsertCashLastUpdate(value)
 
-                    } catch (ex: Exception) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "KCashLastUpdate",
-                            l_function_name = "UPDATE_LAST_USE",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
-                        )
-                    } finally {
-                        KCashLastUpdate_Lock.unlock()
-                    }
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KCashLastUpdate",
+                        l_function_name = "UPDATE_LAST_USE",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
                 }
-                return@withTimeoutOrNull false
-            } ?: false
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+            return@async false
         }.toPromise(EmptyCoroutineContext)
 
 
@@ -68,13 +65,27 @@ class KCashLastUpdate(
 
         private val KCashLastUpdate_Companion_Lock = Mutex()
 
-        @JsName("GET_CASH_LAST_UPDATE")
-        suspend fun GET_CASH_LAST_UPDATE(checkSum: String): KCashLastUpdate? {
+        /*
+        @JsName("GET_CASH_LASTUPDATE")
+        suspend fun GET_CASH_LASTUPDATE(checkSum: String, record_type: String): KCashLastUpdate {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
                         KCashLastUpdate_Companion_Lock.lock()
-                        return@withTimeoutOrNull CASH_LAST_UPDATE[checkSum] ?: KCashLastUpdate(checkSum)
+                        var k = CASH_LAST_UPDATE[checkSum]
+                        if (k == null) {
+                            k = KCashLastUpdate(checkSum, record_type)
+                            CASH_LAST_UPDATE[k.CASH_SUM] = k
+                        }
+                        if (k.RECORD_TYPE != record_type) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KCashLastUpdate",
+                                l_function_name = "GET_CASH_LASTUPDATE",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "RECORD_TYPE of CASH_DATA ${k.RECORD_TYPE} not equals RECORD_TYPE by select $record_type "
+                            )
+                        }
+                        return@withTimeoutOrNull k
 
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
@@ -88,32 +99,39 @@ class KCashLastUpdate(
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
+                    return@withTimeoutOrNull KCashLastUpdate(checkSum, record_type)
                 }
             }
-            return null
+            return KCashLastUpdate(checkSum, record_type)
         }
+        */
 
         @JsName("LOAD_CASH_LAST_UPDATE")
         suspend fun LOAD_CASH_LAST_UPDATE(arr: ArrayList<KCashLastUpdate>) {
-            try {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
-                    KCashLastUpdate_Companion_Lock.lock()
-                    arr.forEach {
-                        CASH_LAST_UPDATE[it.CASH_SUM] = it
+                    try {
+                        KCashLastUpdate_Companion_Lock.lock()
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("LOAD_CASH_LAST_UPDATE is running")
+                        }
+                        arr.forEach {
+                            CASH_LAST_UPDATE[it.CASH_SUM] = it
+                        }
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashLastUpdate",
+                            l_function_name = "LOAD_CASH_LAST_UPDATE",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KCashLastUpdate_Companion_Lock.unlock()
                     }
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "KCashLastUpdate",
-                        l_function_name = "LOAD_CASH_LAST_UPDATE",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
-                    )
-                } finally {
-                    KCashLastUpdate_Companion_Lock.unlock()
-                }
 
-            } catch (e: my_user_exceptions_class) {
-                e.ExceptionHand(null)
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
             }
         }
 

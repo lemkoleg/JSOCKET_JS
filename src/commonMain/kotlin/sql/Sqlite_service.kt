@@ -483,7 +483,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.lock()
-                    val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL()
+                    val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL(myConnectionsID)
                     KSaveMedia.LOAD_SAVE_MEDIA(arr)
                 }
             } catch (ex: Exception) {
@@ -534,15 +534,11 @@ object Sqlite_service : CoroutineScope {
     private val lockCASHLASTUPDATE = Mutex()
 
     @JsName("InsertCashLastUpdate")
-    fun InsertCashLastUpdate(arr: ArrayList<KCashLastUpdate>) = Sqlite_serviceScope.launch {
+    fun InsertCashLastUpdate(cash: KCashLastUpdate) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockCASHLASTUPDATE.lock()
-                    arr.forEach {
-                        statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(it)
-                    }
-
+                    statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(cash)
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
@@ -585,43 +581,20 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("UpdateCashLastUpdate")
-    fun UpdateCashLastUpdate(k: KCashLastUpdate) = Sqlite_serviceScope.launch {
-        try {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockCASHLASTUPDATE.lock()
-                    val arr: ArrayList<KCashLastUpdate> = statCASHLASTUPDATE.UPDATE_CASHLASTUPDATE_LAST_USE(DateTime.nowUnixLong())
-                    KCashLastUpdate.LOAD_CASH_LAST_UPDATE(arr)
-                }
-            } catch (ex: Exception) {
-                throw my_user_exceptions_class(
-                    l_class_name = "Sqlite_service",
-                    l_function_name = "LoadSaveMedia",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
-                )
-            } finally {
-                statCASHLASTUPDATE.clear_parameters()
-                lockCASHLASTUPDATE.unlock()
-            }
-        } catch (e: my_user_exceptions_class) {
-            e.ExceptionHand(null)
-        }
-    }
-
     /////////////cash data///////////////////////////
 
     private val statCASHDATA = Connection.createStatement()
     private val lockCASHDATA = Mutex()
 
     @JsName("InsertCashData")
-    fun InsertCashData(lANSWER_TYPE: ANSWER_TYPE) = Sqlite_serviceScope.launch {
+    fun InsertCashData(arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
-                    statCASHDATA.INSERT_CASHDATA(lANSWER_TYPE)
+                    arr.forEach {
+                        statCASHDATA.INSERT_CASHDATA(it)
+                    }
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
@@ -639,18 +612,46 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("DeleteCashData")
-    fun DeleteCashData(lANSWER_TYPE: ANSWER_TYPE) = Sqlite_serviceScope.launch {
+    @JsName("SelectCashData")
+    suspend fun SelectCashData(cash: String):ArrayDeque<ANSWER_TYPE>{
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
-                    statCASHDATA.DELETE_CASHDATA(lANSWER_TYPE)
+                    return@withTimeoutOrNull statCASHDATA.SELECT_CASHDATA_ALL_ON_CASH_SUM(cash)
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "DeleteCashData",
+                    l_function_name = "SelectCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statCASHDATA.clear_parameters()
+                lockCASHDATA.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+        return ArrayDeque()
+    }
+
+    @JsName("LoadCashData")
+    fun LoadCashData() = Sqlite_serviceScope.launch {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    if (Constants.IS_DOWNLOAD_TO_MEMORY_ALL_CASH_ON_CLIENT == 1) {
+                        lockCASHDATA.lock()
+                        val arr: ArrayList<ANSWER_TYPE> = statCASHDATA.SELECT_CASHDATA_ALL()
+                        KCashData.LOAD_CASH_DATA(arr)
+                    }
+                }
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )
@@ -663,42 +664,19 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("DeleteCashData")
-    fun OrederCashData() = Sqlite_serviceScope.launch {
+    @JsName("OrederCashData")
+    fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
-                    statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS()
+                    statCASHDATA.UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM)
+                    statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM)
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "OrederCashData",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
-                )
-            } finally {
-                statCASHDATA.clear_parameters()
-                lockCASHDATA.unlock()
-            }
-        } catch (e: my_user_exceptions_class) {
-            e.ExceptionHand(null)
-        }
-    }
-
-    @JsName("DeleteCashData")
-    fun CashDataUpdateLastSelect(last_record_table_id: String, countOfRecords: Int) = Sqlite_serviceScope.launch {
-        try {
-            try {
-                withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockCASHDATA.lock()
-                    statCASHDATA.UPADTE_CASHDATA_NEW_LAST_SELECT(last_record_table_id)
-                }
-            } catch (ex: Exception) {
-                throw my_user_exceptions_class(
-                    l_class_name = "Sqlite_service",
-                    l_function_name = "CashDataUpdateLastSelect",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )
@@ -1099,27 +1077,6 @@ object Sqlite_service : CoroutineScope {
             }
         } catch (ex: Exception) {
             WriteExceptionIntoFile(ex, "Sqlite_service.lUpdateCashData")
-        }
-    }
-
-    @KtorExperimentalAPI
-    @ExperimentalIoApi
-    @InternalAPI
-    @DangerousInternalIoApi
-    @ExperimentalTime
-    @ExperimentalStdlibApi
-    @JsName("SelectCashData")
-    internal suspend fun SelectCashData(ljsocket: Jsocket): Jsocket? {
-        return withTimeoutOrNull(DEFAULT_AWAIT_TIMEOUT) {
-            return@withTimeoutOrNull try {
-                lock.lock()
-                lSelectCashData(ljsocket, true)
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "Sqlite_service.lUpdateCashData")
-                ljsocket
-            } finally {
-                lock.unlock()
-            }
         }
     }
 

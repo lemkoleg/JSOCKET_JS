@@ -1,7 +1,10 @@
 package p_jsocket
 
+import Tables.KCashData
 import Tables.KObjectInfo
 import Tables.OBJECTS_INFO
+import atomic.lockedGet
+import atomic.lockedPut
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
@@ -29,7 +32,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("DefineRECORD_TYPE")
     fun DefineRECORD_TYPE() {
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 8) {
+        if (answerType.STRING_20.length < 8) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "DefineECORD_TYPE",
@@ -37,22 +40,26 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Insufficient length of STRING_20"
             )
         }
-        if (RECORD_TYPE_IS_DEFINED) {
-            throw my_user_exceptions_class(
-                l_class_name = "AnswerTypeValues",
-                l_function_name = "DefineECORD_TYPE",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "RECORD_TYPE IS DEFINED"
-            )
+        if (answerType.RECORD_TYPE != answerType.STRING_20.substring(7, 8)) {
+            if (RECORD_TYPE_IS_DEFINED) {
+                throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "DefineECORD_TYPE",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "RECORD_TYPE IS DEFINED"
+                )
+            }else{
+                answerType.RECORD_TYPE = answerType.STRING_20.substring(7, 8)
+            }
         }
         RECORD_TYPE_IS_DEFINED = true
-        answerType.RECORD_TYPE = answerType.STRING_20!!.substring(7, 8)
+
         //initValues()
     }
 
     @JsName("setRECORD_TYPE")
     fun setRECORD_TYPE(v: String?) {
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 8) {
+        if (answerType.STRING_20.length < 8) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "setRECORD_TYPE",
@@ -70,7 +77,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             )
         }
 
-        answerType.STRING_20 = answerType.STRING_20!!.substring(0, 7) + v + answerType.STRING_20!!.substring(8)
+        answerType.STRING_20 = answerType.STRING_20.substring(0, 7) + v + answerType.STRING_20.substring(8)
 
         DefineRECORD_TYPE()
     }
@@ -105,7 +112,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetAvatarType: () -> String = { getSTRING_19() }
 
     @JsName("GetAvatarOriginalSize")
-    var GetAvatarOriginalSize: () -> Int = { getINTEGER_19() }
+    var GetAvatarOriginalSize: () -> Int = { getINTEGER_17() }
 
     @JsName("GetObjectId")
     var GetObjectId: () -> String = { getEMPTY_STRING() }
@@ -381,8 +388,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetChatsLastMessegeAdding = { getLONG_8() }
                 GetChatsCountOfMembers = { getINTEGER_5() }
                 GetChatsBalance = { getINTEGER_6() }
+
+                GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
+
+                answerType.RECORD_TABLE_ID = GetLinkOwner()
             }
-            "4" //MESSEGES
+            "4", "M" //MESSEGES
             -> {
                 GetMainAccountId = { getIDENTIFICATOR_12() }
                 GetSecondAccountId = { getIDENTIFICATOR_13() }
@@ -401,6 +412,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetRecordLastUpdate = { getLONG_15() }
                 GetMessegeCost = { getINTEGER_11() }
                 GetChatsCostTypeId = { getINTEGER_12() }
+
+                GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
+
+                answerType.RECORD_TABLE_ID = GetMessegeId().toString()
+
 
                 when (GetMessegeObjectType()) {
                     "0" -> { //withot object
@@ -429,8 +445,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectDescriptors = { getLONG_9() }
                         GetObjectListensPeriod = { getINTEGER_6() }
 
-                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
-
                         IsHaveObjectInfo = true
                         IsHaveAlbumInfo = true
 
@@ -443,8 +457,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
 
-                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
-
                     }
                     "5" -> { // FILE
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -453,8 +465,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
 
-                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
-
                     }
                     "6" -> { // GIF
                         GetObjectId = { getIDENTIFICATOR_5() }
@@ -462,8 +472,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
-
-                        GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
 
                     }
                     "7" -> {  // ALBUMS
@@ -523,6 +531,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetDateDelete = { getLONG_13() }
                 GetChatsLikesBalance = { getINTEGER_5() }
 
+                GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
+
+                answerType.RECORD_TABLE_ID = GetMainAccountId()
+
             }
             "9" //CHATS_COST_TYPES
             -> {
@@ -536,6 +548,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectStatus = { getSTRING_7().substring(2, 3) }
                 GetChatsCostTypesHaveFullText = { getSTRING_7().substring(3, 4) }
                 GetChatsCostTypesHaveMesseges = { getSTRING_7().substring(4, 5) }
+
+                GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
+
+                answerType.RECORD_TABLE_ID = GetChatsCostTypeId().toString()
 
             }
             "A" //ALBUMS_COMMENTS
@@ -557,7 +573,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
-                answerType.RECORD_TABLE_ID = GetObjectId() + GetCommentId().toString()
+
+                answerType.RECORD_TABLE_ID = GetCommentId().toString()
 
                 IsHaveAccountInfo = true
             }
@@ -590,7 +607,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetLinkDisLikes = { getINTEGER_12().toLong() }
                 GetAlbumsLinkCountOfNewContent = { getINTEGER_11() }
 
-                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId()
+                answerType.RECORD_TABLE_ID = GetObjectId()
 
                 IsHaveAlbumInfo = true
                 IsHaveAccountInfo = true
@@ -616,7 +633,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
 
-                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId() + GetCommentId().toString()
+                answerType.RECORD_TABLE_ID = GetCommentId().toString()
 
                 IsHaveAccountInfo = true
 
@@ -654,7 +671,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetLinkDisLikes = { getINTEGER_12().toLong() }
                 GetLinkComments = { getINTEGER_11().toLong() }
 
-                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId()
+                answerType.RECORD_TABLE_ID = GetObjectId()
 
                 IsHaveObjectInfo = true
                 IsHaveAlbumInfo = true
@@ -680,7 +697,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
 
-                answerType.RECORD_TABLE_ID = GetLinkOwner() + GetObjectId() + GetCommentId().toString()
+                answerType.RECORD_TABLE_ID = GetCommentId().toString()
 
                 IsHaveAccountInfo = true
 
@@ -733,16 +750,17 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
 
-                answerType.RECORD_TABLE_ID = GetObjectId() + GetCommentId().toString()
+                answerType.RECORD_TABLE_ID =  GetCommentId().toString()
 
                 IsHaveAccountInfo = true
             }
             "H" //ACCOUNTS
             -> {
-                answerType.RECORD_TABLE_ID = GetMainAccountId()
                 GetObjectId = { GetMainAccountId() }
 
                 IsHaveAccountInfo = true
+
+                answerType.RECORD_TABLE_ID = GetMainAccountId()
 
             }
             "I" //ALBUMS
@@ -846,29 +864,46 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         setOBJECT_ID_LAST_SELECT()
     }
 
-    fun getACCOUNT_INFO(): KObjectInfo {
+    suspend fun getACCOUNT_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "getALBUM_INFO",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Album Id is empty"
+                l_additional_text = "Account Id is empty"
             )
         }
-        return OBJECTS_INFO[answerType.answerTypeValues.GetMainAccountId()] ?: KObjectInfo(CreateAccountInfo())
+        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetMainAccountId())
+        if (v == null) {
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(), L_RECORD_TYPE = "J")
+                ?: throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getACCOUNT_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "CASH_DATA return null !!!"
+                )
+            if(c.ORDERED_CASH_DATA.size > 1){
+                throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getACCOUNT_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                )
+            }
+            v = if(c.ORDERED_CASH_DATA.isEmpty()){
+                KObjectInfo(CreateAccountInfo())
+            }else{
+                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            }
+            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetMainAccountId(), v)
+        }
+        return v
     }
 
     private fun CreateAccountInfo(): ANSWER_TYPE {
 
-        var ans: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
-        if (ans == null) {
-            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_ANSWER_TYPE_POOL is emprty")
-            }
-            ANSWER_TYPE.fillPOOL()
-            ans = ANSWER_TYPE()
-        }
+        var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
 
         when (answerType.RECORD_TYPE) {
             "A" //ALBUMS_COMMENTS
@@ -915,6 +950,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.BLOB_2 = answerType.BLOB_2
                 ans.BLOB_3 = answerType.BLOB_3
                 ans.BLOB_4 = answerType.BLOB_4
+                ans.LONG_20 = answerType.LONG_20
             }
             "I" //ALBUMS
             -> {
@@ -948,10 +984,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
+        ans.STRING_20 = "000000000000000000"
+        setRECORD_TYPE("J")
         return ans
     }
 
-    fun getALBUM_INFO(): KObjectInfo {
+    suspend fun getALBUM_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
             throw my_user_exceptions_class(
@@ -961,23 +999,40 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Album Id is empty"
             )
         }
-        return OBJECTS_INFO[answerType.answerTypeValues.GetAlbumId()] ?: KObjectInfo(CreateAlbumInfo())
+        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetAlbumId())
+        if (v == null) {
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(), L_RECORD_TYPE = "K")
+                ?: throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getALBUM_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "CASH_DATA return null !!!"
+                )
+            if(c.ORDERED_CASH_DATA.size > 1){
+                throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getALBUM_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                )
+            }
+            v = if(c.ORDERED_CASH_DATA.isEmpty()){
+                KObjectInfo(CreateAlbumInfo())
+            }else{
+                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            }
+            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetAlbumId(), v)
+        }
+        return v
     }
 
     private fun CreateAlbumInfo(): ANSWER_TYPE {
 
-        var ans: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
-        if (ans == null) {
-            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_ANSWER_TYPE_POOL is emprty")
-            }
-            ANSWER_TYPE.fillPOOL()
-            ans = ANSWER_TYPE()
-        }
+        var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
 
         when (answerType.RECORD_TYPE) {
 
-            "4" //MESSEGES
+            "4", "M" //MESSEGES
             -> {
                 when (GetMessegeObjectType()) {
 
@@ -997,13 +1052,14 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         ans.INTEGER_8 = GetAlbumsMembers()
                         ans.INTEGER_9 = GetAlbumsListeners()
 
-                        ans.LONG_20 = if(answerType.LONG_20 == 0L) GetAddingDate() else answerType.LONG_20  // last select
+                        ans.LONG_20 =
+                            if (answerType.LONG_20 == 0L) GetAddingDate() else answerType.LONG_20  // last select
 
                         ans.IDENTIFICATOR_2 = answerType.IDENTIFICATOR_2 // avatar id;
                         ans.STRING_17 = answerType.STRING_17 // avatar server;
                         ans.STRING_18 = answerType.STRING_18 // avatar link;
                         ans.STRING_19 = answerType.STRING_19 // avatar type;
-                        ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                        ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
                         ans.BLOB_2 = answerType.BLOB_2
                         ans.BLOB_3 = answerType.BLOB_3
                         ans.BLOB_4 = answerType.BLOB_4
@@ -1032,7 +1088,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.INTEGER_8 = GetAlbumsMembers()
                 ans.INTEGER_9 = GetAlbumsListeners()
 
-                ans.LONG_20 =  answerType.LONG_20  // last select
+                ans.LONG_20 = answerType.LONG_20  // last select
 
                 ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // album owner id;
                 ans.STRING_1 = answerType.STRING_1 // album owner name;
@@ -1043,7 +1099,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.STRING_17 = answerType.STRING_17 // avatar server;
                 ans.STRING_18 = answerType.STRING_18 // avatar link;
                 ans.STRING_19 = answerType.STRING_19 // avatar type;
-                ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
                 ans.BLOB_2 = answerType.BLOB_2
                 ans.BLOB_3 = answerType.BLOB_3
                 ans.BLOB_4 = answerType.BLOB_4
@@ -1074,7 +1130,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.INTEGER_8 = GetAlbumsMembers()
                 ans.INTEGER_9 = GetAlbumsListeners()
 
-                ans.LONG_20 =  answerType.LONG_20  // last select
+                ans.LONG_20 = answerType.LONG_20  // last select
 
                 ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // album owner id;
                 ans.STRING_1 = answerType.STRING_1 // album owner name;
@@ -1085,7 +1141,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.STRING_17 = answerType.STRING_17 // avatar server;
                 ans.STRING_18 = answerType.STRING_18 // avatar link;
                 ans.STRING_19 = answerType.STRING_19 // avatar type;
-                ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
 
                 ans.BLOB_2 = answerType.BLOB_2
                 ans.BLOB_3 = answerType.BLOB_3
@@ -1111,35 +1167,54 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
+        ans.STRING_20 = "000000000000000000"
+        setRECORD_TYPE("K")
         return ans
     }
 
-    fun getOBJECT_INFO(): KObjectInfo {
+    suspend fun getOBJECT_INFO(): KObjectInfo {
 
         if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
-                l_function_name = "getALBUM_INFO",
+                l_function_name = "getOBJECT_INFO",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Album Id is empty"
+                l_additional_text = "Object Id is empty"
             )
         }
-        return OBJECTS_INFO[answerType.answerTypeValues.GetObjectId()] ?: KObjectInfo(CreateObjectInfo())
+        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetObjectId())
+        if (v == null) {
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(), L_RECORD_TYPE = "L")
+                ?: throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getOBJECT_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "CASH_DATA return null !!!"
+                )
+            if(c.ORDERED_CASH_DATA.size > 1){
+                throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "getOBJECT_INFO",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                )
+            }
+            v = if(c.ORDERED_CASH_DATA.isEmpty()){
+                KObjectInfo(CreateObjectInfo())
+            }else{
+                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            }
+            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetObjectId(), v)
+        }
+        return v
     }
 
     private fun CreateObjectInfo(): ANSWER_TYPE {
 
-        var ans: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
-        if (ans == null) {
-            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_ANSWER_TYPE_POOL is emprty")
-            }
-            ANSWER_TYPE.fillPOOL()
-            ans = ANSWER_TYPE()
-        }
+        var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
 
         when (answerType.RECORD_TYPE) {
-            "4" //MESSEGES
+            "4", "M" //MESSEGES
             -> {
                 when (GetMessegeObjectType()) {
 
@@ -1164,7 +1239,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         ans.LONG_9 = GetObjectDescriptors()
                         ans.INTEGER_6 = GetObjectListensPeriod()
 
-                        ans.LONG_20 = if(answerType.LONG_20 == 0L) GetAddingDate() else answerType.LONG_20  // last select
+                        ans.LONG_20 =
+                            if (answerType.LONG_20 == 0L) GetAddingDate() else answerType.LONG_20  // last select
 
                         ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // object owner id;
                         ans.STRING_1 = answerType.STRING_1 // object owner name;
@@ -1174,7 +1250,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         ans.STRING_17 = answerType.STRING_17 // avatar server;
                         ans.STRING_18 = answerType.STRING_18 // avatar link;
                         ans.STRING_19 = answerType.STRING_19 // avatar type;
-                        ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                        ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
                         ans.BLOB_2 = answerType.BLOB_2
                         ans.BLOB_3 = answerType.BLOB_3
                         ans.BLOB_4 = answerType.BLOB_4
@@ -1211,7 +1287,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.LONG_9 = GetObjectDescriptors()
                 ans.INTEGER_6 = GetObjectListensPeriod()
 
-                ans.LONG_20 =  answerType.LONG_20  // last select
+                ans.LONG_20 = answerType.LONG_20  // last select
 
 
                 ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // object link owner id;
@@ -1223,7 +1299,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.STRING_17 = answerType.STRING_17 // avatar server;
                 ans.STRING_18 = answerType.STRING_18 // avatar link;
                 ans.STRING_19 = answerType.STRING_19 // avatar type;
-                ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
                 ans.BLOB_2 = answerType.BLOB_2
                 ans.BLOB_3 = answerType.BLOB_3
                 ans.BLOB_4 = answerType.BLOB_4
@@ -1250,7 +1326,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.LONG_9 = GetObjectDescriptors()
                 ans.INTEGER_6 = GetObjectListensPeriod()
 
-                ans.LONG_20 =  answerType.LONG_20  // last select
+                ans.LONG_20 = answerType.LONG_20  // last select
 
                 ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // object owner id;
                 ans.STRING_1 = answerType.STRING_1 // object owner name;
@@ -1260,14 +1336,14 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 ans.STRING_17 = answerType.STRING_17 // avatar server;
                 ans.STRING_18 = answerType.STRING_18 // avatar link;
                 ans.STRING_19 = answerType.STRING_19 // avatar type;
-                ans.INTEGER_19 = answerType.INTEGER_19 // original_avatar_size;
+                ans.INTEGER_17 = answerType.INTEGER_17 // original_avatar_size;
                 ans.BLOB_2 = answerType.BLOB_2
                 ans.BLOB_3 = answerType.BLOB_3
                 ans.BLOB_4 = answerType.BLOB_4
             }
             "L" //OBJECT_INFO;
             -> {
-               ans = answerType
+                ans = answerType
             }
             else
             -> {
@@ -1279,13 +1355,15 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
+        ans.STRING_20 = "000000000000000000"
+        setRECORD_TYPE("L")
         return ans
     }
 
     @JsName("getIS_UPDATE_BLOB")
     fun getIS_UPDATE_BLOB(): String {
 
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 2) {
+        if (answerType.STRING_20.length < 2) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "getIS_UPDATE_BLOB",
@@ -1293,12 +1371,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Insufficient length of STRING_20"
             )
         }
-        return answerType.STRING_20!!.substring(1, 2)
+        return answerType.STRING_20.substring(1, 2)
     }
 
     @JsName("getIS_UPDATE_SUBSCRIBE")
     fun getIS_UPDATE_SUBSCRIBE(): String {
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 3) {
+        if (answerType.STRING_20.length < 3) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "getIS_UPDATE_SUBSCRIBE",
@@ -1306,12 +1384,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Insufficient length of STRING_20"
             )
         }
-        return answerType.STRING_20!!.substring(2, 3)
+        return answerType.STRING_20.substring(2, 3)
     }
 
     @JsName("getIS_DELETE_RECORD")
     fun getIS_DELETE_RECORD(): String {
-        if (answerType.STRING_20 == null || answerType.STRING_20!!.length < 7) {
+        if (answerType.STRING_20.length < 7) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
                 l_function_name = "getIS_DELETE_RECORD",
@@ -1319,7 +1397,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Insufficient length of STRING_20"
             )
         }
-        return answerType.STRING_20!!.substring(6, 7)
+        return answerType.STRING_20.substring(6, 7)
     }
 
     fun setOBJECT_ID_LAST_SELECT() {
@@ -1338,7 +1416,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             -> {
                 object_id = GetObjectId()
             }
-            "4" //MESSEGES
+            "4", "M" //MESSEGES
             -> {
                 object_id = GetMessegeId().toString()
             }
@@ -1418,7 +1496,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         craeteOBJECT_ID_LAST_SELECT(object_id, last_select)
     }
 
-    fun craeteOBJECT_ID_LAST_SELECT(object_id: String, last_select: String) {
+    private fun craeteOBJECT_ID_LAST_SELECT(object_id: String, last_select: String) {
         answerType.OBJECT_ID_LAST_SELECT =
             "000000000000000000".substring(0, (18 - object_id.length)) + object_id + "0000000000000".substring(
                 0,
@@ -2220,7 +2298,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("getSTRING_20")
     private fun getSTRING_20(): String {
-        return answerType.STRING_20 ?: ""
+        return answerType.STRING_20
     }
 
     @JsName("setSTRING_20")
@@ -2242,7 +2320,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     private fun getEMPTY_LONG(): Long {
         return 0L
     }
-
 
 
 }

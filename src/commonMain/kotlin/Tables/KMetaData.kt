@@ -37,11 +37,6 @@ private val KMetaDataLock = Mutex()
 @InternalAPI
 var meta_data_last_update: AtomicLong = AtomicLong(0L)
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-val NEW_META_DATA: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-
 @Suppress("unused")
 @KorioExperimentalApi
 @ExperimentalTime
@@ -140,30 +135,31 @@ class KMetaData {
 
         @KorioExperimentalApi
         @JsName("ADD_NEW_META_DATA")
-        fun ADD_NEW_META_DATA(): Promise<Boolean> =
+        fun ADD_NEW_META_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
-                        val arr: ArrayList<KMetaData> = ArrayList()
+                        val met: ArrayList<KMetaData> = ArrayList()
                         try {
                             KMetaDataLock.lock()
+
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 println("ADD_NEW_META_DATA is running")
                             }
-                            while (NEW_META_DATA.isNotEmpty()) {
-                                val anwer_type = NEW_META_DATA.removeFirst()
-                                if (anwer_type.RECORD_TYPE.equals("2")) {
+
+                            arr.forEach {
+                                if (it.RECORD_TYPE.equals("2")) {
                                     throw my_user_exceptions_class(
                                         l_class_name = "KMetaData",
                                         l_function_name = "ADD_NEW_META_DATA",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Record is not MetaData"
+                                        l_additional_text = "Record is not meta_data"
                                     )
                                 }
-                                val k = KMetaData(anwer_type)
+                                val k = KMetaData(it)
                                 meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
                                 META_DATA[k.VALUE_NAME] = k.VALUE_VALUE
-                                arr.add(k)
+                                met.add(k)
                             }
                             return@withTimeoutOrNull true
                         } catch (ex: Exception) {
@@ -174,10 +170,10 @@ class KMetaData {
                                 l_additional_text = ex.message
                             )
                         } finally {
-                            KMetaDataLock.unlock()
                             if (!arr.isEmpty()) {
-                                Sqlite_service.InsertMetaData(arr)
+                                Sqlite_service.InsertMetaData(met)
                             }
+                            KMetaDataLock.unlock()
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)

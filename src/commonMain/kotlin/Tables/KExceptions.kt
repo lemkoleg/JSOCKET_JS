@@ -3,6 +3,7 @@ package Tables
 import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.async
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -28,11 +29,6 @@ val EXCEPTION_LAST_UPDATE = AtomicLong(0L)
 
 @InternalAPI
 private val KExceptionsLock = Mutex()
-
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
-val NEW_EXCEPTIONS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
 
 @ExperimentalTime
@@ -292,53 +288,51 @@ class KExceptions {
     companion object {
 
         @JsName("ADD_NEW_EXCEPTIONS")
-        fun ADD_NEW_EXCEPTIONS(): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+        fun ADD_NEW_EXCEPTIONS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    val exc: ArrayList<KException> = ArrayList()
                     try {
-                        val arr: ArrayList<KException> = ArrayList()
-                        try {
-                            KExceptionsLock.lock()
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("ADD_NEW_EXCEPTIONS is running")
-                            }
-                            while (NEW_EXCEPTIONS.isNotEmpty()) {
-                                val anwer_type = NEW_EXCEPTIONS.removeFirst()
-                                if (anwer_type.RECORD_TYPE.equals("5")) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "KException",
-                                        l_function_name = "ADD_NEW_EXCEPTIONS",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Record is not Exception"
-                                    )
-                                }
-                                val e = KException(anwer_type)
-                                meta_data_last_update.setGreaterValue(e.LAST_UPDATE)
-                                INSERT_EXCEPTION(e)
-                                arr.add(e)
-                            }
-                            return@withTimeoutOrNull true
-                        } catch (e: my_user_exceptions_class) {
-                            throw e
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KExceptions",
-                                l_function_name = "ADD_NEW_EXCEPTIONS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KExceptionsLock.unlock()
-                            if (!arr.isEmpty()) {
-                                Sqlite_service.InsertExceptions(arr)
-                            }
+                        KExceptionsLock.lock()
+
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("ADD_NEW_EXCEPTIONS is running")
                         }
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
+
+                        arr.forEach {
+                            if (it.RECORD_TYPE.equals("5")) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "KException",
+                                    l_function_name = "ADD_NEW_EXCEPTIONS",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "Record is not Exception"
+                                )
+                            }
+                            val e = KException(it)
+                            meta_data_last_update.setGreaterValue(e.LAST_UPDATE)
+                            INSERT_EXCEPTION(e)
+                            exc.add(e)
+                        }
+                        return@withTimeoutOrNull true
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KException",
+                            l_function_name = "ADD_NEW_EXCEPTIONS",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        if (!exc.isEmpty()) {
+                            Sqlite_service.InsertExceptions(exc)
+                        }
+                        KExceptionsLock.unlock()
                     }
-                    return@withTimeoutOrNull false
-                } ?: false
-            }.toPromise(EmptyCoroutineContext)
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+                return@withTimeoutOrNull false
+            } ?: false
+        }.toPromise(EmptyCoroutineContext)
 
 
         private suspend fun INSERT_EXCEPTION(kException: KException) {

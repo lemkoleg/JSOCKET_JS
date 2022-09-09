@@ -20,8 +20,8 @@ import kotlin.time.ExperimentalTime
 interface OnRequestListener{
 
     @JsName("startLoading")
-    var startLoading: (() -> Any?)?
+    var startLoading: (() -> Any?)
 
     @JsName("finishLoading")
-    var finishLoading : ((v: Any?) -> Any?)?
+    var finishLoading : ((v: Any?) -> Any?)
 }

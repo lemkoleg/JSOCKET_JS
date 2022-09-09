@@ -23,11 +23,6 @@ import kotlin.time.ExperimentalTime
 @InternalAPI
 private val KCommandsLock = Mutex()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-val NEW_COMMANDS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-
 
 @InternalAPI
 @ExperimentalTime
@@ -167,52 +162,22 @@ class KCommands {
         COUNT_OF_EXECUTE = v
     }
 
-    @JsName("UPDATE_COMMAND")
-    fun UPDATE_COMMAND(
-        L_COMMANDS_ID: Int,
-        L_COMMANDS_ACCESS: String,
-        L_COMMANDS_PROFILE: String,
-        L_OMMANDS_NECESSARILY_FIELDS: String,
-        L_LAST_UPDATE: Long,
-        L_COUNT_OF_EXECUTE: Int
-    ) {
-
-        COMMANDS_ID = L_COMMANDS_ID
-        COMMANDS_ACCESS = L_COMMANDS_ACCESS
-        COMMANDS_PROFILE = L_COMMANDS_PROFILE
-        COMMANDS_NECESSARILY_FIELDS = L_OMMANDS_NECESSARILY_FIELDS
-        LAST_UPDATE = L_LAST_UPDATE
-        COUNT_OF_EXECUTE = L_COUNT_OF_EXECUTE
-
-    }
-
-    @JsName("UPDATE_COMMANDS")
-    fun UPDATE_COMMANDS(ans: ANSWER_TYPE) {
-        UPDATE_COMMAND(
-            ans.LONG_1!!.toInt(),
-            ans.STRING_1!!,
-            ans.STRING_2!!,
-            ans.STRING_3!!,
-            ans.LONG_2!!,
-            ans.LONG_3!!.toInt()
-        )
-    }
 
     companion object {
 
         @JsName("ADD_NEW_COMMANDS")
-        fun ADD_NEW_COMMANDS(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
+        fun ADD_NEW_COMMANDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
-                    val arr: ArrayList<KCommands> = ArrayList()
+                    val com: ArrayList<KCommands> = ArrayList()
                     try {
                         KCommandsLock.lock()
+
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                             println("ADD_NEW_COMMANDS is running")
                         }
-                        while (NEW_COMMANDS.isNotEmpty()) {
-                            val anwer_type = NEW_COMMANDS.removeFirst()
-                            if (anwer_type.RECORD_TYPE.equals("1")) {
+                        arr.forEach {
+                            if (it.RECORD_TYPE.equals("1")) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "KCommands",
                                     l_function_name = "ADD_NEW_COMMANDS",
@@ -220,11 +185,11 @@ class KCommands {
                                     l_additional_text = "Record is not Command"
                                 )
                             }
-                            val k = KCommands(anwer_type)
+                            val k = KCommands(it)
                             val c = Command(k)
                             meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
                             COMMANDS[c.commands_id] = c
-                            arr.add(k)
+                            com.add(k)
                         }
                         return@withTimeoutOrNull true
                     } catch (ex: Exception) {
@@ -235,10 +200,10 @@ class KCommands {
                             l_additional_text = ex.message
                         )
                     } finally {
-                        KCommandsLock.unlock()
                         if (!arr.isEmpty()) {
-                            Sqlite_service.InsertCommands(arr)
+                            Sqlite_service.InsertCommands(com)
                         }
+                        KCommandsLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)

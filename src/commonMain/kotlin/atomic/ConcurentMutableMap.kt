@@ -42,11 +42,15 @@ suspend fun <K, V>MutableMap<K, V>.lockedPutAll(v: MutableMap<K, V>) {
 @InternalAPI
 suspend fun <K, V>MutableMap<K, V>.lockedGet(k:K):V? {
     lock.withLock {
-        if(this.contains(k)){
-            return@withLock this[k]
-        }else{
-            return@withLock null
-        }
+        return@withLock this[k]
+    }
+    return null
+}
+
+@InternalAPI
+suspend fun <K, V>MutableMap<K, V>.lockedRemove(k:K):V? {
+    lock.withLock {
+        return@withLock this.remove(k)
     }
     return null
 }

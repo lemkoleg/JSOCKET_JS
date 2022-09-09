@@ -183,9 +183,6 @@ expect class SQLStatement() {
     @JsName("CLEAR_LASTUPDATE")
     suspend fun CLEAR_LASTUPDATE()
 
-    @JsName("UPDATE_CASHLASTUPDATE_LAST_USE")
-    suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate)
-
     /////////////cash data///////////////////////////
 
     @JsName("TABLE_CASHDATA")
@@ -197,35 +194,38 @@ expect class SQLStatement() {
     @JsName("TRIGGER_CASHDATA_AFTER_INSERT")
     suspend fun TRIGGER_CASHDATA_AFTER_INSERT()
 
+    @JsName("TRIGGER_CASHDATA_AFTER_INSERT_DELETED_RECORD")
+    suspend fun TRIGGER_CASHDATA_AFTER_INSERT_DELETED_RECORD()
+
     @JsName("TRIGGER_CASHDATA_UPDATE")
     suspend fun TRIGGER_CASHDATA_UPDATE()
+
+    @JsName("TRIGGER_CASHDATA_AFTER_UPDATE_DELETED_RECORD")
+    suspend fun TRIGGER_CASHDATA_AFTER_UPDATE_DELETED_RECORD()
 
     @JsName("INSERT_CASHDATA")
     suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
 
-    @JsName("INSERT_CASHDATAS")
-    suspend fun INSERT_CASHDATAS(lANSWER_TYPES: ArrayDeque<ANSWER_TYPE>)
-
     @JsName("SELECT_CASHDATA_ALL")
-    suspend fun SELECT_CASHDATA_ALL()
+    suspend fun SELECT_CASHDATA_ALL():ArrayList<ANSWER_TYPE>
 
     @JsName("SELECT_CASHDATA_ALL_ON_CASH_SUM")
-    suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long)
-
-    @JsName("SELECT_CASHDATA_ALL_CASH_SUMS")
-    suspend fun SELECT_CASHDATA_ALL_CASH_SUMS()
-
-    @JsName("DELET_CASHDATA")
-    suspend fun DELETE_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
+    suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: String): ArrayDeque<ANSWER_TYPE>
 
     @JsName("CLEAR_CASHDATA")
     suspend fun CLEAR_CASHDATA()
 
+    @JsName("UPDATE_CASHDATA_CONTROL_COUNT")
+    suspend fun UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM: String)
+
     @JsName("CASHDATA_SORT_NEW_NUMBER_POSITIONS")
-    suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS()
+    suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM: String)
 
     @JsName("UPADTE_CASHDATA_NEW_LAST_SELECT")
-    suspend fun UPADTE_CASHDATA_NEW_LAST_SELECT(last_record_table_id: String, countOfRecords: Int)
+    suspend fun UPADTE_CASHDATA_NEW_LAST_SELECT(last_select: Long,
+                                                cash_sum:String,
+                                                record_table_id_from:String,
+                                                limit: Int)
 
 
     /////////////chats///////////////////////////

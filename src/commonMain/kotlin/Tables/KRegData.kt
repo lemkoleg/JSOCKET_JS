@@ -130,12 +130,6 @@ var AVATAR_2: ByteArray? = null
 var AVATAR_3: ByteArray? = null
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
-val NEW_REG_DATA: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-
-
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -189,16 +183,18 @@ class KRegData {
         }
 
         @JsName("ADD_NEW_REG_DATA")
-        fun ADD_NEW_REG_DATA(): Promise<Boolean> =
+        fun ADD_NEW_REG_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KRegDataLock.lock()
+                            
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 println("ADD_NEW_REG_DATA is running")
                             }
-                            if (NEW_REG_DATA.size > 1) {
+
+                            if (arr.size > 1) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "KRegData",
                                     l_function_name = "ADD_NEW_REG_DATA",
@@ -206,53 +202,54 @@ class KRegData {
                                     l_additional_text = "NEW_REG_DATA.size > 1"
                                 )
                             }
-                            while (NEW_REG_DATA.isNotEmpty()) {
-                                val anwer_type = NEW_REG_DATA.removeFirst()
-                                SelfAnswerType.merge(anwer_type)
-                                if (anwer_type.RECORD_TYPE.equals("7")) {
+
+                            arr.forEach {
+                                if (it.RECORD_TYPE.equals("7")) {
                                     throw my_user_exceptions_class(
                                         l_class_name = "KRegData",
                                         l_function_name = "ADD_NEW_REG_DATA",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Record is not RegData"
+                                        l_additional_text = "Record is not reg_data"
                                     )
                                 }
-                                if (anwer_type.STRING_5 != null && anwer_type.STRING_5!!.isNotEmpty()) {
-                                    myAccountProfile = anwer_type.STRING_5!!
+                                SelfAnswerType.merge(it)
+                                if (it.STRING_5 != null && it.STRING_5!!.isNotEmpty()) {
+                                    myAccountProfile = it.STRING_5!!
                                 }
 
-                                if (anwer_type.IDENTIFICATOR_1 != null && anwer_type.IDENTIFICATOR_1!!.isNotEmpty()) {
-                                    Account_Id = anwer_type.IDENTIFICATOR_1!!
+                                if (it.IDENTIFICATOR_1 != null && it.IDENTIFICATOR_1!!.isNotEmpty()) {
+                                    Account_Id = it.IDENTIFICATOR_1!!
                                 }
 
-                                if (anwer_type.IDENTIFICATOR_2 != null && anwer_type.IDENTIFICATOR_2!!.isNotEmpty()) {
-                                    Avatar_Id = anwer_type.IDENTIFICATOR_2!!
+                                if (it.IDENTIFICATOR_2 != null && it.IDENTIFICATOR_2!!.isNotEmpty()) {
+                                    Avatar_Id = it.IDENTIFICATOR_2!!
                                 }
 
-                                if (anwer_type.STRING_1 != null && anwer_type.STRING_1!!.isNotEmpty()) {
-                                    Account_Name = anwer_type.STRING_1!!
+                                if (it.STRING_1 != null && it.STRING_1!!.isNotEmpty()) {
+                                    Account_Name = it.STRING_1!!
                                 }
 
-                                if (anwer_type.STRING_2 != null && anwer_type.STRING_2!!.isNotEmpty()) {
-                                    Account_Access = anwer_type.STRING_2!!
+                                if (it.STRING_2 != null && it.STRING_2!!.isNotEmpty()) {
+                                    Account_Access = it.STRING_2!!
                                 }
 
-                                if (anwer_type.LONG_1 != null && anwer_type.LONG_1!! > LAST_UPDATE) {
-                                    LAST_UPDATE = anwer_type.LONG_1!!
+                                if (it.LONG_1 != null && it.LONG_1!! > LAST_UPDATE) {
+                                    LAST_UPDATE = it.LONG_1!!
                                     meta_data_last_update.setGreaterValue(LAST_UPDATE)
                                 }
 
-                                BALANCE_OF_CHATS = anwer_type.INTEGER_1 ?: 0
+                                BALANCE_OF_CHATS = it.INTEGER_1 ?: 0
 
-                                if (anwer_type.answerTypeValues.getIS_UPDATE_BLOB() == "1") {
+                                if (it.answerTypeValues.getIS_UPDATE_BLOB() == "1") {
                                     ORIGINAL_AVATAR_SIZE =
-                                        anwer_type.answerTypeValues.GetAvatarOriginalSize().toString()
-                                    AVATAR_SERVER = anwer_type.answerTypeValues.GetAvatarServer()
-                                    AVATAR_LINK = anwer_type.answerTypeValues.GetAvatarLink()
-                                    AVATAR_1 = anwer_type.BLOB_1
-                                    AVATAR_2 = anwer_type.BLOB_2
-                                    AVATAR_3 = anwer_type.BLOB_3
+                                        it.answerTypeValues.GetAvatarOriginalSize().toString()
+                                    AVATAR_SERVER = it.answerTypeValues.GetAvatarServer()
+                                    AVATAR_LINK = it.answerTypeValues.GetAvatarLink()
+                                    AVATAR_1 = it.BLOB_1
+                                    AVATAR_2 = it.BLOB_2
+                                    AVATAR_3 = it.BLOB_3
                                 }
+
                             }
                             return@withTimeoutOrNull true
                         } catch (ex: Exception) {

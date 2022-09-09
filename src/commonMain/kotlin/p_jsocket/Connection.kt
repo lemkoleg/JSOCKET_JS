@@ -7,8 +7,13 @@
 package p_jsocket
 
 import CrossPlatforms.GC
+import Tables.COMMANDS
+import Tables.KRegData
 import Tables.myConnectionsCoocki
 import Tables.myConnectionsID
+import atomic.lockedGet
+import atomic.lockedPut
+import atomic.lockedRemove
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Signal
 import com.soywiz.korio.async.addSuspend
@@ -38,11 +43,6 @@ private const val MIN_SIZE_OF_REQUEST: Int = 17
 @KorioExperimentalApi
 @JsName("BetweenJSOCKETs")
 private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
-
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
-private val DECODER_REQUEST_POOL: ArrayDeque<DecoderRequest> = ArrayDeque()
 
 
 @InternalAPI
@@ -75,6 +75,11 @@ object Connection : CoroutineScope {
     private val url = "ws://".plus(connectionDNSName).plus(":").plus(ServerConnPort.toString())
     private var isConnect: Boolean = true
     private var isClosed: Boolean = false
+
+    private var countOfCleaner = 0
+    private var CurentTime = DateTime.nowUnixLong()
+    private var NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+    private var LastTimeCleanOutJSOCKETs = 0L
 
 
     init {
@@ -109,73 +114,64 @@ object Connection : CoroutineScope {
     private fun setConn() {
         MyConnection = ConnectionScope.launch {
 
-            ConnectionLock.withLock {
 
-                var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
+            var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
 
-                while (count_of_try > 0 && !isConnect) {
-                    count_of_try--
-                    try {
-                        MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
-                        signalonOpen = MyWebSocketChannel!!.onOpen
-                        signalonOpen?.add {
-                            isConnect = true
-                            isClosed = false
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("connect")
-                            }
+            while (count_of_try > 0 && !isConnect) {
+                count_of_try--
+                try {
+                    MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
+                    signalonOpen = MyWebSocketChannel!!.onOpen
+                    signalonOpen?.add {
+                        isConnect = true
+                        isClosed = false
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("connect")
                         }
-                        signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                        signalonBinaryMessage?.addSuspend { v ->
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("read size: ${v.size}")
-                            }
-                            var l = DECODER_REQUEST_POOL.removeFirstOrNull()
-                            if (l == null) {
-                                l = DecoderRequest()
-                            }
-                            Connection.ConnectionScope.launch { l.decode(v) }
-                        }
-                        signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
-                        signalonStringMessage = MyWebSocketChannel!!.onStringMessage
-                        signalonClose = MyWebSocketChannel!!.onClose
-                        signalonClose?.add {
-                            isConnect = false
-                            isClosed = true
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("disconnect")
-                            }
-                        }
-                        signalonError = MyWebSocketChannel!!.onError
-                        signalonError?.add { v ->
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("error on connection: $v\n")
-                            }
-                            //val e = v.printStackTrace()
-                            isConnect = false
-                            isClosed = true
-                            MyWebSocketChannel?.close()
-                        }
-                        connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
-
-
-                        if (connectionIpAddress.isNotEmpty()) {
-                            if (connectionIpAddress.length > 23) {
-                                connectionIpAddress = connectionIpAddress.substring(0, 23)
-                            }
-                            addressByteArray = returnConnAddress().readBytes()
-                        }
-                    } catch (e: Exception) {
+                    }
+                    signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
+                    signalonBinaryMessage?.addSuspend { v ->
+                        Connection.ConnectionScope.launch { decode(v) }
+                    }
+                    signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
+                    signalonStringMessage = MyWebSocketChannel!!.onStringMessage
+                    signalonClose = MyWebSocketChannel!!.onClose
+                    signalonClose?.add {
                         isConnect = false
                         isClosed = true
-                        if (count_of_try < 1) {
-                            throw my_user_exceptions_class(
-                                "Connection",
-                                "setConn",
-                                "EXC_SOCKET_NOT_ALLOWED",
-                                e.message
-                            )
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("disconnect")
                         }
+                    }
+                    signalonError = MyWebSocketChannel!!.onError
+                    signalonError?.add { v ->
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            println("error on connection: $v\n")
+                        }
+                        //val e = v.printStackTrace()
+                        isConnect = false
+                        isClosed = true
+                        MyWebSocketChannel?.close()
+                    }
+                    connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
+
+
+                    if (connectionIpAddress.isNotEmpty()) {
+                        if (connectionIpAddress.length > 23) {
+                            connectionIpAddress = connectionIpAddress.substring(0, 23)
+                        }
+                        addressByteArray = returnConnAddress().readBytes()
+                    }
+                } catch (e: Exception) {
+                    isConnect = false
+                    isClosed = true
+                    if (count_of_try < 1) {
+                        throw my_user_exceptions_class(
+                            "Connection",
+                            "setConn",
+                            "EXC_SOCKET_NOT_ALLOWED",
+                            e.message
+                        )
                     }
                 }
             }
@@ -183,41 +179,48 @@ object Connection : CoroutineScope {
     }
 
     @InternalAPI
-    public suspend fun sendData(b: ByteArray, j: Jsocket) {
+    public fun sendData(b: ByteArray, j: Jsocket) {
         ConnectionScope.launch {
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                BetweenJSOCKETs[j.just_do_it_label] = j
-                /*if (!MyConnection.isCompleted) {
-                    MyConnection.join()
-                }*/
-                while (!isConnected()) {
-                    if (isClosed) {
-                        setConn()
-                    }
-                    delay(Constants.TIME_SPAN_FOR_LOOP)
-                }
-
-                try {
-                    MyWebSocketChannel!!.send(b)
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("send size: ${b.size}")
-                    }
-                } catch (ex1: Exception) {
-                    setConn()
-                    try {
-                        MyWebSocketChannel!!.send(b)
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("send size2: ${b.size}")
+            if (withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    ConnectionLock.withLock {
+                        BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
+                        /*if (!MyConnection.isCompleted) {
+                            MyConnection.join()
+                        }*/
+                        while (!isConnected()) {
+                            if (isClosed) {
+                                setConn()
+                            }
+                            delay(Constants.TIME_SPAN_FOR_LOOP)
                         }
-                    } catch (ex1: Exception) {
-                        throw my_user_exceptions_class(
-                            "Connection",
-                            "sendData",
-                            "EXC_SOCKET_NOT_ALLOWED",
-                            ex1.message
-                        )
+
+                        try {
+                            MyWebSocketChannel!!.send(b)
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                println("send size: ${b.size}")
+                            }
+                        } catch (ex1: Exception) {
+                            setConn()
+                            try {
+                                MyWebSocketChannel!!.send(b)
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    println("send size2: ${b.size}")
+                                }
+                            } catch (ex1: Exception) {
+                                throw my_user_exceptions_class(
+                                    "Connection",
+                                    "sendData",
+                                    "EXC_SOCKET_NOT_ALLOWED",
+                                    ex1.message
+                                )
+                            }
+                        }
                     }
-                }
+                } == null) {
+                throw my_user_exceptions_class(
+                    "Connection",
+                    "sendData",
+                    "EXC_SOCKET_NOT_ALLOWED"
             }
         }
     }
@@ -242,16 +245,10 @@ object Connection : CoroutineScope {
             }
         }
     }
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
-private class DecoderRequest() {
 
     suspend fun decode(buffer: ByteArray) {
         try {
@@ -314,25 +311,26 @@ private class DecoderRequest() {
                             l_additional_text = "Final code is wrong!"
                         )
                     } else {
-                        var jsocketRet: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
+                        var jsocketRet: Jsocket? = Jsocket.GetJsocket()
                         if (jsocketRet == null) {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 println("CLIENT_JSOCKET_POOL is emptty")
                             }
-                            jsocketRet = CLIENT_JSOCKET_POOL.removeFirstOrNull()
-                            if(jsocketRet == null){
-                                jsocketRet =  Jsocket()
-                                Jsocket.fill()
-                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    println("CLIENT_JSOCKET_POOL is emprty")
-                                }
-                            }
+                            jsocketRet = Jsocket()
+                            Jsocket.fill()
                         }
                         var jsocket: Jsocket?
                         jsocketRet.deserialize(b, myConnectionsCoocki, true, newConnectionCoocki.value)
+
                         if (jsocketRet.just_do_it != 0) {
 
-                            jsocket = BetweenJSOCKETs.remove(jsocketRet.just_do_it_label)
+                            val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
+
+                            if (c.commands_access != "B") {
+                                jsocket = BetweenJSOCKETs.lockedRemove(jsocketRet.just_do_it_label)
+                            } else {
+                                jsocket = BetweenJSOCKETs.lockedGet(jsocketRet.just_do_it_label)
+                            }
 
                             if (jsocket != null) {
                                 when (jsocketRet.just_do_it) {
@@ -349,15 +347,34 @@ private class DecoderRequest() {
                                             name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
                                         )
                                     }
-
-
                                     else -> {
-                                        jsocket.merge(jsocketRet)
-                                        jsocket.condition.cSignal()
+
+                                        if (c.commands_access == "B") {
+                                            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                                                val l = jsocket!!.lock
+                                                try {
+                                                    l.lock()
+                                                    jsocketRet.comntrMerge(jsocket!!)
+                                                    jsocket = jsocketRet
+                                                } finally {
+                                                    l.unlock()
+                                                }
+                                            }
+                                        } else {
+                                            jsocket!!.merge(jsocketRet)
+                                        }
+                                        jsocket!!.is_new_reg_data = false
+                                        if (c.whichBlobDataReturned == "4") {
+                                            jsocket!!.deserialize_ANSWERS_TYPES()
+                                        }
+                                        if (jsocket!!.is_new_reg_data) {
+                                            KRegData.setNEW_REG_DATA(jsocket)
+                                        }
+                                        jsocket!!.condition.cSignal()
                                     }
                                 }
-                            }else{
-                                if(jsocketRet.just_do_it != 1011000086){ // SET_NEW_MESSEGES;
+                            } else {
+                                if (jsocketRet.just_do_it != 1011000086) { // SET_NEW_MESSEGES;
                                     throw my_user_exceptions_class(
                                         l_class_name = "DecoderRequest",
                                         l_function_name = "decode",
@@ -365,9 +382,7 @@ private class DecoderRequest() {
                                         l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                     )
                                 }
-                                if(jsocketRet.content != null && jsocketRet.content!!.size > 0){
-                                    jsocketRet.deserialize_ANSWERS_TYPES()
-                                }
+
                             }
                         }
                     }
@@ -382,61 +397,64 @@ private class DecoderRequest() {
             }
         } catch (e: my_user_exceptions_class) {
             e.ExceptionHand(null)
-        } finally {
-            DECODER_REQUEST_POOL.addLast(this)
         }
     }
 
-    companion object {
 
-        private var countOfCleaner = 0
-        private var CurentTime = DateTime.nowUnixLong()
-        private var NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-        private var LastTimeCleanOutJSOCKETs = nowNano()
+    private val Cleaner = KorosTimerTask.start(
+        delay = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES,
+        repeat = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+    ) {
+        removeOldAll()
+    }
 
-        private val Cleaner = KorosTimerTask.start(
-            delay = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES,
-            repeat = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-        ) {
-            removeOldAll()
-        }
+    @InternalAPI
+    public suspend fun removeRequest(just_do_it_label: Long) {
+        BetweenJSOCKETs.lockedRemove(just_do_it_label)
+    }
 
-        fun removeOldAll() {
+    suspend fun removeOldAll() {
+        try {
             try {
-                try {
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        println("Start Connection.removeOldAll()")
-                    }
-                    CurentTime = DateTime.nowUnixLong()
-                    if (CurentTime > NextTimeCleanOUT_JSOCKETs) {
-                        NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    println("Start Connection.removeOldAll()")
+                }
+                if (LastTimeCleanOutJSOCKETs == 0L) {
+                    LastTimeCleanOutJSOCKETs = nowNano()
+                }
 
-                        countOfCleaner = 0
-                        BetweenJSOCKETs.filterKeys { k -> k < LastTimeCleanOutJSOCKETs }.forEach {
-                            countOfCleaner++
-                            it.value.condition.cSignal()
-                            BetweenJSOCKETs.remove(it.key)
-                        }
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            if (countOfCleaner > 0) {
+                CurentTime = DateTime.nowUnixLong()
+                if (CurentTime > NextTimeCleanOUT_JSOCKETs) {
+                    NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+
+                    countOfCleaner = 0
+                    BetweenJSOCKETs.filterKeys { k -> k < LastTimeCleanOutJSOCKETs }.forEach {
+                        countOfCleaner++
+                        it.value.condition.cSignal()
+                        BetweenJSOCKETs.lockedRemove(it.key)
+                    }
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        if (countOfCleaner > 0) {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 println("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
                             }
                         }
-
-                        LastTimeCleanOutJSOCKETs = nowNano()
                     }
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "Connection",
-                        l_function_name = "removeOldAll",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
-                    )
+
+                    LastTimeCleanOutJSOCKETs = nowNano()
                 }
-            } catch (e: my_user_exceptions_class) {
-                e.ExceptionHand(null)
-            } finally {
-                CoroutineScope(NonCancellable).launch { GC.collect() }
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Connection",
+                    l_function_name = "removeOldAll",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
             }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        } finally {
+            CoroutineScope(NonCancellable).launch { GC.collect() }
         }
+
     }

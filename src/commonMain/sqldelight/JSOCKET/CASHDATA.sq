@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS CashData
  LONG_17 INTEGER,
  LONG_18 INTEGER,
  LONG_19 INTEGER,
- LONG_20 INTEGER,   -- last select;
+ LONG_20 INTEGER NOT NULL,   -- last select;
  STRING_1 TEXT,
  STRING_2 TEXT,
  STRING_3 TEXT,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS CashData
  STRING_17 TEXT,
  STRING_18 TEXT,
  STRING_19 TEXT,
- STRING_20 TEXT,
+ STRING_20 TEXT NOT NULL,
  BLOB_1 BLOB ,
  BLOB_2 BLOB ,
  BLOB_3 BLOB,
@@ -94,64 +94,51 @@ CREATE TABLE IF NOT EXISTS CashData
  CREATE INDEX IF NOT EXISTS CashData_NumberPositionLastUpdate ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
 
  trigger_CashData_After_Insert:
- CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
- AFTER INSERT ON CashData
- FOR EACH ROW
- WHEN EXISTS (SELECT RECORD_TABLE_ID
-              FROM   CashData
-              WHERE  CASH_SUM = new.CASH_SUM
-              ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-              LIMIT 1 OFFSET new.INTEGER_20 - 1)
- BEGIN
-   WITH tab (record_id, integer_20, integer_20_level)
-   AS (SELECT RECORD_TABLE_ID,
-              INTEGER_20,
-              INTEGER_20_LEVEL
-       FROM   CashData
-       WHERE  CASH_SUM = new.CASH_SUM
-       ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-       LIMIT 1 OFFSET new.INTEGER_20 - 1)
-
-  UPDATE CashData
-    SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
-           INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
-           INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
-    WHERE  CASH_SUM = new.CASH_SUM
-    AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
-
-  UPDATE CashData
-      SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
-      WHERE  CASH_SUM = new.CASH_SUM
-      AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
-                                FROM   CashData
-                                WHERE  CASH_SUM = new.CASH_SUM
-                                AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
-
- END;
-
- trigger_CashData_Insert_Control_Count:
-   CREATE TRIGGER IF NOT EXISTS TCashDataInsertControlCount
-   AFTER INSERT ON CashData
-   WHEN (SELECT count(*)
-         FROM CashData
-         WHERE CASH_SUM = new.CASH_SUM) >
-        (SELECT  VALUE_VALUE
-         FROM MetaData
-         WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS')
-   BEGIN
-     DELETE
-     FROM CashData
-     WHERE  CASH_SUM = new.CASH_SUM
-     AND RECORD_TABLE_ID NOT IN (
-        SELECT RECORD_TABLE_ID
-        FROM CashData
+  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
+  AFTER INSERT ON CashData
+  FOR EACH ROW
+  WHEN SUBSTR(new.STRING_20, 7, 1) = '0'   --not deleted record
+  AND  EXISTS (SELECT RECORD_TABLE_ID
+               FROM   CashData
+               WHERE  CASH_SUM = new.CASH_SUM
+               ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+               LIMIT 1 OFFSET new.INTEGER_20 - 1)
+  BEGIN
+    WITH tab (record_id, integer_20, integer_20_level)
+    AS (SELECT RECORD_TABLE_ID,
+               INTEGER_20,
+               INTEGER_20_LEVEL
+        FROM   CashData
         WHERE  CASH_SUM = new.CASH_SUM
         ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-        LIMIT (SELECT  VALUE_VALUE
-               FROM MetaData
-               WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS')
-     );
-   END;
+        LIMIT 1 OFFSET new.INTEGER_20 - 1)
+
+   UPDATE CashData
+     SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
+            INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
+            INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
+     WHERE  CASH_SUM = new.CASH_SUM
+     AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
+
+   UPDATE CashData
+       SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1
+       WHERE  CASH_SUM = new.CASH_SUM
+       AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID
+                                 FROM   CashData
+                                 WHERE  CASH_SUM = new.CASH_SUM
+                                 AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
+
+  END;
+
+  trigger_CashData_After_Insert_DeletedRecord:
+    CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
+    AFTER INSERT ON CashData
+    FOR EACH ROW
+    WHEN SUBSTR(new.STRING_20, 7, 1) = "1"   --deleted record
+    BEGIN
+     DELETE FROM CashData WHERE rowid = new.rowid;
+    END;
+
 
  trigger_CashData_update:
   CREATE TRIGGER IF NOT EXISTS TCashDataUpdate
@@ -159,6 +146,7 @@ CREATE TABLE IF NOT EXISTS CashData
   FOR EACH ROW
   WHEN old.LONG_20 <> new.LONG_20
   AND old.INTEGER_20 <> new.INTEGER_20
+  AND SUBSTR(new.STRING_20, 6, 7) = "0" --not deleted record
   AND EXISTS (SELECT RECORD_TABLE_ID
               FROM   CashData
               WHERE  CASH_SUM = new.CASH_SUM
@@ -195,6 +183,15 @@ CREATE TABLE IF NOT EXISTS CashData
                                   AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID);
 
    END;
+
+trigger_CashData_After_Update_DeletedRecord:
+    CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
+    AFTER UPDATE ON CashData
+    FOR EACH ROW
+    WHEN SUBSTR(new.STRING_20, 7, 1) = "1"   --deleted record
+    BEGIN
+     DELETE FROM CashData WHERE rowid = new.rowid;
+    END;
        
 insert_CashData:
 INSERT OR REPLACE INTO CashData 
@@ -298,7 +295,7 @@ VALUES
  , ? , ? , ? , ? , ? , ? , ? , ?
  , ? , ? , ? , ? , ? , ? , ? , ? , ?
  , ? , ? , ? , ? , ? , ? , ? , ? , ?
- , ? , ? , ? );
+ , ? , ? , ?);
 
 
  select_CashData_All:
@@ -312,19 +309,23 @@ VALUES
   WHERE CASH_SUM = ?
   ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
 
- select_CashData_All_CASH_SUMS:
-   SELECT  CASH_SUM
-   FROM CashData
-   GROUP BY CASH_SUM;
-
- delete_CashData:
-   DELETE
-   FROM CashData
-   WHERE CASH_SUM = ?
-   AND   RECORD_TABLE_ID = ?;
-
  clear_CashData:
   DELETE FROM CashData;
+
+ update_CashData_ControlCount:
+ DELETE
+   FROM CashData
+   WHERE  CASH_SUM = ?
+   AND RECORD_TABLE_ID NOT IN (
+           SELECT RECORD_TABLE_ID
+           FROM CashData
+           WHERE  CASH_SUM = ?
+           ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+           LIMIT (SELECT  VALUE_VALUE
+                  FROM MetaData
+                  WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS')
+        );
+
 
  update_CashData_SortNewNumbersPositions:
   WITH tab AS (SELECT
@@ -341,35 +342,29 @@ VALUES
   UPDATE CashData
   SET   INTEGER_20 = (SELECT RowNum
                       FROM tab
-                      WHERE CASH_SUM = cash_sum
-                      AND RECORD_TABLE_ID = record_id),
+                      WHERE cash_sum = CASH_SUM
+                      AND   record_id = RECORD_TABLE_ID),
         INTEGER_20_LEVEL = 0,
         NEXT_RECORD_TABLE_ID = ""
         WHERE CASH_SUM = ?;
 
 
-  select_CashData_All_ON_CASH_SUM:
-    SELECT  *
-    FROM CashData
-    WHERE CASH_SUM = ?
-    ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
+ update_CashData_NEW_LAST_SELECT:
+       UPDATE CashData
+       SET    LONG_20 = ?
+       WHERE  CASH_SUM = ?
+       AND    RECORD_TABLE_ID IN (SELECT RECORD_TABLE_ID
+                                  FROM   CashData
+                                  WHERE  CASH_SUM = ?
+                                  ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                                  LIMIT ?
+                                  OFFSET (SELECT NVL(row_number(), 1) OVER (
+                                                 ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                                          ) AS RowNum
+                                          FROM   CashData
+                                          WHERE  CASH_SUM = ?
+                                          AND    RECORD_TABLE_ID = ?) - 1
+                                  );
 
-  update_CashData_NEW_LAST_SELECT:
-      UPDATE CashData
-      SET    LONG_20 = ?
-      WHERE  CASH_SUM = ?
-      AND    RECORD_TABLE_ID IN (SELECT RECORD_TABLE_ID
-                                 FROM   CashData
-                                 WHERE  CASH_SUM = ?
-                                 ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                                 LIMIT (SELECT  VALUE_VALUE
-                                        FROM MetaData
-                                        WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
-                                 OFFSET (SELECT row_number() OVER (
-                                                ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                                         ) AS RowNum
-                                         FROM   CashData
-                                         WHERE  CASH_SUM = ?
-                                         AND    RECORD_TABLE_ID = ?)
-                                 );
+
 
