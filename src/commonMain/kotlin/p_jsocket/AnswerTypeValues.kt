@@ -2278,7 +2278,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("getINTEGER_20")
     private fun getINTEGER_20(): Int {
-        return answerType.INTEGER_20 ?: 0
+        return answerType.INTEGER_20
     }
 
     @JsName("setINTEGER_20")

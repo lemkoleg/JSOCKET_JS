@@ -1314,7 +1314,7 @@ open class JSOCKET() {
                     if (empty_answer_types.isEmpty()) {
                         empty_answer_types = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
                         if (empty_answer_types.isEmpty()) {
-                            var ans:ANSWER_TYPE = ANSWER_TYPE.GetAnswerType()?:ANSWER_TYPE()
+                            var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
                             empty_answer_types.addLast(ans)
                         }
                     }
@@ -1380,7 +1380,10 @@ open class JSOCKET() {
                         0 -> {
                             //val l = bb!!.readBytes(nameField_length).decodeToString()
                             //println("nameField_number = $nameField_number, l = $l")
-                            subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readBytes(nameField_length).decodeToString())
+                            subJSOCKET.setANSWER_TYPE_FieldsValue(
+                                answer_type,
+                                record.readBytes(nameField_length).decodeToString()
+                            )
                         }
                         1 -> {
                             subJSOCKET.setANSWER_TYPE_FieldsValue(answer_type, record.readInt())
@@ -1399,8 +1402,8 @@ open class JSOCKET() {
 
                 }
 
-                if(nameField_number == 84 ){  // big avatar;
-                    if(object_info == null ){
+                if (nameField_number == 84) {  // big avatar;
+                    if (object_info == null) {
                         throw my_user_exceptions_class(
                             l_class_name = "JSOCKET",
                             l_function_name = "deserialize_ANSWERS_TYPES",
@@ -1408,14 +1411,19 @@ open class JSOCKET() {
                             l_additional_text = "object_info is empty"
                         )
                     }
-                    if(answer_type.BLOB_4 != null && answer_type.BLOB_4!!.isNotEmpty()){
+                    if (answer_type.BLOB_4 != null && answer_type.BLOB_4!!.isNotEmpty()) {
                         object_info.BLOB_4 = answer_type.BLOB_4
-                        KBigAvatar.ADD_NEW_BIG_AVATAR(KBigAvatar(L_AVATAR_ID = answer_type.answerTypeValues.GetMainAvatarId(), L_AVATAR = answer_type.BLOB_4!!))
+                        KBigAvatar.ADD_NEW_BIG_AVATAR(
+                            KBigAvatar(
+                                L_AVATAR_ID = answer_type.answerTypeValues.GetMainAvatarId(),
+                                L_AVATAR = answer_type.BLOB_4!!
+                            )
+                        )
                     }
                     break
                 }
 
-                if(answer_type.RECORD_TYPE.isEmpty()){
+                if (answer_type.RECORD_TYPE.isEmpty()) {
                     throw my_user_exceptions_class(
                         l_class_name = "JSOCKET",
                         l_function_name = "deserialize_ANSWERS_TYPES",
@@ -1426,7 +1434,7 @@ open class JSOCKET() {
 
                 if (record_type == "0") {
                     record_type = answer_type.RECORD_TYPE
-                }else if (record_type != answer_type.RECORD_TYPE) {
+                } else if (record_type != answer_type.RECORD_TYPE) {
                     when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                         "2" -> KMetaData.ADD_NEW_META_DATA(arr)
@@ -1441,7 +1449,8 @@ open class JSOCKET() {
                                 l_additional_text = "big avatar trying to add"
                             )
                         }
-                        "7" -> {KRegData.ADD_NEW_REG_DATA(arr)
+                        "7" -> {
+                            KRegData.ADD_NEW_REG_DATA(arr)
                             is_new_reg_data = true
                         }
                         "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES(arr)
@@ -1450,18 +1459,23 @@ open class JSOCKET() {
 
                         }
                         else -> {
-                            if(currentCashData == null){
-                                currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
+                            if (currentCashData == null) {
+                                currentCashData = CASH_DATAS[this.check_sum]
                             }
-                            currentCashData!!.ADD_NEW_CASH_DATA(
-                                arr = arr,
-                                last_update = this.last_date_of_update,
-                                just_do_it_label = this.just_do_it_label,
-                                object_from = this.value_id3,
-                                block_number = this.value_par7,
-                                limit = this.value_par8,
-                                count_of_all_records = this.value_par8)
+                            if (currentCashData != null) {
+                                currentCashData.ADD_NEW_CASH_DATA(
+                                    arr = arr,
+                                    l_last_update = this.last_date_of_update,
+                                    l_just_do_it_label = this.just_do_it_label,
+                                    l_limit = this.value_par8,
+                                    l_count_of_all_records = this.value_par9,
+                                    l_number_of_block = this.value_par7,
+                                    l_object_id_from = this.value_id1,
+                                    l_mess_id_from = this.value_par4
+                                )
+                            }
                         }
+
                     }
                     record_type = answer_type.RECORD_TYPE
                     arr = ArrayDeque()
@@ -1477,7 +1491,7 @@ open class JSOCKET() {
                         )
                     }
                     "J", "K", "L" -> {  // object_info
-                        if(currentCommand!!.commands_access != "C"){
+                        if (currentCommand!!.commands_access != "C") {
                             throw my_user_exceptions_class(
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize_ANSWERS_TYPES",
@@ -1485,7 +1499,7 @@ open class JSOCKET() {
                                 l_additional_text = "answer is object? but command is not object_info."
                             )
                         }
-                        if(object_info != null ){
+                        if (object_info != null) {
                             throw my_user_exceptions_class(
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize_ANSWERS_TYPES",
@@ -1497,7 +1511,7 @@ open class JSOCKET() {
                     }
                 }
 
-                answer_type.INTEGER_20 = answer_type.INTEGER_20 ?: 0
+                answer_type.INTEGER_20 = answer_type.INTEGER_20
                 answer_type.LONG_20 = this.last_date_of_update
 
                 arr.addLast(answer_type)
@@ -1525,17 +1539,21 @@ open class JSOCKET() {
                     "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES(arr)
                     "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES(arr)
                     else -> {
-                        if(currentCashData == null){
-                            currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
+                        if (currentCashData == null) {
+                            currentCashData = CASH_DATAS[this.check_sum]
                         }
-                        currentCashData!!.ADD_NEW_CASH_DATA(
-                            arr = arr,
-                            last_update = this.last_date_of_update,
-                            just_do_it_label = this.just_do_it_label,
-                            object_from = this.value_id3,
-                            block_number = this.value_par7,
-                            limit = this.value_par8,
-                            count_of_all_records = this.value_par8)
+                        if (currentCashData != null) {
+                            currentCashData!!.ADD_NEW_CASH_DATA(
+                                arr = arr,
+                                l_last_update = this.last_date_of_update,
+                                l_just_do_it_label = this.just_do_it_label,
+                                l_limit = this.value_par8,
+                                l_count_of_all_records = this.value_par9,
+                                l_number_of_block = this.value_par7,
+                                l_object_id_from = this.value_id1,
+                                l_mess_id_from = this.value_par4
+                            )
+                        }else null
                     }
                 }
             }
@@ -1552,14 +1570,32 @@ open class JSOCKET() {
                 l_additional_text = n.message
             )
         } finally {
-            if(currentCommand!!.commands_access == "B"){
-                if(currentCashData == null){
-                    currentCashData = KCashData.GET_CASH_DATA(this.check_sum)
-                    currentCashData!!.UPDATE_LAST_SELECT(this.last_date_of_update, this.value_id1, this.value_par1)
+            if (currentCommand!!.commands_access == "B") {
+                if (currentCashData == null) {
+                    currentCashData = CASH_DATAS[this.check_sum]
+                    if(currentCashData != null){
+                        var start_record_id = ""
+                        when (currentCashData.kCashLastUpdate!!.RECORD_TYPE) {
+                            "4", "M" //MESSEGES
+                            -> {
+                                start_record_id = this.value_par4
+                            }
+                            "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
+                            -> {
+                                start_record_id = this.value_par4
+                            }
+                            else
+                            -> {
+                                start_record_id = this.value_id1
+                            }
+                        }
+                        currentCashData.UPDATE_LAST_SELECT(lastSelect = this.last_date_of_update,
+                                                             object_recod_id_from = start_record_id)
+                    }
                 }
             }
-            if(currentCommand!!.commands_access == "C"){
-                if(object_info != null){
+            if (currentCommand!!.commands_access == "C") {
+                if (object_info != null) {
                     OBJECTS_INFO[object_info.RECORD_TABLE_ID]!!.merge(object_info)
                 }
             }
@@ -1595,11 +1631,11 @@ open class JSOCKET() {
             jserver_connection_id = bb!!.readLong()
             connection_id = bb!!.readLong()
 
-            if(connection_id != 0L && myConnectionsID == 0L){
+            if (connection_id != 0L && myConnectionsID == 0L) {
                 is_new_reg_data = true
             }
 
-            if(connection_id != 0L && myConnectionsID == connection_id){
+            if (connection_id != 0L && myConnectionsID == connection_id) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
@@ -1661,7 +1697,7 @@ open class JSOCKET() {
                         l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                     )
                 }
-                if(md5String.isEmpty()){
+                if (md5String.isEmpty()) {
                     md5String = h!!.getNewMD5String(p_original_connection_coocki, just_do_it_label)
                     reverseMD5String = h!!.getReverseMD5String(md5String)
                     md5LongArray = h!!.getNewMD5longArray(md5String)
@@ -1754,7 +1790,7 @@ open class JSOCKET() {
         } finally {
             try {
                 bbCONTENT_SIZE?.close()
-                if(!connection_context.equals(myConnectionContext)){
+                if (!connection_context.equals(myConnectionContext)) {
                     is_new_reg_data = true
                 }
             } catch (e: Exception) {

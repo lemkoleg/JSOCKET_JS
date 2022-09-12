@@ -342,6 +342,7 @@ class KCashData(lCASH_SUM: String) {
                         socket.value_par4 = kCashData.OTHER_CONDITIONS_1  // mess count ofsset
                         socket.value_par5 = kCashData.OTHER_CONDITIONS_2
                         socket.value_par6 = kCashData.OTHER_CONDITIONS_3
+                        socket.check_sum = kCashData.CASH_SUM
                         var l: ANSWER_TYPE? = null
                         if(currentViewCashData.isEmpty()){
                             l = if (kCashLastUpdate!!.COURSE == "1") {
