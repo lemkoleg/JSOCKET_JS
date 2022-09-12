@@ -1,6 +1,5 @@
 package Tables
 
-import CrossPlatforms.MyCondition
 import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
@@ -22,11 +21,6 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 @InternalAPI
 val META_DATA: MutableMap<String, Long> = mutableMapOf()
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-val META_DATA_condition = MyCondition()
 
 
 @InternalAPI
@@ -124,8 +118,8 @@ class KMetaData {
                         l_additional_text = ex.message
                     )
                 } finally {
+                    Constants.initialise()
                     KMetaDataLock.unlock()
-                    META_DATA_condition.cSignal()
                 }
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
@@ -173,6 +167,7 @@ class KMetaData {
                             if (!arr.isEmpty()) {
                                 Sqlite_service.InsertMetaData(met)
                             }
+                            Constants.initialise()
                             KMetaDataLock.unlock()
                         }
                     } catch (e: my_user_exceptions_class) {

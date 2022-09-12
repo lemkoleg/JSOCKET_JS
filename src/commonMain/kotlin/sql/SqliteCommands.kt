@@ -538,91 +538,165 @@ WHERE rowid = new.rowid;
 END; 
 """
 
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinks 
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert 
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links; 
-AND 
-(SELECT count(*) 
- FROM CashLastUpdate 
- WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')) > 
-(SELECT  VALUE_VALUE 
- FROM MetaData 
- WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS') 
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
 BEGIN 
 
-DELETE FROM CashLastUpdate 
-WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
-AND CASH_SUM NOT IN 
-(SELECT CASH_SUM 
- FROM CashLastUpdate t 
- WHERE t.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
- ORDER BY t.LAST_USE DESC 
- LIMIT (SELECT  VALUE_VALUE 
-        FROM MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS')); 
+  DELETE FROM CashLastUpdate 
+  WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+  AND CASH_SUM IN 
+   (SELECT CASH_SUM 
+    FROM CashLastUpdate t 
+    WHERE t.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+    ORDER BY t.LAST_USE DESC 
+    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                       FROM MetaData 
+                       WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS')); 
 
-END;
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+        SELECT RECORD_TABLE_ID 
+        FROM CashData 
+        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                           FROM MetaData 
+                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS') 
+  ); 
+
+END; 
 """
 
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjects 
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_UPDATE = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksUpdate 
+AFTER UPDATE
+ON CashLastUpdate 
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+BEGIN 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+        SELECT RECORD_TABLE_ID 
+        FROM CashData 
+        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                           FROM MetaData 
+                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS') 
+  ); 
+
+END; 
+"""
+
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInsert 
 AFTER INSERT 
 ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)  
-AND new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info; 
-AND 
-(SELECT count(*) 
- FROM CashLastUpdate
- WHERE RECORDS_TYPE IN ('J', 'K', 'L')) > 
-(SELECT  VALUE_VALUE 
- FROM MetaData 
- WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO') 
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+AND new.RECORDS_TYPE IN ('J', 'K', 'L')  
 BEGIN 
 
-DELETE FROM CashLastUpdate 
-WHERE RECORDS_TYPE IN ('J', 'K', 'L') 
-AND CASH_SUM NOT IN 
-(SELECT CASH_SUM 
- FROM CashLastUpdate t 
- WHERE t.RECORDS_TYPE IN ('J', 'K', 'L') 
- ORDER BY t.LAST_USE DESC 
- LIMIT (SELECT  VALUE_VALUE 
-        FROM MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')); 
+  DELETE FROM CashLastUpdate 
+  WHERE RECORDS_TYPE IN ('J', 'K', 'L') 
+  AND CASH_SUM IN 
+     (SELECT CASH_SUM 
+      FROM CashLastUpdate t 
+      WHERE t.RECORDS_TYPE IN ('J', 'K', 'L') 
+      ORDER BY t.LAST_USE DESC 
+      LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                         FROM MetaData 
+                         WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')); 
 
-END;
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+          SELECT RECORD_TABLE_ID 
+          FROM CashData 
+          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO')); 
+
+END; 
 """
 
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextLists
-AFTER INSERT
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)  
-AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
-AND
-(SELECT count(*)
- FROM CashLastUpdate
- WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')) >
-(SELECT  VALUE_VALUE
- FROM MetaData
- WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS')
-BEGIN
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_UPDATE = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsUpdate 
+AFTER UPDATE 
+ON CashLastUpdate 
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+AND new.RECORDS_TYPE IN ('J', 'K', 'L')  
+BEGIN 
 
-DELETE FROM CashLastUpdate
-WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
-AND CASH_SUM NOT IN
-(SELECT CASH_SUM
- FROM CashLastUpdate t
- WHERE t.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
- ORDER BY t.LAST_USE DESC
- LIMIT (SELECT  VALUE_VALUE
-        FROM MetaData
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'));
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+          SELECT RECORD_TABLE_ID 
+          FROM CashData 
+          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO')); 
 
-END;
+END; 
+"""
+
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsInsert 
+AFTER INSERT 
+ON CashLastUpdate 
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  
+BEGIN 
+
+  DELETE FROM CashLastUpdate 
+  WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G') 
+  AND CASH_SUM IN 
+   (SELECT CASH_SUM 
+    FROM CashLastUpdate t 
+    WHERE t.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G') 
+    ORDER BY t.LAST_USE DESC 
+    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                      FROM MetaData 
+                      WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS')); 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+          SELECT RECORD_TABLE_ID 
+          FROM CashData 
+          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS')); 
+
+END; 
+"""
+
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_UPDATE = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsUpdate 
+AFTER UPDATE 
+ON CashLastUpdate 
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  
+BEGIN 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
+          SELECT RECORD_TABLE_ID 
+          FROM CashData 
+          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS')); 
+
+END; 
 """
 
 const val INSERT_CASHLASTUPDATE = """

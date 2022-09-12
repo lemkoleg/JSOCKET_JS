@@ -1388,7 +1388,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     }
 
     @JsName("getIS_DELETE_RECORD")
-    fun getIS_DELETE_RECORD(): String {
+    fun getIS_DELETE_RECORD(): Boolean {
         if (answerType.STRING_20.length < 7) {
             throw my_user_exceptions_class(
                 l_class_name = "AnswerTypeValues",
@@ -1397,7 +1397,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 l_additional_text = "Insufficient length of STRING_20"
             )
         }
-        return answerType.STRING_20.substring(6, 7)
+        return answerType.STRING_20.substring(6, 7) == "1"
     }
 
     fun setOBJECT_ID_LAST_SELECT() {
@@ -2288,7 +2288,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("getLONG_20")
     private fun getLONG_20(): Long {
-        return answerType.LONG_20 ?: 0
+        return answerType.LONG_20
     }
 
     @JsName("setLONG_20")

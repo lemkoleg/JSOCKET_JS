@@ -644,8 +644,10 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     if (Constants.IS_DOWNLOAD_TO_MEMORY_ALL_CASH_ON_CLIENT == 1) {
                         lockCASHDATA.lock()
-                        val arr: ArrayList<ANSWER_TYPE> = statCASHDATA.SELECT_CASHDATA_ALL()
+                        val arr: ArrayDeque<ANSWER_TYPE> = statCASHDATA.SELECT_CASHDATA_ALL()
                         KCashData.LOAD_CASH_DATA(arr)
+                    }else{
+                        KCashData.LOAD_CASH_DATA(ArrayDeque<ANSWER_TYPE>())
                     }
                 }
             } catch (ex: Exception) {
@@ -670,7 +672,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
-                    statCASHDATA.UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM)
+                    //statCASHDATA.UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM)
                     statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM)
                 }
             } catch (ex: Exception) {
