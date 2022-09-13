@@ -592,9 +592,15 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
+                    var current_cas_sum = ""
                     arr.forEach {
+                        if(current_cas_sum.isNotEmpty() && current_cas_sum != it.CASH_SUM){
+                            statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
+                        }
+                        current_cas_sum = it.CASH_SUM
                         statCASHDATA.INSERT_CASHDATA(it)
                     }
+                    statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
                 }
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
@@ -666,8 +672,9 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
+
     @JsName("OrederCashData")
-    fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launch {
+    private fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {

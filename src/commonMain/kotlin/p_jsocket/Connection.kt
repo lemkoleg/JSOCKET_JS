@@ -410,7 +410,7 @@ object Connection : CoroutineScope {
 
     @InternalAPI
     public suspend fun removeRequest(just_do_it_label: Long) {
-        BetweenJSOCKETs.lockedRemove(just_do_it_label)
+        BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition!!.cSignal()
     }
 
     suspend fun removeOldAll() {

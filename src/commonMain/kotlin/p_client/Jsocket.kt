@@ -180,7 +180,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
         this.serialize(verify_fields).let { Connection.sendData(it, this) }
-        if (!command.isDont_answer && command.commands_access != "B") {
+        if (!command.isDont_answer) {
             if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
                 throw my_user_exceptions_class(
                     l_class_name = "Jsocket",

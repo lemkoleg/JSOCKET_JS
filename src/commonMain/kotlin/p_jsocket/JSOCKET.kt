@@ -1314,7 +1314,7 @@ open class JSOCKET() {
                     if (empty_answer_types.isEmpty()) {
                         empty_answer_types = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
                         if (empty_answer_types.isEmpty()) {
-                            var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
+                            val ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
                             empty_answer_types.addLast(ans)
                         }
                     }
@@ -1553,7 +1553,7 @@ open class JSOCKET() {
                                 l_object_id_from = this.value_id1,
                                 l_mess_id_from = this.value_par4
                             )
-                        }else null
+                        } else null
                     }
                 }
             }
@@ -1573,25 +1573,27 @@ open class JSOCKET() {
             if (currentCommand!!.commands_access == "B") {
                 if (currentCashData == null) {
                     currentCashData = CASH_DATAS[this.check_sum]
-                    if(currentCashData != null){
-                        var start_record_id = ""
-                        when (currentCashData.kCashLastUpdate!!.RECORD_TYPE) {
-                            "4", "M" //MESSEGES
-                            -> {
-                                start_record_id = this.value_par4
-                            }
-                            "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
-                            -> {
-                                start_record_id = this.value_par4
-                            }
-                            else
-                            -> {
-                                start_record_id = this.value_id1
-                            }
+                }
+                if (currentCashData != null) {
+                    var start_record_id = ""
+                    when (currentCashData.kCashLastUpdate!!.RECORD_TYPE) {
+                        "4", "M" //MESSEGES
+                        -> {
+                            start_record_id = this.value_par4
                         }
-                        currentCashData.UPDATE_LAST_SELECT(lastSelect = this.last_date_of_update,
-                                                             object_recod_id_from = start_record_id)
+                        "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
+                        -> {
+                            start_record_id = this.value_par4
+                        }
+                        else
+                        -> {
+                            start_record_id = this.value_id1
+                        }
                     }
+                    currentCashData.UPDATE_LAST_SELECT(
+                        lastSelect = this.last_date_of_update,
+                        object_recod_id_from = start_record_id
+                    )
                 }
             }
             if (currentCommand!!.commands_access == "C") {
