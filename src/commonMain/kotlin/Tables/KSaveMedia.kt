@@ -211,7 +211,12 @@ class KSaveMedia {
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                } ?: false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KSaveMedia",
+                    l_function_name = "AddNewSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
 
 
@@ -277,7 +282,12 @@ class KSaveMedia {
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                } ?: false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KSaveMedia",
+                    l_function_name = "DeleteSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
 
         fun ClearSaveMedia(): Promise<Boolean> =
@@ -308,7 +318,12 @@ class KSaveMedia {
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                } ?: false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KSaveMedia",
+                    l_function_name = "ClearSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("RE_LOAD_SAVE_MEDIA")

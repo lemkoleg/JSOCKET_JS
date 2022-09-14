@@ -209,7 +209,12 @@ class KCommands {
                     e.ExceptionHand(null)
                 }
                 return@withTimeoutOrNull false
-            } ?: false
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KCommands",
+                l_function_name = "ADD_NEW_COMMANDS",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }.toPromise(EmptyCoroutineContext)
 
         @JsName("LOAD_COMMANDS")

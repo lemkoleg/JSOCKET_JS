@@ -132,7 +132,12 @@ class KCashLastUpdate(
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-            }
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KCasLastUpdate",
+                l_function_name = "LOAD_CASH_LAST_UPDATE",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }
 
         @JsName("RE_LOAD_CASH_LAST_UPDATE")

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -523,7 +524,7 @@ class ANSWER_TYPE {
 
     @JsName("OBJECT_ID_LAST_SELECT")
     var OBJECT_ID_LAST_SELECT = ""
-    
+
 
     @JsName("merge")
     fun merge(v: ANSWER_TYPE) {
@@ -821,12 +822,12 @@ class ANSWER_TYPE {
             this.STRING_17 = v.answerTypeValues.GetAvatarServer()
             this.STRING_18 = v.answerTypeValues.GetAvatarLink()
             this.INTEGER_17 = v.answerTypeValues.GetAvatarOriginalSize()
-            
+
         }
 
         if (answerTypeValues.getIS_UPDATE_SUBSCRIBE() == "1") {
             this.STRING_14 = v.STRING_14
-            
+
         }
     }
 
@@ -944,19 +945,26 @@ class ANSWER_TYPE {
         fun fillPOOL() {
             if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
                 CoroutineScope(NonCancellable).launch {
-                    CLIENT_ANSWER_TYPE_POOL_Lock.withLock {
-                        try {
-                            fillPOOL_IS_RUNNING.value = true
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("ANSEWR_TYPE's fill pool is run...")
+                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                        CLIENT_ANSWER_TYPE_POOL_Lock.withLock {
+                            try {
+                                fillPOOL_IS_RUNNING.value = true
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    println("ANSEWR_TYPE's fill pool is run...")
+                                }
+                                while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
+                                    CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())
+                                }
+                            } finally {
+                                fillPOOL_IS_RUNNING.value = false
                             }
-                            while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
-                                CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())
-                            }
-                        } finally {
-                            fillPOOL_IS_RUNNING.value = false
                         }
-                    }
+                    }?: throw my_user_exceptions_class(
+                        l_class_name = "ANSWER_TYPE",
+                        l_function_name = "fillPOOL",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Time out is up"
+                    )
                 }
             }
         }
@@ -981,7 +989,12 @@ class ANSWER_TYPE {
                                 fillPOOLS_IS_RUNNING.value = false
                             }
                         }
-                    }
+                    } ?: throw my_user_exceptions_class(
+                        l_class_name = "ANSWER_TYPE",
+                        l_function_name = "fillPOOLS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Time out is up"
+                    )
                 }
             }
         }

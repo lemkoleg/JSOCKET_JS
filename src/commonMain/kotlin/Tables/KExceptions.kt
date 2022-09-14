@@ -331,7 +331,12 @@ class KExceptions {
                     e.ExceptionHand(null)
                 }
                 return@withTimeoutOrNull false
-            } ?: false
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KExceptions",
+                l_function_name = "ADD_NEW_EXCEPTIONS",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }.toPromise(EmptyCoroutineContext)
 
 

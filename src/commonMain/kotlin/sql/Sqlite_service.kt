@@ -54,7 +54,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.lock()
                     kBigAvatars.forEach { statBIG_AVATARS.INSERT_BIG_AVATAR(it) }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertBigAvatars",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -82,7 +87,12 @@ object Sqlite_service : CoroutineScope {
                         statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
                     }
                     return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "SelectBigAvatar",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -109,7 +119,12 @@ object Sqlite_service : CoroutineScope {
                     lockBIG_AVATARS.lock()
                     val arr: ArrayList<String> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL_ID()
                     KBigAvatar.LOAD_BIG_AVATARS_IDS(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadBigAvatarsIds",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -134,7 +149,12 @@ object Sqlite_service : CoroutineScope {
                     lockBIG_AVATARS.lock()
                     val arr: ArrayList<KBigAvatar> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL()
                     KBigAvatar.LOAD_BIG_AVATARS(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadBigAvatars",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -158,7 +178,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.lock()
                     statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "UpdateBigAvatarsLastUse",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -182,7 +207,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.lock()
                     statBIG_AVATARS.DELETE_BIG_AVATAR(OBJECTS_ID)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "DeleteBigAvatars",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -206,7 +236,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.lock()
                     statBIG_AVATARS.CLEAR_BIG_AVATARS()
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "ClearBigAvatars",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -235,7 +270,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCOMMANDS.lock()
                     arr.forEach { statCOMMANDS.INSERT_COMMAND(it) }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertCommands",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -260,7 +300,12 @@ object Sqlite_service : CoroutineScope {
                     lockCOMMANDS.lock()
                     val arr: ArrayList<KCommands> = statCOMMANDS.SELECT_COMMANDS_ALL()
                     KCommands.LOAD_COMMANDS(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCommands",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -292,7 +337,12 @@ object Sqlite_service : CoroutineScope {
                     ans.forEach {
                         statEXCEPTIONS.INSERT_EXCEPTION(it)
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertExceptions",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -317,7 +367,12 @@ object Sqlite_service : CoroutineScope {
                     lockEXCEPTIONS.lock()
                     val arr: ArrayList<KExceptions.KException> = statEXCEPTIONS.SELECT_EXCEPTION_ALL()
                     KExceptions.LOAD_EXCEPTIONS(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadExceptions",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -349,7 +404,12 @@ object Sqlite_service : CoroutineScope {
                     ans.forEach {
                         statMETA_DATA.INSERT_METADATA(it)
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertMetaData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -374,7 +434,12 @@ object Sqlite_service : CoroutineScope {
                     lockMETA_DATA.lock()
                     val arr: ArrayList<KMetaData> = statMETA_DATA.SELECT_ALL_METADATA()
                     KMetaData.LOAD_META_DATA(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadMetaData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -404,7 +469,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.lock()
                     statREG_DATA.INSERT_REGDATA()
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertRegData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -428,7 +498,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.lock()
                     statREG_DATA.SELECT_REGDATA_ALL()
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadRegData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -460,7 +535,12 @@ object Sqlite_service : CoroutineScope {
                     ans.forEach {
                         statSAVE_MEDIA.INSERT_SAVEMEDIA(it)
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -485,7 +565,12 @@ object Sqlite_service : CoroutineScope {
                     lockSAVE_MEDIA.lock()
                     val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL(myConnectionsID)
                     KSaveMedia.LOAD_SAVE_MEDIA(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -511,7 +596,12 @@ object Sqlite_service : CoroutineScope {
                     ans.forEach {
                         statSAVE_MEDIA.DELETE_SAVEMEDIA(it.OBJECT_ID)
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "DeleteSaveMedia",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -539,7 +629,12 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(cash)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertCashLastUpdate",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -564,7 +659,12 @@ object Sqlite_service : CoroutineScope {
                     lockCASHLASTUPDATE.lock()
                     val arr: ArrayList<KCashLastUpdate> = statCASHLASTUPDATE.SELECT_CASHLASTUPDATE_ALL()
                     KCashLastUpdate.LOAD_CASH_LAST_UPDATE(arr)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCashLastUpdate",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -601,7 +701,12 @@ object Sqlite_service : CoroutineScope {
                         statCASHDATA.INSERT_CASHDATA(it)
                     }
                     statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "InsertCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -625,7 +730,12 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHDATA.lock()
                     return@withTimeoutOrNull statCASHDATA.SELECT_CASHDATA_ALL_ON_CASH_SUM(cash)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "SelectCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -655,7 +765,12 @@ object Sqlite_service : CoroutineScope {
                     }else{
                         KCashData.LOAD_CASH_DATA(ArrayDeque<ANSWER_TYPE>())
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -681,7 +796,12 @@ object Sqlite_service : CoroutineScope {
                     lockCASHDATA.lock()
                     //statCASHDATA.UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM)
                     statCASHDATA.CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM)
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "OrederCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

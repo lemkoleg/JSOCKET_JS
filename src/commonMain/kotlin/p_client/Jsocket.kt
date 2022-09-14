@@ -251,7 +251,12 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                         } catch (e: my_user_exceptions_class) {
                             e.ExceptionHand(null)
                         }
-                    }
+                    }?:throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "fill",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Time out is up"
+                    )
                 }
             }
 
@@ -281,7 +286,12 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                }
+                }?:throw my_user_exceptions_class(
+                    l_class_name = "Jsocket",
+                    l_function_name = "setLang",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }
         }
     }

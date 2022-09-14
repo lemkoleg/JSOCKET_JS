@@ -359,7 +359,12 @@ object Connection : CoroutineScope {
                                                 } finally {
                                                     l.unlock()
                                                 }
-                                            }
+                                            }?: throw my_user_exceptions_class(
+                                                l_class_name = "Connection",
+                                                l_function_name = "decode",
+                                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                                l_additional_text = "Time out is up"
+                                            )
                                         } else {
                                             jsocket!!.merge(jsocketRet)
                                         }
@@ -410,7 +415,7 @@ object Connection : CoroutineScope {
 
     @InternalAPI
     public suspend fun removeRequest(just_do_it_label: Long) {
-        BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition!!.cSignal()
+        BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition?.cSignal()
     }
 
     suspend fun removeOldAll() {

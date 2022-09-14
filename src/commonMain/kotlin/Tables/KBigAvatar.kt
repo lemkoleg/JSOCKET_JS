@@ -218,7 +218,12 @@ class KBigAvatar {
                         e.ExceptionHand(null)
                     }
                     return@withTimeoutOrNull false
-                } ?: false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KBigAvatar",
+                    l_function_name = "ADD_NEW_BIG_AVATAR",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
@@ -269,7 +274,12 @@ class KBigAvatar {
                     ADD_NEW_BIG_AVATAR(bigAvatar)
                     return@withTimeoutOrNull bigAvatar
                 }else return@withTimeoutOrNull null
-            }
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "RETURN_PROMISE_SELECT_BIG_AVATAR",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }.toPromise()
 
 
@@ -297,7 +307,12 @@ class KBigAvatar {
                     e.ExceptionHand(null)
                     return@withTimeoutOrNull false
                 }
-            } ?: false
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "IS_HAVE_LOCAL_AVATAR_AND_RESERVE",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }
 
 
@@ -375,7 +390,12 @@ class KBigAvatar {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                }
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KBigAvatar",
+                    l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }
         }
 

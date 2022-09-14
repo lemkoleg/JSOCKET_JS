@@ -179,7 +179,12 @@ class KRegData {
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-            }
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KRegData",
+                l_function_name = "setNEW_REG_DATA",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }
 
         @JsName("ADD_NEW_REG_DATA")
@@ -266,7 +271,12 @@ class KRegData {
                         e.ExceptionHand(null)
                     }
                     return@withTimeoutOrNull false
-                }?:false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KRegData",
+                    l_function_name = "ADD_NEW_REG_DATA",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
     }
 }

@@ -174,7 +174,12 @@ class KMetaData {
                         e.ExceptionHand(null)
                     }
                     return@withTimeoutOrNull false
-                } ?: false
+                }?: throw my_user_exceptions_class(
+                    l_class_name = "KMetaData",
+                    l_function_name = "ADD_NEW_META_DATA",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("RE_LOAD_META_DATA")

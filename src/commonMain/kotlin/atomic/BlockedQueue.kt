@@ -9,13 +9,10 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import kotlin.time.ExperimentalTime
-
-
 
 
 //val <T> Deque<T>.InstanceRef: AtomicReference<Deque<T>>
@@ -102,7 +99,12 @@ suspend fun <T> ArrayDeque<T>.lockedDequeue(timOut: Long): T? {
             t = removeFirst()
             return@withTimeoutOrNull t
         }
-    }
+    }?:throw my_user_exceptions_class(
+        l_class_name = "ArrayDeque",
+        l_function_name = "lockedDequeue",
+        name_of_exception = "EXC_SYSTEM_ERROR",
+        l_additional_text = "Time out is up"
+    )
 }
 
 
@@ -130,7 +132,7 @@ fun <T> ArrayDeque<T>.enqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, w
 suspend fun <T> ArrayDeque<T>.lockedEnqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
     try {
         val q: ArrayDeque<T> = this
-        withTimeout(Constants.CLIENT_TIMEOUT) {
+        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             lockIn.withLock {
                 if (q.size > size) {
                     condition.cSignal()
@@ -145,7 +147,12 @@ suspend fun <T> ArrayDeque<T>.lockedEnqueue(v: T, size: Int = Constants.STANDART
                     condition.cSignal()
                 }
             }
-        }
+        }?:throw my_user_exceptions_class(
+            l_class_name = "ArrayDeque",
+            l_function_name = "lockedEnqueue",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up"
+        )
     } catch (e: my_user_exceptions_class) {
         throw e
     } catch (e: Exception) {
