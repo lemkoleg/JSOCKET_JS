@@ -423,13 +423,24 @@ class KCashData(lCASH_SUM: String) {
 
             val l: ANSWER_TYPE?
             if (currentViewCashDataRecordId.isNotEmpty()) {
-                l = currentViewCashData.getOrNull(currentViewCashDataRecordItem.minus(1))?:
-                throw my_user_exceptions_class(
-                    l_class_name = "KCashData",
-                    l_function_name = "SetLastBlock",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "currentViewCashData is null with item: ${currentViewCashDataRecordItem.minus(1)}"
-                )
+                if (kCashLastUpdate!!.COURSE == "1") {
+                    l = currentViewCashData.getOrNull(currentViewCashData.size.minus(currentViewCashData.size.minus(currentViewCashDataRecordItem)).minus(1))?:
+                            throw my_user_exceptions_class(
+                                l_class_name = "KCashData",
+                                l_function_name = "SetLastBlock",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "currentViewCashData is null with item: ${currentViewCashDataRecordItem.minus(1)}"
+                            )
+                }else{
+                    l = currentViewCashData.getOrNull(currentViewCashDataRecordItem.minus(1))?:
+                            throw my_user_exceptions_class(
+                                l_class_name = "KCashData",
+                                l_function_name = "SetLastBlock",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "currentViewCashData is null with item: ${currentViewCashDataRecordItem.minus(1)}"
+                            )
+                }
+
                 if (l.RECORD_TABLE_ID != currentViewCashDataRecordId) {
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
@@ -457,9 +468,14 @@ class KCashData(lCASH_SUM: String) {
             }
             if(limit == offset) return
 
-            currentViewCashData.addAll(currentViewCashData.subList(0, currentViewCashDataRecordItem))
+            val cash = ORDERED_CASH_DATA.subList(offset, limit)
+
+            if(cash.isEmpty()) return
 
             if (kCashLastUpdate!!.COURSE == "1") {
+                val v = currentViewCashData.subList(currentViewCashData.size.minus(currentViewCashDataRecordItem).minus(1),currentViewCashData.size)
+                currentViewCashData.clear()
+                currentViewCashData.addAll(v)
                 if (currentViewCashData.first().RECORD_TABLE_ID != currentViewCashDataRecordId) {
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
@@ -469,11 +485,14 @@ class KCashData(lCASH_SUM: String) {
                     )
                 }
                 val r = ArrayDeque<ANSWER_TYPE>()
-                r.addAll(ORDERED_CASH_DATA.subList(offset, limit))
+                r.addAll(cash.asReversed())
                 r.addAll(currentViewCashData)
                 currentViewCashData.clear()
                 currentViewCashData.addAll(r)
-            } else {
+            }else{
+                val v = currentViewCashData.subList(0, currentViewCashDataRecordItem)
+                currentViewCashData.clear()
+                currentViewCashData.addAll(v)
                 if (currentViewCashData.last().RECORD_TABLE_ID != currentViewCashDataRecordId) {
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
@@ -482,8 +501,9 @@ class KCashData(lCASH_SUM: String) {
                         l_additional_text = "currentViewCashData.last().RECORD_TABLE_ID: ${currentViewCashData.last().RECORD_TABLE_ID} is not equal currentViewCashDataRecordId: $currentViewCashDataRecordId"
                     )
                 }
-                currentViewCashData.addAll(ORDERED_CASH_DATA.subList(offset, limit))
+                currentViewCashData.addAll(cash)
             }
+
         } finally {
             updatedCashData(null)
         }

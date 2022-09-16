@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS ChatsLikes
  RELATIONS TEXT NOT NULL,                   --STRING_5
  CHATS_LIKES_PROFILE TEXT NOT NULL,         --STRING_7
  ADDING_DATE INTEGER NOT NULL,              --LONG_4
- IS_ONLINE TEXT NOT NULL,                   --STRING_6
  FIRST_MESS_COUNT INTEGER NOT NULL,         --LONG_8
  LAST_MESS_COUNT  INTEGER NOT NULL,         --LONG_9
  LAST_DATE_DELIVERED INTEGER NOT NULL,      --LONG_10
@@ -51,7 +50,6 @@ INSERT OR REPLACE INTO ChatsLikes
    RELATIONS,
    CHATS_LIKES_PROFILE,
    ADDING_DATE,
-   IS_ONLINE,
    FIRST_MESS_COUNT,
    LAST_MESS_COUNT,
    LAST_DATE_DELIVERED,
@@ -67,7 +65,7 @@ INSERT OR REPLACE INTO ChatsLikes
    AVATAR,
    STRING_20)
 VALUES
-(?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ? );
+(?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ? );
 
 select_ChatsLikes_All:
 SELECT * FROM ChatsLikes
