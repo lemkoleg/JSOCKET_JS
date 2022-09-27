@@ -194,10 +194,6 @@ const val INDEX_CASHDATA_NUMBER_POSITION_ASC = """
 CREATE INDEX CashData_NumberPositionAsc ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
 """
 
-const val INDEX_CASHDATA_NUMBER_POSITION_DESC = """
-CREATE INDEX CashData_NumberPositionDesc ON CashData(CASH_SUM, INTEGER_20 DESC, INTEGER_20_LEVEL DESC, RECORD_TABLE_ID);
-"""
-
 const val TRIGGER_CASHDATA_AFTER_INSERT = """
  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
   AFTER INSERT ON CashData 
@@ -365,12 +361,6 @@ WHERE CASH_SUM = ?
 ORDER BY CASH_SUM, INTEGER_20 ASC;
 """
 
-const val SELECT_CASHDATA_ALL_CASH_SUMS = """
-SELECT  CASH_SUM 
-FROM CashData 
-GROUP BY CASH_SUM;
-"""
-
 const val SELECT_CASHDATA = """
 SELECT  * 
 FROM CashData 
@@ -480,158 +470,134 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
-  WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
-  AND CASH_SUM IN 
-   (SELECT CASH_SUM 
-    FROM CashLastUpdate t 
-    WHERE t.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
-    ORDER BY t.LAST_USE DESC 
-    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                       FROM MetaData 
-                       WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS')); 
+  WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
+                     FROM CashLastUpdate t1 
+                     WHERE CASE 
+                             WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')    
+                               THEN 
+                                  CASE 
+                                    WHEN t1.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                      THEN 1 
+                                    ELSE 0 
+                                  END 
+                             WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info; 
+                                THEN 
+                                   CASE 
+                                      WHEN t1.RECORDS_TYPE IN ('J', 'K', 'L') 
+                                         THEN 1 
+                                      ELSE 0 
+                                  END 
+
+                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')  
+                                   THEN 
+                                      CASE 
+                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                            THEN 1 
+                                          ELSE 0 
+                                    END 
+
+                             ELSE 0 
+                           END 
+                     ORDER BY t1.LAST_USE DESC 
+                     LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
+                                         FROM MetaData 
+                                         WHERE VALUE_NAME = CASE 
+                                                              WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
+                                                               WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO' 
+                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
+                                                              ELSE 
+                                                                 '' 
+                                                            END)); 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
+
 
   DELETE FROM CashData 
   WHERE CASH_SUM = new.CASH_SUM 
   AND   RECORD_TABLE_ID IN ( 
-        SELECT RECORD_TABLE_ID 
-        FROM CashData 
-        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                           FROM MetaData 
-                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS') 
+        SELECT t3.RECORD_TABLE_ID 
+        FROM CashData AS t3 
+        WHERE t3.CASH_SUM = new.CASH_SUM 
+        ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC 
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
+                            FROM MetaData 
+                            WHERE VALUE_NAME = CASE 
+                                                  WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS' 
+                                                  WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')   
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO' 
+                                                  WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS' 
+                                                  ELSE 
+                                                    '' 
+                                               END) 
   ); 
 
 END; 
 """
 
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_UPDATE = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksUpdate 
-AFTER UPDATE
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountChatsInsert 
+AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+AND new.RECORDS_TYPE = '3' 
 BEGIN 
 
   DELETE FROM CashData 
   WHERE CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-        SELECT RECORD_TABLE_ID 
-        FROM CashData 
-        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                           FROM MetaData 
-                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS') 
+  AND RECORD_TABLE_ID IN ( 
+        SELECT t.RECORD_TABLE_ID 
+        FROM CashData AS t 
+        WHERE t.CASH_SUM = new.CASH_SUM 
+        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
+                            FROM MetaData 
+                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS') 
+
   ); 
 
+  DELETE FROM CashLastUpdate 
+  WHERE  RECORDS_TYPE = '4' 
+  AND CASH_SUM NOT IN ( 
+          SELECT t1.RECORD_TABLE_ID||'4' 
+          FROM CashData AS t1 
+          WHERE t1.CASH_SUM = new.CASH_SUM); 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
+
 END; 
 """
 
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INSERT = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInsert 
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountMessInsert 
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('J', 'K', 'L')  
-BEGIN 
-
-  DELETE FROM CashLastUpdate 
-  WHERE RECORDS_TYPE IN ('J', 'K', 'L') 
-  AND CASH_SUM IN 
-     (SELECT CASH_SUM 
-      FROM CashLastUpdate t 
-      WHERE t.RECORDS_TYPE IN ('J', 'K', 'L') 
-      ORDER BY t.LAST_USE DESC 
-      LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                         FROM MetaData 
-                         WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')); 
-
-  DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-          SELECT RECORD_TABLE_ID 
-          FROM CashData 
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                             FROM MetaData 
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO')); 
-
-END; 
-"""
-
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_UPDATE = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsUpdate 
-AFTER UPDATE 
-ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('J', 'K', 'L')  
+AND new.RECORDS_TYPE = '4' 
 BEGIN 
 
   DELETE FROM CashData 
   WHERE CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-          SELECT RECORD_TABLE_ID 
-          FROM CashData 
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                             FROM MetaData 
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO')); 
+  AND RECORD_TABLE_ID IN ( 
+        SELECT t.RECORD_TABLE_ID 
+        FROM CashData AS t 
+        WHERE t.CASH_SUM = new.CASH_SUM 
+        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
+                            FROM MetaData 
+                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES') 
 
-END; 
-"""
-
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_INSERT = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsInsert 
-AFTER INSERT 
-ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  
-BEGIN 
-
-  DELETE FROM CashLastUpdate 
-  WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G') 
-  AND CASH_SUM IN 
-   (SELECT CASH_SUM 
-    FROM CashLastUpdate t 
-    WHERE t.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G') 
-    ORDER BY t.LAST_USE DESC 
-    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                      FROM MetaData 
-                      WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS')); 
-
-  DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-          SELECT RECORD_TABLE_ID 
-          FROM CashData 
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                             FROM MetaData 
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS')); 
-
-END; 
-"""
-
-const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_UPDATE = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsUpdate 
-AFTER UPDATE 
-ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  
-BEGIN 
-
-  DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-          SELECT RECORD_TABLE_ID 
-          FROM CashData 
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE 
-                             FROM MetaData 
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS')); 
+  ); 
 
 END; 
 """
@@ -649,255 +615,6 @@ SELECT * FROM CashLastUpdate;
 
 const val CLEAR_LASTUPDATE = """
 DELETE FROM CashLastUpdate;
-"""
-
-/////////////chats///////////////////////////
-
-const val  TABLE_CHATS  = """
-CREATE TABLE IF NOT EXISTS Chats 
-(CHATS_ID TEXT PRIMARY KEY, 
- MESSEGES_COUNT TEXT DEFAULT "0" NOT NULL, 
- COUNT_OF_MEMBERS INTEGER DEFAULT "0" NOT NULL,
- CHATS_OWNER TEXT NOT NULL, 
- CHATS_TWINS TEXT NOT NULL, 
- CHATS_NAME TEXT, 
- AVATAR_ID TEXT, 
- CHATS_PROFILE TEXT NOT NULL, 
- CHATS_TYPE TEXT NOT NULL, 
- CHATS_ACCESS TEXT NOT NULL, 
- CHATS_STATUS TEXT NOT NULL, 
- ADDING_DATE TEXT NOT NULL, 
- BALANCE INTEGER NOT NULL, 
- LAST_MESSEGES_ADDING TEXT NOT NULL, 
- DATE_CLOSED TEXT NOT NULL, 
- CHATS_SUBSCRIBE TEXT, 
- LAST_UPDATE TEXT NOT NULL, 
- ORIGINAL_AVATAR_SIZE TEXT, 
- AVATAR_SERVER TEXT, 
- AVATAR_LINK TEXT, 
- AVATAR BLOB, 
- CONNECTION_ID TEXT NOT NULL, 
- STRING_20 TEXT NOT NULL, 
-CHECK (length(CHATS_ID) = 18 
-AND length(CHATS_OWNER) = 18 
-AND length(CHATS_PROFILE) = 5 
-));
-"""
-
-const val INDEX_CHATS_LAST_MESS_ADDING = """
-CREATE INDEX IChatsLastMessAdding ON Chats(LAST_MESSEGES_ADDING DESC);
-"""
-
-const val  INDEX_CHATS_CONNECTIONID = """
-CREATE INDEX IChatsConnectionId ON Chats(CONNECTION_ID);
-"""
-
-const val  INDEX_CHATS_AVATARID = """
-CREATE INDEX IChatsAvatarId ON Chats(AVATAR_ID);
-"""
-
-const val TRIGGER_CHATS_DELETE = """
-CREATE TRIGGER TChats_DELETE 
-AFTER DELETE ON Chats 
-FOR EACH ROW 
-BEGIN 
-DELETE FROM Messeges  WHERE CHATS_ID = old.CHATS_ID; 
-DELETE FROM ChatsLikes WHERE CHATS_ID = old.CHATS_ID; 
-DELETE FROM ChatsCostTypes WHERE CHATS_ID = old.CHATS_ID; 
-END;
-"""
-
-const val TRIGGER_CHATS_CONTROL_COUNT = """
-CREATE TRIGGER TControlCountsChats 
-AFTER INSERT ON Chats 
-WHEN 
-(SELECT count(*) FROM Chats) > (SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS') 
-BEGIN 
-DELETE FROM Chats WHERE CHATS_ID NOT IN 
-(SELECT CHATS_ID 
- FROM Chats 
- ORDER BY LAST_MESSEGES_ADDING DESC 
- LIMIT (SELECT  VALUE_VALUE 
-        FROM MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_CHATS')); 
-END;
-"""
-
-const val INSERT_CHATS = """
-INSERT OR REPLACE INTO Chats
-( CHATS_ID, 
-  MESSEGES_COUNT, 
-  COUNT_OF_MEMBERS, 
-  CHATS_OWNER, 
-  CHATS_TWINS, 
-  CHATS_NAME, 
-  AVATAR_ID, 
-  CHATS_PROFILE, 
-  CHATS_ACCESS, 
-  CHATS_TYPE, 
-  CHATS_STATUS, 
-  ADDING_DATE, 
-  BALANCE, 
-  LAST_MESSEGES_ADDING, 
-  DATE_CLOSED, 
-  CHATS_SUBSCRIBE, 
-  LAST_UPDATE, 
-  AVATAR_LINK, 
-  AVATAR_SERVER, 
-  AVATAR, 
-  CONNECTION_ID, 
-  STRING_20) 
-VALUES 
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-"""
-
-const val SELECT_CHATS_ALL = """
-SELECT * FROM Chats 
-ORDER BY LAST_MESSEGES_ADDING DESC;
-"""
-
-const val CLEAR_CHATS = """
-DELETE FROM Chats;
-"""
-
-/////////////chats cost types///////////////////////////
-
-const val TABLE_CHATS_COST_TYPES = """
-CREATE TABLE IF NOT EXISTS ChatsCostTypes 
-(CHATS_ID TEXT NOT NULL, 
- COST_ID TEXT NOT NULL, 
- TYPES_OWNER TEXT NOT NULL, 
- AVATAR_ID TEXT, 
- START_TEXT TEXT, 
- HAVE_FULL_TEXT TEXT NOT NULL, 
- TYPES_TYPE TEXT NOT NULL, 
- TYPES_ACCESS TEXT NOT NULL, 
- TYPES_STATUS TEXT NOT NULL, 
- HAVE_MESSEGES TEXT NOT NULL, 
- FULL_TEXT TEXT, 
- AVATAR_LINK TEXT, 
- AVATAR_SERVER TEXT, 
- ORIGINAL_AVATAR_SIZE TEXT, 
- STRING_20 TEXT NOT NULL, 
- AVATAR BLOB, 
- CHECK (length(CHATS_ID) = 18 
- AND length(TYPES_OWNER) = 18 
-), 
-PRIMARY KEY (CHATS_ID, COST_ID));
-"""
-
-const val INSERT_CHATS_COST_TYPES = """
-INSERT OR REPLACE INTO ChatsCostTypes 
-( CHATS_ID, 
-  COST_ID , 
-  TYPES_OWNER, 
-  AVATAR_ID, 
-  START_TEXT, 
-  HAVE_FULL_TEXT, 
-  TYPES_TYPE, 
-  TYPES_ACCESS, 
-  TYPES_STATUS, 
-  HAVE_MESSEGES, 
-  FULL_TEXT, 
-  AVATAR_LINK, 
-  AVATAR_SERVER, 
-  ORIGINAL_AVATAR_SIZE, 
-  STRING_20, 
-  AVATAR) 
-VALUES 
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-"""
-
-const val SELECT_CHATS_COST_TYPES_ALL = """
-SELECT * FROM ChatsCostTypes
-ORDER BY  CHATS_ID, COST_ID;
-"""
-
-
-const val CLEAR_CHATS_COST_TYPES = """
-DELETE FROM ChatsCostTypes;
-"""
-
-/////////////chats likes///////////////////////////
-
-const val TABLE_CHATS_LIKES = """
-CREATE TABLE IF NOT EXISTS ChatsLikes 
-(CHATS_ID TEXT NOT NULL, 
- ACCOUNTS_ID TEXT NOT NULL, 
- RELATIONS TEXT NOT NULL, 
- CHATS_LIKES_PROFILE TEXT NOT NULL, 
- ADDING_DATE TEXT NOT NULL, 
- IS_ONLINE TEXT NOT NULL, 
- FIRST_MESS_COUNT TEXT NOT NULL, 
- LAST_MESS_COUNT TEXT NOT NULL, 
- LAST_DATE_DELIVERED TEXT NOT NULL, 
- LAST_READED_MESS_ID TEXT NOT NULL, 
- BALANCE INTEGER NOT NULL, 
- LAST_CONNECT TEXT NOT NULL, 
- DATE_DELETE TEXT NOT NULL, 
- ACCOUNTS_NAME TEXT NOT NULL, 
- AVATAR_ID TEXT, 
- ORIGINAL_AVATAR_SIZE TEXT, 
- AVATAR_SERVER TEXT, 
- AVATAR_LINK TEXT, 
- AVATAR BLOB, 
- STRING_20 TEXT NOT NULL, 
- CHECK (length(CHATS_ID) = 18 
- AND length(ACCOUNTS_ID) = 18 
-), 
-PRIMARY KEY (CHATS_ID, ACCOUNTS_ID));
-"""
-
-const val INDEX_CHATSLIKES_AVATARID = """
-CREATE INDEX IChatsLikessAvatarId ON ChatsLikes(AVATAR_ID);
-"""
-
-const val INDEX_CHATSLIKES_ACCOUNTSID = """
-CREATE INDEX IChatsLikessAccountsId ON ChatsLikes(ACCOUNTS_ID);
-"""
-
-const val TRIGGER_CHATSLIKES_DELETED_RECORD = """
-CREATE TRIGGER TChatsLikesDeletedRecocord 
-AFTER UPDATE ON ChatsLikes 
-FOR EACH ROW 
-WHEN 
-new.ACCOUNTS_ID = (SELECT ACCOUNT_ID FROM RegData LIMIT 1) 
-AND 
-new.RELATIONS = "39" --delete member; 
-BEGIN 
-DELETE FROM Chats WHERE CHATS_ID = new.CHATS_ID; 
-END; 
-"""
-
-const val INSERT_CHATS_LIKES = """
-INSERT OR REPLACE INTO ChatsLikes 
-( CHATS_ID, 
-   ACCOUNTS_ID, 
-   RELATIONS, 
-   CHATS_LIKES_PROFILE, 
-   ADDING_DATE, 
-   IS_ONLINE, 
-   FIRST_MESS_COUNT, 
-   LAST_MESS_COUNT, 
-   LAST_DATE_DELIVERED, 
-   LAST_READED_MESS_ID, 
-   BALANCE, 
-   LAST_CONNECT, 
-   DATE_DELETE, 
-   ACCOUNTS_NAME, 
-   AVATAR_ID, 
-   ORIGINAL_AVATAR_SIZE, 
-   AVATAR_SERVER, 
-   AVATAR_LINK, 
-   AVATAR, 
-   STRING_20) 
-VALUES 
-(?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ? );
-"""
-
-const val SELECT_CHATSLIKES_ALL = """
-SELECT * FROM ChatsLikes 
-ORDER BY CHATS_ID, ACCOUNTS_ID;
 """
 
 /////////////commands///////////////////////////
@@ -965,143 +682,6 @@ SELECT * FROM Exception;
 const val CLEAR_EXCEPTION = """
 DELETE FROM Exception;
 """
-
-/////////////messeges///////////////////////////
-
-const val TABLE_MESSEGES = """
-CREATE TABLE IF NOT EXISTS Messeges 
-(CHATS_ID TEXT NOT NULL, 
- MESSEGES_COUNT TEXT NOT NULL, 
- ADDING_DATE TEXT NOT NULL, 
- PERIOD_FOR TEXT NOT NULL, 
- MESSEGES_OWNER TEXT NOT NULL, 
- MESSEGES_ANSWER TEXT, 
- MESSEGES_ANSWER_START_TEXT TEXT, 
- MESSEGES_ADRESSER TEXT, 
- OBJECT_ID TEXT, 
- AVATAR_ID TEXT, 
- OBJECT_OWNER TEXT, 
- OBJECT_TYPE TEXT NOT NULL, 
- START_TEXT TEXT, 
- MESSEGES_COST INTEGER, 
- COST_TYPE INTEGER, 
- MESSEGES_TYPE TEXT NOT NULL, 
- MESSEGES_ACCESS TEXT NOT NULL, 
- MESSEGES_STATUS TEXT NOT NULL, 
- HAVE_FULL_TEXT TEXT NOT NULL, 
- HAVE_ANSWER TEXT NOT NULL, 
- LAST_CHANGED TEXT DEFAULT "0" NOT NULL, 
- FULL_TEXT TEXT, 
- OBJECT_NAME TEXT, 
- OBJECT_SERVER TEXT, 
- OBJECT_PROFILE_STRING TEXT, 
- OBJECT_LINK TEXT, 
- OBJECT_EXTENSION TEXT, 
- AVATAR_LINK TEXT, 
- AVATAR_SERVER TEXT, 
- ORIGINAL_AVATAR_SIZE TEXT, 
- MESSEGES_AVATAR BLOB, 
- OBJECT_AVATAR BLOB, 
- ANSWER_OBJECT_AVATAR BLOB, 
- STRING_20 TEXT, 
- CHECK (length(CHATS_ID) = 18 
- AND length(MESSEGES_OWNER) = 18 
-), 
-PRIMARY KEY (CHATS_ID, MESSEGES_COUNT));
-"""
-
-const val INDEX_MESSEGES_ORDER_DESC = """
-CREATE INDEX IMessegesOrderDesc ON Messeges(CHATS_ID, MESSEGES_COUNT DESC);
-"""
-
-const val TRIGGER_MESSEGES_CONTROL_COUNT = """
-CREATE TRIGGER TControlCountsMesseges 
-AFTER INSERT ON Messeges 
-FOR EACH ROW 
-WHEN 
-(SELECT count(*) FROM Messeges WHERE CHATS_ID = new.CHATS_ID)> 
-(SELECT  VALUE_VALUE FROM MetaData WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES') 
-BEGIN 
-  DELETE FROM Messeges 
-  WHERE CHATS_ID = new.CHATS_ID 
-  AND MESSEGES_COUNT < 
-  (SELECT min(MESSEGES_COUNT) 
-   FROM Messeges 
-   WHERE CHATS_ID = new.CHATS_ID 
-   ORDER BY CHATS_ID, MESSEGES_COUNT DESC 
-   LIMIT (SELECT  VALUE_VALUE 
-          FROM MetaData 
-          WHERE VALUE_NAME = 'MAX_COUNT_OF_MESSEGES')); 
-END;
-"""
-
-const val TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS = """
-CREATE TRIGGER TControlMessWithOutChats 
-AFTER INSERT ON Messeges 
-BEGIN 
-  DELETE FROM Messeges 
-  WHERE CHATS_ID NOT IN (SELECT CHATS_ID FROM Chats); 
-END;
-"""
-
-
-const val INSERT_MESSEGES = """
-INSERT OR REPLACE INTO Messeges 
-( CHATS_ID, 
-  MESSEGES_COUNT, 
-  ADDING_DATE, 
-  PERIOD_FOR, 
-  MESSEGES_OWNER, 
-  MESSEGES_ANSWER, 
-  MESSEGES_ANSWER_START_TEXT, 
-  MESSEGES_ADRESSER, 
-  OBJECT_ID, 
-  AVATAR_ID, 
-  OBJECT_OWNER, 
-  OBJECT_TYPE, 
-  START_TEXT, 
-  MESSEGES_COST, 
-  COST_TYPE, 
-  MESSEGES_TYPE, 
-  MESSEGES_ACCESS, 
-  MESSEGES_STATUS, 
-  HAVE_FULL_TEXT, 
-  HAVE_ANSWER, 
-  LAST_CHANGED, 
-  FULL_TEXT, 
-  OBJECT_NAME, 
-  OBJECT_SERVER, 
-  OBJECT_PROFILE_STRING, 
-  OBJECT_LINK, 
-  OBJECT_EXTENSION, 
-  AVATAR_LINK, 
-  OBJECT_SERVER, 
-  AVATAR_SERVER, 
-  ORIGINAL_AVATAR_SIZE, 
-  MESSEGES_AVATAR, 
-  OBJECT_AVATAR, 
-  ANSWER_OBJECT_AVATAR, 
-  STRING_20) 
-VALUES  
-( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-"""
-
-
-const val SELECT_MESSEGES_LIMIT  = """
-SELECT * 
-FROM Messeges 
-WHERE CHATS_ID = ? 
-AND MESSEGES_COUNT < ? 
-ORDER BY CHATS_ID, MESSEGES_COUNT DESC 
-LIMIT (SELECT VALUE_VALUE 
-        FROM   MetaData 
-        WHERE  VALUE_NAME = 'LIMIT_FOR_SELECT');
-"""
-
-const val CLEAR_MESSEGES = """
-DELETE FROM Messeges;
-"""
-
 /////////////meta data///////////////////////////
 
 const val TABLE_METADATA = """

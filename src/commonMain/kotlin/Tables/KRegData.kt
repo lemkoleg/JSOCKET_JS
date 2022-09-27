@@ -278,5 +278,11 @@ class KRegData {
                     l_additional_text = "Time out is up"
                 )
             }.toPromise(EmptyCoroutineContext)
+
+
+        @JsName("RE_LOAD_REG_DATA")
+        fun RE_LOAD_REG_DATA(): Job {
+            return Sqlite_service.LoadRegData()
+        }
     }
 }

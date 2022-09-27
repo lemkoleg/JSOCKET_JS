@@ -93,9 +93,6 @@ CREATE TABLE IF NOT EXISTS CashData
  index_CashData_NumberPositionAsc:
  CREATE INDEX IF NOT EXISTS CashData_NumberPositionAsc ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
 
- index_CashData_NumberPositionDesc:
- CREATE INDEX IF NOT EXISTS CashData_NumberPositionDesc ON CashData(CASH_SUM, INTEGER_20 DESC, INTEGER_20_LEVEL DESC, RECORD_TABLE_ID);
-
  trigger_CashData_After_Insert:
   CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
   AFTER INSERT ON CashData

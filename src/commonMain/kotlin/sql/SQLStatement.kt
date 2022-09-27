@@ -162,20 +162,11 @@ expect class SQLStatement() {
     @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT")
     suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT()
 
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_UPDATE")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_UPDATE()
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT()
 
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INSERT")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INSERT()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_UPDATE")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_UPDATE()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_INSERT")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_INSERT()
-
-    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_UPDATE")
-    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_TEXT_LISTS_UPDATE()
+    @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT")
+    suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT()
 
     @JsName("INSERT_CASHLASTUPDATE")
     suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate)
@@ -193,9 +184,6 @@ expect class SQLStatement() {
 
     @JsName("INDEX_CASHDATA_NUMBER_POSITION_ASC")
     suspend fun INDEX_CASHDATA_NUMBER_POSITION_ASC()
-
-    @JsName("INDEX_CASHDATA_NUMBER_POSITION_DESC")
-    suspend fun INDEX_CASHDATA_NUMBER_POSITION_DESC()
 
     @JsName("TRIGGER_CASHDATA_AFTER_INSERT")
     suspend fun TRIGGER_CASHDATA_AFTER_INSERT()
@@ -227,102 +215,11 @@ expect class SQLStatement() {
     @JsName("DELETE_CASHDATA_DELETED_RECORDS")
     suspend fun DELETE_CASHDATA_DELETED_RECORDS(cash_sum:String)
 
-    /////////////chats///////////////////////////
-
-    @JsName("TABLE_CHATS")
-    suspend fun TABLE_CHATS()
-
-    @JsName("INDEX_CHATS_LAST_MESS_ADDING")
-    suspend fun INDEX_CHATS_LAST_MESS_ADDING()
-
-    @JsName("INDEX_CHATS_CONNECTIONID")
-    suspend fun INDEX_CHATS_CONNECTIONID()
-
-    @JsName("INDEX_CHATS_AVATARID")
-    suspend fun INDEX_CHATS_AVATARID()
-
-    @JsName("TRIGGER_CHATS_DELETE")
-    suspend fun TRIGGER_CHATS_DELETE()
-
-    @JsName("TRIGGER_CHATS_CONTROL_COUNT")
-    suspend fun TRIGGER_CHATS_CONTROL_COUNT()
-
-    @InternalAPI
-    @JsName("INSERT_CHATS")
-    suspend fun INSERT_CHATS(kChat: KChat)
-
-    @InternalAPI
-    @JsName("SELECT_CHATS_ALL")
-    suspend fun SELECT_CHATS_ALL()
-
-    @JsName("CLEAR_CHATS")
-    suspend fun CLEAR_CHATS()
-
-    /////////////chats cost types///////////////////////////
-
-    @JsName("TABLE_CHATS_COST_TYPES")
-    suspend fun TABLE_CHATS_COST_TYPES()
-
-    @JsName("INSERT_CHATS_COST_TYPES")
-    suspend fun INSERT_CHATS_COST_TYPES(kChatsCostTypes: KChatsCostTypes)
-
-    @JsName("SELECT_CHATS_COST_TYPES_ALL")
-    suspend fun SELECT_CHATS_COST_TYPES_ALL()
-
-    @JsName("CLEAR_CHATS_COST_TYPES")
-    suspend fun CLEAR_CHATS_COST_TYPES()
-
-    /////////////chats likes///////////////////////////
-
-    @JsName("TABLE_CHATS_LIKES")
-    suspend fun TABLE_CHATS_LIKES()
-
-    @JsName("INDEX_CHATSLIKES_AVATARID")
-    suspend fun INDEX_CHATSLIKES_AVATARID()
-
-    @JsName("INDEX_CHATSLIKES_ACCOUNTSID")
-    suspend fun INDEX_CHATSLIKES_ACCOUNTSID()
-
-    @JsName("TRIGGER_CHATSLIKES_DELETED_RECORD")
-    suspend fun TRIGGER_CHATSLIKES_DELETED_RECORD()
-
-    @JsName("INSERT_CHATS_LIKES")
-    suspend fun INSERT_CHATS_LIKES(kChatsLikes: KChatsLikes)
-
-    @JsName("SELECT_CHATSLIKES_ALL")
-    suspend fun SELECT_CHATSLIKES_ALL()
-
-
-    /////////////messeges///////////////////////////
-
-    @JsName("TABLE_MESSEGES")
-    suspend fun TABLE_MESSEGES()
-
-    @JsName("INDEX_MESSEGES_ORDER_DESC")
-    suspend fun INDEX_MESSEGES_ORDER_DESC()
-
-    @JsName("TRIGGER_MESSEGES_CONTROL_COUNT")
-    suspend fun TRIGGER_MESSEGES_CONTROL_COUNT()
-
-    @JsName("TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS")
-    suspend fun TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS()
-
-    @JsName("INSERT_MESSEGES")
-    suspend fun INSERT_MESSEGES(kMessege: KMessege)
-
-    @JsName("SELECT_MESSEGES_LIMIT")
-    suspend fun SELECT_MESSEGES_LIMIT(L_CHATS_ID: String, L_MESSEGES_COUNT: Long = 999999999999999999)
-
-    @JsName("CLEAR_MESSEGES")
-    suspend fun CLEAR_MESSEGES()
-
-
-
     /////////////////////////////////////////////////////////////////////////
     @JsName("connect")
     suspend fun connect()
 
-    @JsName("clear_parameters(")
+    @JsName("clear_parameters")
     suspend fun clear_parameters()
 
 }
