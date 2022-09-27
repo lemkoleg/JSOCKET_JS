@@ -190,28 +190,38 @@ CREATE TABLE IF NOT EXISTS CashData
  );
 """
 
-const val INDEX_CASHDATA_NUMBER_POSITION_LAST_UPDATE = """
-CREATE INDEX CashData_NumberPositionLastUpdate ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
+const val INDEX_CASHDATA_NUMBER_POSITION_ASC = """
+CREATE INDEX CashData_NumberPositionAsc ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
+"""
+
+const val INDEX_CASHDATA_NUMBER_POSITION_DESC = """
+CREATE INDEX CashData_NumberPositionDesc ON CashData(CASH_SUM, INTEGER_20 DESC, INTEGER_20_LEVEL DESC, RECORD_TABLE_ID);
 """
 
 const val TRIGGER_CASHDATA_AFTER_INSERT = """
  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
   AFTER INSERT ON CashData 
   FOR EACH ROW 
-  WHEN SUBSTR(new.STRING_20, 7, 1) = '0'    --not deleted record 
-  AND  EXISTS (SELECT RECORD_TABLE_ID 
-               FROM   CashData 
-               WHERE  CASH_SUM = new.CASH_SUM 
-               ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+  WHEN EXISTS (SELECT c.RECORD_TABLE_ID 
+               FROM   CashData AS c 
+               WHERE  c.CASH_SUM = new.CASH_SUM 
+               ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC 
                LIMIT 1 OFFSET new.INTEGER_20 - 1) 
+  AND new.RECORD_TABLE_ID != (SELECT c.RECORD_TABLE_ID 
+                              FROM   CashData AS c 
+                              WHERE  c.CASH_SUM = new.CASH_SUM 
+                              ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC 
+                              LIMIT 1 OFFSET new.INTEGER_20 - 1) 
   BEGIN 
     WITH tab (record_id, integer_20, integer_20_level) 
-    AS (SELECT RECORD_TABLE_ID, 
-               INTEGER_20, 
-               INTEGER_20_LEVEL 
-        FROM   CashData 
-        WHERE  CASH_SUM = new.CASH_SUM 
-        ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+    AS (SELECT c1.RECORD_TABLE_ID, 
+               c1.INTEGER_20, 
+               c1.INTEGER_20_LEVEL 
+        FROM CashData AS c1 
+        WHERE c1.CASH_SUM = new.CASH_SUM 
+        ORDER BY c1.CASH_SUM, 
+                 c1.INTEGER_20 ASC, 
+                 c1.INTEGER_20_LEVEL ASC 
         LIMIT 1 OFFSET new.INTEGER_20 - 1) 
 
    UPDATE CashData 
@@ -221,80 +231,20 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
      WHERE  CASH_SUM = new.CASH_SUM 
      AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID; 
 
+   WITH tab2 (record_id, next_record_id, integer_20_level) 
+       AS (SELECT c2.RECORD_TABLE_ID, 
+                  c2.NEXT_RECORD_TABLE_ID, 
+                  c2.INTEGER_20_LEVEL 
+           FROM CashData AS c2 
+           WHERE c2.CASH_SUM = new.CASH_SUM 
+           AND   c2.RECORD_TABLE_ID = new.RECORD_TABLE_ID) 
+
    UPDATE CashData 
-       SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1 
+       SET    INTEGER_20_LEVEL = ifnull((SELECT integer_20_level FROM tab2 LIMIT 1), 0) + 1 
        WHERE  CASH_SUM = new.CASH_SUM 
-       AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID 
-                                 FROM   CashData 
-                                 WHERE  CASH_SUM = new.CASH_SUM 
-                                 AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID); 
+       AND    RECORD_TABLE_ID = (SELECT next_record_id  FROM tab2 LIMIT 1); 
 
-  END;
-"""
-
-const val TRIGGER_CASHDATA_AFTER_INSERT_DELETED_RECORD = """
-  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
-    AFTER INSERT ON CashData 
-    FOR EACH ROW 
-    WHEN SUBSTR(new.STRING_20, 7, 1) = "1"    --deleted record 
-    BEGIN 
-     DELETE FROM CashData WHERE rowid = new.rowid; 
-    END; 
-"""
-
-const val TRIGGER_CASHDATA_UPDATE = """
-  CREATE TRIGGER IF NOT EXISTS TCashDataUpdate 
-  AFTER UPDATE ON CashData 
-  FOR EACH ROW 
-  WHEN old.LONG_20 <> new.LONG_20 
-  AND old.INTEGER_20 <> new.INTEGER_20 
-  AND SUBSTR(new.STRING_20, 6, 7) = "0"  --not deleted record 
-  AND EXISTS (SELECT RECORD_TABLE_ID 
-              FROM   CashData 
-              WHERE  CASH_SUM = new.CASH_SUM 
-              ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-              LIMIT 1 OFFSET new.INTEGER_20 - 1) 
-   AND new.RECORD_TABLE_ID <> (SELECT RECORD_TABLE_ID 
-                               FROM   CashData 
-                               WHERE  CASH_SUM = new.CASH_SUM 
-                               ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                               LIMIT 1 OFFSET new.INTEGER_20 - 1) 
-   BEGIN 
-     WITH tab (record_id, integer_20, integer_20_level) 
-     AS (SELECT RECORD_TABLE_ID, 
-                INTEGER_20, 
-                INTEGER_20_LEVEL 
-         FROM   CashData 
-         WHERE  CASH_SUM = new.CASH_SUM 
-         ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-         LIMIT 1 OFFSET new.INTEGER_20 - 1) 
-
-    UPDATE CashData 
-      SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1), 
-             INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1), 
-             INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1) 
-      WHERE  CASH_SUM = new.CASH_SUM 
-      AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID; 
-
-    UPDATE CashData 
-        SET    INTEGER_20_LEVEL = INTEGER_20_LEVEL + 1 
-        WHERE  CASH_SUM = new.CASH_SUM 
-        AND    RECORD_TABLE_ID = (SELECT NEXT_RECORD_TABLE_ID 
-                                  FROM CashData 
-                                  WHERE  CASH_SUM = new.CASH_SUM 
-                                  AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID); 
-
-   END;
-"""
-
-const val TRIGGER_CASHDATA_AFTER_UPDATE_DELETED_RECORD = """
-  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
-    AFTER UPDATE ON CashData 
-    FOR EACH ROW 
-    WHEN SUBSTR(new.STRING_20, 7, 1) = "1"    --deleted record 
-    BEGIN 
-     DELETE FROM CashData WHERE rowid = new.rowid; 
-    END; 
+  END; 
 """
 
 const val INSERT_CASHDATA = """
@@ -421,24 +371,17 @@ FROM CashData
 GROUP BY CASH_SUM;
 """
 
+const val SELECT_CASHDATA = """
+SELECT  * 
+FROM CashData 
+WHERE CASH_SUM = ? 
+AND RECORD_TABLE_ID = ?; 
+"""
+
 const val CLEAR_CASHDATA = """
 DELETE FROM CashData;
 """
 
-const val UPDATE_CASHDATA_CONTROL_COUNT = """
- DELETE 
-   FROM CashData 
-   WHERE  CASH_SUM = ? 
-   AND RECORD_TABLE_ID NOT IN ( 
-           SELECT RECORD_TABLE_ID 
-           FROM CashData 
-           WHERE  CASH_SUM = ? 
-           ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-           LIMIT (SELECT  VALUE_VALUE 
-                  FROM MetaData 
-                  WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS') 
-        ); 
-"""
 
 const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
  WITH tab AS (SELECT 
@@ -446,17 +389,17 @@ const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
                  RECORD_TABLE_ID AS record_id, 
                  row_number() OVER ( 
                       ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                 ) AS RowNum 
+                 ) AS RowNumber 
                  FROM 
                      CashData 
                  WHERE CASH_SUM = ? 
                  ORDER BY CASH_SUM, RECORD_TABLE_ID) 
 
   UPDATE CashData 
-  SET   INTEGER_20 = (SELECT RowNum 
-                      FROM tab 
-                      WHERE cash_sum = CASH_SUM 
-                      AND   record_id = RECORD_TABLE_ID), 
+  SET   INTEGER_20 = (SELECT t.RowNumber 
+                      FROM tab AS t 
+                      WHERE t.cash_sum = ? 
+                      AND   t.record_id = RECORD_TABLE_ID), 
         INTEGER_20_LEVEL = 0, 
         NEXT_RECORD_TABLE_ID = "" 
         WHERE CASH_SUM = ?; 
@@ -466,20 +409,34 @@ const val UPADTE_CASHDATA_NEW_LAST_SELECT = """
        UPDATE CashData 
        SET    LONG_20 = ? 
        WHERE  CASH_SUM = ? 
-       AND    RECORD_TABLE_ID IN (SELECT RECORD_TABLE_ID 
-                                  FROM   CashData 
-                                  WHERE  CASH_SUM = ? 
-                                  ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                                  LIMIT ? 
-                                  OFFSET (SELECT NVL(row_number(), 1) OVER ( 
-                                                 ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                                          ) AS RowNum 
-                                          FROM   CashData 
-                                          WHERE  CASH_SUM = ? 
-                                          AND    RECORD_TABLE_ID = ?) - 1 
+       AND    RECORD_TABLE_ID IN (SELECT c.RECORD_TABLE_ID 
+                                  FROM   CashData AS c 
+                                  WHERE  c.CASH_SUM = ? 
+                                  ORDER BY c.CASH_SUM, 
+                                           c.INTEGER_20 ASC, 
+                                           c.INTEGER_20_LEVEL ASC 
+                                  LIMIT (SELECT  VALUE_VALUE 
+                                         FROM MetaData 
+                                         WHERE VALUE_NAME = 'LIMIT_FOR_SELECT') 
+                                  OFFSET (ifnull((SELECT tab.RowNumber 
+                                                  FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
+                                                               row_number() OVER ( 
+                                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
+                                                                ) AS RowNumber 
+                                                         FROM   CashData AS c1 
+                                                         WHERE  c1.CASH_SUM = ? 
+                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab 
+                                                  WHERE  tab.record_id = ?), 0)) 
                                   ); 
 """
 
+
+const val DELETE_CASHDATA_DELETED_RECORD = """
+DELETE
+FROM CashData
+WHERE  CASH_SUM = ?
+AND substr(STRING_20, 7, 1) = "1";
+"""
 
 
 /////////////last update///////////////////////////
@@ -507,29 +464,9 @@ const val INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM = """
 CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORDS_TYPE, LAST_USE DESC, CASH_SUM);
 """
 
-const val TRIGGER_CASHLASTUPDATE_DELETE = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_DELETE 
-AFTER DELETE ON CashLastUpdate 
-FOR EACH ROW 
-BEGIN 
-DELETE FROM CashData WHERE CASH_SUM = old.CASH_SUM; 
-END;
-"""
-
 const val TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert 
 AFTER INSERT 
-ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0) 
-BEGIN 
-DELETE FROM CashLastUpdate
-WHERE rowid = new.rowid; 
-END; 
-"""
-
-const val TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE = """
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Update 
-AFTER UPDATE 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0) 
 BEGIN 

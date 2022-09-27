@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
 (CASH_SUM TEXT NOT NULL,
  RECORDS_TYPE TEXT NOT NULL,
  COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up;
- LAST_USE TEXT NOT NULL,
+ LAST_USE INTEGER NOT NULL,     -- last mess count for chats;
  PRIMARY KEY (CASH_SUM)
 );
 
@@ -16,14 +16,6 @@ CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RE
 index_CashLastUpdate_record_type_last_use_cash_sum:
 CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORDS_TYPE, LAST_USE DESC, CASH_SUM);
 
-trigger_CashLastUpdate_delete:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_DELETE
-AFTER DELETE ON CashLastUpdate
-FOR EACH ROW
-BEGIN
-DELETE FROM CashData WHERE CASH_SUM = old.CASH_SUM;
-END;
-
 trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert
 AFTER INSERT
@@ -34,173 +26,144 @@ DELETE FROM CashLastUpdate
 WHERE rowid = new.rowid;
 END;
 
-trigger_CashLastUpdate_Control_Empty_Blocks_Update:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Update
-AFTER UPDATE
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0)
-BEGIN
-DELETE FROM CashLastUpdate
-WHERE rowid = new.rowid;
-END;
 
 trigger_CashLastUpdate_Control_Count_Links_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT
 ON CashLastUpdate
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G')
 BEGIN
 
   DELETE FROM CashLastUpdate
-  WHERE RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
-  AND CASH_SUM IN
-   (SELECT CASH_SUM
-    FROM CashLastUpdate t
-    WHERE t.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
-    ORDER BY t.LAST_USE DESC
-    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                       FROM MetaData
-                       WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_LINKS'));
+  WHERE CASH_SUM IN (SELECT t1.CASH_SUM
+                     FROM CashLastUpdate t1
+                     WHERE CASE
+                             WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+                               THEN
+                                  CASE
+                                    WHEN t1.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
+                                      THEN 1
+                                    ELSE 0
+                                  END
+                             WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
+                                THEN
+                                   CASE
+                                      WHEN t1.RECORDS_TYPE IN ('J', 'K', 'L')
+                                         THEN 1
+                                      ELSE 0
+                                  END
+
+                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')  -- messegess, comments
+                                   THEN
+                                      CASE
+                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                            THEN 1
+                                          ELSE 0
+                                    END
+
+                             ELSE 0
+                           END
+                     ORDER BY t1.LAST_USE DESC
+                     LIMIT 10000 OFFSET (SELECT  VALUE_VALUE
+                                         FROM MetaData
+                                         WHERE VALUE_NAME = CASE
+                                                              WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS'
+                                                               WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'
+                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'
+                                                              ELSE
+                                                                 ''
+                                                            END));
+
+  DELETE FROM CashData
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
+
 
   DELETE FROM CashData
   WHERE CASH_SUM = new.CASH_SUM
   AND   RECORD_TABLE_ID IN (
-        SELECT RECORD_TABLE_ID
-        FROM CashData
-        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                           FROM MetaData
-                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS')
+        SELECT t3.RECORD_TABLE_ID
+        FROM CashData AS t3
+        WHERE t3.CASH_SUM = new.CASH_SUM
+        ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE
+                            FROM MetaData
+                            WHERE VALUE_NAME = CASE
+                                                  WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS'
+                                                  WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO'
+                                                  WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS'
+                                                  ELSE
+                                                    ''
+                                               END)
   );
 
 END;
 
-trigger_CashLastUpdate_Control_Count_Links_Update:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksUpdate
-AFTER UPDATE
+trigger_CashLastUpdate_Control_Count_Chats_Insert:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountChatsInsert
+AFTER INSERT
 ON CashLastUpdate
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+AND new.RECORDS_TYPE = '3'
 BEGIN
 
   DELETE FROM CashData
   WHERE CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-        SELECT RECORD_TABLE_ID
-        FROM CashData
-        ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-        LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                           FROM MetaData
-                           WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS')
+  AND RECORD_TABLE_ID IN (
+        SELECT t.RECORD_TABLE_ID
+        FROM CashData AS t
+        WHERE t.CASH_SUM = new.CASH_SUM
+        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE
+                            FROM MetaData
+                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS')
+
+  );
+
+  DELETE FROM CashLastUpdate
+  WHERE  RECORDS_TYPE = '4'
+  AND CASH_SUM NOT IN (
+          SELECT t1.RECORD_TABLE_ID||'4'
+          FROM CashData AS t1
+          WHERE t1.CASH_SUM = new.CASH_SUM);
+
+  DELETE FROM CashData
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
+
+END;
+
+trigger_CashLastUpdate_Control_Count_Mess_Insert:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountMessInsert
+AFTER INSERT
+ON CashLastUpdate
+WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+AND new.RECORDS_TYPE = '4'
+BEGIN
+
+  DELETE FROM CashData
+  WHERE CASH_SUM = new.CASH_SUM
+  AND RECORD_TABLE_ID IN (
+        SELECT t.RECORD_TABLE_ID
+        FROM CashData AS t
+        WHERE t.CASH_SUM = new.CASH_SUM
+        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
+        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE
+                            FROM MetaData
+                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES')
+
   );
 
 END;
 
-trigger_CashLastUpdate_Control_Count_Objects_Insert:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInsert
-AFTER INSERT
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
-BEGIN
-
-  DELETE FROM CashLastUpdate
-  WHERE RECORDS_TYPE IN ('J', 'K', 'L')
-  AND CASH_SUM IN
-     (SELECT CASH_SUM
-      FROM CashLastUpdate t
-      WHERE t.RECORDS_TYPE IN ('J', 'K', 'L')
-      ORDER BY t.LAST_USE DESC
-      LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                         FROM MetaData
-                         WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'));
-
-  DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-          SELECT RECORD_TABLE_ID
-          FROM CashData
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                             FROM MetaData
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO'));
-
-END;
-
-trigger_CashLastUpdate_Control_Count_Objects_Update:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsUpdate
-AFTER UPDATE
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
-BEGIN
-
-  DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-          SELECT RECORD_TABLE_ID
-          FROM CashData
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                             FROM MetaData
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO'));
-
-END;
-
-trigger_CashLastUpdate_Control_Count_TextLists_Insert:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsInsert
-AFTER INSERT
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
-BEGIN
-
-  DELETE FROM CashLastUpdate
-  WHERE RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
-  AND CASH_SUM IN
-   (SELECT CASH_SUM
-    FROM CashLastUpdate t
-    WHERE t.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')
-    ORDER BY t.LAST_USE DESC
-    LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                      FROM MetaData
-                      WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'));
-
-  DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-          SELECT RECORD_TABLE_ID
-          FROM CashData
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                             FROM MetaData
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS'));
-
-END;
-
-trigger_CashLastUpdate_Control_Count_TextLists_Update:
-CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountTextListsUpdate
-AFTER UPDATE
-ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('4', 'A', 'C', 'E', 'G')  -- messegess, comments
-BEGIN
-
-  DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-          SELECT RECORD_TABLE_ID
-          FROM CashData
-          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-          LIMIT 1000 OFFSET (SELECT  VALUE_VALUE
-                             FROM MetaData
-                             WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS'));
-
-END;
 
 insert_CashLastUpdate:
-INSERT OR REPLACE INTO CashLastUpdate
+REPLACE INTO CashLastUpdate
 (CASH_SUM, RECORDS_TYPE, COURSE, LAST_USE)
 VALUES
 (?, ?, ?, ?);

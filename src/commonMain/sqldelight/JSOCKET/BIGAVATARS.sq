@@ -2,9 +2,7 @@ table_BigAvatars:
 CREATE TABLE IF NOT EXISTS BigAvatars
 (AVATAR_ID TEXT PRIMARY KEY,
  LAST_USE INTEGER NOT NULL,
- AVATAR BLOB  NOT NULL,
-CHECK (
-length(AVATAR_ID) = 18));
+ AVATAR BLOB  NOT NULL);
 
 index_BigAvatars_lastUse:
 CREATE INDEX IF NOT EXISTS IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
@@ -20,21 +18,12 @@ WHEN
  WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')
 BEGIN
 DELETE FROM BigAvatars WHERE AVATAR_ID NOT IN
-(SELECT AVATAR_ID FROM BigAvatars
- WHERE AVATAR_ID NOT IN (SELECT AVATAR_ID
-                         FROM SaveMedia)
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
-                         FROM RegData)
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
-                         FROM Chats
-                         WHERE 1 = (SELECT VALUE_VALUE
-                                     FROM MetaData
-                                     WHERE VALUE_NAME = 'IS_SAVE_CHATS_BIG_AVATARS_IN_CASHE_PERMINENTLY'))
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID
-                         FROM ChatsLikes
-                         WHERE 1 = (SELECT VALUE_VALUE
-                         FROM MetaData
-                         WHERE VALUE_NAME = 'IS_SAVE_CHATS_LIKES_BIG_AVATARS_IN_CASHE_PERMINENTLY'))
+(SELECT c.AVATAR_ID FROM BigAvatars AS c
+ WHERE  c.AVATAR_ID NOT IN (SELECT c1.AVATAR_ID
+                            FROM SaveMedia AS c1
+                            UNION ALL
+                            SELECT c2.AVATAR_ID
+                            FROM RegData AS c2)
  ORDER BY LAST_USE DESC
  LIMIT (SELECT  VALUE_VALUE
         FROM MetaData
