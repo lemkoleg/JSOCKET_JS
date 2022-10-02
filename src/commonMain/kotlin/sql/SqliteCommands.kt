@@ -361,6 +361,27 @@ WHERE CASH_SUM = ?
 ORDER BY CASH_SUM, INTEGER_20 ASC;
 """
 
+const val SELECT_CASHDATA_CHUNK_ON_CASH_SUM = """
+SELECT  * 
+   FROM CashData AS c 
+   WHERE c.CASH_SUM = ? 
+   ORDER BY c.CASH_SUM, 
+            c.INTEGER_20 ASC, 
+            c.INTEGER_20_LEVEL ASC 
+   LIMIT (SELECT  VALUE_VALUE AS val 
+          FROM MetaData 
+          WHERE VALUE_NAME = 'LIMIT_FOR_SELECT') 
+   OFFSET 0 + ifnull((SELECT tab1.RowNumber FROM (SELECT row_number() OVER ( 
+                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
+                                                           ) AS RowNumber, 
+                                                         c1.RECORD_TABLE_ID AS record_id 
+                                                  FROM CashData AS c1 
+                                                  WHERE c1.CASH_SUM = ? 
+                                                  ORDER BY c1.CASH_SUM, 
+                                                           c1.RECORD_TABLE_ID) AS tab1 
+                                WHERE record_id = ?), 0); 
+"""
+
 const val SELECT_CASHDATA = """
 SELECT  * 
 FROM CashData 
@@ -374,16 +395,15 @@ DELETE FROM CashData;
 
 
 const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
- WITH tab AS (SELECT 
-                 CASH_SUM AS cash_sum, 
-                 RECORD_TABLE_ID AS record_id, 
-                 row_number() OVER ( 
-                      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                 ) AS RowNumber 
-                 FROM 
-                     CashData 
-                 WHERE CASH_SUM = ? 
-                 ORDER BY CASH_SUM, RECORD_TABLE_ID) 
+ WITH tab AS (SELECT  c.CASH_SUM AS cash_sum, 
+                       c.RECORD_TABLE_ID AS record_id, 
+                       row_number() OVER ( 
+                           ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+                       ) AS RowNumber 
+              FROM     CashData AS c 
+              WHERE     c.CASH_SUM = ? 
+             ORDER BY   c.CASH_SUM, 
+                        c.RECORD_TABLE_ID) 
 
   UPDATE CashData 
   SET   INTEGER_20 = (SELECT t.RowNumber 
@@ -408,15 +428,15 @@ const val UPADTE_CASHDATA_NEW_LAST_SELECT = """
                                   LIMIT (SELECT  VALUE_VALUE 
                                          FROM MetaData 
                                          WHERE VALUE_NAME = 'LIMIT_FOR_SELECT') 
-                                  OFFSET (ifnull((SELECT tab.RowNumber 
+                                  OFFSET 0 + ifnull((SELECT tab1.RowNumber 
                                                   FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
                                                                row_number() OVER ( 
                                                                           ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
                                                                 ) AS RowNumber 
                                                          FROM   CashData AS c1 
                                                          WHERE  c1.CASH_SUM = ? 
-                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab 
-                                                  WHERE  tab.record_id = ?), 0)) 
+                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab1 
+                                                  WHERE  tab1.record_id = ?), 0) 
                                   ); 
 """
 
@@ -470,7 +490,7 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G') 
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
@@ -492,10 +512,10 @@ BEGIN
                                       ELSE 0 
                                   END 
 
-                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')  
+                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')  
                                    THEN 
                                       CASE 
-                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                             THEN 1 
                                           ELSE 0 
                                     END 
@@ -510,7 +530,7 @@ BEGIN
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
                                                                WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO' 
-                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
                                                               ELSE 
                                                                  '' 

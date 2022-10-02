@@ -197,6 +197,9 @@ expect class SQLStatement() {
     @JsName("SELECT_CASHDATA_ALL_ON_CASH_SUM")
     suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: String): ArrayDeque<ANSWER_TYPE>
 
+    @JsName("SELECT_CASHDATA_CHUNK_ON_CASH_SUM")
+    suspend fun SELECT_CASHDATA_CHUNK_ON_CASH_SUM(CASH_SUM: String, record_id_from: String): ArrayDeque<ANSWER_TYPE>
+
     @JsName("SELECT_CASHDATA")
     suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ArrayDeque<ANSWER_TYPE>
 
@@ -209,8 +212,7 @@ expect class SQLStatement() {
     @JsName("UPADTE_CASHDATA_NEW_LAST_SELECT")
     suspend fun UPADTE_CASHDATA_NEW_LAST_SELECT(last_select: Long,
                                                 cash_sum:String,
-                                                record_table_id_from:String,
-                                                limit: Int)
+                                                record_table_id_from:String)
 
     @JsName("DELETE_CASHDATA_DELETED_RECORDS")
     suspend fun DELETE_CASHDATA_DELETED_RECORDS(cash_sum:String)

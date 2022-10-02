@@ -32,7 +32,7 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT
 ON CashLastUpdate
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G')
+AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M')
 BEGIN
 
   DELETE FROM CashLastUpdate
@@ -54,10 +54,10 @@ BEGIN
                                       ELSE 0
                                   END
 
-                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')  -- messegess, comments
+                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
                                    THEN
                                       CASE
-                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')
                                             THEN 1
                                           ELSE 0
                                     END
@@ -72,7 +72,7 @@ BEGIN
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS'
                                                                WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'
-                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'
                                                               ELSE
                                                                  ''
@@ -96,7 +96,7 @@ BEGIN
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS'
                                                   WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info;
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO'
-                                                  WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G')
+                                                  WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS'
                                                   ELSE
                                                     ''

@@ -1438,8 +1438,7 @@ open class JSOCKET() {
                     when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                         "2" -> KMetaData.ADD_NEW_META_DATA(arr)
-                        "3" -> KChat.ADD_NEW_CHATS(arr)
-                        "4" -> KMessege.ADD_NEW_MESSEGES(arr)
+                        "N", "0", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
                         "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
                         "6" -> {
                             throw my_user_exceptions_class(
@@ -1453,8 +1452,6 @@ open class JSOCKET() {
                             KRegData.ADD_NEW_REG_DATA(arr)
                             is_new_reg_data = true
                         }
-                        "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES(arr)
-                        "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES(arr)
                         "J", "K", "L" -> {
 
                         }
@@ -1521,8 +1518,7 @@ open class JSOCKET() {
                 promise = when (record_type) {
                     "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                     "2" -> KMetaData.ADD_NEW_META_DATA(arr)
-                    "3" -> KChat.ADD_NEW_CHATS(arr)
-                    "4" -> KMessege.ADD_NEW_MESSEGES(arr)
+                    "N", "0", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
                     "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
                     "6" -> {
                         throw my_user_exceptions_class(
@@ -1536,14 +1532,12 @@ open class JSOCKET() {
                         is_new_reg_data = true
                         KRegData.ADD_NEW_REG_DATA(arr)
                     }
-                    "8" -> KChatsLikes.ADD_NEW_CHATS_LIKES(arr)
-                    "9" -> KChatsCostTypes.ADD_NEW_CHATS_COST_TYPES(arr)
                     else -> {
                         if (currentCashData == null) {
                             currentCashData = CASH_DATAS[this.check_sum]
                         }
                         if (currentCashData != null) {
-                            currentCashData!!.ADD_NEW_CASH_DATA(
+                            currentCashData.ADD_NEW_CASH_DATA(
                                 arr = arr,
                                 l_last_update = this.last_date_of_update,
                                 l_just_do_it_label = this.just_do_it_label,
@@ -1575,7 +1569,7 @@ open class JSOCKET() {
                     currentCashData = CASH_DATAS[this.check_sum]
                 }
                 if (currentCashData != null) {
-                    var start_record_id = ""
+                    val start_record_id: String
                     when (currentCashData.kCashLastUpdate!!.RECORD_TYPE) {
                         "4", "M" //MESSEGES
                         -> {

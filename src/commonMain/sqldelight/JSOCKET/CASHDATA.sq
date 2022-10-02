@@ -257,6 +257,26 @@ VALUES
   WHERE CASH_SUM = ?
   ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
 
+ select_CashData_CHUNK_ON_CASH_SUM:
+   SELECT  *
+   FROM CashData AS c
+   WHERE c.CASH_SUM = ?
+   ORDER BY c.CASH_SUM,
+            c.INTEGER_20 ASC,
+            c.INTEGER_20_LEVEL ASC
+   LIMIT (SELECT  VALUE_VALUE AS val
+          FROM MetaData
+          WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
+   OFFSET 0 + ifnull((SELECT tab1.RowNumber FROM (SELECT row_number() OVER (
+                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
+                                                           ) AS RowNumber,
+                                                         c1.RECORD_TABLE_ID AS record_id
+                                                  FROM CashData AS c1
+                                                  WHERE c1.CASH_SUM = ?
+                                                  ORDER BY c1.CASH_SUM,
+                                                           c1.RECORD_TABLE_ID) AS tab1
+                                WHERE record_id = ?), 0);
+
  select_CashData:
    SELECT  *
    FROM CashData
@@ -267,16 +287,15 @@ VALUES
   DELETE FROM CashData;
 
  update_CashData_SortNewNumbersPositions:
-  WITH tab AS (SELECT
-                 CASH_SUM AS cash_sum,
-                 RECORD_TABLE_ID AS record_id,
-                 row_number() OVER (
-                      ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                 ) AS RowNumber
-                 FROM
-                     CashData
-                 WHERE CASH_SUM = ?
-                 ORDER BY CASH_SUM, RECORD_TABLE_ID)
+  WITH tab AS (SELECT  c.CASH_SUM AS cash_sum,
+                       c.RECORD_TABLE_ID AS record_id,
+                       row_number() OVER (
+                           ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                       ) AS RowNumber
+              FROM     CashData AS c
+              WHERE     c.CASH_SUM = ?
+             ORDER BY   c.CASH_SUM,
+                        c.RECORD_TABLE_ID)
 
   UPDATE CashData
   SET   INTEGER_20 = (SELECT t.RowNumber
@@ -301,15 +320,15 @@ VALUES
                                   LIMIT (SELECT  VALUE_VALUE
                                          FROM MetaData
                                          WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
-                                  OFFSET (ifnull((SELECT tab.RowNumber
+                                  OFFSET 0 + ifnull((SELECT tab1.RowNumber
                                                   FROM (SELECT c1.RECORD_TABLE_ID AS record_id,
                                                                row_number() OVER (
                                                                           ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
                                                                 ) AS RowNumber
                                                          FROM   CashData AS c1
                                                          WHERE  c1.CASH_SUM = ?
-                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab
-                                                  WHERE  tab.record_id = ?), 0))
+                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab1
+                                                  WHERE  tab1.record_id = ?), 0)
                                   );
 
  delete_CashData_DeletedRecords:

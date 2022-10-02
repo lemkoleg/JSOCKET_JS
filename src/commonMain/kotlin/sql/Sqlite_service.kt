@@ -751,6 +751,36 @@ object Sqlite_service : CoroutineScope {
         return ArrayDeque()
     }
 
+    @JsName("SelectCashDataChunkOnCashSum")
+    suspend fun SelectCashDataChunkOnCashSum(cash: String, record_id_from: String = ""): ArrayDeque<ANSWER_TYPE> {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockCASHLASTUPDATE.lock()
+                    return@withTimeoutOrNull statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(cash, record_id_from)
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "SelectCashDataAllOnCashSum",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "SelectCashDataAllOnCashSum",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statCASHLASTUPDATE.clear_parameters()
+                lockCASHLASTUPDATE.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+        return ArrayDeque()
+    }
+
     @JsName("SelectCashData")
     suspend fun SelectCashData(cash: String, record_id: String): ArrayDeque<ANSWER_TYPE> {
         try {
@@ -834,6 +864,37 @@ object Sqlite_service : CoroutineScope {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "OrederCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statCASHLASTUPDATE.clear_parameters()
+                lockCASHLASTUPDATE.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+    }
+
+    @JsName("UpdateCashDataNewLastSelect")
+    fun UpdateCashDataNewLastSelect(last_select: Long,
+                                    cash_sum:String,
+                                    record_table_id_from:String) = Sqlite_serviceScope.launch {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockCASHLASTUPDATE.lock()
+                    statCASHLASTUPDATE.UPADTE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from)
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "UpdateCashDataNewLastSelect",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "UpdateCashDataNewLastSelect",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )

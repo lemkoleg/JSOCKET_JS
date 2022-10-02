@@ -33,11 +33,36 @@ val CASH_DATAS: MutableMap<String, KCashData> = mutableMapOf()
 class KCashData(lCASH_SUM: String) {
 
     val CASH_SUM: String = lCASH_SUM
-
+    var count_of_cashing_records = 0
     var OBJECT_ID: String = ""
     var LINK_OWNER: String = ""
     var MESS_COUNT_FROM: String = ""
     var RECORD_TYPE = ""
+        set(v) {
+            if (field != v) {
+                when(v){
+                    "B", "D", "F", "H", "I" -> {
+                        count_of_cashing_records = Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS
+                    }
+                    "J", "K", "L" -> {
+                        count_of_cashing_records = Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO
+                    }
+                    "A", "C", "E", "G" , "M"-> {
+                        count_of_cashing_records = Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS
+                    }
+                    "3" -> {
+                        count_of_cashing_records = Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS
+                    }
+                    "4" -> {  // MESSEGESS;
+                        count_of_cashing_records = Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES
+                    }
+                    "8", "9" -> { // CHATS_LIKES, CHATS_COST_TYPES;
+                        count_of_cashing_records = 1000000
+                    }
+                }
+            }
+            field = v
+        }
     var SORT: String = "0"
     var OTHER_CONDITIONS_1: String = ""
     var OTHER_CONDITIONS_2: String = ""
@@ -89,20 +114,19 @@ class KCashData(lCASH_SUM: String) {
 
     var kCashLastUpdate: KCashLastUpdate? = CASH_LAST_UPDATE[CASH_SUM]
 
-    //var current_number_of_block = 0
-
     var currentViewCashData: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
-    var currentViewCashDataRecordId: String = ""
-    var currentViewCashDataRecordItem: Int = 0
+    var currentViewCashDataRecord: ANSWER_TYPE? = null
+    //var currentViewCashDataRecordId: String = ""
+    //var currentViewCashDataRecordItem: Int = 0
 
-    var updatedCashData: ((v: Any?) -> Any?) = {}
+    var callBackUpdatedCashData: ((v: Any?) -> Any?) = {}
 
     var time_out_first_select = DateTime.nowUnixLong()
 
     var currentJobForGet: Job? = null
 
-    var NextArrayLastSelect: String = ""
+    //var NextArrayLastSelect: String = ""
 
     init {
         ensureNeverFrozen()
@@ -123,6 +147,7 @@ class KCashData(lCASH_SUM: String) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     var kCashDataUpdateParameters: KCashDataUpdateParameters? = null
+                    val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                     try {
                         KCashDataLock.lock()
                         kCashDataUpdateParameters = REQUESTS[l_just_do_it_label]
@@ -167,28 +192,41 @@ class KCashData(lCASH_SUM: String) {
                             }
                             var l = CASH_DATA_RECORDS[it.RECORD_TABLE_ID]
                             if (l != null) {
-                                if (l.INTEGER_20 != it.INTEGER_20) {
-                                    val n = ORDERED_CASH_DATA.getOrNull(l.INTEGER_20.minus(1))
-                                        ?: throw my_user_exceptions_class(
-                                            l_class_name = "KMetaData",
-                                            l_function_name = "ADD_NEW_META_DATA",
-                                            name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "ORDERED_CASH_DATA item ${l.INTEGER_20.minus(1)} is null"
-                                        )
-                                    if (n.RECORD_TABLE_ID == it.RECORD_TABLE_ID) {
-                                        ORDERED_CASH_DATA.removeAt(l.INTEGER_20.minus(1))
-                                    }
-                                }
                                 l.merge(it)
+                                val index = ORDERED_CASH_DATA.indexOf(l).plus(1)
+                                if (index == 0) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KMetaData",
+                                        l_function_name = "ADD_NEW_META_DATA",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "ORDERED_CASH_DATA item ${l.INTEGER_20.minus(1)} is null"
+                                    )
+                                }
+                                if (index != l.INTEGER_20) {
+                                    ORDERED_CASH_DATA.remove(l)
+                                    if (ORDERED_CASH_DATA.size < l.INTEGER_20.minus(1)) {
+                                        l.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                                    }
+                                    ORDERED_CASH_DATA.add(l.INTEGER_20.minus(1), l)
+                                }
+                                if(index <= count_of_cashing_records || l.INTEGER_20 <= count_of_cashing_records){
+                                    chenged_records.addLast(l)
+                                }
+
                             } else {
                                 l = it
                                 CASH_DATA_RECORDS[l.RECORD_TABLE_ID] = l
+                                if (ORDERED_CASH_DATA.size < l.INTEGER_20.minus(1)) {
+                                    l.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                                }
+                                ORDERED_CASH_DATA.add(l.INTEGER_20.minus(1), l)
+                                if(l.INTEGER_20 <= count_of_cashing_records){
+                                    chenged_records.addLast(l)
+                                }
                             }
-                            if (ORDERED_CASH_DATA.size < l.INTEGER_20.minus(1)) {
-                                l.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
-                            }
+
                             l.IS_UPDATED_BY_MERGE = true
-                            ORDERED_CASH_DATA.add(l.INTEGER_20.minus(1), l)
+
                             kCashDataUpdateParameters.count_of_all_records--
                         }
                         return@withTimeoutOrNull true
@@ -206,6 +244,9 @@ class KCashData(lCASH_SUM: String) {
                             if (kCashDataUpdateParameters!!.count_of_all_records == 0) {
                                 SetLastBlock()
                             }
+                        }
+                        if (chenged_records.isNotEmpty()) {
+                            Sqlite_service.InsertCashData(chenged_records)
                         }
                         if (kCashDataUpdateParameters != null && kCashDataUpdateParameters.count_of_all_records == 0) {
                             Connection.removeRequest(l_just_do_it_label)
@@ -233,114 +274,47 @@ class KCashData(lCASH_SUM: String) {
     @JsName("UPDATE_LAST_SELECT")
     fun UPDATE_LAST_SELECT(
         lastSelect: Long,
-        object_recod_id_from: String,
-        kCashData: KCashData = this
+        object_recod_id_from: String
     ): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
-                    val arrUpdatedCashData: MutableList<ANSWER_TYPE>?
                     try {
                         KCashDataLock.lock()
-                        var is_update_cash = false
-                        val l = CASH_DATA_RECORDS[object_recod_id_from]
-                        if (l != null) {
-                            val n =
-                                ORDERED_CASH_DATA.getOrNull(l.INTEGER_20.minus(1)) ?: throw my_user_exceptions_class(
-                                    l_class_name = "KMetaData",
-                                    l_function_name = "UPDATE_LAST_SELECT",
-                                    name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "ORDERED_CASH_DATA item ${l.INTEGER_20.minus(1)} is null"
-                                )
-                            if (n.RECORD_TABLE_ID == l.RECORD_TABLE_ID) {
-                                val limit: Int =
-                                    if (ORDERED_CASH_DATA.size < (l.INTEGER_20.plus(Constants.LIMIT_FOR_SELECT))) ORDERED_CASH_DATA.size
-                                    else (l.INTEGER_20.plus(Constants.LIMIT_FOR_SELECT))
 
-                                arrUpdatedCashData = ORDERED_CASH_DATA.subList(l.INTEGER_20, limit)
-
-                                if (arrUpdatedCashData.size > 0) {
-                                    arrUpdatedCashData.forEach {
-                                        if (it.answerTypeValues.getIS_DELETE_RECORD()) {
-                                            val k = CASH_DATA_RECORDS.remove(it.RECORD_TABLE_ID)
-                                            if (k != null) {
-                                                if (k.RECORD_TABLE_ID == ORDERED_CASH_DATA[k.INTEGER_20.minus(1)].RECORD_TABLE_ID) {
-                                                    ORDERED_CASH_DATA.removeAt(k.INTEGER_20.minus(1))
-                                                }
-                                            }
-                                        }
-                                        it.LONG_20 = lastSelect
-                                        it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
-                                    }
-                                    when (kCashData.kCashLastUpdate!!.RECORD_TYPE) {
-                                        "B", "D", "F", "H", "I" -> {
-                                            if (l.INTEGER_20 <= Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS) {
-                                                is_update_cash = true
-                                            }
-                                        }
-                                        "J", "K", "L" -> {
-                                            if (l.INTEGER_20 <= Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO) {
-                                                is_update_cash = true
-                                            }
-                                        }
-                                        "4", "A", "C", "E", "G" -> {
-                                            if (l.INTEGER_20 <= Constants.MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS) {
-                                                is_update_cash = true
-                                            }
-                                        }
-                                    }
-                                    if (is_update_cash) {
-                                        Sqlite_service.InsertCashData(arrUpdatedCashData)
-                                        //Sqlite_service.OrederCashData(kCashData.CASH_SUM)
-                                    }
-                                }
-                            } else {
+                        var index =
+                            if (object_recod_id_from.isEmpty()) 0 else ORDERED_CASH_DATA.indexOf(CASH_DATA_RECORDS[object_recod_id_from])
+                        if (index == -1) {
+                            if (object_recod_id_from.isEmpty()) {
                                 throw my_user_exceptions_class(
-                                    l_class_name = "KMetaData",
+                                    l_class_name = "KCashData",
                                     l_function_name = "UPDATE_LAST_SELECT",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "ORDERED_CASH_DATA.ECORD_TABLE_ID ${n.RECORD_TABLE_ID} not equal CASH_DATA_RECORDS.ECORD_TABLE_ID ${l.RECORD_TABLE_ID} "
+                                    l_additional_text = "index == -1"
                                 )
                             }
-                            kCashData.kCashLastUpdate!!.INSERT_CASH_LASTUPDATE()
                         }
+                        if (index > 0) {
+                            index++
+                        }
+                        if(index <= count_of_cashing_records){
+                            Sqlite_service.UpdateCashDataNewLastSelect(lastSelect, CASH_SUM, object_recod_id_from)
+                        }
+
+                        val limit = minOf(Constants.LIMIT_FOR_SELECT.plus(index), ORDERED_CASH_DATA.size)
+                        ORDERED_CASH_DATA.subList(index, limit).forEach {
+                            it.LONG_20 = lastSelect
+                            it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                        }
+
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KCashData",
-                            l_function_name = "ADD_NEW_CASH_DATA",
+                            l_function_name = "UPDATE_LAST_SELECT",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
                     } finally {
-                        if (currentViewCashData.size > 0) {
-                            val l =
-                                if (kCashLastUpdate!!.COURSE == "1") currentViewCashData.firstOrNull() else currentViewCashData.lastOrNull()
-                            if (l != null) {
-                                val k = CASH_DATA_RECORDS[l.RECORD_TABLE_ID]
-                                if (k != null) {
-                                    val n = ORDERED_CASH_DATA.getOrNull(k.INTEGER_20.minus(1))
-                                        ?: throw my_user_exceptions_class(
-                                            l_class_name = "KCashData",
-                                            l_function_name = "ADD_NEW_CASH_DATA",
-                                            name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "ORDERED_CASH_DATA.RECORD_TABLE_ID ${k.INTEGER_20} is null"
-                                        )
-                                    if (n.RECORD_TABLE_ID != k.RECORD_TABLE_ID) {
-                                        throw my_user_exceptions_class(
-                                            l_class_name = "KCashData",
-                                            l_function_name = "ADD_NEW_CASH_DATA",
-                                            name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "ORDERED_CASH_DATA.RECORD_TABLE_ID ${n.RECORD_TABLE_ID} not equal CASH_DATA_RECORDS.RECORD_TABLE_ID ${k.RECORD_TABLE_ID}"
-                                        )
-                                    }
-                                    NextArrayLastSelect = ""
-                                    for (x in n.INTEGER_20..n.INTEGER_20.plus(Constants.LIMIT_FOR_SELECT)) {
-                                        if (ORDERED_CASH_DATA.size < x) break
-                                        NextArrayLastSelect += ORDERED_CASH_DATA[x].OBJECT_ID_LAST_SELECT
-                                    }
-                                }
-                            }
-                        }
                         KCashDataLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -357,7 +331,7 @@ class KCashData(lCASH_SUM: String) {
 
     private fun Get(
         kCashData: KCashData = this,
-        l_record_table_id_from: String = currentViewCashDataRecordId
+        l_record_table_id: ANSWER_TYPE? = currentViewCashDataRecord
     ): Promise<Unit?> = CoroutineScope(Dispatchers.Default).async {
 
         if (currentJobForGet != null && currentJobForGet!!.isActive) {
@@ -376,19 +350,40 @@ class KCashData(lCASH_SUM: String) {
                         socket.value_par4 = kCashData.OTHER_CONDITIONS_1  // mess count ofsset
                         socket.value_par5 = kCashData.OTHER_CONDITIONS_2
                         socket.value_par6 = kCashData.OTHER_CONDITIONS_3
-                        socket.value_par9 = kCashData.NextArrayLastSelect
                         socket.check_sum = kCashData.CASH_SUM
-                        when (kCashData.kCashLastUpdate!!.RECORD_TYPE) {
-                            "B", "D", "F", "H", "I" -> {
-                                socket.value_id1 = l_record_table_id_from
+                        if (l_record_table_id == null) {
+                            if (ORDERED_CASH_DATA.isNotEmpty()) {
+                                ORDERED_CASH_DATA.subList(0, minOf(Constants.LIMIT_FOR_SELECT, ORDERED_CASH_DATA.size))
+                                    .forEach {
+                                        socket.value_par9 = socket.value_par9 + it.OBJECT_ID_LAST_SELECT
+                                    }
                             }
-                            "J", "K", "L" -> {
-                                socket.value_id1 = l_record_table_id_from
+
+                        } else {
+                            if (ORDERED_CASH_DATA.isNotEmpty()) {
+                                val index = ORDERED_CASH_DATA.indexOf(l_record_table_id).plus(1)
+                                if (index < ORDERED_CASH_DATA.size) {
+                                    ORDERED_CASH_DATA.subList(
+                                        index,
+                                        minOf(Constants.LIMIT_FOR_SELECT.plus(index), ORDERED_CASH_DATA.size)
+                                    ).forEach {
+                                        socket.value_par9 = socket.value_par9 + it.OBJECT_ID_LAST_SELECT
+                                    }
+                                }
                             }
-                            "4", "A", "C", "E", "G" -> {
-                                socket.value_par4 = l_record_table_id_from
+                            when (kCashData.kCashLastUpdate!!.RECORD_TYPE) {
+                                "B", "D", "F", "H", "I" -> {
+                                    socket.value_id1 = l_record_table_id.RECORD_TABLE_ID
+                                }
+                                "J", "K", "L" -> {
+                                    socket.value_id1 = l_record_table_id.RECORD_TABLE_ID
+                                }
+                                "4", "A", "C", "E", "G" -> {
+                                    socket.value_par4 = l_record_table_id.RECORD_TABLE_ID
+                                }
                             }
                         }
+
                     } catch (ex: Exception) {
                         Connection.removeRequest(socket.just_do_it_label)
                         throw my_user_exceptions_class(
@@ -411,48 +406,69 @@ class KCashData(lCASH_SUM: String) {
     }.toPromise(EmptyCoroutineContext)
 
 
-    private fun SetLastBlock():ArrayDeque<ANSWER_TYPE> {
+    private fun SetLastBlock(): ArrayDeque<ANSWER_TYPE> {
         val l_currentViewCashData: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
         val result: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-            try {
+        try {
 
             if (ORDERED_CASH_DATA.size == 0) {
                 currentViewCashData.clear()
                 return result
             }
 
-            var offset = 0
+            if (ORDERED_CASH_DATA.size <= Constants.LIMIT_FOR_SELECT) {
+                currentViewCashData.clear()
+                if (kCashLastUpdate!!.COURSE == "1") {
+                    result.addAll(ORDERED_CASH_DATA.reversed())
+                } else {
+                    result.addAll(ORDERED_CASH_DATA)
+                }
+                currentViewCashData.addAll(result)
+                return result
+            }
+
+
+            val offset: Int
+            val index: Int
             var limit: Int
 
-                if (kCashLastUpdate!!.COURSE == "1"){
-                    l_currentViewCashData.addAll(currentViewCashData.reversed())
-                } else{
-                    l_currentViewCashData.addAll(currentViewCashData)
-                }
+            if (currentViewCashDataRecord != null) {
 
-            val l: ANSWER_TYPE?
-            if (currentViewCashDataRecordId.isNotEmpty()) {
-                l = l_currentViewCashData.getOrNull(currentViewCashDataRecordItem.minus(1))
-                    ?: throw my_user_exceptions_class(
-                        l_class_name = "KCashData",
-                        l_function_name = "SetLastBlock",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = "currentViewCashData is null with item: ${
-                            currentViewCashDataRecordItem.minus(
-                                1
-                            )
-                        }"
-                    )
+                index = currentViewCashData.indexOf(currentViewCashDataRecord!!).plus(1)
+                offset = ORDERED_CASH_DATA.indexOf(currentViewCashDataRecord!!).plus(1)
 
-                if (l.RECORD_TABLE_ID != currentViewCashDataRecordId) {
+                if(index == -1){
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
                         l_function_name = "SetLastBlock",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = "l.RECORD_TABLE_ID: ${l.RECORD_TABLE_ID} is not equal currentViewCashDataRecordId: $currentViewCashDataRecordId"
+                        l_additional_text = "currentViewCashData is null with item: ${
+                            currentViewCashDataRecord!!.INTEGER_20
+                        }"
                     )
                 }
-                offset = CASH_DATA_RECORDS[currentViewCashDataRecordId]!!.INTEGER_20
+
+                if(offset == -1){
+                    throw my_user_exceptions_class(
+                        l_class_name = "KCashData",
+                        l_function_name = "SetLastBlock",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "ORDERED_CASH_DATA is null with item: ${
+                            currentViewCashDataRecord!!.INTEGER_20
+                        }"
+                    )
+                }
+            } else {
+                index = Constants.LIMIT_FOR_SELECT
+                offset = Constants.LIMIT_FOR_SELECT
+            }
+
+            if (kCashLastUpdate!!.COURSE == "1") {
+                l_currentViewCashData.addAll(
+                    currentViewCashData.reversed().subList(0, minOf(index, currentViewCashData.size))
+                )
+            } else {
+                l_currentViewCashData.addAll(currentViewCashData.subList(0, minOf(index, currentViewCashData.size)))
             }
 
             if (offset >= ORDERED_CASH_DATA.size) {
@@ -475,17 +491,6 @@ class KCashData(lCASH_SUM: String) {
 
             if (cash.isEmpty()) return result
 
-            val v = l_currentViewCashData.subList(0, currentViewCashDataRecordItem)
-            l_currentViewCashData.clear()
-            l_currentViewCashData.addAll(v)
-            if (l_currentViewCashData.last().RECORD_TABLE_ID != currentViewCashDataRecordId) {
-                throw my_user_exceptions_class(
-                    l_class_name = "KCashData",
-                    l_function_name = "SetLastBlock",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "currentViewCashData.last().RECORD_TABLE_ID: ${currentViewCashData.last().RECORD_TABLE_ID} is not equal currentViewCashDataRecordId: $currentViewCashDataRecordId"
-                )
-            }
             l_currentViewCashData.addAll(cash)
 
             currentViewCashData.clear()
@@ -497,11 +502,11 @@ class KCashData(lCASH_SUM: String) {
                 currentViewCashData.addAll(l_currentViewCashData)
                 result.addAll(cash)
             }
-
-                return result
+            cash.clear()
+            return result
         } finally {
             l_currentViewCashData.clear()
-            updatedCashData(null)
+            callBackUpdatedCashData(null)
         }
     }
 
@@ -516,26 +521,44 @@ class KCashData(lCASH_SUM: String) {
                         if (currentJobForGet != null && currentJobForGet!!.isActive) {
                             currentJobForGet!!.join()
                         }
-                        var l: ANSWER_TYPE? = null
                         if (!currentViewCashData.isEmpty()) {
-                            l = if (kCashLastUpdate!!.COURSE == "1") {
-                                currentViewCashData.first()
+                            currentViewCashDataRecord = if (kCashLastUpdate!!.COURSE == "1") {
+                                currentViewCashData.firstOrNull()
                             } else {
-                                currentViewCashData.last()
+                                currentViewCashData.lastOrNull()
                             }
                         }
-                        if (l != null) {
-                            currentViewCashDataRecordId = l.RECORD_TABLE_ID
-                            currentViewCashDataRecordItem = currentViewCashData.size
+
+                        val arr = Sqlite_service.SelectCashDataChunkOnCashSum(
+                            CASH_SUM,
+                            currentViewCashDataRecord?.RECORD_TABLE_ID ?: ""
+                        )
+                        if (arr.isNotEmpty()) {
+                            arr.forEach {
+                                it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                if (!CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
+                                    if (it.RECORD_TYPE != RECORD_TYPE) {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "KCashData",
+                                            l_function_name = "GetNext",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "RECORD_TYPE of CASH_DATA ${it.RECORD_TYPE} not equals RECORD_TYPE by select $RECORD_TYPE "
+                                        )
+                                    }
+                                    CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
+                                    ORDERED_CASH_DATA.addLast(it)
+                                }
+                            }
+                            return@withTimeoutOrNull SetLastBlock()
                         }
 
                         Get()
-                        return@withTimeoutOrNull SetLastBlock()
+                        return@withTimeoutOrNull ArrayDeque<ANSWER_TYPE>()
 
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KCashData",
-                            l_function_name = "ADD_NEW_CASH_DATA",
+                            l_function_name = "GetNext",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
@@ -605,6 +628,17 @@ class KCashData(lCASH_SUM: String) {
                                     l_additional_text = "COURSE of CASH_DATA ${k.COURSE} not equals COURSE by select $L_COURSE "
                                 )
                             }
+
+                            if (k.ORDERED_CASH_DATA.size > Constants.LIMIT_FOR_SELECT) {
+                                val v = k.ORDERED_CASH_DATA.subList(0, Constants.LIMIT_FOR_SELECT)
+                                k.ORDERED_CASH_DATA.clear()
+                                k.ORDERED_CASH_DATA.addAll(v)
+                                k.CASH_DATA_RECORDS.clear()
+                                k.ORDERED_CASH_DATA.forEach {
+                                    k!!.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
+                                }
+                            }
+
                             k.OBJECT_ID = L_OBJECT_ID
                             k.LINK_OWNER = L_LINK_OWNER
                             k.MESS_COUNT_FROM = L_MESS_COUNT_FROM
@@ -613,6 +647,7 @@ class KCashData(lCASH_SUM: String) {
                             k.OTHER_CONDITIONS_1 = L_OTHER_CONDITIONS_1
                             k.OTHER_CONDITIONS_2 = L_OTHER_CONDITIONS_2
                             k.OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
+
                             if (k.kCashLastUpdate == null) {
                                 k.kCashLastUpdate = CASH_LAST_UPDATE[k.CASH_SUM]
                             }
@@ -628,12 +663,6 @@ class KCashData(lCASH_SUM: String) {
                                     l_additional_text = "COURSE of CASH_DATA ${k.COURSE} not equals COURSE by CASH_LAST_UPDATE ${k.kCashLastUpdate!!.COURSE} "
                                 )
                             }
-                            k.NextArrayLastSelect = ""
-                            for (x in 0..Constants.LIMIT_FOR_SELECT) {
-                                if (k.ORDERED_CASH_DATA.size >= x) break
-                                k.NextArrayLastSelect = k.ORDERED_CASH_DATA[x].OBJECT_ID_LAST_SELECT
-                            }
-                            k.kCashLastUpdate!!.INSERT_CASH_LASTUPDATE()
                             return@withTimeoutOrNull k
                         }
 
@@ -647,12 +676,11 @@ class KCashData(lCASH_SUM: String) {
                         k.OTHER_CONDITIONS_2 = L_OTHER_CONDITIONS_2
                         k.OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
                         k.COURSE = L_COURSE
-                        k.NextArrayLastSelect = ""
                         CASH_DATAS[cash] = k
                         if (Constants.IS_DOWNLOAD_TO_MEMORY_ALL_CASH_ON_CLIENT == 0 // not downloading
                             && CASH_LAST_UPDATE.containsKey(cash)  // and exists
                         ) {
-                            val arr = Sqlite_service.SelectCashData(k.CASH_SUM)
+                            val arr = Sqlite_service.SelectCashDataChunkOnCashSum(k.CASH_SUM)
                             if (arr.isNotEmpty()) {
                                 arr.forEach {
                                     it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
@@ -664,13 +692,9 @@ class KCashData(lCASH_SUM: String) {
                                             l_additional_text = "RECORD_TYPE of CASH_DATA ${it.RECORD_TYPE} not equals RECORD_TYPE by select $L_RECORD_TYPE "
                                         )
                                     }
-                                    k.ORDERED_CASH_DATA.addLast(it)
-                                    it.INTEGER_20 = (k.ORDERED_CASH_DATA.size)
                                     k.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
-                                    if (it.INTEGER_20 < Constants.LIMIT_FOR_SELECT) {
-                                        k.NextArrayLastSelect = k.NextArrayLastSelect + it.OBJECT_ID_LAST_SELECT
-                                    }
                                 }
+                                k.ORDERED_CASH_DATA.addAll(arr)
                             }
                         }
                         if (k.kCashLastUpdate == null) {
@@ -696,8 +720,7 @@ class KCashData(lCASH_SUM: String) {
                                 l_additional_text = "RECORD_TYPE of CASH_LAST_UPDATE ${k.kCashLastUpdate!!.RECORD_TYPE} not equals RECORD_TYPE by select $L_RECORD_TYPE "
                             )
                         }
-                        k.kCashLastUpdate!!.INSERT_CASH_LASTUPDATE()
-                        k.updatedCashData = l_updatedCashData ?: k.updatedCashData
+
                         return@withTimeoutOrNull k
 
                     } catch (ex: Exception) {
@@ -710,11 +733,14 @@ class KCashData(lCASH_SUM: String) {
                     } finally {
 
                         if (k != null) {
+                            k.callBackUpdatedCashData = l_updatedCashData ?: k.callBackUpdatedCashData
                             k.currentViewCashData.clear()
-                            k.currentViewCashDataRecordId = ""
-                            k.currentViewCashDataRecordItem = 0
-                            if (k.time_out_first_select <= DateTime.nowUnixLong()) {
-                                k.GetNext()
+                            k.currentViewCashDataRecord = null
+                            k.SetLastBlock()
+                            if (k.time_out_first_select < DateTime.nowUnixLong()) {
+                                k.time_out_first_select =
+                                    DateTime.nowUnixLong() + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR
+                                k.Get()
                             }
                         }
                         KCashDatasLock.unlock()
@@ -760,9 +786,6 @@ class KCashData(lCASH_SUM: String) {
                                 v!!.ORDERED_CASH_DATA.addLast(it)
                                 it.INTEGER_20 = v!!.ORDERED_CASH_DATA.size
                                 v!!.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
-                                if (it.INTEGER_20 < Constants.LIMIT_FOR_SELECT) {
-                                    v!!.NextArrayLastSelect = v!!.NextArrayLastSelect + it.OBJECT_ID_LAST_SELECT
-                                }
                             }
                         }
                     } catch (e: my_user_exceptions_class) {
