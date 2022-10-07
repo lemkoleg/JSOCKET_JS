@@ -32,34 +32,40 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-val CHATS: MutableMap<String, KChat>  = mutableMapOf()
-
+var CHATS: KCashData?  = null
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-val NEW_CHATS: ArrayDeque<ANSWER_TYPE>  = ArrayDeque()
+val MESSEGES: MutableMap<String, KCashData>  = mutableMapOf()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val CHATS_LIKES: MutableMap<String, KCashData>  = mutableMapOf()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+val CHATS_COST_TYPES: MutableMap<String, KCashData>  = mutableMapOf()
+
 
 @InternalAPI
-private val KChatsLock = Mutex()
+private val KChatsGlobalLock = Mutex()
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("KChat")
-class KChat{
+class KChat(val ans: ANSWER_TYPE){
 
     init {
         ensureNeverFrozen()
     }
 
+    private val KChatsLock = Mutex()
+
     //val InstanceRef: AtomicReference<KChat> = AtomicReference(this)
-
-
-    constructor(ans: ANSWER_TYPE) : super(ans) {
-        setGlobalLastUpdatingDate(getLAST_UPDATE())
-        MainScope().launch { Sqlite_service.InsertChat(this as KChat) }
-    }
 
 
 
@@ -139,6 +145,7 @@ class KChat{
     }
 
     companion object {
+
         @JsName("globalLastUpdatingDate")
         val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
 
@@ -151,15 +158,14 @@ class KChat{
         val maxCountOfMessegesIntoDB = AtomicLong(100L)
 
 
-        @KorioExperimentalApi
         @JsName("ADD_NEW_CHATS")
         fun ADD_NEW_CHATS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
             withTimeout(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
-                        KChatsLock.lock()
-                        while (NEW_CHATS.isNotEmpty()) {
+                        KChatsGlobalLock.lock()
+                        while (arr.isNotEmpty()) {
                             TODO()
                         }
                         return@withTimeout true
@@ -171,7 +177,7 @@ class KChat{
                             l_additional_text = ex.message
                         )
                     } finally {
-                        KChatsLock.unlock()
+                        KChatsGlobalLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
@@ -180,4 +186,33 @@ class KChat{
             }
         }.toPromise(EmptyCoroutineContext)
     }
+
+    @JsName("INIT_CHATS")
+    fun INIT_CHATS(): Promise<Boolean> =
+        CoroutineScope(Dispatchers.Default).async {
+            withTimeout(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KChatsGlobalLock.lock()
+                        while (arr.isNotEmpty()) {
+                            TODO()
+                        }
+                        return@withTimeout true
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KChats",
+                            l_function_name = "ADD_NEW_CHATS",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KChatsGlobalLock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+                return@withTimeout false
+            }
+        }.toPromise(EmptyCoroutineContext)
+}
 }

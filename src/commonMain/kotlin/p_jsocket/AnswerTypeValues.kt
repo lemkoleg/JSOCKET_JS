@@ -1,8 +1,6 @@
 package p_jsocket
 
-import Tables.KCashData
-import Tables.KObjectInfo
-import Tables.OBJECTS_INFO
+import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -55,6 +53,31 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         RECORD_TYPE_IS_DEFINED = true
 
         //initValues()
+    }
+
+    fun NormalityRECORD_TYPE() {
+        when(answerType.RECORD_TYPE){
+            "N" -> {
+                setRECORD_TYPE("3")
+            }
+            "O" -> {
+                setRECORD_TYPE("4")
+            }
+            "P" -> {
+                setRECORD_TYPE("8")
+            }
+            "Q" -> {
+                setRECORD_TYPE("9")
+            }
+            else -> {
+                throw my_user_exceptions_class(
+                    l_class_name = "AnswerTypeValues",
+                    l_function_name = "NormalityRECORD_TYPE",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Record is not CHATS records"
+                )
+            }
+        }
     }
 
     @JsName("setRECORD_TYPE")
@@ -183,6 +206,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetLinkLastUpdate")
     var GetLinkLastUpdate: () -> Long = { getEMPTY_LONG() }
 
+    @JsName("GetSmallAvatar")
+    var GetSmallAvatar: () -> ByteArray? = { getBLOB_1() }
+
+    @JsName("GetBigAvatar")
+    var GetBigAvatar: () -> ByteArray? = { getBLOB_2() }
+
     //////////////////// albums /////////////////////////////
 
     @JsName("GetAlbumId")
@@ -304,6 +333,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetMessegeCost")
     var GetMessegeCost: () -> Int = { getEMPTY_INTEGER() }
 
+    @JsName("GetAccountSmallAvatar")
+    var GetAccountSmallAvatar: () -> ByteArray? = { getBLOB_1() }
+
+    @JsName("GetAccountBigAvatar")
+    var GetAccountBigAvatar: () -> ByteArray? = { getBLOB_3() }
+
     ///////////////////// chats //////////////////////////
 
     @JsName("GetChatsMessegeCount")
@@ -370,7 +405,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             -> {
 
             }
-            "3" //CHATS
+            "3", "N" //CHATS
             -> {
                 GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
@@ -389,11 +424,25 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetChatsCountOfMembers = { getINTEGER_5() }
                 GetChatsBalance = { getINTEGER_6() }
 
+                if(GetObjectType() == "0"){  // CHAT_IS_CHAT;
+                    if(GetMainAccountId() == Account_Id){
+                        GetObjectName =  { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                    }else{
+                        GetObjectName =  { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                    }
+                }else{
+                    GetObjectName = { getSTRING_5() }
+                }
+
                 GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
 
                 answerType.RECORD_TABLE_ID = GetLinkOwner()
             }
-            "4", "M" //MESSEGES
+            "4", "M", "O" //MESSEGES
             -> {
                 GetMainAccountId = { getIDENTIFICATOR_12() }
                 GetSecondAccountId = { getIDENTIFICATOR_13() }
@@ -412,6 +461,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetRecordLastUpdate = { getLONG_15() }
                 GetMessegeCost = { getINTEGER_11() }
                 GetChatsCostTypeId = { getINTEGER_12() }
+
+                GetMainAccountName = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetSecondAccountName = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(GetSecondAccountId())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetAccountSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
+                GetAccountBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
 
                 GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
 
@@ -513,7 +567,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             -> {
 
             }
-            "8" //CHATS_LIKES
+            "8",  "P" //CHATS_LIKES
             -> {
                 GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetChatId = { getIDENTIFICATOR_5() }
@@ -536,7 +590,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 answerType.RECORD_TABLE_ID = GetMainAccountId()
 
             }
-            "9" //CHATS_COST_TYPES
+            "9", "Q" //CHATS_COST_TYPES
             -> {
                 GetMainAccountId = { getIDENTIFICATOR_7() }
                 GetMainAvatarId = { getIDENTIFICATOR_6() }
@@ -2306,6 +2360,26 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         answerType.STRING_20 = v ?: ""
     }
 
+    @JsName("getBLOB_1")
+    private fun getBLOB_1(): ByteArray? {
+        return answerType.BLOB_1
+    }
+
+    @JsName("getBLOB_2")
+    private fun getBLOB_2(): ByteArray? {
+        return answerType.BLOB_2
+    }
+
+    @JsName("getBLOB_3")
+    private fun getBLOB_3(): ByteArray? {
+        return answerType.BLOB_3
+    }
+
+    @JsName("getBLOB_4")
+    private fun getBLOB_4(): ByteArray? {
+        return answerType.BLOB_4
+    }
+
     @JsName("getEMPTY_STRING")
     private fun getEMPTY_STRING(): String {
         return ""
@@ -2319,6 +2393,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("getEMPTY_LONG")
     private fun getEMPTY_LONG(): Long {
         return 0L
+    }
+
+    @JsName("getEMPTY_BLOB")
+    private fun getEMPTY_BLOB(): ByteArray? {
+        return null
     }
 
 

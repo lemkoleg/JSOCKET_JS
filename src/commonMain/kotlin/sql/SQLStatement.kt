@@ -188,6 +188,9 @@ expect class SQLStatement() {
     @JsName("TRIGGER_CASHDATA_AFTER_INSERT")
     suspend fun TRIGGER_CASHDATA_AFTER_INSERT()
 
+    @JsName("TRIGGER_CASHDATA_AFTER_UPDATE")
+    suspend fun TRIGGER_CASHDATA_AFTER_UPDATE()
+
     @JsName("INSERT_CASHDATA")
     suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE)
 
@@ -201,7 +204,7 @@ expect class SQLStatement() {
     suspend fun SELECT_CASHDATA_CHUNK_ON_CASH_SUM(CASH_SUM: String, record_id_from: String): ArrayDeque<ANSWER_TYPE>
 
     @JsName("SELECT_CASHDATA")
-    suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ArrayDeque<ANSWER_TYPE>
+    suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ANSWER_TYPE?
 
     @JsName("CLEAR_CASHDATA")
     suspend fun CLEAR_CASHDATA()

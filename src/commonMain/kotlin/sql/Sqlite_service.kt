@@ -782,7 +782,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("SelectCashData")
-    suspend fun SelectCashData(cash: String, record_id: String): ArrayDeque<ANSWER_TYPE> {
+    suspend fun SelectCashData(cash: String, record_id: String): ANSWER_TYPE? {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -808,7 +808,7 @@ object Sqlite_service : CoroutineScope {
         } catch (e: my_user_exceptions_class) {
             e.ExceptionHand(null)
         }
-        return ArrayDeque()
+        return null
     }
 
     @JsName("LoadCashData")
@@ -885,6 +885,7 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.lock()
                     statCASHLASTUPDATE.UPADTE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from)
+                    //statCASHLASTUPDATE.DELETE_CASHDATA_DELETED_RECORDS(cash_sum)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "UpdateCashDataNewLastSelect",

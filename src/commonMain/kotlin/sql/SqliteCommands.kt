@@ -243,6 +243,20 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
   END; 
 """
 
+const val TRIGGER_CASHDATA_AFTER_UPDATE = """
+  CREATE TRIGGER IF NOT EXISTS TCashDataAfterUpdate 
+  AFTER UPDATE ON CashData 
+  FOR EACH ROW 
+  WHEN new.LONG_20 != old.LONG_20 
+  AND substr(new.STRING_20, 7,1) = '1' 
+  BEGIN 
+    DELETE 
+    FROM  CashData 
+    WHERE rowid = new.rowid; 
+  END;   
+"""
+
+
 const val INSERT_CASHDATA = """
 INSERT OR REPLACE INTO CashData  
 ( CASH_SUM, 
@@ -425,9 +439,7 @@ const val UPADTE_CASHDATA_NEW_LAST_SELECT = """
                                   ORDER BY c.CASH_SUM, 
                                            c.INTEGER_20 ASC, 
                                            c.INTEGER_20_LEVEL ASC 
-                                  LIMIT (SELECT  VALUE_VALUE 
-                                         FROM MetaData 
-                                         WHERE VALUE_NAME = 'LIMIT_FOR_SELECT') 
+                                  LIMIT ?
                                   OFFSET 0 + ifnull((SELECT tab1.RowNumber 
                                                   FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
                                                                row_number() OVER ( 

@@ -140,6 +140,18 @@ CREATE TABLE IF NOT EXISTS CashData
        AND    RECORD_TABLE_ID = (SELECT next_record_id  FROM tab2 LIMIT 1);
 
   END;
+
+trigger_CashData_After_Update:
+  CREATE TRIGGER IF NOT EXISTS TCashDataAfterUpdate
+  AFTER UPDATE ON CashData
+  FOR EACH ROW
+  WHEN new.LONG_20 != old.LONG_20
+  AND substr(new.STRING_20, 7,1) = '1'
+  BEGIN
+    DELETE
+    FROM  CashData
+    WHERE rowid = new.rowid;
+  END;
        
 insert_CashData:
 REPLACE INTO CashData
@@ -317,9 +329,7 @@ VALUES
                                   ORDER BY c.CASH_SUM,
                                            c.INTEGER_20 ASC,
                                            c.INTEGER_20_LEVEL ASC
-                                  LIMIT (SELECT  VALUE_VALUE
-                                         FROM MetaData
-                                         WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
+                                  LIMIT ?
                                   OFFSET 0 + ifnull((SELECT tab1.RowNumber
                                                   FROM (SELECT c1.RECORD_TABLE_ID AS record_id,
                                                                row_number() OVER (
@@ -330,12 +340,6 @@ VALUES
                                                          ORDER BY c1.RECORD_TABLE_ID) AS tab1
                                                   WHERE  tab1.record_id = ?), 0)
                                   );
-
- delete_CashData_DeletedRecords:
-  DELETE
-    FROM CashData
-    WHERE  CASH_SUM = ?
-    AND substr(STRING_20, 7, 1) = "1";
 
 
 

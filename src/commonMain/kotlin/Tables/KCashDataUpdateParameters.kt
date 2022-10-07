@@ -12,7 +12,7 @@ import kotlin.time.ExperimentalTime
 class KCashDataUpdateParameters(
     val last_update: Long,
     val limit: Int,
-    var count_of_all_records :Int
+    var count_of_all_records: Int
 ) {
     val time_out = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
     var start_record_id = ""

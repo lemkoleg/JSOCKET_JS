@@ -529,6 +529,8 @@ class ANSWER_TYPE {
     @JsName("merge")
     fun merge(v: ANSWER_TYPE) {
 
+        callBackUpdatedData = v.callBackUpdatedData
+
         if (v.IDENTIFICATOR_1 != null) {
             this.IDENTIFICATOR_1 = v.IDENTIFICATOR_1
         }
@@ -829,6 +831,8 @@ class ANSWER_TYPE {
             this.STRING_14 = v.STRING_14
 
         }
+
+        //callBackUpdatedData(null)
     }
 
     @JsName("get_BLOB_1_size")
@@ -850,6 +854,9 @@ class ANSWER_TYPE {
     fun get_BLOB_4_size(): Int {
         return BLOB_4?.size ?: 0
     }
+
+    @JsName("callBackUpdatedData")
+    var callBackUpdatedData: ((v: Any?) -> Any?) = {}
 
 
     ///////////////////////////////////////////////////////////////////////////////
