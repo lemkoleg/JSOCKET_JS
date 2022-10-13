@@ -316,8 +316,8 @@ object Connection : CoroutineScope {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 println("CLIENT_JSOCKET_POOL is emptty")
                             }
-                            jsocketRet = Jsocket()
                             Jsocket.fill()
+                            jsocketRet = Jsocket()
                         }
                         var jsocket: Jsocket?
                         jsocketRet.deserialize(b, myConnectionsCoocki, true, newConnectionCoocki.value)
@@ -334,6 +334,19 @@ object Connection : CoroutineScope {
 
                             if (jsocket != null) {
                                 when (jsocketRet.just_do_it) {
+
+                                    1011000086 -> {  // new messeges, notices;
+                                        var j: Jsocket? = Jsocket.GetJsocket()
+                                        if (j == null) {
+                                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                                println("CLIENT_JSOCKET_POOL is emptty")
+                                            }
+                                            Jsocket.fill()
+                                            j = Jsocket()
+                                        }
+                                        j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
+                                        j.send_request()
+                                    }
                                     1011000058 -> {
                                         jsocket.send_request()
                                     }

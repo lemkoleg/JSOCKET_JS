@@ -521,6 +521,35 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
+    @JsName("ClearRegData")
+    fun ClearRegData() = Sqlite_serviceScope.launch {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockREG_DATA.lock()
+                    statREG_DATA.CLEAR_REGDATA()
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "ClearRegData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "ClearRegData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statREG_DATA.clear_parameters()
+                lockREG_DATA.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+    }
+
     ///////////// save_media ///////////////////////////
 
     private val statSAVE_MEDIA = Connection.createStatement()

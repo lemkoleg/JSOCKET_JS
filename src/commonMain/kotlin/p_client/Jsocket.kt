@@ -108,15 +108,13 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
             try {
                 try {
-                    val command: Command? = COMMANDS[just_do_it]
-                    if (command == null) {
-                        throw my_user_exceptions_class(
+                    val command: Command = COMMANDS[just_do_it]
+                        ?: throw my_user_exceptions_class(
                             l_class_name = "Jsocket",
                             l_function_name = "execute",
                             name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND",
                             l_additional_text = "just_do_it not found $just_do_it"
                         )
-                    }
 
                     if ((command.commands_access != "2"
                                 && command.commands_access != "9")
