@@ -4,7 +4,6 @@ package Tables
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.await
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -70,6 +69,32 @@ class KCashData(lCASH_SUM: String) {
     var OTHER_CONDITIONS_2: String = ""
     var OTHER_CONDITIONS_3: String = ""
     var COURSE: String = "0"
+
+    constructor(
+        lCASH_SUM: String,
+        L_OBJECT_ID: String,
+        L_RECORD_TYPE: String,
+        L_COURSE: String,
+        arr: ArrayDeque<ANSWER_TYPE>
+    ) : this(lCASH_SUM){
+
+        this.OBJECT_ID = L_OBJECT_ID
+        this.RECORD_TYPE = L_RECORD_TYPE
+        this.COURSE = L_COURSE
+        if (arr.isNotEmpty()) {
+            arr.forEach {
+                it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        KChat.globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                    }
+                }
+                CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
+            }
+            ORDERED_CASH_DATA.addAll(arr)
+        }
+    }
 
     /*
     constructor(
@@ -837,7 +862,12 @@ class KCashData(lCASH_SUM: String) {
 
                                             val arr_chats_likes: ArrayDeque<ANSWER_TYPE> =
                                                 Sqlite_service.SelectCashDataAllOnCashSum(chats_likes_cash_sum)
-                                            val chats_likes_KCashData = KCashData(chats_likes_cash_sum)
+                                            val chats_likes_KCashData = KCashData(
+                                                lCASH_SUM = chats_likes_cash_sum,
+                                                L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                                L_RECORD_TYPE = "8",
+                                                L_COURSE = "0",
+                                                arr = arr_chats_likes)
 
                                             CASH_DATAS[it.answerTypeValues.GetChatId()] = chats_likes_KCashData
 
@@ -852,7 +882,12 @@ class KCashData(lCASH_SUM: String) {
 
                                             val arr_chats_cost_types_likes: ArrayDeque<ANSWER_TYPE> =
                                                 Sqlite_service.SelectCashDataAllOnCashSum(chats_cost_types_cash_sum)
-                                            val chats_cost_types_KCashData = KCashData(chats_cost_types_cash_sum)
+                                            val chats_cost_types_KCashData = KCashData(
+                                                lCASH_SUM = chats_cost_types_cash_sum,
+                                                L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                                L_RECORD_TYPE = "9",
+                                                L_COURSE = "0",
+                                                arr = arr_chats_cost_types_likes)
 
                                             CASH_DATAS[it.answerTypeValues.GetChatId()] = chats_cost_types_KCashData
 
@@ -863,16 +898,18 @@ class KCashData(lCASH_SUM: String) {
                                                 w.send_request()
                                             }
 
-                                            val messeges = KCashData.GET_CASH_DATA(
-                                                L_OBJECT_ID = it.answerTypeValues.GetChatId(),
-                                                L_RECORD_TYPE = "4",  // MESSEGES;
-                                                L_COURSE = "1",
-                                                l_request_updates = false,
-                                                l_select_all_records = false,
-                                                l_is_SetLastBlock = false
-                                            ).await()
+                                            val messeges_cash_sum = it.answerTypeValues.GetChatId() + "4" + "1"
 
-                                            CASH_DATAS[it.answerTypeValues.GetChatId()] = messeges
+                                            val arr_messeges: ArrayDeque<ANSWER_TYPE> =
+                                                Sqlite_service.SelectCashDataChunkOnCashSum(messeges_cash_sum)
+                                            val messeges_KCashData = KCashData(
+                                                lCASH_SUM = messeges_cash_sum,
+                                                L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                                L_RECORD_TYPE = "4",
+                                                L_COURSE = "1",
+                                                arr = arr_messeges)
+
+                                            CASH_DATAS[it.answerTypeValues.GetChatId()] = messeges_KCashData
 
                                         }
                                         if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
