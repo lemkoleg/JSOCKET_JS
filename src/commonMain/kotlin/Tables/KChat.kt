@@ -10,6 +10,7 @@ package Tables
 import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.await
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -18,7 +19,6 @@ import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
-import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -29,11 +29,13 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
+
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 var CHATS: KCashData?  = null
 
+/*
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -48,6 +50,7 @@ val CHATS_LIKES: MutableMap<String, KCashData>  = mutableMapOf()
 @ExperimentalTime
 @InternalAPI
 val CHATS_COST_TYPES: MutableMap<String, KCashData>  = mutableMapOf()
+ */
 
 
 @InternalAPI
@@ -68,91 +71,11 @@ class KChat(val ans: ANSWER_TYPE){
     //val InstanceRef: AtomicReference<KChat> = AtomicReference(this)
 
 
-
-    private fun LastMessegeCount(): Long {
-        return MESSEGES.keys.last() ?: 0L
-    }
-
-    @ExperimentalStdlibApi
-    @JsName("InsertNewMessege")
-    fun InsertNewMessege(m: KMessege) {
-        if (m.getCHATS_ID() == getCHATS_ID()) {
-            if (MESSEGES.containsKey(m.getMESSEGES_COUNT())) {
-                CoroutineScope(Dispatchers.Default).launch { MESSEGES[m.getMESSEGES_COUNT()]!!.merge(m) }
-            } else {
-                CoroutineScope(Dispatchers.Default).launch { Sqlite_service.InsertMessege(m) }
-            }
-            MESSEGES[m.getMESSEGES_COUNT()] = m
-        }
-    }
-
-    /*private fun SynchronizeMessege() {
-        if (verifyMesseges != 0) {
-            try {
-                var lowerKey: Int = (MESSEGES.size - maxCountOfMessegesIntoDB.value)
-                lowerKey = if (lowerKey < 0) 0 else lowerKey
-                val mapSize = if (lowerKey == 0) 0 else MESSEGES.keys.lastIndexOf(lowerKey)
-                if (mapSize != if (lowerKey > 0L) maxCountOfMessegesIntoDB else MESSEGES.size) {
-                    var jsocket = Jsocket()
-                    jsocket.just_do_it = 1011000090
-                    jsocket.value_id1 = chatsID
-                    jsocket.last_messege_update = getGlobalLastUpdatingDate()
-                    jsocket.last_date_of_update = MESSEGES.lastKey()
-                    jsocket.value_par2 = "1"
-                    jsocket.value_par3 = "2"
-                    jsocket.value_par4 = "1"
-                    jsocket = send_JSOCKETs!!.send_JSOCKET_with_TimeOut(jsocket, null, true)
-                    if (jsocket.ANSWER_TYPEs != null && jsocket.ANSWER_TYPEs.size() > 0) {
-                        jsocket.ANSWER_TYPEs.forEach { k -> InsertNewMessege(Messege(k)) }
-                    }
-                }
-            } catch (ex: Exception) {
-                try {
-                    PrintWriter(FileOutputStream(java.io.File(JSOCKET_Instance.getPathErrors(), JSOCKET_Instance.getFileErrorName().concat("_chat_SynchronizeMessege_errors.txt")))).use({ pw -> ex.printStackTrace(pw) })
-                } catch (e2: Exception) {
-                }
-            } finally {
-                verifyMesseges = 0
-            }
-        }
-    }
-
-    protected fun FlushMesseges() {
-        if (flushMesseges != 0) {
-            try {
-                var p: TreeMap? = null
-                val lowerKey: Long = java.lang.Long.valueOf(MESSEGES.size - maxCountOfMessegesIntoDB!!.toLong())
-                p = if (lowerKey > 0L) {
-                    MESSEGES.tailMap(lowerKey, true) as TreeMap
-                } else {
-                    MESSEGES
-                }
-                p.forEach(BiConsumer { k: Any?, v: Any? -> Sqlite_service.InsertMessege(v as Messege?) })
-            } catch (ex: Exception) {
-                try {
-                    PrintWriter(FileOutputStream(java.io.File(JSOCKET_Instance.getPathErrors(), JSOCKET_Instance.getFileErrorName().concat("_chat_FlushMesseges_errors.txt")))).use({ pw -> ex.printStackTrace(pw) })
-                } catch (e2: Exception) {
-                }
-            } finally {
-                flushMesseges = 0
-            }
-        }
-    }*/
-
-    @JsName("DeleteMessege")
-    fun DeleteMessege(lMessegeId: Long?) {
-        MESSEGES.minus(lMessegeId)
-    }
-
     companion object {
 
         @JsName("globalLastUpdatingDate")
         val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
 
-
-        private suspend fun setGlobalLastUpdatingDate(lUpdatingDate: Long) {
-            globalLastUpdatingDate.setGreaterValue(lUpdatingDate)
-        }
 
         @JsName("maxCountOfMessegesIntoDB")
         val maxCountOfMessegesIntoDB = AtomicLong(100L)
@@ -187,21 +110,28 @@ class KChat(val ans: ANSWER_TYPE){
         }.toPromise(EmptyCoroutineContext)
     }
 
-    @JsName("INIT_CHATS")
-    fun INIT_CHATS(): Promise<Boolean> =
+    @JsName("GET_NEXT")
+    fun GET_NEXT( l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default).async {
-            withTimeout(Constants.CLIENT_TIMEOUT) {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
                         KChatsGlobalLock.lock()
-                        while (arr.isNotEmpty()) {
-                            TODO()
+                        if(CHATS == null){
+                            CHATS = KCashData.GET_CASH_DATA(L_OBJECT_ID = Account_Id,
+                                                            L_RECORD_TYPE = "3",
+                                                            L_COURSE = "0",
+                                                            l_request_updates = false,
+                                                            l_updatedCashData = l_updatedCashData).await()
+                            return@withTimeoutOrNull CHATS!!.currentViewCashData
+                        }else{
+                            return@withTimeoutOrNull  CHATS!!.GetNext()
                         }
-                        return@withTimeout true
+
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KChats",
-                            l_function_name = "ADD_NEW_CHATS",
+                            l_function_name = "GET_NEXT",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
@@ -211,8 +141,18 @@ class KChat(val ans: ANSWER_TYPE){
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-                return@withTimeout false
-            }
+            }?: throw my_user_exceptions_class(
+                l_class_name = "KChats",
+                l_function_name = "GET_NEXT",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
+
+            throw my_user_exceptions_class(
+                l_class_name = "KChats",
+                l_function_name = "GET_NEXT",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }.toPromise(EmptyCoroutineContext)
-}
 }

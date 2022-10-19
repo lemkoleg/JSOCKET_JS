@@ -3,6 +3,7 @@ package p_jsocket
 import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
+import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
@@ -330,6 +331,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetAnswerMessegeId")
     var GetAnswerMessegeId: () -> Long = { getEMPTY_LONG() }
 
+    @JsName("GetAnswerMessegeStartText")
+    var GetAnswerMessegeStartText: () -> String = { getEMPTY_STRING() }
+
     @JsName("GetMessegeCost")
     var GetMessegeCost: () -> Int = { getEMPTY_INTEGER() }
 
@@ -355,6 +359,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("GetChatsBalance")
     var GetChatsBalance: () -> Int = { getEMPTY_INTEGER() }
+
+    @JsName("GetFirstMessegeStartText")
+    var GetFirstMessegeStartText: () -> String = { getEMPTY_STRING() }
+
+    @JsName("GetChatsCountNotReadedMess")
+    var GetChatsCountNotReadedMess: () -> Long = { getEMPTY_LONG() }
 
     ///////////////////// chats likes //////////////////////////
 
@@ -426,17 +436,23 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
                 if(GetObjectType() == "0"){  // CHAT_IS_CHAT;
                     if(GetMainAccountId() == Account_Id){
-                        GetObjectName =  { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                        GetSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
-                        GetBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
                     }else{
-                        GetObjectName =  { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                        GetSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
-                        GetBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_5()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
                     }
                 }else{
                     GetObjectName = { getSTRING_5() }
                 }
+
+                GetFirstMessegeStartText = { CASH_DATAS[(getIDENTIFICATOR_5() + "41")]?.ORDERED_CASH_DATA?.firstOrNull()?.answerTypeValues?.GetMessegeStartText?.let { it() }
+                    ?:getEMPTY_STRING() }
+
+                GetChatsCountNotReadedMess = { GetChatsMessegeCount() - (CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(Account_Id)?.answerTypeValues?.GetChatsLikesLastReadedMessegeId?.let { it() }
+                    ?:getEMPTY_LONG()) }
 
                 GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
 
@@ -458,14 +474,15 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetMessegeObjectType = { getSTRING_12().substring(5, 6) }
                 GetMessegePeriodFor = { getLONG_13() }
                 GetAnswerMessegeId = { getLONG_14() }
+                GetAnswerMessegeStartText= { getSTRING_13() }
                 GetRecordLastUpdate = { getLONG_15() }
                 GetMessegeCost = { getINTEGER_11() }
                 GetChatsCostTypeId = { getINTEGER_12() }
 
-                GetMainAccountName = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                GetSecondAccountName = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(GetSecondAccountId())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                GetAccountSmallAvatar = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
-                GetAccountBigAvatar = { CHATS_LIKES[getIDENTIFICATOR_11()]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                GetMainAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetSecondAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(GetSecondAccountId())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetAccountSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
+                GetAccountBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
 
                 GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
 
@@ -930,13 +947,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
         var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetMainAccountId())
         if (v == null) {
-            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(), L_RECORD_TYPE = "J")
-                ?: throw my_user_exceptions_class(
-                    l_class_name = "AnswerTypeValues",
-                    l_function_name = "getACCOUNT_INFO",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "CASH_DATA return null !!!"
-                )
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(),
+                                            L_RECORD_TYPE = "J",
+                                            L_COURSE = "0").await()
             if(c.ORDERED_CASH_DATA.size > 1){
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
@@ -1055,13 +1068,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
         var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetAlbumId())
         if (v == null) {
-            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(), L_RECORD_TYPE = "K")
-                ?: throw my_user_exceptions_class(
-                    l_class_name = "AnswerTypeValues",
-                    l_function_name = "getALBUM_INFO",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "CASH_DATA return null !!!"
-                )
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(),
+                                            L_RECORD_TYPE = "K",
+                                            L_COURSE = "0").await()
             if(c.ORDERED_CASH_DATA.size > 1){
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
@@ -1238,13 +1247,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
         var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetObjectId())
         if (v == null) {
-            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(), L_RECORD_TYPE = "L")
-                ?: throw my_user_exceptions_class(
-                    l_class_name = "AnswerTypeValues",
-                    l_function_name = "getOBJECT_INFO",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "CASH_DATA return null !!!"
-                )
+            val c = KCashData.GET_CASH_DATA(L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(),
+                                            L_RECORD_TYPE = "L",
+                                            L_COURSE = "0").await()
             if(c.ORDERED_CASH_DATA.size > 1){
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",

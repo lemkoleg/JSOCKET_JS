@@ -1438,7 +1438,7 @@ open class JSOCKET() {
                     when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                         "2" -> KMetaData.ADD_NEW_META_DATA(arr)
-                        "N", "0", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
+                        "N", "O", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
                         "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
                         "6" -> {
                             throw my_user_exceptions_class(
@@ -1459,18 +1459,16 @@ open class JSOCKET() {
                             if (currentCashData == null) {
                                 currentCashData = CASH_DATAS[this.check_sum]
                             }
-                            if (currentCashData != null) {
-                                currentCashData.ADD_NEW_CASH_DATA(
-                                    arr = arr,
-                                    l_last_update = this.last_date_of_update,
-                                    l_just_do_it_label = this.just_do_it_label,
-                                    l_limit = this.value_par8,
-                                    l_count_of_all_records = this.value_par9,
-                                    l_number_of_block = this.value_par7,
-                                    l_object_id_from = this.value_id1,
-                                    l_mess_id_from = this.value_par4
-                                )
-                            }
+                            currentCashData?.ADD_NEW_CASH_DATA(
+                                arr = arr,
+                                l_last_update = this.last_date_of_update,
+                                l_just_do_it_label = this.just_do_it_label,
+                                l_limit = this.value_par8,
+                                l_count_of_all_records = this.value_par9,
+                                l_number_of_block = this.value_par7,
+                                l_object_id_from = this.value_id1,
+                                l_mess_id_from = this.value_par4
+                            )
                         }
 
                     }
@@ -1536,18 +1534,16 @@ open class JSOCKET() {
                         if (currentCashData == null) {
                             currentCashData = CASH_DATAS[this.check_sum]
                         }
-                        if (currentCashData != null) {
-                            currentCashData.ADD_NEW_CASH_DATA(
-                                arr = arr,
-                                l_last_update = this.last_date_of_update,
-                                l_just_do_it_label = this.just_do_it_label,
-                                l_limit = this.value_par8,
-                                l_count_of_all_records = this.value_par9,
-                                l_number_of_block = this.value_par7,
-                                l_object_id_from = this.value_id1,
-                                l_mess_id_from = this.value_par4
-                            )
-                        } else null
+                        currentCashData?.ADD_NEW_CASH_DATA(
+                            arr = arr,
+                            l_last_update = this.last_date_of_update,
+                            l_just_do_it_label = this.just_do_it_label,
+                            l_limit = this.value_par8,
+                            l_count_of_all_records = this.value_par9,
+                            l_number_of_block = this.value_par7,
+                            l_object_id_from = this.value_id1,
+                            l_mess_id_from = this.value_par4
+                        )
                     }
                 }
             }
@@ -1649,7 +1645,7 @@ open class JSOCKET() {
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "just_do_it not found ${just_do_it}"
+                    l_additional_text = "just_do_it not found $just_do_it"
                 )
             } else {
                 currentCommand = COMMANDS[just_do_it] ?: throw my_user_exceptions_class(

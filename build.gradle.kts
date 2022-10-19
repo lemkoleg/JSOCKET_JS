@@ -1,11 +1,11 @@
-val kotlinVersion = "1.6.21"
+val kotlinVersion = "1.7.20"
 val ktorVersion = "2.0.1"
 val reactiveVersion = "1.2.1"
 val KlockVersion = "2.4.13"
 val KorimVersion = "2.2.2"
 val KorioVersion = "2.2.1"
 val KryptoVersion = "2.2.0"
-val SQLDelightVersion = "2.0.0-alpha03"
+val SQLDelightVersion = "1.5.4"
 val SQLDelightDialect = "sqlite:3.25"  //sqlite:3.25
 val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
@@ -13,8 +13,8 @@ val Fingerprintjs2Version = "2.1.4"
 val StatelyVersion = "1.2.2"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.6.21"
-    id("com.squareup.sqldelight")  version "2.0.0-alpha03"
+    id("org.jetbrains.kotlin.multiplatform") version "1.7.20"
+    id("com.squareup.sqldelight")  version "1.5.4"
 }
 
 buildscript {
@@ -24,7 +24,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.3")
+        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.4")
     }
 
 
