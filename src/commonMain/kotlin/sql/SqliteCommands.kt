@@ -535,9 +535,9 @@ BEGIN
                              ELSE 0 
                            END 
                      ORDER BY t1.LAST_USE DESC 
-                     LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
-                                         FROM MetaData 
-                                         WHERE VALUE_NAME = CASE 
+                     LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
+                                          FROM MetaData 
+                                          WHERE VALUE_NAME = CASE 
                                                               WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
                                                                WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  
@@ -559,9 +559,9 @@ BEGIN
         FROM CashData AS t3 
         WHERE t3.CASH_SUM = new.CASH_SUM 
         ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC 
-        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
-                            FROM MetaData 
-                            WHERE VALUE_NAME = CASE 
+        LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME = CASE 
                                                   WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS' 
                                                   WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')   
@@ -582,6 +582,7 @@ AFTER INSERT
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
 AND new.RECORDS_TYPE = '3' 
+AND 1 == 0 -- not use/ all messegess data save;
 BEGIN 
 
   DELETE FROM CashData 
@@ -616,6 +617,7 @@ AFTER INSERT
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
 AND new.RECORDS_TYPE = '4' 
+AND 1 == 0 -- not use/ all messegess data save;
 BEGIN 
 
   DELETE FROM CashData 

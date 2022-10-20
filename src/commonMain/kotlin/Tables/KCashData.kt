@@ -659,17 +659,99 @@ class KCashData(lCASH_SUM: String) {
                                 it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
                                 lastSelectObjectId += it.OBJECT_ID_LAST_SELECT
                                 minLastSelect = minOf(it.LONG_20, minLastSelect)
+
+                                if (it.RECORD_TYPE != RECORD_TYPE) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KCashData",
+                                        l_function_name = "GetNext",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "RECORD_TYPE of CASH_DATA ${it.RECORD_TYPE} not equals RECORD_TYPE by select $RECORD_TYPE "
+                                    )
+                                }
+
                                 if (!CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
-                                    if (it.RECORD_TYPE != RECORD_TYPE) {
-                                        throw my_user_exceptions_class(
-                                            l_class_name = "KCashData",
-                                            l_function_name = "GetNext",
-                                            name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "RECORD_TYPE of CASH_DATA ${it.RECORD_TYPE} not equals RECORD_TYPE by select $RECORD_TYPE "
-                                        )
-                                    }
                                     CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
                                     ORDERED_CASH_DATA.addLast(it)
+
+                                    if (it.RECORD_TYPE == "3") { // CHATS;
+
+                                        val chats_likes_cash_sum = it.answerTypeValues.GetChatId() + "8" + "0"
+
+                                        val arr_chats_likes: ArrayDeque<ANSWER_TYPE> =
+                                            Sqlite_service.SelectCashDataAllOnCashSum(chats_likes_cash_sum)
+                                        val chats_likes_KCashData = KCashData(
+                                            lCASH_SUM = chats_likes_cash_sum,
+                                            L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                            L_RECORD_TYPE = "8",
+                                            L_COURSE = "0",
+                                            arr = arr_chats_likes)
+
+                                        CASH_DATAS[it.answerTypeValues.GetChatId()] = chats_likes_KCashData
+
+                                        if (arr_chats_likes.isEmpty()) {
+                                            val w = it.GetJsocket()
+                                            w.value_par1 = "8"
+                                            w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
+                                            w.send_request()
+                                        }else{
+                                            arr_chats_likes.forEach { it1 ->
+                                                it1.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                                KChat.globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                                            }
+                                        }
+
+                                        val chats_cost_types_cash_sum = it.answerTypeValues.GetChatId() + "9" + "0"
+
+                                        val arr_chats_cost_types_likes: ArrayDeque<ANSWER_TYPE> =
+                                            Sqlite_service.SelectCashDataAllOnCashSum(chats_cost_types_cash_sum)
+                                        val chats_cost_types_KCashData = KCashData(
+                                            lCASH_SUM = chats_cost_types_cash_sum,
+                                            L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                            L_RECORD_TYPE = "9",
+                                            L_COURSE = "0",
+                                            arr = arr_chats_cost_types_likes)
+
+                                        CASH_DATAS[it.answerTypeValues.GetChatId()] = chats_cost_types_KCashData
+
+                                        if (arr_chats_cost_types_likes.isEmpty()) {
+                                            val w = it.GetJsocket()
+                                            w.value_par1 = "9"
+                                            w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
+                                            w.send_request()
+                                        }else{
+                                            arr_chats_cost_types_likes.forEach { it2 ->
+                                                it2.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                            }
+                                        }
+
+                                        val messeges_cash_sum = it.answerTypeValues.GetChatId() + "4" + "1"
+
+                                        val arr_messeges: ArrayDeque<ANSWER_TYPE> =
+                                            Sqlite_service.SelectCashDataChunkOnCashSum(messeges_cash_sum)
+                                        val messeges_KCashData = KCashData(
+                                            lCASH_SUM = messeges_cash_sum,
+                                            L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                            L_RECORD_TYPE = "4",
+                                            L_COURSE = "1",
+                                            arr = arr_messeges)
+
+                                        CASH_DATAS[it.answerTypeValues.GetChatId()] = messeges_KCashData
+
+                                        if (arr_messeges.isEmpty() && it.answerTypeValues.GetChatsMessegeCount() > 0) {
+                                            val w = it.GetJsocket()
+                                            w.value_par1 = "4"
+                                            w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
+                                            w.send_request()
+                                        }else{
+                                            arr_messeges.forEach { it3 ->
+                                                it3.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                            }
+                                        }
+                                    }
+                                }
+                                if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
+
+                                    KChat.globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                                 }
                             }
                             return@withTimeoutOrNull SetLastBlock()
@@ -876,6 +958,11 @@ class KCashData(lCASH_SUM: String) {
                                                 w.value_par1 = "8"
                                                 w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
                                                 w.send_request()
+                                            }else{
+                                                arr_chats_likes.forEach { it1 ->
+                                                    it1.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                                    KChat.globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                                                }
                                             }
 
                                             val chats_cost_types_cash_sum = it.answerTypeValues.GetChatId() + "9" + "0"
@@ -896,6 +983,10 @@ class KCashData(lCASH_SUM: String) {
                                                 w.value_par1 = "9"
                                                 w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
                                                 w.send_request()
+                                            }else{
+                                                arr_chats_cost_types_likes.forEach { it2 ->
+                                                    it2.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                                }
                                             }
 
                                             val messeges_cash_sum = it.answerTypeValues.GetChatId() + "4" + "1"
@@ -910,6 +1001,17 @@ class KCashData(lCASH_SUM: String) {
                                                 arr = arr_messeges)
 
                                             CASH_DATAS[it.answerTypeValues.GetChatId()] = messeges_KCashData
+
+                                            if (arr_messeges.isEmpty() && it.answerTypeValues.GetChatsMessegeCount() > 0) {
+                                                val w = it.GetJsocket()
+                                                w.value_par1 = "4"
+                                                w.just_do_it = 1011000052 // SELECTOR.SELECT_ALL_DATA_ON_OBJECT;
+                                                w.send_request()
+                                            }else{
+                                                arr_messeges.forEach { it3 ->
+                                                    it3.answerTypeValues.setOBJECT_ID_LAST_SELECT()
+                                                }
+                                            }
 
                                         }
                                         if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
