@@ -436,22 +436,22 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
                 if(GetObjectType() == "0"){  // CHAT_IS_CHAT;
                     if(GetMainAccountId() == Account_Id){
-                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
-                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
-                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
+                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
                     }else{
-                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
-                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
-                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
+                        GetObjectName =  { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1()?:getEMPTY_STRING() }
+                        GetSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1()?:getEMPTY_BLOB() }
+                        GetBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3()?:getEMPTY_BLOB() }
                     }
                 }else{
                     GetObjectName = { getSTRING_5() }
                 }
 
-                GetFirstMessegeStartText = { CASH_DATAS[(getIDENTIFICATOR_5() + "41")]?.ORDERED_CASH_DATA?.firstOrNull()?.answerTypeValues?.GetMessegeStartText?.let { it() }
+                GetFirstMessegeStartText = { CASH_DATAS[(getIDENTIFICATOR_5() + "410")]?.ORDERED_CASH_DATA?.firstOrNull()?.answerTypeValues?.GetMessegeStartText?.let { it() }
                     ?:getEMPTY_STRING() }
 
-                GetChatsCountNotReadedMess = { GetChatsMessegeCount() - (CASH_DATAS[(getIDENTIFICATOR_5() + "80")]?.CASH_DATA_RECORDS?.get(Account_Id)?.answerTypeValues?.GetChatsLikesLastReadedMessegeId?.let { it() }
+                GetChatsCountNotReadedMess = { GetChatsMessegeCount() - (CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(Account_Id)?.answerTypeValues?.GetChatsLikesLastReadedMessegeId?.let { it() }
                     ?:getEMPTY_LONG()) }
 
                 GetLinkOwner = { getIDENTIFICATOR_5() } //chats id;
@@ -479,10 +479,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetMessegeCost = { getINTEGER_11() }
                 GetChatsCostTypeId = { getINTEGER_12() }
 
-                GetMainAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                GetSecondAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(GetSecondAccountId())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
-                GetAccountSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
-                GetAccountBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "80")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
+                GetMainAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetSecondAccountName = { CASH_DATAS[(getIDENTIFICATOR_11() + "800")]?.CASH_DATA_RECORDS?.get(GetSecondAccountId())?.answerTypeValues?.getSTRING_1() ?:getEMPTY_STRING() }
+                GetAccountSmallAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_1() ?:getEMPTY_BLOB() }
+                GetAccountBigAvatar = { CASH_DATAS[(getIDENTIFICATOR_11() + "800")]?.CASH_DATA_RECORDS?.get(getIDENTIFICATOR_7())?.answerTypeValues?.getBLOB_3() ?:getEMPTY_BLOB() }
 
                 GetLinkOwner = { getIDENTIFICATOR_11() } //chats id;
 

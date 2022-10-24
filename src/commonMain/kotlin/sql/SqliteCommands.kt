@@ -466,11 +466,18 @@ AND substr(STRING_20, 7, 1) = "1";
 const val TABLE_CASHLASTUPDATE  = """
 CREATE TABLE IF NOT EXISTS CashLastUpdate 
 (CASH_SUM TEXT NOT NULL, 
- RECORDS_TYPE TEXT NOT NULL, 
- COURSE TEXT NOT NULL DEFAULT "0", 
- LAST_USE TEXT NOT NULL, 
+ OBJECT_ID TEXT NOT NULL, 
+ RECORD_TYPE TEXT NOT NULL, 
+ COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up; 
+ SORT TEXT NOT NULL DEFAULT "", 
+ LINK_OWNER TEXT NOT NULL DEFAULT "", 
+ MESS_COUNT_FROM TEXT NOT NULL DEFAULT "", 
+ OTHER_CONDITIONS_1 TEXT NOT NULL DEFAULT "", 
+ OTHER_CONDITIONS_2 TEXT NOT NULL DEFAULT "", 
+ OTHER_CONDITIONS_3 TEXT NOT NULL DEFAULT "", 
+ LAST_USE INTEGER NOT NULL,     -- last mess count for chats; 
  PRIMARY KEY (CASH_SUM) 
-);
+); 
 """
 
 
@@ -479,11 +486,11 @@ CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DES
 """
 
 const val INDEX_CASHLASTUPDATE_RECORD_TYPE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORDS_TYPE, CASH_SUM);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CASH_SUM);
 """
 
 const val INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORDS_TYPE, LAST_USE DESC, CASH_SUM);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CASH_SUM);
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT = """
@@ -502,32 +509,32 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M') 
+AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
   WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
                      FROM CashLastUpdate t1 
                      WHERE CASE 
-                             WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I')    
+                             WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')    
                                THEN 
                                   CASE 
-                                    WHEN t1.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                    WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                       THEN 1 
                                     ELSE 0 
                                   END 
-                             WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  -- object_info; 
+                             WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  -- object_info; 
                                 THEN 
                                    CASE 
-                                      WHEN t1.RECORDS_TYPE IN ('J', 'K', 'L') 
+                                      WHEN t1.RECORD_TYPE IN ('J', 'K', 'L') 
                                          THEN 1 
                                       ELSE 0 
                                   END 
 
-                             WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M')  
+                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  
                                    THEN 
                                       CASE 
-                                         WHEN t1.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+                                         WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                             THEN 1 
                                           ELSE 0 
                                     END 
@@ -538,11 +545,11 @@ BEGIN
                      LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
                                           FROM MetaData 
                                           WHERE VALUE_NAME = CASE 
-                                                              WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                                              WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
-                                                               WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')  
+                                                               WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO' 
-                                                               WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+                                                               WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
                                                               ELSE 
                                                                  '' 
@@ -562,11 +569,11 @@ BEGIN
         LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
                              FROM MetaData 
                              WHERE VALUE_NAME = CASE 
-                                                  WHEN new.RECORDS_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                                  WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS' 
-                                                  WHEN new.RECORDS_TYPE IN ('J', 'K', 'L')   
+                                                  WHEN new.RECORD_TYPE IN ('J', 'K', 'L')   
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO' 
-                                                  WHEN new.RECORDS_TYPE IN ('A', 'C', 'E', 'G') 
+                                                  WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS' 
                                                   ELSE 
                                                     '' 
@@ -581,7 +588,7 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountChatsInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE = '3' 
+AND new.RECORD_TYPE = '3' 
 AND 1 == 0 -- not use/ all messegess data save;
 BEGIN 
 
@@ -599,7 +606,7 @@ BEGIN
   ); 
 
   DELETE FROM CashLastUpdate 
-  WHERE  RECORDS_TYPE = '4' 
+  WHERE  RECORD_TYPE = '4' 
   AND CASH_SUM NOT IN ( 
           SELECT t1.RECORD_TABLE_ID||'4' 
           FROM CashData AS t1 
@@ -616,7 +623,7 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountMessInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORDS_TYPE = '4' 
+AND new.RECORD_TYPE = '4' 
 AND 1 == 0 -- not use/ all messegess data save;
 BEGIN 
 
@@ -637,10 +644,20 @@ END;
 """
 
 const val INSERT_CASHLASTUPDATE = """
-INSERT OR REPLACE INTO CashLastUpdate 
-(CASH_SUM, RECORDS_TYPE, COURSE, LAST_USE) 
+REPLACE INTO CashLastUpdate 
+(CASH_SUM, 
+ OBJECT_ID, 
+ RECORD_TYPE, 
+ COURSE, 
+ SORT, 
+ LINK_OWNER, 
+ MESS_COUNT_FROM, 
+ OTHER_CONDITIONS_1, 
+ OTHER_CONDITIONS_2, 
+ OTHER_CONDITIONS_3, 
+ LAST_USE) 
 VALUES 
-(?, ?, ?, ?); 
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
 """
 
 const val SELECT_CASHLASTUPDATE_ALL = """

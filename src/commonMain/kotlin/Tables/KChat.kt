@@ -88,8 +88,12 @@ class KChat(val ans: ANSWER_TYPE){
                 try {
                     try {
                         KChatsGlobalLock.lock()
-                        while (arr.isNotEmpty()) {
-                            TODO()
+                        var chats_id = ""
+                        if (arr.isNotEmpty()) {
+                            arr.forEach {
+                                it.answerTypeValues.NormalityRECORD_TYPE()
+                                chats_id = it.answerTypeValues.GetChatId()
+                            }
                         }
                         return@withTimeout true
                     } catch (ex: Exception) {
