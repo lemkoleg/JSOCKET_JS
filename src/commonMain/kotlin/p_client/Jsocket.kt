@@ -69,8 +69,6 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
     var FileFullPathForSend: String = ""
     var AvatarFullPathForSend: String = ""
 
-    val getLocalsValues = GetLocalsValues()
-
     val lock = Mutex()
 
     constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : super() {
@@ -180,11 +178,13 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
         this.serialize(verify_fields).let { Connection.sendData(it, this) }
         if (!command.isDont_answer) {
             if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                throw my_user_exceptions_class(
-                    l_class_name = "Jsocket",
-                    l_function_name = "send_request",
-                    name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
-                )
+                if(command.commands_access != "B"){
+                    throw my_user_exceptions_class(
+                        l_class_name = "Jsocket",
+                        l_function_name = "send_request",
+                        name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
+                    )
+                }
             }
         }
     }
@@ -235,6 +235,8 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                                 while (CLIENT_JSOCKET_POOL.size < Constants.CLIENT_JSOCKET_POOL_SIZE && !Constants.isInterrupted.value) {
                                     CLIENT_JSOCKET_POOL.addLast(Jsocket())
                                 }
+                            } catch (e: my_user_exceptions_class){
+                                throw e
                             } catch (ex: Exception) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "Jsocket",
@@ -271,6 +273,8 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                                 myLang = lLang
                                 KRegData.setNEW_REG_DATA()
                             }
+                        } catch (e: my_user_exceptions_class){
+                            throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "Jsocket",

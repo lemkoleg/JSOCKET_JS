@@ -816,7 +816,7 @@ open class JSOCKET() {
             connection_coocki = myConnectionsCoocki
             device_id = myDeviceId
             lang = myLang
-            last_messege_update = KChat.globalLastUpdatingDate.value
+            last_messege_update = globalLastUpdatingDate.value
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1435,45 +1435,86 @@ open class JSOCKET() {
                 if (record_type == "0") {
                     record_type = answer_type.RECORD_TYPE
                 } else if (record_type != answer_type.RECORD_TYPE) {
-                    when (record_type) {
-                        "1" -> KCommands.ADD_NEW_COMMANDS(arr)
-                        "2" -> KMetaData.ADD_NEW_META_DATA(arr)
-                        "N", "O", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
-                        "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
-                        "6" -> {
-                            throw my_user_exceptions_class(
-                                l_class_name = "JSOCKET",
-                                l_function_name = "deserialize_ANSWERS_TYPES",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "big avatar trying to add"
-                            )
-                        }
-                        "7" -> {
-                            KRegData.ADD_NEW_REG_DATA(arr)
-                            is_new_reg_data = true
-                        }
-                        "J", "K", "L" -> {
+                    if (currentCommand!!.commands_id != 1011000053) {        //SELECTOR.SELECT_CHATS;
 
-                        }
-                        else -> {
-                            if (currentCashData == null) {
-                                currentCashData = CASH_DATAS[this.check_sum]
+                        if (currentCommand!!.commands_id == 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
+                            var cash_last_update: KCashLastUpdate
+                            when (answer_type.RECORD_TYPE) {
+                                "4" -> {  // MESSEGES;
+                                    cash_last_update = KCashLastUpdate(
+                                        L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
+                                        L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                        L_COURSE = "1"
+                                    )
+                                }
+                                "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                                    cash_last_update = KCashLastUpdate(
+                                        L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
+                                        L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                        L_COURSE = "0"
+                                    )
+                                }
+                                else -> {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "deserialize_ANSWERS_TYPES",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "RECORD_TYPE ${answer_type.RECORD_TYPE} not defined"
+                                    )
+                                }
                             }
-                            currentCashData?.ADD_NEW_CASH_DATA(
-                                arr = arr,
-                                l_last_update = this.last_date_of_update,
-                                l_just_do_it_label = this.just_do_it_label,
-                                l_limit = this.value_par8,
-                                l_count_of_all_records = this.value_par9,
-                                l_number_of_block = this.value_par7,
-                                l_object_id_from = this.value_id1,
-                                l_mess_id_from = this.value_par4
-                            )
-                        }
 
+                            var cc = CASH_DATAS[cash_last_update.CASH_SUM]
+                            if (cc == null) {
+                                cc = KCashData(cash_last_update)
+                            }
+                            cc.SET_RECORDS(arr, last_date_of_update)
+
+                            record_type = answer_type.RECORD_TYPE
+                            arr = ArrayDeque()
+
+
+                        } else {
+                            when (record_type) {
+                                "1" -> KCommands.ADD_NEW_COMMANDS(arr)
+                                "2" -> KMetaData.ADD_NEW_META_DATA(arr)
+                                "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
+                                "6" -> {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "JSOCKET",
+                                        l_function_name = "deserialize_ANSWERS_TYPES",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "big avatar trying to add"
+                                    )
+                                }
+                                "7" -> {
+                                    KRegData.ADD_NEW_REG_DATA(arr)
+                                    is_new_reg_data = true
+                                }
+                                "J", "K", "L" -> {
+
+                                }
+                                else -> {
+                                    if (currentCashData == null) {
+                                        currentCashData = CASH_DATAS[this.check_sum]
+                                    }
+                                    currentCashData?.ADD_NEW_CASH_DATA(
+                                        arr = arr,
+                                        l_last_select = this.last_date_of_update,
+                                        l_just_do_it_label = this.just_do_it_label,
+                                        l_limit = this.value_par8,
+                                        l_count_of_all_records = this.value_par9,
+                                        l_number_of_block = this.value_par7,
+                                        l_object_id_from = this.value_id1,
+                                        l_mess_id_from = this.value_par4
+                                    )
+                                }
+
+                            }
+                            record_type = answer_type.RECORD_TYPE
+                            arr = ArrayDeque()
+                        }
                     }
-                    record_type = answer_type.RECORD_TYPE
-                    arr = ArrayDeque()
                 }
 
                 when (answer_type.RECORD_TYPE) {
@@ -1513,37 +1554,70 @@ open class JSOCKET() {
             }
 
             if (record_type != "0") {
-                promise = when (record_type) {
-                    "1" -> KCommands.ADD_NEW_COMMANDS(arr)
-                    "2" -> KMetaData.ADD_NEW_META_DATA(arr)
-                    "N", "0", "P", "Q", "R" -> KChat.ADD_NEW_CHATS(arr)
-                    "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
-                    "6" -> {
-                        throw my_user_exceptions_class(
-                            l_class_name = "JSOCKET",
-                            l_function_name = "deserialize_ANSWERS_TYPES",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "big avatar trying to add"
-                        )
-                    }
-                    "7" -> {
-                        is_new_reg_data = true
-                        KRegData.ADD_NEW_REG_DATA(arr)
-                    }
-                    else -> {
-                        if (currentCashData == null) {
-                            currentCashData = CASH_DATAS[this.check_sum]
+                if (currentCommand!!.commands_id == 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
+                    val cash_last_update: KCashLastUpdate
+                    when (record_type) {
+                        "4" -> {  // MESSEGES;
+                            cash_last_update = KCashLastUpdate(
+                                L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
+                                L_RECORD_TYPE = record_type,
+                                L_COURSE = "1"
+                            )
                         }
-                        currentCashData?.ADD_NEW_CASH_DATA(
-                            arr = arr,
-                            l_last_update = this.last_date_of_update,
-                            l_just_do_it_label = this.just_do_it_label,
-                            l_limit = this.value_par8,
-                            l_count_of_all_records = this.value_par9,
-                            l_number_of_block = this.value_par7,
-                            l_object_id_from = this.value_id1,
-                            l_mess_id_from = this.value_par4
-                        )
+                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                            cash_last_update = KCashLastUpdate(
+                                L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
+                                L_RECORD_TYPE = record_type,
+                                L_COURSE = "0"
+                            )
+                        }
+                        else -> {
+                            throw my_user_exceptions_class(
+                                l_class_name = "JSOCKET",
+                                l_function_name = "deserialize_ANSWERS_TYPES",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "RECORD_TYPE $record_type not defined"
+                            )
+                        }
+                    }
+
+                    var cc = CASH_DATAS[cash_last_update.CASH_SUM]
+                    if (cc == null) {
+                        cc = KCashData(cash_last_update)
+                    }
+                    promise = cc.SET_RECORDS(arr, last_date_of_update)
+                } else {
+                    promise = when (record_type) {
+                        "1" -> KCommands.ADD_NEW_COMMANDS(arr)
+                        "2" -> KMetaData.ADD_NEW_META_DATA(arr)
+                        "5" -> KExceptions.ADD_NEW_EXCEPTIONS(arr)
+                        "6" -> {
+                            throw my_user_exceptions_class(
+                                l_class_name = "JSOCKET",
+                                l_function_name = "deserialize_ANSWERS_TYPES",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "big avatar trying to add"
+                            )
+                        }
+                        "7" -> {
+                            is_new_reg_data = true
+                            KRegData.ADD_NEW_REG_DATA(arr)
+                        }
+                        else -> {
+                            if (currentCashData == null) {
+                                currentCashData = CASH_DATAS[this.check_sum]
+                            }
+                            currentCashData?.ADD_NEW_CASH_DATA(
+                                arr = arr,
+                                l_last_select = this.last_date_of_update,
+                                l_just_do_it_label = this.just_do_it_label,
+                                l_limit = this.value_par8,
+                                l_count_of_all_records = this.value_par9,
+                                l_number_of_block = this.value_par7,
+                                l_object_id_from = this.value_id1,
+                                l_mess_id_from = this.value_par4
+                            )
+                        }
                     }
                 }
             }
@@ -1562,28 +1636,31 @@ open class JSOCKET() {
         } finally {
             if (currentCommand!!.commands_access == "B") {
                 if (currentCashData == null) {
-                    currentCashData = CASH_DATAS[this.check_sum]
-                }
-                if (currentCashData != null) {
-                    val start_record_id: String
-                    when (currentCashData.kCashLastUpdate!!.RECORD_TYPE) {
-                        "4", "M" //MESSEGES
-                        -> {
-                            start_record_id = this.value_par4
-                        }
-                        "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
-                        -> {
-                            start_record_id = this.value_par4
-                        }
-                        else
-                        -> {
-                            start_record_id = this.value_id1
+                    if (currentCommand!!.commands_id != 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
+                        currentCashData = CASH_DATAS[this.check_sum]
+
+                        if (currentCashData != null) {
+                            val start_record_id: String
+                            when (currentCashData.CashLastUpdate.RECORD_TYPE) {
+                                "4", "M" //MESSEGES
+                                -> {
+                                    start_record_id = this.value_par4
+                                }
+                                "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
+                                -> {
+                                    start_record_id = this.value_par4
+                                }
+                                else
+                                -> {
+                                    start_record_id = this.value_id1
+                                }
+                            }
+                            currentCashData.UPDATE_LAST_SELECT(
+                                lastSelect = this.last_date_of_update,
+                                object_recod_id_from = start_record_id
+                            )
                         }
                     }
-                    currentCashData.UPDATE_LAST_SELECT(
-                        lastSelect = this.last_date_of_update,
-                        object_recod_id_from = start_record_id
-                    )
                 }
             }
             if (currentCommand!!.commands_access == "C") {

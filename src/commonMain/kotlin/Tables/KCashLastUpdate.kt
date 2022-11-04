@@ -107,6 +107,8 @@ class KCashLastUpdate(
                         arr.forEach {
                             CASH_LAST_UPDATE[it.CASH_SUM] = it
                         }
+                    } catch (e: my_user_exceptions_class){
+                        throw e
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KCashLastUpdate",

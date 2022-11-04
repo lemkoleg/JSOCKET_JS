@@ -905,8 +905,9 @@ object Sqlite_service : CoroutineScope {
 
     @JsName("UpdateCashDataNewLastSelect")
     fun UpdateCashDataNewLastSelect(last_select: Long,
-                                    cash_sum:String,
-                                    record_table_id_from:String) = Sqlite_serviceScope.launch {
+                                    cash_sum: String,
+                                    record_table_id_from: String,
+                                    limit: Int) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -914,7 +915,7 @@ object Sqlite_service : CoroutineScope {
                     val c = CASH_LAST_UPDATE[cash_sum]
                     c!!.LAST_USE = last_select
                     statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(c)
-                    statCASHLASTUPDATE.UPADTE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from)
+                    statCASHLASTUPDATE.UPDATE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from, limit)
                     //statCASHLASTUPDATE.DELETE_CASHDATA_DELETED_RECORDS(cash_sum)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

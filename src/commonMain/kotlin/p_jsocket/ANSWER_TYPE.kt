@@ -815,6 +815,18 @@ class ANSWER_TYPE {
             this.STRING_20 = v.STRING_20
         }
 
+        if (v.BLOB_1 != null) {
+            this.BLOB_1 = v.BLOB_1
+        }
+
+        if (v.BLOB_2 != null) {
+            this.BLOB_2 = v.BLOB_2
+        }
+
+        if (v.BLOB_3 != null) {
+            this.BLOB_3 = v.BLOB_3
+        }
+
         if (answerTypeValues.getIS_UPDATE_BLOB() == "1") {
             this.IDENTIFICATOR_2 = v.IDENTIFICATOR_2
             this.BLOB_1 = v.BLOB_1

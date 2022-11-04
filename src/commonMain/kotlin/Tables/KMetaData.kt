@@ -110,6 +110,8 @@ class KMetaData {
                         META_DATA[it.getVALUE_NAME()] = it.getVALUE_VALUE()
                         meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                     }
+                } catch (e: my_user_exceptions_class){
+                    throw e
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "KMetaData",
@@ -156,6 +158,8 @@ class KMetaData {
                                 met.add(k)
                             }
                             return@withTimeoutOrNull true
+                        } catch (e: my_user_exceptions_class){
+                            throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KMetaData",

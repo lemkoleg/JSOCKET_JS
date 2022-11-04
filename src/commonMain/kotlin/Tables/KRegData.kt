@@ -257,6 +257,8 @@ class KRegData {
 
                             }
                             return@withTimeoutOrNull true
+                        } catch (e: my_user_exceptions_class){
+                            throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KRegData",

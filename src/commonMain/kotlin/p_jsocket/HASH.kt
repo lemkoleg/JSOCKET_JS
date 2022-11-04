@@ -469,6 +469,8 @@ class HASH {
                     padding = Padding.PKCS7Padding, iv = mail_codeMD5
                 ).encodeBase64()
             }
+        } catch (e: my_user_exceptions_class){
+            throw e
         } catch (ex: Exception) {
             throw my_user_exceptions_class(
                 l_class_name = "HASH",

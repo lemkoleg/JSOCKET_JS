@@ -314,6 +314,8 @@ class KExceptions {
                             exc.add(e)
                         }
                         return@withTimeoutOrNull true
+                    } catch (e: my_user_exceptions_class){
+                        throw e
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KException",
@@ -363,6 +365,8 @@ class KExceptions {
                         INSERT_EXCEPTION(it)
                         meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
                     }
+                } catch (e: my_user_exceptions_class){
+                    throw e
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "KExceptions",

@@ -213,9 +213,10 @@ expect class SQLStatement() {
     suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM: String)
 
     @JsName("UPADTE_CASHDATA_NEW_LAST_SELECT")
-    suspend fun UPADTE_CASHDATA_NEW_LAST_SELECT(last_select: Long,
+    suspend fun UPDATE_CASHDATA_NEW_LAST_SELECT(last_select: Long,
                                                 cash_sum:String,
-                                                record_table_id_from:String)
+                                                record_table_id_from:String,
+                                                limit: Int)
 
     @JsName("DELETE_CASHDATA_DELETED_RECORDS")
     suspend fun DELETE_CASHDATA_DELETED_RECORDS(cash_sum:String)

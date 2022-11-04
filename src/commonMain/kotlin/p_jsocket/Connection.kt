@@ -7,10 +7,7 @@
 package p_jsocket
 
 import CrossPlatforms.GC
-import Tables.COMMANDS
-import Tables.KRegData
-import Tables.myConnectionsCoocki
-import Tables.myConnectionsID
+import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
 import atomic.lockedRemove
@@ -336,16 +333,7 @@ object Connection : CoroutineScope {
                                 when (jsocketRet.just_do_it) {
 
                                     1011000086 -> {  // new messeges, notices;
-                                        var j: Jsocket? = Jsocket.GetJsocket()
-                                        if (j == null) {
-                                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                                println("CLIENT_JSOCKET_POOL is emptty")
-                                            }
-                                            Jsocket.fill()
-                                            j = Jsocket()
-                                        }
-                                        j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
-                                        j.send_request()
+                                        CHATS!!.FetifyFirsBlock()
                                     }
                                     1011000058 -> {
                                         jsocket.send_request()
@@ -405,12 +393,14 @@ object Connection : CoroutineScope {
                         }
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: my_user_exceptions_class){
+                throw e
+            }  catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Connection",
                     l_function_name = "DecoderRequest",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = ex.message
                 )
             }
         } catch (e: my_user_exceptions_class) {
@@ -461,6 +451,8 @@ object Connection : CoroutineScope {
 
                     LastTimeCleanOutJSOCKETs = nowNano()
                 }
+            } catch (e: my_user_exceptions_class){
+                throw e
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Connection",

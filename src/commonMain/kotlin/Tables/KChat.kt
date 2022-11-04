@@ -8,7 +8,7 @@
 package Tables
 
 import atomic.AtomicLong
-import co.touchlab.stately.ensureNeverFrozen
+import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
 import com.soywiz.korio.async.toPromise
@@ -17,6 +17,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import lib_exceptions.my_user_exceptions_class
+import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
@@ -33,7 +34,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-var CHATS: KCashData?  = null
+var CHATS: KCashData? = null
 
 /*
 @KorioExperimentalApi
@@ -55,47 +56,53 @@ val CHATS_COST_TYPES: MutableMap<String, KCashData>  = mutableMapOf()
 
 @InternalAPI
 private val KChatsGlobalLock = Mutex()
+private val KChatsSelectAllDataOnChatLock = Mutex()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+@JsName("globalLastUpdatingDate")
+val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+@JsName("sendedlLastUpdatingDate")
+private val sendedlLastUpdatingDate: MutableMap<Long, Int> = mutableMapOf()
+
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
+@JsName("sendedlSelectAllDataOfChat")
+private val sendedlSelectAllDataOfChat: MutableMap<String, Long> = mutableMapOf()
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
 @JsName("KChat")
-class KChat(val ans: ANSWER_TYPE){
+object KChat {
 
-    init {
-        ensureNeverFrozen()
-    }
-
-    private val KChatsLock = Mutex()
-
-    //val InstanceRef: AtomicReference<KChat> = AtomicReference(this)
-
-
-    companion object {
-
-        @JsName("globalLastUpdatingDate")
-        val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
-
-
-        @JsName("maxCountOfMessegesIntoDB")
-        val maxCountOfMessegesIntoDB = AtomicLong(100L)
-
-
-        @JsName("ADD_NEW_CHATS")
-        fun ADD_NEW_CHATS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
-            withTimeout(Constants.CLIENT_TIMEOUT) {
+    @JsName("SELECT_ALL_DATA_ON_CHAT")
+    suspend fun SELECT_ALL_DATA_ON_CHAT(cats_id: String): Promise<Unit?> =
+        CoroutineScope(Dispatchers.Default).async {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
-                        KChatsGlobalLock.lock()
-                        var chats_id = ""
-                        if (arr.isNotEmpty()) {
-                            arr.forEach {
-                                it.answerTypeValues.NormalityRECORD_TYPE()
-                                chats_id = it.answerTypeValues.GetChatId()
+                        KChatsSelectAllDataOnChatLock.lock()
+                        if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
+                            if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixLong()) {
+                                return@withTimeoutOrNull
                             }
+                        }else{
+                            sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                         }
-                        return@withTimeout true
+                        val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
+                        socket.value_id5 = cats_id
+                        socket.just_do_it = 1011000052
+                        socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
+                        socket.send_request()
+                    } catch (e: my_user_exceptions_class) {
+                        throw e
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KChats",
@@ -104,32 +111,40 @@ class KChat(val ans: ANSWER_TYPE){
                             l_additional_text = ex.message
                         )
                     } finally {
-                        KChatsGlobalLock.unlock()
+                        KChatsSelectAllDataOnChatLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-                return@withTimeout false
-            }
+            } ?: throw my_user_exceptions_class(
+                l_class_name = "KChats",
+                l_function_name = "GET_NEXT",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
         }.toPromise(EmptyCoroutineContext)
-    }
 
-    @JsName("GET_NEXT")
-    fun GET_NEXT( l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
+    @JsName("GET_CHATS")
+    fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
                         KChatsGlobalLock.lock()
-                        if(CHATS == null){
-                            CHATS = KCashData.GET_CASH_DATA(L_OBJECT_ID = Account_Id,
-                                                            L_RECORD_TYPE = "3",
-                                                            L_COURSE = "0",
-                                                            l_request_updates = false,
-                                                            l_updatedCashData = l_updatedCashData).await()
+                        if (CHATS == null) {
+                            CHATS = KCashData.GET_CASH_DATA(
+                                L_OBJECT_ID = Account_Id,
+                                L_RECORD_TYPE = "3",
+                                l_updatedCashData = l_updatedCashData,
+                                l_request_updates = true,
+                                l_select_all_records = false,
+                                l_is_SetLastBlock = true,
+                                l_reset_cash_data = false,
+                                l_ignore_timeout = true
+                            ).await()
                             return@withTimeoutOrNull CHATS!!.currentViewCashData
-                        }else{
-                            return@withTimeoutOrNull  CHATS!!.GetNext()
+                        } else {
+                            return@withTimeoutOrNull CHATS!!
                         }
 
                     } catch (ex: Exception) {
@@ -145,7 +160,7 @@ class KChat(val ans: ANSWER_TYPE){
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }
-            }?: throw my_user_exceptions_class(
+            } ?: throw my_user_exceptions_class(
                 l_class_name = "KChats",
                 l_function_name = "GET_NEXT",
                 name_of_exception = "EXC_SYSTEM_ERROR",

@@ -429,7 +429,7 @@ const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
         WHERE CASH_SUM = ?; 
 """
 
-const val UPADTE_CASHDATA_NEW_LAST_SELECT = """
+const val UPDATE_CASHDATA_NEW_LAST_SELECT = """
        UPDATE CashData 
        SET    LONG_20 = ? 
        WHERE  CASH_SUM = ? 
