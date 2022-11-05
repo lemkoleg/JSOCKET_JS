@@ -102,7 +102,7 @@ class KCashLastUpdate(
                     try {
                         KCashLastUpdate_Companion_Lock.lock()
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("LOAD_CASH_LAST_UPDATE is running")
+                            PrintInformation.PRINT_INFO("LOAD_CASH_LAST_UPDATE is running")
                         }
                         arr.forEach {
                             CASH_LAST_UPDATE[it.CASH_SUM] = it

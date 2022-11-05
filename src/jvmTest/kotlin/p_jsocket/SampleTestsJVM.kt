@@ -22,9 +22,9 @@ class SampleTestsJVM {
         val b = byteArrayOf('r'.toByte(),'t'.toByte(),'y'.toByte(),'u'.toByte(),
             'i'.toByte(),'o'.toByte(),'p'.toByte(),'d'.toByte(),'f'.toByte(),'1'.toByte(),'2'.toByte(),
             '3'.toByte(),'4'.toByte(),'5'.toByte())
-        println("ch = ${h.getCheckSumFromByteArray(b, 42423424324324L)}")
-        println("just_do_it_label = ${l.just_do_it_label}")
-        println("just_do_it_label = ${t.just_do_it_label}")
+        PrintInformation.PRINT_INFO("ch = ${h.getCheckSumFromByteArray(b, 42423424324324L)}")
+        PrintInformation.PRINT_INFO("just_do_it_label = ${l.just_do_it_label}")
+        PrintInformation.PRINT_INFO("just_do_it_label = ${t.just_do_it_label}")
         l.connection_id = 102000111220000003L
         l.connection_coocki = 102000111225633533L
         l.just_do_it = 1011000061
@@ -49,23 +49,23 @@ class SampleTestsJVM {
         l.db_massage = "ввівапрнооь.юх"
         val bch: BytePacketBuilder
         bch = l.serialize(true, verify_fields = true)!!
-        println("bch1 = ${bch.size}")
-        println("l.check_sum = ${l.check_sum}")
+        PrintInformation.PRINT_INFO("bch1 = ${bch.size}")
+        PrintInformation.PRINT_INFO("l.check_sum = ${l.check_sum}")
         t.deserialize(bch.build(), l.connection_coocki, false)
-        println("bch1 = ${bch.size}")
-        println("connection_id = ${t.connection_id}")
-        println("connection_coocki = ${t.connection_coocki}")
-        println("just_do_it = ${t.just_do_it}")
-        println("ip_port = ${t.ip_port}")
-        println("lang = ${t.lang}")
-        println("value_par1 = ${t.value_par1}")
-        println("value_par2 = ${t.value_par2}")
-        println("value_par3 = ${t.value_par3}")
-        println("value_par4 = ${t.value_par4}")
-        println("value_par5 = ${t.value_par5}")
-        println("value_par6 = ${t.value_par6}")
-        println("value_par7 = ${t.value_par7}")
-        println("value_par8 = ${t.value_par8}")
-        println("db_massage = ${t.db_massage}")
+        PrintInformation.PRINT_INFO("bch1 = ${bch.size}")
+        PrintInformation.PRINT_INFO("connection_id = ${t.connection_id}")
+        PrintInformation.PRINT_INFO("connection_coocki = ${t.connection_coocki}")
+        PrintInformation.PRINT_INFO("just_do_it = ${t.just_do_it}")
+        PrintInformation.PRINT_INFO("ip_port = ${t.ip_port}")
+        PrintInformation.PRINT_INFO("lang = ${t.lang}")
+        PrintInformation.PRINT_INFO("value_par1 = ${t.value_par1}")
+        PrintInformation.PRINT_INFO("value_par2 = ${t.value_par2}")
+        PrintInformation.PRINT_INFO("value_par3 = ${t.value_par3}")
+        PrintInformation.PRINT_INFO("value_par4 = ${t.value_par4}")
+        PrintInformation.PRINT_INFO("value_par5 = ${t.value_par5}")
+        PrintInformation.PRINT_INFO("value_par6 = ${t.value_par6}")
+        PrintInformation.PRINT_INFO("value_par7 = ${t.value_par7}")
+        PrintInformation.PRINT_INFO("value_par8 = ${t.value_par8}")
+        PrintInformation.PRINT_INFO("db_massage = ${t.db_massage}")
     }
 }

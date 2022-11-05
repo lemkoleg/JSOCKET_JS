@@ -78,15 +78,15 @@ actual class SQLStatement actual constructor() {
 
         //console.log(alaSQL)
         //mydb.exec(SqliteCommands.TABLE_METADATA)
-        //val u:Promise<*> = alaSQL.promise(SqliteCommands.TABLE_METADATA, println("created"))
+        //val u:Promise<*> = alaSQL.promise(SqliteCommands.TABLE_METADATA, PrintInformation.PRINT_INFO("created"))
         //u.await()
-        //val y:Promise<*> = alaSQL.promise(SqliteCommands.INSERT_METADATA,{"fsdf" to  34}, println("added"))
+        //val y:Promise<*> = alaSQL.promise(SqliteCommands.INSERT_METADATA,{"fsdf" to  34}, PrintInformation.PRINT_INFO("added"))
         // y.await()
         //var rel = mydb.exec("SELECT * FROM MetaData;")
-        //println(rel)
-        //insert_metadata.promise("fsdf", 34).then(println("added"))
-        //mydb.exec(SqliteCommands.TABLE_METADATA).then(println("table created"))
-        // insert_metadata.promise("fsdf", 34).then(println("added"))
+        //PrintInformation.PRINT_INFO(rel)
+        //insert_metadata.promise("fsdf", 34).then(PrintInformation.PRINT_INFO("added"))
+        //mydb.exec(SqliteCommands.TABLE_METADATA).then(PrintInformation.PRINT_INFO("table created"))
+        // insert_metadata.promise("fsdf", 34).then(PrintInformation.PRINT_INFO("added"))
 
     }
 

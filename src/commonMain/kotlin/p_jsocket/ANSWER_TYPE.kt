@@ -150,7 +150,7 @@ class ANSWER_TYPE {
             SELF_Jsockt =  Jsocket()
             Jsocket.fill()
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_JSOCKET_POOL is emprty")
+                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
             }
         }
          */
@@ -879,7 +879,7 @@ class ANSWER_TYPE {
             j = Jsocket()
             Jsocket.fill()
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                println("CLIENT_JSOCKET_POOL is emprty")
+                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
             }
         }
         j.object_size = answerTypeValues.GetObjectSize().toLong()
@@ -927,7 +927,7 @@ class ANSWER_TYPE {
                     val l: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("CLIENT_ANSWER_TYPE_POOL is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOL is emprty")
                         }
                         fillPOOL()
                         return null
@@ -946,7 +946,7 @@ class ANSWER_TYPE {
                     val l: ArrayDeque<ANSWER_TYPE>? = CLIENT_ANSWER_TYPE_POOLS.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("CLIENT_ANSWER_TYPE_POOLS is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOLS is emprty")
                         }
                         fillPOOLS()
                         return null
@@ -969,7 +969,7 @@ class ANSWER_TYPE {
                             try {
                                 fillPOOL_IS_RUNNING.value = true
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    println("ANSEWR_TYPE's fill pool is run...")
+                                    PrintInformation.PRINT_INFO("ANSEWR_TYPE's fill pool is run...")
                                 }
                                 while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
                                     CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())

@@ -429,7 +429,7 @@ class FileService(jsocket: Jsocket? = null) {
                         if (SELF_Jsocket.content!!.isNotEmpty()) {
                             if (SELF_Jsocket.content!!.size != chunk_size) {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    println("chunk_size not equal content.size!")
+                                    PrintInformation.PRINT_INFO("chunk_size not equal content.size!")
                                 }
                                 SELF_Jsocket.content = null
                                 continue
@@ -772,7 +772,7 @@ private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray?
         x += 1
         image32 = image32.mipmap(1)
         bb = image32.encode(PNG)
-        println("bb.size ${bb.size}")
+        PrintInformation.PRINT_INFO("bb.size ${bb.size}")
         if (bb.size <= (SEND_AVATAR_SIZE * 2)) break
     }
     if (bb != null) {
@@ -793,7 +793,7 @@ private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray?
                 im_heigth
             )
             bb = image32.encode(PNG)
-            println("bb.size2 ${bb.size}")
+            PrintInformation.PRINT_INFO("bb.size2 ${bb.size}")
             if (bb.size <= SEND_AVATAR_SIZE) break
             im_width = (image32.width * koef).toInt()
             im_heigth = (image32.height * koef).toInt()

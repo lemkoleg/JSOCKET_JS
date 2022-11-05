@@ -38,7 +38,7 @@ class SampleTests {
         val ll = 24354678876543L
 
         val g: Long = h.getNewCoockiLong(m)
-        println(g)
+        PrintInformation.PRINT_INFO(g)
 
 
         GlobalScope.launch {
@@ -50,7 +50,7 @@ class SampleTests {
             if (k != null) {
                 l16.writeBytes(k)
             }
-            println("image size ${k?.size}")
+            PrintInformation.PRINT_INFO("image size ${k?.size}")
         }
 
         /*val h = HASH()
@@ -58,12 +58,12 @@ class SampleTests {
         val pass = "gfhfjdkkdd"
         val mailCode = "jgjthdb"
         val passMD5: String = h.getMD5String(pass)
-        println(passMD5)
+        PrintInformation.PRINT_INFO(passMD5)
         val res: String = h.cryptPass(passMD5, mailCode, true)
-        println(res)
+        PrintInformation.PRINT_INFO(res)
 
         val res1: String = h1.cryptPass(res, mailCode, false)
-        println(res1)*/
+        PrintInformation.PRINT_INFO(res1)*/
         //GlobalScope.launch {
         //    val MyWebSocketChannel = WebSocketClient("ws://mini:22237", null, null, "", false)
        // }
@@ -113,23 +113,23 @@ class SampleTests {
                 val l166 = resourcesVfs["F:\\Foto\\ppppp.jpg"]
                 l.content?.let { l166.writeBytes(it) }
                 //l.execute().await()
-                println("connection_id = ${l.connection_id}")
-                println("connection_coocki = ${l.connection_coocki}")
-                println("device_id = ${l.device_id}")
-                println("just_do_it = ${l.just_do_it}")
-                println("just_do_it_label= ${l.just_do_it_label}")
-                println("just_do_it_successfull= ${l.just_do_it_successfull}")
-                println("ip_port = ${l.ip_port}")
-                println("lang = ${l.lang}")
-                println("value_par1 = ${l.value_par1}")
-                println("value_par2 = ${l.value_par2}")
-                println("value_par3 = ${l.value_par3}")
-                println("value_par4 = ${l.value_par4}")
-                println("value_par5 = ${l.value_par5}")
-                println("value_par6 = ${l.value_par6}")
-                println("value_par7 = ${l.value_par7}")
-                println("value_par8 = ${l.value_par8}")
-                println("db_massage = ${l.db_massage}")
+                PrintInformation.PRINT_INFO("connection_id = ${l.connection_id}")
+                PrintInformation.PRINT_INFO("connection_coocki = ${l.connection_coocki}")
+                PrintInformation.PRINT_INFO("device_id = ${l.device_id}")
+                PrintInformation.PRINT_INFO("just_do_it = ${l.just_do_it}")
+                PrintInformation.PRINT_INFO("just_do_it_label= ${l.just_do_it_label}")
+                PrintInformation.PRINT_INFO("just_do_it_successfull= ${l.just_do_it_successfull}")
+                PrintInformation.PRINT_INFO("ip_port = ${l.ip_port}")
+                PrintInformation.PRINT_INFO("lang = ${l.lang}")
+                PrintInformation.PRINT_INFO("value_par1 = ${l.value_par1}")
+                PrintInformation.PRINT_INFO("value_par2 = ${l.value_par2}")
+                PrintInformation.PRINT_INFO("value_par3 = ${l.value_par3}")
+                PrintInformation.PRINT_INFO("value_par4 = ${l.value_par4}")
+                PrintInformation.PRINT_INFO("value_par5 = ${l.value_par5}")
+                PrintInformation.PRINT_INFO("value_par6 = ${l.value_par6}")
+                PrintInformation.PRINT_INFO("value_par7 = ${l.value_par7}")
+                PrintInformation.PRINT_INFO("value_par8 = ${l.value_par8}")
+                PrintInformation.PRINT_INFO("db_massage = ${l.db_massage}")
 
         }
         Thread_sleep(2000000L)

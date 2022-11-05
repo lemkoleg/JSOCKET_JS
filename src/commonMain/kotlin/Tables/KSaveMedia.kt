@@ -190,7 +190,7 @@ class KSaveMedia {
                             kSaveMedia.LAST_USED = DateTime.nowUnixLong()
                             KSaveMediaLock.withLock {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    println("AddNewSaveMedia is running")
+                                    PrintInformation.PRINT_INFO("AddNewSaveMedia is running")
                                 }
                                 SAVE_MEDIA[kSaveMedia.OBJECT_ID] = kSaveMedia
                                 val arr: ArrayList<KSaveMedia> = ArrayList()

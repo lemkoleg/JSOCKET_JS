@@ -296,7 +296,7 @@ class KExceptions {
                         KExceptionsLock.lock()
 
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("ADD_NEW_EXCEPTIONS is running")
+                            PrintInformation.PRINT_INFO("ADD_NEW_EXCEPTIONS is running")
                         }
 
                         arr.forEach {

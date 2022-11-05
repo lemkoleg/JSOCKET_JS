@@ -157,7 +157,7 @@ class KBigAvatar {
                 jsocket = Jsocket()
                 Jsocket.fill()
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("CLIENT_JSOCKET_POOL is emprty")
+                    PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
                 }
             }
 

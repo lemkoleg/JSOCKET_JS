@@ -7,6 +7,7 @@
 package p_jsocket
 
 import CrossPlatforms.GC
+import CrossPlatforms.PrintInformation
 import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
@@ -123,7 +124,7 @@ object Connection : CoroutineScope {
                         isConnect = true
                         isClosed = false
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("connect")
+                            PrintInformation.PRINT_INFO("connect")
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
@@ -137,13 +138,13 @@ object Connection : CoroutineScope {
                         isConnect = false
                         isClosed = true
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("disconnect")
+                            PrintInformation.PRINT_INFO("disconnect")
                         }
                     }
                     signalonError = MyWebSocketChannel!!.onError
                     signalonError?.add { v ->
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("error on connection: $v\n")
+                            PrintInformation.PRINT_INFO("error on connection: $v\n")
                         }
                         //val e = v.printStackTrace()
                         isConnect = false
@@ -194,14 +195,14 @@ object Connection : CoroutineScope {
                         try {
                             MyWebSocketChannel!!.send(b)
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("send size: ${b.size}")
+                                PrintInformation.PRINT_INFO("send size: ${b.size}")
                             }
                         } catch (ex1: Exception) {
                             setConn()
                             try {
                                 MyWebSocketChannel!!.send(b)
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    println("send size2: ${b.size}")
+                                    PrintInformation.PRINT_INFO("send size2: ${b.size}")
                                 }
                             } catch (ex1: Exception) {
                                 throw my_user_exceptions_class(
@@ -311,7 +312,7 @@ object Connection : CoroutineScope {
                         var jsocketRet: Jsocket? = Jsocket.GetJsocket()
                         if (jsocketRet == null) {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("CLIENT_JSOCKET_POOL is emptty")
+                                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emptty")
                             }
                             Jsocket.fill()
                             jsocketRet = Jsocket()
@@ -333,7 +334,7 @@ object Connection : CoroutineScope {
                                 when (jsocketRet.just_do_it) {
 
                                     1011000086 -> {  // new messeges, notices;
-                                        CHATS!!.FetifyFirsBlock()
+                                        KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                     }
                                     1011000058 -> {
                                         jsocket.send_request()
@@ -350,12 +351,16 @@ object Connection : CoroutineScope {
                                     }
                                     else -> {
 
+                                        if(jsocketRet.last_messege_update > jsocket.last_messege_update){
+                                            KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                        }
+
                                         if (c.commands_access == "B") {
                                             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                                 val l = jsocket!!.lock
                                                 try {
                                                     l.lock()
-                                                    jsocketRet.comntrMerge(jsocket!!)
+                                                    jsocketRet.contrMerge(jsocket!!)
                                                     jsocket = jsocketRet
                                                 } finally {
                                                     l.unlock()
@@ -380,13 +385,15 @@ object Connection : CoroutineScope {
                                     }
                                 }
                             } else {
-                                if (jsocketRet.just_do_it != 1011000086) { // SET_NEW_MESSEGES;
+                                if (jsocketRet.just_do_it != 1011000086) { // new messeges, notices;
                                     throw my_user_exceptions_class(
                                         l_class_name = "DecoderRequest",
                                         l_function_name = "decode",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
                                         l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                     )
+                                } else{
+                                    KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                 }
 
                             }
@@ -425,7 +432,7 @@ object Connection : CoroutineScope {
         try {
             try {
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    println("Start Connection.removeOldAll()")
+                    PrintInformation.PRINT_INFO("Start Connection.removeOldAll()")
                 }
                 if (LastTimeCleanOutJSOCKETs == 0L) {
                     LastTimeCleanOutJSOCKETs = nowNano()
@@ -444,7 +451,7 @@ object Connection : CoroutineScope {
                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                         if (countOfCleaner > 0) {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
+                                PrintInformation.PRINT_INFO("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
                             }
                         }
                     }

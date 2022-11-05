@@ -174,7 +174,7 @@ class KCommands {
                         KCommandsLock.lock()
 
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("ADD_NEW_COMMANDS is running")
+                            PrintInformation.PRINT_INFO("ADD_NEW_COMMANDS is running")
                         }
                         arr.forEach {
                             if (it.RECORD_TYPE.equals("1")) {

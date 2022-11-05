@@ -196,7 +196,7 @@ class KRegData {
                             KRegDataLock.lock()
                             
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("ADD_NEW_REG_DATA is running")
+                                PrintInformation.PRINT_INFO("ADD_NEW_REG_DATA is running")
                             }
 
                             if (arr.size > 1) {

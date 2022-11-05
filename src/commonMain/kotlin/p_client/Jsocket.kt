@@ -207,7 +207,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                     val l: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("CLIENT_JSOCKET_POOL is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
                         }
                         fill()
                         return null
@@ -227,7 +227,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         try {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                println("Jsocet's fill pool is run...")
+                                PrintInformation.PRINT_INFO("Jsocet's fill pool is run...")
                             }
                             try {
                                 fillPOOL_IS_RUNNING.value = true

@@ -1,6 +1,7 @@
 package Tables
 
 
+import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
@@ -1250,7 +1251,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                         var v: KCashData? = null
                         KCashLastUpdate.RE_LOAD_CASH_LAST_UPDATE().join()
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            println("LOAD_CASH_DATA is running")
+                            PrintInformation.PRINT_INFO("LOAD_CASH_DATA is running")
                         }
                         arr.forEach {
                             if (v == null || v!!.CashLastUpdate.CASH_SUM != it.CASH_SUM) {

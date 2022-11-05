@@ -57,6 +57,7 @@ val CHATS_COST_TYPES: MutableMap<String, KCashData>  = mutableMapOf()
 @InternalAPI
 private val KChatsGlobalLock = Mutex()
 private val KChatsSelectAllDataOnChatLock = Mutex()
+private val KChatsVerifyUpdatesLock = Mutex()
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -67,8 +68,9 @@ val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("sendedlLastUpdatingDate")
-private val sendedlLastUpdatingDate: MutableMap<Long, Int> = mutableMapOf()
+@JsName("sendedVerifyUpdates")
+private var sendedVerifyUpdates: Long = 0L
+private var TimeOutendedVerifyUpdates: Long = 0L
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -92,13 +94,15 @@ object KChat {
                         if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
                             if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixLong()) {
                                 return@withTimeoutOrNull
+                            }else{
+                                sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                             }
                         }else{
                             sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                         }
                         val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                         socket.value_id5 = cats_id
-                        socket.just_do_it = 1011000052
+                        socket.just_do_it = 1011000052 //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
                         socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
                         socket.send_request()
                     } catch (e: my_user_exceptions_class) {
@@ -106,7 +110,7 @@ object KChat {
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KChats",
-                            l_function_name = "ADD_NEW_CHATS",
+                            l_function_name = "SELECT_ALL_DATA_ON_CHAT",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
@@ -118,7 +122,59 @@ object KChat {
                 }
             } ?: throw my_user_exceptions_class(
                 l_class_name = "KChats",
-                l_function_name = "GET_NEXT",
+                l_function_name = "SELECT_ALL_DATA_ON_CHAT",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
+        }.toPromise(EmptyCoroutineContext)
+
+    @JsName("VERIFY_UPDATES")
+    suspend fun VERIFY_UPDATES(new_updates: Long): Promise<Unit?> =
+        CoroutineScope(Dispatchers.Default).async {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KChatsVerifyUpdatesLock.lock()
+                        when{
+                            (sendedVerifyUpdates > new_updates) -> {
+                                return@withTimeoutOrNull
+                            }
+                            (sendedVerifyUpdates == new_updates) -> {
+                                if(TimeOutendedVerifyUpdates > DateTime.nowUnixLong()){
+                                    return@withTimeoutOrNull
+                                }else{
+                                    TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+                                }
+                            }
+                            (sendedVerifyUpdates < new_updates) -> {
+                                sendedVerifyUpdates = new_updates
+                                TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+
+                            }
+                        }
+
+                        val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
+                        socket.just_do_it = 1011000053 // SELECTOR.SELECT_CHATS;
+                        socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
+                        socket.send_request()
+                    } catch (e: my_user_exceptions_class) {
+                        throw e
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KChats",
+                            l_function_name = "VERIFY_UPDATES",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KChatsVerifyUpdatesLock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+            } ?: throw my_user_exceptions_class(
+                l_class_name = "KChats",
+                l_function_name = "VERIFY_UPDATES",
                 name_of_exception = "EXC_SYSTEM_ERROR",
                 l_additional_text = "Time out is up"
             )
@@ -150,7 +206,7 @@ object KChat {
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KChats",
-                            l_function_name = "GET_NEXT",
+                            l_function_name = "GET_CHATS",
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
@@ -162,14 +218,14 @@ object KChat {
                 }
             } ?: throw my_user_exceptions_class(
                 l_class_name = "KChats",
-                l_function_name = "GET_NEXT",
+                l_function_name = "GET_CHATS",
                 name_of_exception = "EXC_SYSTEM_ERROR",
                 l_additional_text = "Time out is up"
             )
 
             throw my_user_exceptions_class(
                 l_class_name = "KChats",
-                l_function_name = "GET_NEXT",
+                l_function_name = "GET_CHATS",
                 name_of_exception = "EXC_SYSTEM_ERROR",
                 l_additional_text = "Time out is up"
             )

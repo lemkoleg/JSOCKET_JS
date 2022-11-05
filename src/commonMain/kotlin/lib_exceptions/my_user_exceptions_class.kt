@@ -2,9 +2,11 @@
 
 package lib_exceptions
 
+import CrossPlatforms.PrintInformation
 import CrossPlatforms.WriteExceptionIntoFile
-import Tables.*
-import co.touchlab.stately.concurrency.value
+import Tables.KExceptions
+import Tables.USERS_EXCEPTIONS
+import Tables.myLang
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
-import p_jsocket.*
+import p_jsocket.Constants
+import p_jsocket.JSOCKET
 import kotlin.time.ExperimentalTime
 
 @InternalAPI
@@ -62,9 +65,9 @@ class my_user_exceptions_class : exception_names, Exception {
         function_name = l_function_name
         exception_name = name_of_exception
         var kException: KExceptions.KException? =
-            USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get(myLang.value.value)
+            USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get(myLang)
 
-        if(kException == null && myLang.value.value != "ENG"){
+        if(kException == null && myLang != "ENG"){
             USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get("ENG")
         }
 
@@ -89,7 +92,7 @@ class my_user_exceptions_class : exception_names, Exception {
     fun ExceptionHand(jsocket: JSOCKET?) {
 
         if (Constants.FIX_INTO_SCREEN_ERRORS == 1 || Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-            println(exception_full_text)
+            PrintInformation.PRINT_INFO(exception_full_text)
         }
         when (exception_status) {
             "0", "1" -> return

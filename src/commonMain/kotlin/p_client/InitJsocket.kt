@@ -71,17 +71,17 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                                                                 .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()
                 }
-                println("end myDeviceId")
+                PrintInformation.PRINT_INFO("end myDeviceId")
                 if(sqlDriver != null) {
                     db = AvaClubDB(sqlDriver!!)
                 }
                 initDirectories(FileDir)
-                println("end initDirectories")
+                PrintInformation.PRINT_INFO("end initDirectories")
                 try {
                     Sqlite_service.Connect().join()
                 }
                 catch (ex: Exception){}
-                println("end Connect")
+                PrintInformation.PRINT_INFO("end Connect")
                 //Sqlite_service.InitializeCommands().join()
                 //Sqlite_service.removeSyncJsocket().join()
                 isInitialised.setNewValue(true)
