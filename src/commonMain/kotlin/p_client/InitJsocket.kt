@@ -7,7 +7,7 @@
 
 package p_client
 
-import CrossPlatforms.WriteExceptionIntoFile
+import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.slash
 import JSOCKET.AvaClubDB
@@ -18,9 +18,8 @@ import com.soywiz.korio.lang.substr
 import com.soywiz.krypto.md5
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.*
-import io.ktor.utils.io.core.ExperimentalIoApi
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 import kotlinx.coroutines.*
+import lib_exceptions.my_user_exceptions_class
 import p_jsocket.initDirectories
 import sql.Sqlite_service
 import sql.db
@@ -38,12 +37,17 @@ import kotlin.time.ExperimentalTime
 @JsName("InitJsocketJob")
 var InitJsocketJob: Job = Job()
 
-val isInitialised : AtomicBoolean = AtomicBoolean(false);
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val isInitialised: AtomicBoolean = AtomicBoolean(false)
 
 
 @InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 @JsName("InitJsocket")
-class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver? = null): CoroutineScope {
+class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver? = null) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
@@ -52,41 +56,48 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
     private val FileDir = _lFileDir.trim() + slash
     private val DeviceId = _lDeviceId?.trim() ?: ""
     private val SqlDriver = _sqlDriver
-    private val listener: Listener? = Listener.get_Instance()
 
 
     init {
 
-        if(DeviceId.isNotEmpty()) myDeviceId.setNewValue(DeviceId.replace(":", "").replace(";", "")
-                .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
+        if (DeviceId.isNotEmpty()) myDeviceId = (DeviceId.replace(":", "").replace(";", "")
+            .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
 
-        if(SqlDriver != null){
+        if (SqlDriver != null) {
             sqlDriver = SqlDriver
         }
         InitJsocketJob = InitJsocketScope.launch {
-            try{
-                if(myDeviceId.value.isEmpty()) {
-                        launch {
-                            myDeviceId.setNewValue(getMyDeviceId().replace(":", "").replace(";", "")
-                                                                .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
-                        }.join()
-                }
-                PrintInformation.PRINT_INFO("end myDeviceId")
-                if(sqlDriver != null) {
-                    db = AvaClubDB(sqlDriver!!)
-                }
-                initDirectories(FileDir)
-                PrintInformation.PRINT_INFO("end initDirectories")
+            try {
                 try {
+                    if (myDeviceId.isEmpty()) {
+                        launch {
+                            myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
+                                .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
+                        }.join()
+                    }
+                    PrintInformation.PRINT_INFO("end myDeviceId")
+                    if (sqlDriver != null) {
+                        db = AvaClubDB(sqlDriver!!)
+                    }
+                    initDirectories(FileDir)
+                    PrintInformation.PRINT_INFO("end initDirectories")
                     Sqlite_service.Connect().join()
+                    PrintInformation.PRINT_INFO("end Connect")
+                    //Sqlite_service.InitializeCommands().join()
+                    //Sqlite_service.removeSyncJsocket().join()
+                    isInitialised.setNewValue(true)
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "InitJsocket",
+                        l_function_name = "Init",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
                 }
-                catch (ex: Exception){}
-                PrintInformation.PRINT_INFO("end Connect")
-                //Sqlite_service.InitializeCommands().join()
-                //Sqlite_service.removeSyncJsocket().join()
-                isInitialised.setNewValue(true)
-            } catch (ex: Exception) {
-                WriteExceptionIntoFile(ex, "InitJsocket.init")
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
             }
         }
     }

@@ -1,5 +1,6 @@
 package Tables
 
+import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi

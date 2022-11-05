@@ -22,6 +22,7 @@ import kotlin.time.ExperimentalTime
 object PrintInformation {
 
     private val PrintInformationLock = Mutex()
+    private val PrintExceptionnLock = Mutex()
 
     @JsName("PRINT_INFO")
     fun PRINT_INFO(text: String): Promise<Boolean> =
@@ -42,6 +43,39 @@ object PrintInformation {
                         )
                     } finally {
                         PrintInformationLock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+                return@withTimeoutOrNull false
+            } ?: throw my_user_exceptions_class(
+                l_class_name = "PrintInformation",
+                l_function_name = "PRINT_INFO",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
+        }.toPromise(EmptyCoroutineContext)
+
+
+    @JsName("PRINT_EXCEPTION")
+    fun PRINT_EXCEPTION(text: String): Promise<Boolean> =
+        CoroutineScope(Dispatchers.Default).async {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        PrintExceptionnLock.lock()
+                        PrintInformation.PRINT_INFO("Information: $text")
+                    } catch (e: my_user_exceptions_class) {
+                        throw e
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "PrintInformation",
+                            l_function_name = "PRINT_INFO",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        PrintExceptionnLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)

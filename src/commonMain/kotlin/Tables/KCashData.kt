@@ -196,7 +196,10 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                         v = Sqlite_service.SelectCashData(CashLastUpdate.CASH_SUM, id)
                     }
                     return@withTimeoutOrNull v
-                } catch (ex: Exception) {
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                }
+                catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
                         l_function_name = "ADD_NEW_CASH_DATA",

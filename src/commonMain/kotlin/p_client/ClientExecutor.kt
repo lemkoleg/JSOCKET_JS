@@ -177,11 +177,7 @@ class ClientExecutor {
     @ExperimentalTime
     @KorioExperimentalApi
     private suspend fun default_execute() {
-        if (curCommand!!.isCaching) {
-            Sqlite_service.SelectCashData(jsocket)
-        } else {
-            jsocket.send_request(craete_check_sum = false, verify_fields = true)
-        }
+        jsocket.send_request()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +346,7 @@ class ClientExecutor {
                             name_of_exception = "EXC_ERROR_SEND_FILE"
                         )
                     }
-                    jsocket.send_request(craete_check_sum = false, verify_fields = true)
+                    jsocket.send_request()
                 } else {
                     throw my_user_exceptions_class(
                         l_class_name = "ClientExecutor",
@@ -366,7 +362,7 @@ class ClientExecutor {
                 )
             }
         } else {
-            jsocket.send_request(craete_check_sum = false, verify_fields = true)
+            jsocket.send_request()
         }
     }
 
@@ -376,7 +372,7 @@ class ClientExecutor {
     @ExperimentalTime
     @KorioExperimentalApi
     private suspend fun quit_account() {
-        jsocket.send_request(craete_check_sum = false, verify_fields = true)
+        jsocket.send_request()
         if (jsocket.just_do_it_successfull == "0") {
             Sqlite_service.ClearRegData()
             myConnectionsCoocki = 0L

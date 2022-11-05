@@ -92,7 +92,7 @@ class my_user_exceptions_class : exception_names, Exception {
     fun ExceptionHand(jsocket: JSOCKET?) {
 
         if (Constants.FIX_INTO_SCREEN_ERRORS == 1 || Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-            PrintInformation.PRINT_INFO(exception_full_text)
+            PrintInformation.PRINT_EXCEPTION(exception_full_text)
         }
         when (exception_status) {
             "0", "1" -> return

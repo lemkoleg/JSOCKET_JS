@@ -2,6 +2,7 @@
 
 package Tables
 
+import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
