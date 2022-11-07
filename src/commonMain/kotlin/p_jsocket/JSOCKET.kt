@@ -804,8 +804,6 @@ open class JSOCKET() {
 
 
     @JsName("serialize")
-    @InternalAPI
-    @ExperimentalTime
     suspend fun serialize(verify_fields: Boolean): ByteArray {
 
         try {
@@ -1401,6 +1399,8 @@ open class JSOCKET() {
 
                 }
 
+                answer_type.LONG_20 = this.last_date_of_update
+
                 if (nameField_number == 84) {  // big avatar;
                     if (object_info == null) {
                         throw my_user_exceptions_class(
@@ -1437,17 +1437,17 @@ open class JSOCKET() {
                     if (currentCommand!!.commands_id != 1011000053) {        //SELECTOR.SELECT_CHATS;
 
                         if (currentCommand!!.commands_id == 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
-                            var cash_last_update: KCashLastUpdate
+                            var cash_sum: String
                             when (answer_type.RECORD_TYPE) {
                                 "4" -> {  // MESSEGES;
-                                    cash_last_update = KCashLastUpdate(
+                                    cash_sum = GetCashSum(
                                         L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
                                         L_RECORD_TYPE = answer_type.RECORD_TYPE,
                                         L_COURSE = "1"
                                     )
                                 }
                                 "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
-                                    cash_last_update = KCashLastUpdate(
+                                    cash_sum = GetCashSum(
                                         L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
                                         L_RECORD_TYPE = answer_type.RECORD_TYPE,
                                         L_COURSE = "0"
@@ -1463,11 +1463,31 @@ open class JSOCKET() {
                                 }
                             }
 
-                            var cc = CASH_DATAS[cash_last_update.CASH_SUM]
+                            var cc = CASH_DATAS[cash_sum]
                             if (cc == null) {
-                                cc = KCashData(cash_last_update)
+                                var kc: KCashLastUpdate? = CASH_LAST_UPDATE[cash_sum]
+                                if(kc == null){
+                                    when (answer_type.RECORD_TYPE) {
+                                        "4" -> {  // MESSEGES;
+                                            kc = KCashLastUpdate(
+                                                L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
+                                                L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                                L_COURSE = "1"
+                                            )
+                                        }
+                                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                                            kc = KCashLastUpdate(
+                                                L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
+                                                L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                                L_COURSE = "0"
+                                            )
+                                        }
+                                    }
+                                    CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
+                                }
+                                cc = KCashData(kc)
                             }
-                            cc.SET_RECORDS(arr, last_date_of_update)
+                            cc.SET_RECORDS(arr)
 
                             record_type = answer_type.RECORD_TYPE
                             arr = ArrayDeque()
@@ -1546,27 +1566,24 @@ open class JSOCKET() {
                     }
                 }
 
-                answer_type.INTEGER_20 = answer_type.INTEGER_20
-                answer_type.LONG_20 = this.last_date_of_update
-
                 arr.addLast(answer_type)
             }
 
             if (record_type != "0") {
                 if (currentCommand!!.commands_id == 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
-                    val cash_last_update: KCashLastUpdate
+                    val cash_sum: String
                     when (record_type) {
                         "4" -> {  // MESSEGES;
-                            cash_last_update = KCashLastUpdate(
+                            cash_sum = GetCashSum(
                                 L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
-                                L_RECORD_TYPE = record_type,
+                                L_RECORD_TYPE = arr.last().RECORD_TYPE,
                                 L_COURSE = "1"
                             )
                         }
                         "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
-                            cash_last_update = KCashLastUpdate(
+                            cash_sum = GetCashSum(
                                 L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
-                                L_RECORD_TYPE = record_type,
+                                L_RECORD_TYPE = arr.last().RECORD_TYPE,
                                 L_COURSE = "0"
                             )
                         }
@@ -1575,16 +1592,36 @@ open class JSOCKET() {
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize_ANSWERS_TYPES",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "RECORD_TYPE $record_type not defined"
+                                l_additional_text = "RECORD_TYPE ${arr.last().RECORD_TYPE} not defined"
                             )
                         }
                     }
 
-                    var cc = CASH_DATAS[cash_last_update.CASH_SUM]
+                    var cc = CASH_DATAS[cash_sum]
                     if (cc == null) {
-                        cc = KCashData(cash_last_update)
+                        var kc: KCashLastUpdate? = CASH_LAST_UPDATE[cash_sum]
+                        if(kc == null){
+                            when (arr.last().RECORD_TYPE) {
+                                "4" -> {  // MESSEGES;
+                                    kc = KCashLastUpdate(
+                                        L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
+                                        L_RECORD_TYPE = arr.last().RECORD_TYPE,
+                                        L_COURSE = "1"
+                                    )
+                                }
+                                "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                                    kc = KCashLastUpdate(
+                                        L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
+                                        L_RECORD_TYPE = arr.last().RECORD_TYPE,
+                                        L_COURSE = "0"
+                                    )
+                                }
+                            }
+                            CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
+                        }
+                        cc = KCashData(kc)
                     }
-                    promise = cc.SET_RECORDS(arr, last_date_of_update)
+                    promise = cc.SET_RECORDS(arr)
                 } else {
                     promise = when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
@@ -2029,6 +2066,23 @@ open class JSOCKET() {
 
     fun getmd5LongArray(): LongArray {
         return md5LongArray
+    }
+
+
+    fun GetCashSum(
+        L_OBJECT_ID: String,
+        L_RECORD_TYPE: String,
+        L_COURSE: String = "0",
+        L_SORT: String = "0",
+        L_LINK_OWNER: String = "",
+        L_MESS_COUNT_FROM: String = "",
+        L_OTHER_CONDITIONS_1: String = "",
+        L_OTHER_CONDITIONS_2: String = "",
+        L_OTHER_CONDITIONS_3: String = ""
+    ): String {
+        return (L_OBJECT_ID + L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
+                L_MESS_COUNT_FROM + L_OTHER_CONDITIONS_1 + L_OTHER_CONDITIONS_2 + L_OTHER_CONDITIONS_3)
+
     }
 
 }

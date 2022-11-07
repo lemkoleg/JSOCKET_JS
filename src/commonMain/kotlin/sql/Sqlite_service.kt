@@ -649,7 +649,7 @@ object Sqlite_service : CoroutineScope {
     private val statCASHLASTUPDATE = Connection.createStatement()
     private val lockCASHLASTUPDATE = Mutex()
 
-    /*
+
     @JsName("InsertCashLastUpdate")
     fun InsertCashLastUpdate(cash: KCashLastUpdate) = Sqlite_serviceScope.launch {
         try {
@@ -677,7 +677,6 @@ object Sqlite_service : CoroutineScope {
             e.ExceptionHand(null)
         }
     }
-     */
 
     @JsName("LoadCashLastUpdate")
     fun LoadCashLastUpdate() = Sqlite_serviceScope.launch {
@@ -912,10 +911,10 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.lock()
+                    statCASHLASTUPDATE.UPDATE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from, limit)
                     val c = CASH_LAST_UPDATE[cash_sum]
                     c!!.LAST_USE = last_select
                     statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(c)
-                    statCASHLASTUPDATE.UPDATE_CASHDATA_NEW_LAST_SELECT(last_select, cash_sum, record_table_id_from, limit)
                     //statCASHLASTUPDATE.DELETE_CASHDATA_DELETED_RECORDS(cash_sum)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

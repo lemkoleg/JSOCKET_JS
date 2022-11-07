@@ -2,6 +2,7 @@
 
 package p_jsocket
 
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.MD5
 import com.soywiz.krypto.Padding
@@ -10,6 +11,7 @@ import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import lib_exceptions.my_user_exceptions_class
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
 /*
@@ -295,6 +297,9 @@ private val LOOKUPTABLE2 = Array(0x100) { i -> r(i) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+@ExperimentalTime
+@InternalAPI
+@KorioExperimentalApi
 @JsName("HASH")
 class HASH {
 
@@ -351,7 +356,7 @@ class HASH {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
+
     @JsName("getNewCoockiLong")
     fun getNewCoockiLong(stringMD5: String): Long {
         val stringMD5String1: Long = stringMD5.substring(0, 15).toLong(16)

@@ -198,8 +198,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     return@withTimeoutOrNull v
                 } catch (e: my_user_exceptions_class) {
                     throw e
-                }
-                catch (ex: Exception) {
+                } catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "KCashData",
                         l_function_name = "ADD_NEW_CASH_DATA",
@@ -222,7 +221,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
     @JsName("SET_RECORDS")
-    fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>, last_select: Long): Promise<Boolean> =
+    fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
@@ -244,8 +243,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     }"
                                 )
                             }
-
-                            it.LONG_20 = last_select
 
                             if (it.INTEGER_20 <= ORDERED_CASH_DATA.size.plus(1)) {
                                 if (CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
@@ -292,6 +289,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     } finally {
                         if (chenged_records.isNotEmpty()) {
                             Sqlite_service.InsertCashData(chenged_records)
+                            CashLastUpdate.INSERT_CASH_LASTUPDATE()
                         }
                         KCashDataLock.unlock()
                     }
@@ -355,25 +353,25 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                         }
                         arr.forEach lit@{
                             if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
-                                if (CashLastUpdate.RECORD_TYPE == "3") {
-                                    var cash_last_update: KCashLastUpdate
+                                if (CashLastUpdate.RECORD_TYPE == "3") {  // CHATS;
+                                    val cash_sum: String
                                     when (it.RECORD_TYPE) {
                                         "4" -> {  // MESSEGES;
-                                            cash_last_update = KCashLastUpdate(
+                                            cash_sum = GetCashSum(
                                                 L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                                 L_RECORD_TYPE = it.RECORD_TYPE,
                                                 L_COURSE = "1"
                                             )
                                         }
-                                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
-                                            cash_last_update = KCashLastUpdate(
+                                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES;
+                                            cash_sum = GetCashSum(
                                                 L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                                 L_RECORD_TYPE = it.RECORD_TYPE,
                                                 L_COURSE = "0"
                                             )
                                         }
-                                        "N" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
-                                            cash_last_update = KCashLastUpdate(
+                                        "N" -> {  // NOTICES;
+                                            cash_sum = GetCashSum(
                                                 L_OBJECT_ID = Account_Id,
                                                 L_RECORD_TYPE = it.RECORD_TYPE,
                                                 L_COURSE = "0"
@@ -394,21 +392,43 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         }
                                     }
 
-                                    if (CASH_LAST_UPDATE.containsKey(cash_last_update.CASH_SUM)) {
-                                        cash_last_update = CASH_LAST_UPDATE[cash_last_update.CASH_SUM]!!
-                                    }
-
                                     if (alien_cash_last_update == null) {
-                                        alien_cash_last_update = cash_last_update
+                                        alien_cash_last_update = CASH_LAST_UPDATE[cash_sum]
+                                        if (alien_cash_last_update == null) {
+                                            when (it.RECORD_TYPE) {
+                                                "4" -> {  // MESSEGES;
+                                                    alien_cash_last_update = KCashLastUpdate(
+                                                        L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                                        L_RECORD_TYPE = it.RECORD_TYPE,
+                                                        L_COURSE = "1"
+                                                    )
+                                                }
+                                                "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                                                    alien_cash_last_update = KCashLastUpdate(
+                                                        L_OBJECT_ID = it.answerTypeValues.GetChatId(),
+                                                        L_RECORD_TYPE = it.RECORD_TYPE,
+                                                        L_COURSE = "0"
+                                                    )
+                                                }
+                                                "N" -> {  // NOTICES;
+                                                    alien_cash_last_update = KCashLastUpdate(
+                                                        L_OBJECT_ID = Account_Id,
+                                                        L_RECORD_TYPE = it.RECORD_TYPE,
+                                                        L_COURSE = "0"
+                                                    )
+                                                }
+                                            }
+                                            CASH_LAST_UPDATE[cash_sum] = alien_cash_last_update!!
+                                        }
                                         alien_records = ArrayDeque()
                                     }
 
-                                    if (alien_cash_last_update!!.CASH_SUM != cash_last_update.CASH_SUM) {
+                                    if (alien_cash_last_update!!.CASH_SUM != cash_sum) {
                                         var cc = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
                                         if (cc == null) {
                                             cc = KCashData(alien_cash_last_update!!)
                                         }
-                                        cc.SET_RECORDS(alien_records!!, l_last_select)
+                                        cc.SET_RECORDS(alien_records!!)
                                         alien_records = ArrayDeque()
                                     }
 
@@ -490,7 +510,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             if (cc2 == null) {
                                 cc2 = KCashData(alien_cash_last_update!!)
                             }
-                            cc2.SET_RECORDS(alien_records!!, l_last_select)
+                            cc2.SET_RECORDS(alien_records!!)
                         }
 
                         if (Constants.CALL_UPDATED_CASH_DATA_FOR_EACH_INCOMING_BLOCK == 1) {
@@ -537,6 +557,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 try {
                     try {
                         KCashDataLock.lock()
+
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("Start KCashData.UPDATE_LAST_SELECT")
+                        }
+
                         var index =
                             if (object_recod_id_from.isEmpty()) 0 else ORDERED_CASH_DATA.indexOf(CASH_DATA_RECORDS[object_recod_id_from])
                         if (index == -1) {
@@ -570,7 +595,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                         ORDERED_CASH_DATA.subList(index, limit).forEach {
 
-                            it.LONG_20 = lastSelect
 
                             if (CashLastUpdate.RECORD_TYPE == "3") {  // chats;
                                 val chats_likes_last_update = KCashLastUpdate(
@@ -1022,6 +1046,22 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         if (arr_messeges.isEmpty() && CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
         }
+    }
+
+    fun GetCashSum(
+        L_OBJECT_ID: String,
+        L_RECORD_TYPE: String,
+        L_COURSE: String = "0",
+        L_SORT: String = "0",
+        L_LINK_OWNER: String = "",
+        L_MESS_COUNT_FROM: String = "",
+        L_OTHER_CONDITIONS_1: String = "",
+        L_OTHER_CONDITIONS_2: String = "",
+        L_OTHER_CONDITIONS_3: String = ""
+    ): String {
+        return (L_OBJECT_ID + L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
+                L_MESS_COUNT_FROM + L_OTHER_CONDITIONS_1 + L_OTHER_CONDITIONS_2 + L_OTHER_CONDITIONS_3)
+
     }
 
 

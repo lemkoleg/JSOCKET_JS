@@ -33,7 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import lib_exceptions.my_user_exceptions_class
+import lib_exceptions.my_user_exceptions_sealed class
 import p_client.Jsocket
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
