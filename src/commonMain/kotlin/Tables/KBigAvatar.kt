@@ -135,51 +135,57 @@ class KBigAvatar {
     }
 
     @JsName("PROMISE_SELECT_BIG_AVATAR")
-    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE): Job = CoroutineScope(Dispatchers.Default).launch {
-
-        KBigAvatarLock.withLock {
-            if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
-                AVATAR = BIG_AVATARS[AVATAR_ID]?.AVATAR
-                if (AVATAR != null) {
-                    Sqlite_service.UpdateBigAvatarsLastUse(AVATAR_ID)
-                } else {
-                    AVATAR = Sqlite_service.SelectBigAvatar(AVATAR_ID, true)?.AVATAR
+    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE) = CoroutineScope(Dispatchers.Default).async {
+        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            KBigAvatarLock.withLock {
+                if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
+                    AVATAR = BIG_AVATARS[AVATAR_ID]?.AVATAR
+                    if (AVATAR != null) {
+                        Sqlite_service.UpdateBigAvatarsLastUse(AVATAR_ID)
+                    } else {
+                        AVATAR = Sqlite_service.SelectBigAvatar(AVATAR_ID, true)?.AVATAR
+                    }
                 }
             }
-        }
-        if (AVATAR != null) {
-            IS_HAVE = true
-            IS_INIT = true
-        } else {
+            if (AVATAR != null) {
+                IS_HAVE = true
+                IS_INIT = true
+            } else {
 
-            var jsocket: Jsocket? = Jsocket.GetJsocket()
+                var jsocket: Jsocket? = Jsocket.GetJsocket()
 
-            if (jsocket == null) {
-                jsocket = Jsocket()
-                Jsocket.fill()
-                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                if (jsocket == null) {
+                    jsocket = Jsocket()
+                    Jsocket.fill()
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                    }
+                }
+
+                jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
+                jsocket.value_id3 = answerType.answerTypeValues.GetMainAvatarId()
+                jsocket.value_id5 = answerType.answerTypeValues.GetChatId()
+                jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
+                jsocket.value_par3 = if (answerType.answerTypeValues.GetAvatarOriginalSize() == 0) "1" else "2"
+                jsocket.value_par5 = answerType.answerTypeValues.GetAvatarLink()
+                jsocket.value_par6 = answerType.answerTypeValues.GetAvatarServer()
+
+                jsocket.execute().await()
+                if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
+                    AVATAR = jsocket.content
+                    INSERT_BIG_AVATAR_INTO_MAP(this@KBigAvatar)
+                    val arr: ArrayList<KBigAvatar> = ArrayList()
+                    arr.add(this@KBigAvatar)
+                    Sqlite_service.InsertBigAvatars(arr)
                 }
             }
-
-            jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
-            jsocket.value_id3 = answerType.answerTypeValues.GetMainAvatarId()
-            jsocket.value_id5 = answerType.answerTypeValues.GetChatId()
-            jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
-            jsocket.value_par3 = if (answerType.answerTypeValues.GetAvatarOriginalSize() == 0) "1" else "2"
-            jsocket.value_par5 = answerType.answerTypeValues.GetAvatarLink()
-            jsocket.value_par6 = answerType.answerTypeValues.GetAvatarServer()
-
-            jsocket.execute().await()
-            if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
-                AVATAR = jsocket.content
-                INSERT_BIG_AVATAR_INTO_MAP(this@KBigAvatar)
-                val arr: ArrayList<KBigAvatar> = ArrayList()
-                arr.add(this@KBigAvatar)
-                Sqlite_service.InsertBigAvatars(arr)
-            }
-        }
-    }
+        } ?: throw my_user_exceptions_class(
+            l_class_name = "KCashData",
+            l_function_name = "SET_RECORDS",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up"
+        )
+    }.toPromise(EmptyCoroutineContext)
 
     companion object : CoroutineScope {
 
@@ -219,7 +225,7 @@ class KBigAvatar {
                         e.ExceptionHand(null)
                     }
                     return@withTimeoutOrNull false
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KBigAvatar",
                     l_function_name = "ADD_NEW_BIG_AVATAR",
                     name_of_exception = "EXC_SYSTEM_ERROR",
@@ -235,6 +241,9 @@ class KBigAvatar {
                 try {
                     try {
                         KBigAvatarLock.lock()
+                        if(P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId().isEmpty()){
+                            return@withTimeoutOrNull null
+                        }
                         val kBigAvatar: KBigAvatar?
                         if (BIG_AVATARS_IDS.containsKey(P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId())) {
                             if (BIG_AVATARS.containsKey(P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId())) {
@@ -267,15 +276,18 @@ class KBigAvatar {
                 }
 
                 val jsocket = P_ANSWER_TYPE.GetJsocket()
+                jsocket.value_par1 = P_ANSWER_TYPE.answerTypeValues.GetMessegeId().toString()
+                jsocket.value_par3 = if(P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 0) "1" else "2"
+                jsocket.value_par4 = P_ANSWER_TYPE.answerTypeValues.GetObjectLink()
                 jsocket.value_par5 = P_ANSWER_TYPE.answerTypeValues.GetAvatarLink()
                 jsocket.value_par6 = P_ANSWER_TYPE.answerTypeValues.GetAvatarServer()
                 jsocket.execute().await()
-                if(jsocket.content != null && jsocket.content!!.isNotEmpty()){
-                    val bigAvatar =  KBigAvatar(L_AVATAR_ID = jsocket.value_id3, L_AVATAR = jsocket.content!!)
+                if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
+                    val bigAvatar = KBigAvatar(L_AVATAR_ID = jsocket.value_id3, L_AVATAR = jsocket.content!!)
                     ADD_NEW_BIG_AVATAR(bigAvatar)
                     return@withTimeoutOrNull bigAvatar
-                }else return@withTimeoutOrNull null
-            }?: throw my_user_exceptions_class(
+                } else return@withTimeoutOrNull null
+            } ?: throw my_user_exceptions_class(
                 l_class_name = "KBigAvatar",
                 l_function_name = "RETURN_PROMISE_SELECT_BIG_AVATAR",
                 name_of_exception = "EXC_SYSTEM_ERROR",
@@ -308,7 +320,7 @@ class KBigAvatar {
                     e.ExceptionHand(null)
                     return@withTimeoutOrNull false
                 }
-            }?: throw my_user_exceptions_class(
+            } ?: throw my_user_exceptions_class(
                 l_class_name = "KBigAvatar",
                 l_function_name = "IS_HAVE_LOCAL_AVATAR_AND_RESERVE",
                 name_of_exception = "EXC_SYSTEM_ERROR",
@@ -391,7 +403,7 @@ class KBigAvatar {
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KBigAvatar",
                     l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
                     name_of_exception = "EXC_SYSTEM_ERROR",

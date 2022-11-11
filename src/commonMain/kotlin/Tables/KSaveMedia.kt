@@ -37,7 +37,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-private val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
+val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
 
 
 @KorioExperimentalApi
@@ -49,78 +49,23 @@ private val KSaveMediaLock = Mutex()
 @ExperimentalTime
 @InternalAPI
 @JsName("KSaveMedia")
-class KSaveMedia {
-
-
-    var OBJECT_ID: String = ""
-    var CONNECTION_ID: Long = 0L
-    var AVATAR_ID: String = ""
-    var OBJECT_NAME: String = ""
-    var OBJECT_SIZE: Int = 0
-    var OBJECT_LENGTH_SECONDS: Int = 0
-    var OBJECT_SERVER: String = ""
-    var OBJECT_LINK: String = ""
-    var OBJECT_EXTENSION: String = ""
-    var AVATAR_LINK: String = ""
-    var AVATAR_SERVER: String = ""
-    var ORIGINAL_AVATAR_SIZE = 0
-    var SMALL_AVATAR: ByteArray? = null
-    var BIG_AVATAR: ByteArray? = null
-    var IS_TEMP: Int = 0
-    var IS_DOWNLOAD: Int = 0
-    var LAST_USED: Long = 0
+class KSaveMedia(val L_OBJECT_LINK: String,
+                 val L_OBJECT_SIZE: Long,
+                 val L_OBJECT_LENGTH_SECONDS: Int,
+                 val L_OBJECT_EXTENSION: String,
+                 var L_IS_TEMP: Int = 0,
+                 var L_LAST_USED: Long = 0L,
+                 var IS_DOWNLOAD: Int = 0) {
 
     var FILE_FULL_NAME: String = ""
-
-
-    private constructor()
-
-    constructor(
-        L_OBJECT_ID: String,
-        L_AVATAR_ID: String?,
-        L_OBJECT_NAME: String,
-        L_OBJECT_SIZE: Int,
-        L_OBJECT_LENGTH_SECONDS: Int,
-        L_OBJECT_SERVER: String,
-        L_OBJECT_LINK: String,
-        L_OBJECT_EXTENSION: String,
-        L_AVATAR_LINK: String?,
-        L_AVATAR_SERVER: String?,
-        L_ORIGINAL_AVATAR_SIZE: Int?,
-        L_SMALL_AVATAR: ByteArray?,
-        L_BIG_AVATAR: ByteArray?,
-        L_IS_TEMP: Int,
-        L_IS_DOWNLOAD: Int,
-        L_LAST_USED: Long
-    ) {
-
-        OBJECT_ID = L_OBJECT_ID
-        AVATAR_ID = L_AVATAR_ID ?: ""
-        OBJECT_NAME = L_OBJECT_NAME
-        OBJECT_SIZE = L_OBJECT_SIZE
-        OBJECT_LENGTH_SECONDS = L_OBJECT_LENGTH_SECONDS
-        OBJECT_SERVER = L_OBJECT_SERVER
-        OBJECT_LINK = L_OBJECT_LINK
-        OBJECT_EXTENSION = L_OBJECT_EXTENSION
-        AVATAR_LINK = L_AVATAR_LINK ?: ""
-        AVATAR_SERVER = L_AVATAR_SERVER ?: ""
-        ORIGINAL_AVATAR_SIZE = L_ORIGINAL_AVATAR_SIZE ?: 0
-        SMALL_AVATAR = L_SMALL_AVATAR
-        BIG_AVATAR = L_BIG_AVATAR
-        IS_TEMP = L_IS_TEMP
-        IS_DOWNLOAD = L_IS_DOWNLOAD
-        LAST_USED = L_LAST_USED
-
-
-    }
 
     init {
         ensureNeverFrozen()
 
-        if (IS_DOWNLOAD == 0) {
-            FILE_FULL_NAME = createTempFullFileName(OBJECT_LINK, OBJECT_EXTENSION)
+        FILE_FULL_NAME = if (IS_DOWNLOAD == 0) {
+            createTempFullFileName(L_OBJECT_LINK, L_OBJECT_EXTENSION)
         } else {
-            FILE_FULL_NAME = createFullFileName(OBJECT_LINK, OBJECT_EXTENSION)
+            createFullFileName(L_OBJECT_LINK, L_OBJECT_EXTENSION)
         }
     }
 
@@ -134,26 +79,20 @@ class KSaveMedia {
     }
 
     fun ReturnDownloadedFullFileName(): String {
-        return createFullFileName(OBJECT_LINK, OBJECT_EXTENSION)
-    }
-
-    fun SET_BIG_AVATAR(v: ByteArray?, avatar_id: String) {
-        if (avatar_id == AVATAR_ID && v != null) {
-            BIG_AVATAR = v
-        }
+        return createFullFileName(L_OBJECT_LINK, L_OBJECT_EXTENSION)
     }
 
 
     fun setIsPerminent() {
-        if (IS_TEMP == 1) {
-            IS_TEMP = 0
+        if (L_IS_TEMP == 1) {
+            L_IS_TEMP = 0
         }
         AddNewSaveMedia(this)
     }
 
     @JsName("getIS_TEMP")
     fun getIS_TEMP(): Boolean {
-        return IS_TEMP == 1
+        return L_IS_TEMP == 1
 
     }
 
@@ -188,15 +127,15 @@ class KSaveMedia {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            kSaveMedia.LAST_USED = DateTime.nowUnixLong()
+                            kSaveMedia.L_LAST_USED = DateTime.nowUnixLong()
                             KSaveMediaLock.withLock {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                     PrintInformation.PRINT_INFO("AddNewSaveMedia is running")
                                 }
-                                SAVE_MEDIA[kSaveMedia.OBJECT_ID] = kSaveMedia
+                                SAVE_MEDIA[kSaveMedia.L_OBJECT_LINK] = kSaveMedia
                                 val arr: ArrayList<KSaveMedia> = ArrayList()
                                 arr.add(kSaveMedia)
-                                Sqlite_service.InsertSendMedia(arr)
+                                Sqlite_service.InsertSaveMedia(arr)
                                 return@withTimeoutOrNull true
                             }
 
@@ -232,12 +171,12 @@ class KSaveMedia {
 
                         if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
                             if (it.verifysDownLoaded()) {
-                                SAVE_MEDIA[it.OBJECT_ID] = it
+                                SAVE_MEDIA[it.L_OBJECT_LINK] = it
                             } else {
                                 it.deleteFile()
                             }
                         } else {
-                            SAVE_MEDIA[it.OBJECT_ID] = it
+                            SAVE_MEDIA[it.L_OBJECT_LINK] = it
                         }
                     }
                 } catch (e: my_user_exceptions_class){
@@ -259,13 +198,13 @@ class KSaveMedia {
         }
 
 
-        fun DeleteSaveMedia(name: String): Promise<Boolean> =
+        fun DeleteSaveMedia(object_link: String): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
                             KSaveMediaLock.withLock {
-                                val s = SAVE_MEDIA[name]
+                                val s = SAVE_MEDIA[object_link]
                                 if (s != null) {
                                     val arr: ArrayList<KSaveMedia> = ArrayList()
                                     arr.add(s)

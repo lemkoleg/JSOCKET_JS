@@ -1045,6 +1045,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr_messeges.isEmpty() && CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+        }else{
+            CASH_DATAS[messeges_last_update.CASH_SUM]!!.FetifyFirsBlock()
         }
     }
 

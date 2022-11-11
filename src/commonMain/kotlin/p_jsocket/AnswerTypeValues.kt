@@ -3,10 +3,16 @@ package p_jsocket
 import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
+import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
+import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -27,6 +33,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     var IsHaveAccountInfo = false
     var AccountInfo: KObjectInfo? = null
+
+    var answerTypeConstants: AnswerTypeConstants? = null
 
 
     @JsName("DefineRECORD_TYPE")
@@ -51,6 +59,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 answerType.RECORD_TYPE = answerType.STRING_20.substring(7, 8)
             }
         }
+
+        answerTypeConstants = AnswerTypeConstants(answerType)
         RECORD_TYPE_IS_DEFINED = true
 
         //initValues()
@@ -300,6 +310,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetMessegeObjectType")
     var GetMessegeObjectType: () -> String = { getEMPTY_STRING() }
 
+    @JsName("GetMessegeFileType")
+    var GetMessegeFileType: () -> String = { getEMPTY_STRING() }
+
     @JsName("GetMessegePeriodFor")
     var GetMessegePeriodFor: () -> Long = { getEMPTY_LONG() }
 
@@ -377,6 +390,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     @JsName("GetChatsCostTypesHaveMesseges")
     var GetChatsCostTypesHaveMesseges: () -> String = { getEMPTY_STRING() }
+
+
+
 
 
     fun initValues() {
@@ -538,14 +554,17 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+                        GetMessegeFileType = { getSTRING_7().substring(0, 1) }
 
                     }
                     "5" -> { // FILE
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
+                        GetLengthSeconds = { getINTEGER_5() }
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+                        GetMessegeFileType = { getSTRING_7().substring(0, 1) }
 
                     }
                     "6" -> { // GIF
@@ -554,6 +573,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                         GetObjectServer = { getSTRING_6() }
                         GetObjectLink = { getSTRING_8() }
                         GetObjectExtension = { getSTRING_9() }
+                        GetMessegeFileType = { getSTRING_7().substring(0, 1) }
 
                     }
                     "7" -> {  // ALBUMS
@@ -949,53 +969,63 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
     }
 
-    suspend fun getACCOUNT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): KObjectInfo {
-
-        if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
-            throw my_user_exceptions_class(
-                l_class_name = "AnswerTypeValues",
-                l_function_name = "getALBUM_INFO",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Account Id is empty"
-            )
-        }
-        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetMainAccountId())
-        if (v == null) {
-
-            val c = KCashData.GET_CASH_DATA(
-                L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(),
-                L_RECORD_TYPE = "J",
-                L_COURSE = "0",
-                l_request_updates = true,
-                l_select_all_records = true,
-                l_is_SetLastBlock = false,
-                l_reset_cash_data = false,
-                l_ignore_timeout = false,
-                l_updatedCashData = l_updatedCashData
-            ).await()
-            if (c.ORDERED_CASH_DATA.size > 1) {
+    suspend fun getACCOUNT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+        CoroutineScope(Dispatchers.Default).async {
+            if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
-                    l_function_name = "getACCOUNT_INFO",
+                    l_function_name = "getALBUM_INFO",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                    l_additional_text = "Account Id is empty"
                 )
             }
-            v = if (c.ORDERED_CASH_DATA.isEmpty()) {
-                KObjectInfo(CreateAccountInfo())
-            } else {
-                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetMainAccountId())
+            if (v == null) {
+
+                val c = KCashData.GET_CASH_DATA(
+                    L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(),
+                    L_RECORD_TYPE = "J",
+                    L_COURSE = "0",
+                    l_request_updates = false,
+                    l_select_all_records = true,
+                    l_is_SetLastBlock = false,
+                    l_reset_cash_data = false,
+                    l_ignore_timeout = false,
+                    l_updatedCashData = l_updatedCashData
+                ).await()
+                if (c.ORDERED_CASH_DATA.size > 1) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "AnswerTypeValues",
+                        l_function_name = "getACCOUNT_INFO",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                    )
+                }
+                v = if (c.ORDERED_CASH_DATA.isEmpty()) {
+                    KObjectInfo(CreateAccountInfo())
+                } else {
+                    KObjectInfo(c.ORDERED_CASH_DATA.first())
+                }
+                v.SetCallBackUpdate(l_updatedCashData)
+                OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetMainAccountId(), v)
             }
-            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetMainAccountId(), v)
-        }
-        return v
-    }
+            v.VerifyUpdates()
+            return@async v
+        }.toPromise(EmptyCoroutineContext)
 
     private fun CreateAccountInfo(): ANSWER_TYPE {
 
         var ans: ANSWER_TYPE = ANSWER_TYPE.GetAnswerType() ?: ANSWER_TYPE()
 
         when (answerType.RECORD_TYPE) {
+
+            "8" //CHATS_LIKES
+            -> {
+                ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_7 // comment owner id;
+                ans.STRING_1 = answerType.STRING_1 // comment owner name;
+                ans.STRING_2 = answerType.STRING_2 // comment owner access;
+            }
+
             "A" //ALBUMS_COMMENTS
             -> {
                 ans.IDENTIFICATOR_1 = answerType.IDENTIFICATOR_1 // comment owner id;
@@ -1074,51 +1104,53 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
-        ans.STRING_20 = "000000000000000000"
+        ans.STRING_20 = "100000000000000000"
         setRECORD_TYPE("J")
         return ans
     }
 
-    suspend fun getALBUM_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): KObjectInfo {
-
-        if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
-            throw my_user_exceptions_class(
-                l_class_name = "AnswerTypeValues",
-                l_function_name = "getALBUM_INFO",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Album Id is empty"
-            )
-        }
-        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetAlbumId())
-        if (v == null) {
-            val c = KCashData.GET_CASH_DATA(
-                L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(),
-                L_RECORD_TYPE = "K",
-                L_COURSE = "0",
-                l_request_updates = true,
-                l_select_all_records = true,
-                l_is_SetLastBlock = false,
-                l_reset_cash_data = false,
-                l_ignore_timeout = false,
-                l_updatedCashData = l_updatedCashData
-            ).await()
-            if (c.ORDERED_CASH_DATA.size > 1) {
+    suspend fun getALBUM_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+        CoroutineScope(Dispatchers.Default).async {
+            if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "getALBUM_INFO",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                    l_additional_text = "Album Id is empty"
                 )
             }
-            v = if (c.ORDERED_CASH_DATA.isEmpty()) {
-                KObjectInfo(CreateAlbumInfo())
-            } else {
-                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetAlbumId())
+            if (v == null) {
+                val c = KCashData.GET_CASH_DATA(
+                    L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(),
+                    L_RECORD_TYPE = "K",
+                    L_COURSE = "0",
+                    l_request_updates = false,
+                    l_select_all_records = true,
+                    l_is_SetLastBlock = false,
+                    l_reset_cash_data = false,
+                    l_ignore_timeout = false,
+                    l_updatedCashData = l_updatedCashData
+                ).await()
+                if (c.ORDERED_CASH_DATA.size > 1) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "AnswerTypeValues",
+                        l_function_name = "getALBUM_INFO",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                    )
+                }
+                v = if (c.ORDERED_CASH_DATA.isEmpty()) {
+                    KObjectInfo(CreateAlbumInfo())
+                } else {
+                    KObjectInfo(c.ORDERED_CASH_DATA.first())
+                }
+                v.SetCallBackUpdate(l_updatedCashData)
+                OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetAlbumId(), v)
             }
-            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetAlbumId(), v)
-        }
-        return v
-    }
+            v.VerifyUpdates()
+            return@async v
+        }.toPromise(EmptyCoroutineContext)
 
     private fun CreateAlbumInfo(): ANSWER_TYPE {
 
@@ -1261,51 +1293,58 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
-        ans.STRING_20 = "000000000000000000"
+        ans.STRING_20 = "100000000000000000"
         setRECORD_TYPE("K")
         return ans
     }
 
-    suspend fun getOBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): KObjectInfo {
+    fun getOBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+        CoroutineScope(Dispatchers.Default).async {
 
-        if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
-            throw my_user_exceptions_class(
-                l_class_name = "AnswerTypeValues",
-                l_function_name = "getOBJECT_INFO",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Object Id is empty"
-            )
-        }
-        var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetObjectId())
-        if (v == null) {
-            val c = KCashData.GET_CASH_DATA(
-                L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(),
-                L_RECORD_TYPE = "L",
-                L_COURSE = "0",
-                l_request_updates = true,
-                l_select_all_records = true,
-                l_is_SetLastBlock = false,
-                l_reset_cash_data = false,
-                l_ignore_timeout = false,
-                l_updatedCashData = l_updatedCashData
-            ).await()
-            if (c.ORDERED_CASH_DATA.size > 1) {
+            if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "getOBJECT_INFO",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                    l_additional_text = "Object Id is empty"
                 )
             }
-            v = if (c.ORDERED_CASH_DATA.isEmpty()) {
-                KObjectInfo(CreateObjectInfo())
-            } else {
-                KObjectInfo(c.ORDERED_CASH_DATA.first())
+            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetObjectId())
+            if (v == null) {
+                if (answerType.answerTypeValues.GetMessegeFileType().isEmpty()) {
+                    val c = KCashData.GET_CASH_DATA(
+                        L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(),
+                        L_RECORD_TYPE = "L",
+                        L_COURSE = "0",
+                        l_request_updates = false,
+                        l_select_all_records = true,
+                        l_is_SetLastBlock = false,
+                        l_reset_cash_data = false,
+                        l_ignore_timeout = false,
+                        l_updatedCashData = l_updatedCashData
+                    ).await()
+                    if (c.ORDERED_CASH_DATA.size > 1) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "AnswerTypeValues",
+                            l_function_name = "getOBJECT_INFO",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "ORDERED_CASH_DATA.size > 1"
+                        )
+                    }
+                    v = if (c.ORDERED_CASH_DATA.isEmpty()) {
+                        KObjectInfo(CreateObjectInfo())
+                    } else {
+                        KObjectInfo(c.ORDERED_CASH_DATA.first())
+                    }
+                } else {
+                    v = KObjectInfo(answerType)  // for messeges FILES, AVATARS;
+                }
+                v.SetCallBackUpdate(l_updatedCashData)
+                OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetObjectId(), v)
             }
-            OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetObjectId(), v)
-        }
-        return v
-    }
+            v.VerifyUpdates()
+            return@async v
+        }.toPromise(EmptyCoroutineContext)
 
     private fun CreateObjectInfo(): ANSWER_TYPE {
 
@@ -1316,7 +1355,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             -> {
                 when (GetMessegeObjectType()) {
 
-                    "1", "2", "3" -> { // MUSIC
+                    "1", "2", "3" -> { // MUSIC,
 
                         ans.IDENTIFICATOR_8 = GetAlbumId()
                         ans.STRING_10 = GetAlbumName()
@@ -1453,7 +1492,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 )
             }
         }
-        ans.STRING_20 = "000000000000000000"
+        ans.STRING_20 = "100000000000000000"
         setRECORD_TYPE("L")
         return ans
     }

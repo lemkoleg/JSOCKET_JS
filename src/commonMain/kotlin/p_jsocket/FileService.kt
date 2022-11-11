@@ -8,10 +8,12 @@ package p_jsocket
 
 import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.MyCondition
+import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
 import Tables.KBigAvatar
 import Tables.KSaveMedia
 import Tables.SAVE_MEDIA
+import Tables.init
 import co.touchlab.stately.concurrency.AtomicInt
 import co.touchlab.stately.concurrency.value
 import co.touchlab.stately.ensureNeverFrozen
@@ -33,7 +35,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import lib_exceptions.my_user_exceptions_sealed class
+import kotlinx.coroutines.withTimeoutOrNull
+import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
@@ -47,21 +50,32 @@ import kotlin.time.ExperimentalTime
 
 val colorFormat = RGB_555
 
+@JsName("FileServiceGlobalLock")
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+private val FileServiceGlobalLock = Mutex()
+
 
 @JsName("FileService")
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-class FileService(jsocket: Jsocket? = null) {
+class FileService(
+    val answerType: ANSWER_TYPE? = null
 
+) {
+    var fIleFullName: String? = null
 
-    private val FileServiceLock = Mutex()
-
-    private val CurrentChunkReceiveFile = AtomicInt(0)
+    var save_media: KSaveMedia? = null
 
     private val IsInterrupted = AtomicInt(0)
 
     val condition: MyCondition = MyCondition()
+
+    private val FileServiceLock = Mutex()
+
+    private val CurrentChunkReceiveFile = AtomicInt(0)
 
     var avatar: ByteArray? = null
 
@@ -70,86 +84,59 @@ class FileService(jsocket: Jsocket? = null) {
 
     private var IsDownloaded = false
 
-    val command: Int = jsocket?.just_do_it ?: 0
+    var SELF_Jsocket: Jsocket? = Jsocket.GetJsocket()
 
-    val SELF_Jsocket: Jsocket? = if (jsocket != null) jsocket.local_answer_type!!.GetJsocket() else null
+    init {
 
+        if (SELF_Jsocket == null) {
+            SELF_Jsocket = Jsocket()
+            Jsocket.fill()
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+            }
+        }
 
-    val save_media: KSaveMedia? =
+        SELF_Jsocket!!.value_id2 = P_VALUE_ID2
+        SELF_Jsocket!!.value_id4 = P_VALUE_ID4
+        SELF_Jsocket!!.value_id5 = P_VALUE_ID5
+        SELF_Jsocket!!.object_size = P_OBJECT_SIZE
+        SELF_Jsocket!!.object_extension = P_OBJECT_EXTENSION
+        SELF_Jsocket!!.object_server = P_OBJECT_SERVER
+        SELF_Jsocket!!.value_par1 = P_VALUE_PAR1
+        SELF_Jsocket!!.value_par2 = "0"
+        SELF_Jsocket!!.value_par4 = P_VALUE_PAR4
 
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+        if (P_VALUE_PAR4.isNotEmpty()) {
 
-            var s: KSaveMedia? = SAVE_MEDIA[SELF_Jsocket!!.local_answer_type!!.answerTypeValues.GetObjectId()]
+            var s: KSaveMedia? = SAVE_MEDIA[P_VALUE_PAR4]
             if (s == null) {
                 s = KSaveMedia(
-                    L_OBJECT_ID = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectId(),
-                    L_AVATAR_ID = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetMainAvatarId(),
-                    L_OBJECT_NAME = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectName(),
-                    L_OBJECT_SIZE = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectSize(),
-                    L_OBJECT_LENGTH_SECONDS = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetLengthSeconds(),
-                    L_OBJECT_SERVER = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectServer(),
-                    L_OBJECT_LINK = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectLink(),
-                    L_OBJECT_EXTENSION = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetObjectExtension(),
-                    L_AVATAR_LINK = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarLink(),
-                    L_AVATAR_SERVER = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarServer(),
-                    L_ORIGINAL_AVATAR_SIZE = SELF_Jsocket.local_answer_type!!.answerTypeValues.GetAvatarOriginalSize(),
-                    L_SMALL_AVATAR = SELF_Jsocket.local_answer_type!!.BLOB_1,
-                    L_BIG_AVATAR = null,
-                    L_IS_TEMP = if(command.equals(1011000007)) 0 else 1,
-                    L_IS_DOWNLOAD = 0,
-                    L_LAST_USED = 0,
+                    L_OBJECT_LINK = P_VALUE_PAR4,
+                    L_OBJECT_SIZE = P_OBJECT_SIZE,
+                    L_OBJECT_LENGTH_SECONDS = P_OBJECT_LENGTH_SECONDS,
+                    L_OBJECT_EXTENSION = P_OBJECT_EXTENSION
                 )
-            }else{
-                if (command.equals(1011000007) && s!!.getIS_TEMP()) {
-                    s!!.setIsPerminent()
-                }else{
-                    s!!.setLAST_USED()
-                }
-
-                IsDownloaded = s!!.IS_DOWNLOAD == 1
+                save_media = s
+                IsDownloaded = s.IS_DOWNLOAD == 1
+                fIleFullName = save_media!!.FILE_FULL_NAME
+            } else {
+                save_media = null
             }
-
-            SELF_Jsocket.object_size = s!!.OBJECT_SIZE.toLong()
-            SELF_Jsocket.object_extension = s!!.OBJECT_EXTENSION
-            SELF_Jsocket.object_server = s!!.OBJECT_SERVER
-            SELF_Jsocket.value_par4 = s!!.OBJECT_LINK
-            SELF_Jsocket.value_par5 = s!!.AVATAR_LINK
-            SELF_Jsocket.value_par6 = s!!.AVATAR_SERVER
-            s
-        } else null
-
-
-    val fIleFullName: String = if (SELF_Jsocket == null) {
-        ""
-    } else {
-        if (command.equals(1011000056)) { // take_a_new_file();
-            SELF_Jsocket.FileFullPathForSend.ifEmpty {
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "constructor",
-                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
-                )
-            }
-
-        } else if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            save_media!!.FILE_FULL_NAME
-        } else ""
+        }
     }
 
-    private var ExpectedFIleSize: Long =
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            save_media!!.OBJECT_SIZE.toLong()
-        } else {
-            0L
-        }
+
+    constructor(jsocket: Jsocket) : this() {
+        fIleFullName = jsocket.FileFullPathForSend
+    }
+
+
+    private var ExpectedFIleSize: Long = P_OBJECT_SIZE
 
     var currentFIleSize: Long = 0L
         private set
 
-    private var CURRENT_CHUNK_SIZE: Int =
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-            if (IsDownloaded) Constants.CHUNK_SIZE else 0
-        } else 0
+    private var CURRENT_CHUNK_SIZE: Int =  if (IsDownloaded) Constants.CHUNK_SIZE else 0
 
 
     private var Chunks: IntArray? = null
@@ -166,41 +153,10 @@ class FileService(jsocket: Jsocket? = null) {
 
     var ServerFileName = ""  // Fale name into Server for send file
 
-    private var SEND_AVATAR_SIZE = Constants.SEND_AVATAR_SIZE
     private var MAX_FILE_SIZE = Constants.MAX_FILES_SIZE_B
-    private val AVATAR_MAX_SIZE = Constants.AVATAR_MAX_SIZE_FOR_LOADING
 
     private var MaxTryingSendReceiveFileChunks = Constants.MAX_COUNT_TRYING_SEND_RECEIVE_FILE_CHUNKS
 
-
-    init {
-        ensureNeverFrozen()
-        if (!command.equals(0)) {
-            if (SELF_Jsocket == null) {
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "constructor",
-                    name_of_exception = "EXC_FILE_NAME_IS_EMPTY"
-                )
-            }
-        }
-        if (SELF_Jsocket != null) {
-            if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
-                SELF_Jsocket.just_do_it = 1011000055 // GIVE_ME_THAT_FILE;
-                SELF_Jsocket.value_par4 = save_media!!.OBJECT_LINK
-                SELF_Jsocket.value_par5 = save_media.AVATAR_LINK
-                SELF_Jsocket.value_par6 = save_media.AVATAR_SERVER
-                SELF_Jsocket.content = null
-            }else if(command.equals(1011000056)) { // take_a_new_file();
-                SELF_Jsocket.FileFullPathForSend = jsocket!!.FileFullPathForSend
-                SELF_Jsocket.AvatarFullPathForSend = jsocket.AvatarFullPathForSend
-                SELF_Jsocket.content = jsocket.content //avatar
-                jsocket.content = null
-            }
-            SELF_Jsocket.local_answer_type = jsocket!!.local_answer_type
-        }
-
-    }
 
     private fun DeleteSymbols(InputString: String): String {
         return InputString.replace("/", "").replace(slash, "").replace(" ", "")
@@ -211,7 +167,7 @@ class FileService(jsocket: Jsocket? = null) {
     private fun createFileExtensionFromFullFIleName(LFileFullName: String): String {
         return try {
             if (save_media != null) {
-                return save_media.OBJECT_EXTENSION
+                return save_media!!.L_OBJECT_EXTENSION
             }
             val extension: String = DeleteSymbols(LFileFullName.trim()).substringAfterLast(".")
             if (extension.trim().isEmpty()) {
@@ -258,30 +214,16 @@ class FileService(jsocket: Jsocket? = null) {
         SELF_Jsocket!!.FileFullPathForSend = ""
 
         if (file == null) {
-            file = CrossPlatformFile(fIleFullName)
+            file = CrossPlatformFile(fIleFullName!!)
         }
 
-        if (command.equals(1011000007) || command.equals(1011000024)) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+        if (P_VALUE_PAR4.isNotEmpty()) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
 
             if (!IsDownloaded) {
 
-                if (KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(SELF_Jsocket.value_id3)) {
-                    save_media!!.SET_BIG_AVATAR(
-                        KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(P_AVATAR_ID = SELF_Jsocket.value_id3).await()
-                            ?.getAVATAR(), SELF_Jsocket.value_id3
-                    )
-                    avatar = save_media.BIG_AVATAR
-                }
+                SELF_Jsocket!!.send_request()
 
-                if (save_media!!.BIG_AVATAR == null) {
-                    SELF_Jsocket.value_par3 = if (SELF_Jsocket.value_par6.equals("NO_ORIGINAL")) "2" else "1"
-                } else{
-                    SELF_Jsocket.value_par3 = "0"
-                }
-
-                SELF_Jsocket.send_request()
-
-                CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
+                CURRENT_CHUNK_SIZE = SELF_Jsocket!!.value_par3.toInt()
 
                 file!!.create(ExpectedFIleSize) // create full size file
 
@@ -638,125 +580,192 @@ class FileService(jsocket: Jsocket? = null) {
         return IsDownloaded
     }
 
+    fun close() {
+        IsInterrupted.set(1)
+    }
+
+    fun finalize() {
+        IsInterrupted.set(1)
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
-    @JsName("getImmageAvatarFromFileName")
 
-    suspend fun getImmageAvatarFromFileName(lFullFileName: String): ByteArray? {
-        val fileName = CrossPlatformFile(lFullFileName)
-        if (!fileName.exists() || fileName.isDirectory()) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "getImmageAvatarFromFileName",
-                name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
-            )
+    companion object {
+
+        @JsName("getImmageAvatarFromFileName")
+
+        fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        try {
+                            FileServiceGlobalLock.lock()
+                            val fileName = CrossPlatformFile(lFullFileName)
+                            if (!fileName.exists() || fileName.isDirectory()) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "getImmageAvatarFromFileName",
+                                    name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
+                                )
+                            }
+
+                            val fileExtension = createFileExtensionFromFullFIleName(lFullFileName)
+
+                            if (!PictureSet.contains(fileExtension)) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "getImmageAvatarFromFileName",
+                                    name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
+                                )
+                            }
+                            if (fileName.size() > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "getImmageAvatarFromFileName",
+                                    name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                                )
+                            }
+
+                            val l = fileName.readAll()
+                            if (l.size <= Constants.SEND_AVATAR_SIZE) {
+                                return@withTimeoutOrNull l
+                            }
+                            val file = l.openAsync().asVfsFile()
+                            val image32 = file.readBitmap().toBMP32()
+                            return@withTimeoutOrNull getImmageAvatarFromBitmap32(image32)
+
+                        } catch (e: my_user_exceptions_class) {
+                            throw e
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "FileService",
+                                l_function_name = "getImmageAvatarFromFileName",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            FileServiceGlobalLock.unlock()
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
+                    }
+                    return@withTimeoutOrNull false
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "KMetaData",
+                    l_function_name = "getImmageAvatarFromFileName",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+                return@async null
+            }.toPromise(EmptyCoroutineContext)
+
+        @JsName("getImmageAvatarFromByteArray")
+        suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): Promise<ByteArray?> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    try {
+                        try {
+                            FileServiceGlobalLock.lock()
+                            if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "getImmageAvatarFromFileName",
+                                    name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                                )
+                            }
+                            if (imageData.size <= Constants.SEND_AVATAR_SIZE) {
+                                return@withTimeoutOrNull imageData
+                            }
+                            val fileName = imageData.openAsync().asVfsFile()
+                            val image32 = fileName.readBitmap().toBMP32()
+                            return@withTimeoutOrNull getImmageAvatarFromBitmap32(image32)
+                        } catch (e: my_user_exceptions_class) {
+                            throw e
+                        } catch (ex: Exception) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "FileService",
+                                l_function_name = "getImmageAvatarFromFileName",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = ex.message
+                            )
+                        } finally {
+                            FileServiceGlobalLock.unlock()
+                        }
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
+                    }
+                    return@withTimeoutOrNull false
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "getImmageAvatarFromByteArray",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+                return@async null
+            }.toPromise(EmptyCoroutineContext)
+
+        @JsName("getImmageAvatarFromByteArrayWithKoord")
+        private suspend fun getImmageAvatarFromByteArrayWithKoord(
+            imageData: ByteArray,
+            x: Int,
+            y: Int,
+            w: Int,
+            h: Int
+        ): ByteArray? {
+            if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "getImmageAvatarFromFileName",
+                    name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                )
+            }
+            val fileName = imageData.openAsync().asVfsFile()
+            var image32 = fileName.readBitmap().toBMP32()
+            image32 = image32.copySliceWithSize(x = x, y = y, width = w, height = h)
+            return getImmageAvatarFromBitmap32(image32)
         }
 
-        val fileExtension = createFileExtensionFromFullFIleName(lFullFileName)
-
-        if (!PictureSet.contains(fileExtension)) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "getImmageAvatarFromFileName",
-                name_of_exception = "EXC_AVATAR_TYPE_OF_FILE_IS_WRONG"
-            )
-        }
-        if (fileName.size() > AVATAR_MAX_SIZE) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "getImmageAvatarFromFileName",
-                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
-            )
-        }
-
-        val l = fileName.readAll()
-        if (l.size <= SEND_AVATAR_SIZE) {
-            return l
-        }
-        val file = l.openAsync().asVfsFile()
-        val image32 = file.readBitmap().toBMP32()
-        return getImmageAvatarFromBitmap32(image32)
-
-    }
-
-    @JsName("getImmageAvatarFromByteArray")
-    suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): ByteArray? {
-        if (imageData.size > AVATAR_MAX_SIZE) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "getImmageAvatarFromFileName",
-                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
-            )
-        }
-        if (imageData.size <= SEND_AVATAR_SIZE) {
-            return imageData
-        }
-        val fileName = imageData.openAsync().asVfsFile()
-        val image32 = fileName.readBitmap().toBMP32()
-        return getImmageAvatarFromBitmap32(image32)
-    }
-
-    @JsName("getImmageAvatarFromByteArrayWithKoord")
-    private suspend fun getImmageAvatarFromByteArrayWithKoord(
-        imageData: ByteArray,
-        x: Int,
-        y: Int,
-        w: Int,
-        h: Int
-    ): ByteArray? {
-        if (imageData.size > AVATAR_MAX_SIZE) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "getImmageAvatarFromFileName",
-                name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
-            )
-        }
-        val fileName = imageData.openAsync().asVfsFile()
-        var image32 = fileName.readBitmap().toBMP32()
-        image32 = image32.copySliceWithSize(x = x, y = y, width = w, height = h)
-        return getImmageAvatarFromBitmap32(image32)
-    }
-
-    @JsName("getImmageAvatarFormBitmap32")
-    private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
-        var bb: ByteArray? = null
-        var image32 = imageData
-        val ex = ImageEncodingProps("", 1.0)
-        val sliceSIze = SEND_AVATAR_SIZE * 1.4
-        //bb = image32.encode(PNG, ex)
-        bb = image32.encode(PNG)
-        if (bb.size <= SEND_AVATAR_SIZE) return bb
-        else bb = null
-        var x = 0
-        while (x < 1000) {
-            x += 1
-            image32 = image32.mipmap(1)
+        @JsName("getImmageAvatarFormBitmap32")
+        private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
+            var bb: ByteArray? = null
+            var image32 = imageData
+            val ex = ImageEncodingProps("", 1.0)
+            val sliceSIze = Constants.SEND_AVATAR_SIZE * 1.4
+            //bb = image32.encode(PNG, ex)
             bb = image32.encode(PNG)
-            if (bb.size <= sliceSIze) break
-        }
-        if (bb != null) {
-            if (bb.size <= SEND_AVATAR_SIZE) return bb
-
-            val koef = 0.98F
-            val avatar = SEND_AVATAR_SIZE.toFloat()
-            var im_width = (image32.width * koef).toInt()
-            var im_heigth = (image32.height * koef).toInt()
-            x = 0
+            if (bb.size <= Constants.SEND_AVATAR_SIZE) return bb
+            else bb = null
+            var x = 0
             while (x < 1000) {
                 x += 1
-                image32 = image32.copySliceWithSize(
-                    (image32.width - im_width) / 2,
-                    (image32.height - im_heigth) / 2,
-                    im_width,
-                    im_heigth
-                )
+                image32 = image32.mipmap(1)
                 bb = image32.encode(PNG)
-                if (bb.size <= SEND_AVATAR_SIZE) break
-                im_width = (image32.width * koef).toInt()
-                im_heigth = (image32.height * koef).toInt()
+                if (bb.size <= sliceSIze) break
             }
+            if (bb != null) {
+                if (bb.size <= Constants.SEND_AVATAR_SIZE) return bb
+
+                val koef = 0.98F
+                val avatar = Constants.SEND_AVATAR_SIZE.toFloat()
+                var im_width = (image32.width * koef).toInt()
+                var im_heigth = (image32.height * koef).toInt()
+                x = 0
+                while (x < 1000) {
+                    x += 1
+                    image32 = image32.copySliceWithSize(
+                        (image32.width - im_width) / 2,
+                        (image32.height - im_heigth) / 2,
+                        im_width,
+                        im_heigth
+                    )
+                    bb = image32.encode(PNG)
+                    if (bb.size <= Constants.SEND_AVATAR_SIZE) break
+                    im_width = (image32.width * koef).toInt()
+                    im_heigth = (image32.height * koef).toInt()
+                }
+            }
+            return bb
         }
-        return bb
-    }
 
 /*@JsName("getImmageAvatarFormBitmap32")
 private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
@@ -859,14 +868,25 @@ private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray?
     return bb
 }*/
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    fun close() {
-        IsInterrupted.set(1)
-    }
+        private fun createFileExtensionFromFullFIleName(LFileFullName: String): String {
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    fun finalize() {
-        IsInterrupted.set(1)
+            val extension: String = DeleteSymbols(LFileFullName.trim()).substringAfterLast(".")
+            if (extension.trim().isEmpty()) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "createFileExtensionFromFullFIleName",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "FileExtension is empty"
+                )
+            }
+            return extension.lowercase()
+        }
+
+        private fun DeleteSymbols(InputString: String): String {
+            return InputString.replace("/", "").replace(slash, "").replace(" ", "")
+                .replace("'", "").replace("/'", "").replace("..", "").trim()
+        }
+
     }
 /////////////////////////////////////////////////////////////////////////////////////
 }

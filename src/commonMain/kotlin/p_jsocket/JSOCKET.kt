@@ -1511,7 +1511,6 @@ open class JSOCKET() {
                                     is_new_reg_data = true
                                 }
                                 "J", "K", "L" -> {
-
                                 }
                                 else -> {
                                     if (currentCashData == null) {

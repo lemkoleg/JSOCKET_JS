@@ -620,7 +620,7 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.lock()
                     ans.forEach {
-                        statSAVE_MEDIA.DELETE_SAVEMEDIA(it.OBJECT_ID)
+                        statSAVE_MEDIA.DELETE_SAVEMEDIA(it.L_OBJECT_LINK)
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
