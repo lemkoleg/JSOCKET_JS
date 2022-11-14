@@ -10,13 +10,10 @@ import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.MyCondition
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
-import Tables.KBigAvatar
 import Tables.KSaveMedia
 import Tables.SAVE_MEDIA
-import Tables.init
 import co.touchlab.stately.concurrency.AtomicInt
 import co.touchlab.stately.concurrency.value
-import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korim.bitmap.Bitmap32
 import com.soywiz.korim.color.RGB_555
 import com.soywiz.korim.format.ImageEncodingProps
@@ -84,59 +81,56 @@ class FileService(
 
     private var IsDownloaded = false
 
-    var SELF_Jsocket: Jsocket? = Jsocket.GetJsocket()
+    var SELF_Jsocket: Jsocket = Jsocket()
 
     init {
 
-        if (SELF_Jsocket == null) {
-            SELF_Jsocket = Jsocket()
-            Jsocket.fill()
-            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
-            }
-        }
 
-        SELF_Jsocket!!.value_id2 = P_VALUE_ID2
-        SELF_Jsocket!!.value_id4 = P_VALUE_ID4
-        SELF_Jsocket!!.value_id5 = P_VALUE_ID5
-        SELF_Jsocket!!.object_size = P_OBJECT_SIZE
-        SELF_Jsocket!!.object_extension = P_OBJECT_EXTENSION
-        SELF_Jsocket!!.object_server = P_OBJECT_SERVER
-        SELF_Jsocket!!.value_par1 = P_VALUE_PAR1
-        SELF_Jsocket!!.value_par2 = "0"
-        SELF_Jsocket!!.value_par4 = P_VALUE_PAR4
+        if (answerType != null) {
 
-        if (P_VALUE_PAR4.isNotEmpty()) {
+            SELF_Jsocket.just_do_it = 1011000055 // GIVE_ME_THAT_FILE
+            SELF_Jsocket.object_server = answerType.answerTypeValues.GetObjectServer()
+            SELF_Jsocket.object_extension = answerType.answerTypeValues.GetObjectExtension()
+            SELF_Jsocket.object_size = answerType.answerTypeValues.GetObjectSize().toLong()
+            SELF_Jsocket.value_id2 = answerType.answerTypeValues.GetAlbumId()
+            SELF_Jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
+            SELF_Jsocket.value_id5 = answerType.answerTypeValues.GetLinkOwner()
+            SELF_Jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
+            SELF_Jsocket.value_par3 = "0"
+            SELF_Jsocket.value_par4 = answerType.answerTypeValues.GetObjectLink()
 
-            var s: KSaveMedia? = SAVE_MEDIA[P_VALUE_PAR4]
+            var s: KSaveMedia? = SAVE_MEDIA[answerType.answerTypeValues.GetObjectId()]
             if (s == null) {
                 s = KSaveMedia(
-                    L_OBJECT_LINK = P_VALUE_PAR4,
-                    L_OBJECT_SIZE = P_OBJECT_SIZE,
-                    L_OBJECT_LENGTH_SECONDS = P_OBJECT_LENGTH_SECONDS,
-                    L_OBJECT_EXTENSION = P_OBJECT_EXTENSION
+                    L_OBJECT_LINK = answerType.answerTypeValues.GetObjectId(),
+                    L_OBJECT_SIZE = answerType.answerTypeValues.GetObjectSize().toLong(),
+                    L_OBJECT_LENGTH_SECONDS = answerType.answerTypeValues.GetLengthSeconds(),
+                    L_OBJECT_EXTENSION = answerType.answerTypeValues.GetObjectExtension()
                 )
-                save_media = s
-                IsDownloaded = s.IS_DOWNLOAD == 1
-                fIleFullName = save_media!!.FILE_FULL_NAME
-            } else {
-                save_media = null
+
             }
+            save_media = s
+            IsDownloaded = s.IS_DOWNLOAD == 1
+            fIleFullName = save_media!!.FILE_FULL_NAME
+
+            file = CrossPlatformFile(fIleFullName!!)
         }
     }
 
 
     constructor(jsocket: Jsocket) : this() {
         fIleFullName = jsocket.FileFullPathForSend
+        file = CrossPlatformFile(fIleFullName!!)
+        SELF_Jsocket.just_do_it = 1011000056 // TAKE_A_NEW_FILE
     }
 
 
-    private var ExpectedFIleSize: Long = P_OBJECT_SIZE
+    private var ExpectedFIleSize: Long = answerType?.answerTypeValues?.GetObjectSize?.let { it() }?.toLong() ?: 0L
 
     var currentFIleSize: Long = 0L
         private set
 
-    private var CURRENT_CHUNK_SIZE: Int =  if (IsDownloaded) Constants.CHUNK_SIZE else 0
+    private var CURRENT_CHUNK_SIZE: Int = if (IsDownloaded) Constants.CHUNK_SIZE else 0
 
 
     private var Chunks: IntArray? = null
@@ -211,19 +205,16 @@ class FileService(
     @JsName("open_file_channel")
     suspend fun open_file_channel(): Promise<Boolean>? {
 
-        SELF_Jsocket!!.FileFullPathForSend = ""
+        SELF_Jsocket.FileFullPathForSend = ""
 
-        if (file == null) {
-            file = CrossPlatformFile(fIleFullName!!)
-        }
 
-        if (P_VALUE_PAR4.isNotEmpty()) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
+        if (answerType != null) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
 
             if (!IsDownloaded) {
 
-                SELF_Jsocket!!.send_request()
+                SELF_Jsocket.send_request()
 
-                CURRENT_CHUNK_SIZE = SELF_Jsocket!!.value_par3.toInt()
+                CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
 
                 file!!.create(ExpectedFIleSize) // create full size file
 
@@ -237,18 +228,7 @@ class FileService(
 
                 NotSendedChunks = Chunks!!.size
 
-                if (SELF_Jsocket.value_par2.equals("A")) {
-                    if (SELF_Jsocket.content != null) {
-                        save_media.SET_BIG_AVATAR(SELF_Jsocket.content, SELF_Jsocket.value_id3)
-                        avatar = SELF_Jsocket.content
-                        KBigAvatar.ADD_NEW_BIG_AVATAR(
-                            KBigAvatar(
-                                L_AVATAR_ID = SELF_Jsocket.value_id3,
-                                L_AVATAR = SELF_Jsocket.content!!,
-                            )
-                        )
-                    }
-                } else if (SELF_Jsocket.value_par2.equals("0") && SELF_Jsocket.content != null) {
+                if (SELF_Jsocket.content != null) {
                     if (Chunks!!.size == 1) {
                         if (SELF_Jsocket.content!!.size != EndFIleBytes.toInt()) {
                             return receive_file()
@@ -268,7 +248,7 @@ class FileService(
                 return receive_file()
             } else return null
 
-        } else if (command.equals(1011000056)) { // take_a_new_file();
+        } else { // take_a_new_file();
 
             if (!file!!.exists() || !file!!.isFile()) {
                 throw my_user_exceptions_class(
@@ -295,7 +275,6 @@ class FileService(
             return send_file()
         }
 
-
         return null
     }
 
@@ -321,7 +300,7 @@ class FileService(
                 }
 
                 if (ServerFileName.isNotEmpty()) { // clear previous content if not first request
-                    SELF_Jsocket!!.content = null
+                    SELF_Jsocket.content = null
                 }
 
                 if (ServerFileName.isEmpty()) {
@@ -348,7 +327,7 @@ class FileService(
                     }
                 }
 
-                if (SELF_Jsocket!!.value_par2.equals("B")) {
+                if (SELF_Jsocket.value_par2.equals("B")) {
                     IsDownloaded = true
                     break
                 } else {
@@ -421,10 +400,15 @@ class FileService(
                     )
                 }
 
-                SELF_Jsocket!!.send_request()
+                SELF_Jsocket.send_request()
 
                 if (SELF_Jsocket.value_par2.equals("A")) {
-                    save_media!!.SET_BIG_AVATAR(SELF_Jsocket.content, SELF_Jsocket.value_id3)
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "receive_file",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Server send wrong file chunk."
+                    )
                 } else {
 
                     val i = SELF_Jsocket.value_par2.toInt()
@@ -487,65 +471,72 @@ class FileService(
     }.toPromise(EmptyCoroutineContext)
 
     @JsName("get_file_chunk")
-    suspend fun get_file_chunk(
+    fun get_file_chunk(
         offset: Long,
         startLoading: (() -> Any?)? = null,
         finishLoading: ((v: Any?) -> Any?)? = null
-    ): ByteArray {
-
-        if (IsInterrupted.get() == 1 && !IsDownloaded) {
-            throw my_user_exceptions_class(
-                l_class_name = "FileService",
-                l_function_name = "receive_file",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "File not downloaded but allready closed."
-            )
-        }
-        var b = ByteArray(0)
-        try {
-            if (IsDownloaded) {
-                return file!!.read(offset, CURRENT_CHUNK_SIZE)
-            } else {
-                if (startLoading != null) {
-                    startLoading()
-                }
-                val chunk_size: Int = (offset / CURRENT_CHUNK_SIZE).toInt()
-
-                val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
-                if (is_download) {
-                    b = file!!.read(offset, CURRENT_CHUNK_SIZE)
+    ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default).async {
+        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            if (IsInterrupted.get() == 1 && !IsDownloaded) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "receive_file",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "File not downloaded but allready closed."
+                )
+            }
+            var b = ByteArray(0)
+            try {
+                if (IsDownloaded) {
+                    return@withTimeoutOrNull file!!.read(offset, CURRENT_CHUNK_SIZE)
                 } else {
+                    if (startLoading != null) {
+                        startLoading()
+                    }
+                    val chunk_size: Int = (offset / CURRENT_CHUNK_SIZE).toInt()
 
-                    FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
-
-                    if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
+                    val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
+                    if (is_download) {
                         b = file!!.read(offset, CURRENT_CHUNK_SIZE)
                     } else {
-                        throw my_user_exceptions_class(
-                            l_class_name = "FileService",
-                            l_function_name = "receive_file",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "Error receive file."
-                        )
+
+                        FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
+
+                        if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
+                            b = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                        } else {
+                            throw my_user_exceptions_class(
+                                l_class_name = "FileService",
+                                l_function_name = "receive_file",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "Error receive file."
+                            )
+                        }
                     }
                 }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            } finally {
+                if (finishLoading != null) {
+                    finishLoading(b)
+                }
+                return@withTimeoutOrNull b
             }
-        } catch (e: my_user_exceptions_class) {
-            e.ExceptionHand(null)
-        } finally {
-            if (finishLoading != null) {
-                finishLoading(b)
-            }
-            return b
-        }
-    }
+            return@withTimeoutOrNull null
+        } ?: throw my_user_exceptions_class(
+            l_class_name = "FileService",
+            l_function_name = "get_file_chunk",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up")
+
+    }.toPromise(EmptyCoroutineContext)
 
     /////////////////////////////////////////////////////////////////////////////////////
     @JsName("SaveDownloadedFile")
     suspend fun FinishDownloadedFile(): Boolean {
         return if (IsDownloaded) {
             if (file!!.renameTo(save_media!!.ReturnDownloadedFullFileName())) {
-                KSaveMedia.AddNewSaveMedia(save_media).await()
+                KSaveMedia.AddNewSaveMedia(save_media!!).await()
             } else false
         } else {
             file!!.delete()

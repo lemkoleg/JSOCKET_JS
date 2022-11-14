@@ -167,7 +167,7 @@ class AnswerTypeConstants(answerType: ANSWER_TYPE) {
         }
     } else {
         when (answerType.RECORD_TABLE_ID.substring(0, 2)) {
-            "10", "13", "14", "16", "17", "18", "19" -> {
+            "10", "13", "14", "15", "16", "17", "18", "19" -> {
                 true
             }
             else -> {

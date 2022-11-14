@@ -276,6 +276,14 @@ class KBigAvatar {
                 }
 
                 val jsocket = P_ANSWER_TYPE.GetJsocket()
+                jsocket.just_do_it = 1011000028 // SELECT_ORIGINAL_AVATAR;
+                jsocket.object_server = P_ANSWER_TYPE.answerTypeValues.GetObjectServer()
+                jsocket.object_extension = P_ANSWER_TYPE.answerTypeValues.GetObjectExtension()
+                jsocket.object_size = P_ANSWER_TYPE.answerTypeValues.GetObjectSize().toLong()
+                jsocket.value_id2 = P_ANSWER_TYPE.answerTypeValues.GetAlbumId()
+                jsocket.value_id3 = P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId()
+                jsocket.value_id4 = P_ANSWER_TYPE.answerTypeValues.GetObjectId()
+                jsocket.value_id5 = P_ANSWER_TYPE.answerTypeValues.GetLinkOwner()
                 jsocket.value_par1 = P_ANSWER_TYPE.answerTypeValues.GetMessegeId().toString()
                 jsocket.value_par3 = if(P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 0) "1" else "2"
                 jsocket.value_par4 = P_ANSWER_TYPE.answerTypeValues.GetObjectLink()

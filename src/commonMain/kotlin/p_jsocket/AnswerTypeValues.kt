@@ -34,7 +34,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var IsHaveAccountInfo = false
     var AccountInfo: KObjectInfo? = null
 
-    var answerTypeConstants: AnswerTypeConstants? = null
+    val answerTypeConstants: AnswerTypeConstants by lazy { AnswerTypeConstants(answerType) }
 
 
     @JsName("DefineRECORD_TYPE")
@@ -60,7 +60,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             }
         }
 
-        answerTypeConstants = AnswerTypeConstants(answerType)
         RECORD_TYPE_IS_DEFINED = true
 
         //initValues()

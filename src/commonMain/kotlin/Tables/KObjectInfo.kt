@@ -1,5 +1,6 @@
 package Tables
 
+import Tables.KBigAvatar.Companion.RETURN_PROMISE_SELECT_BIG_AVATAR
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -33,9 +34,10 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
     val answerTypeValues = l_answerType.answerTypeValues
 
-    val answerTypeConstants = answerTypeValues.answerTypeConstants!!
+    val answerTypeConstants = answerTypeValues.answerTypeConstants
 
-    val localFileSevice: FileService? = if(answerTypeConstants.IsMediaContent) FileService(answerType = answerType) else null
+    val localFileSevice: FileService? =
+        if (answerTypeConstants.IsMediaContent || answerTypeConstants.IsFile) FileService(answerType = answerType) else null
 
     private var updateObjectInfo: ((v: Any?) -> Any?) = {}
 
@@ -44,7 +46,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     }
 
     fun VerifyUpdates() {
-        if (VerifyUpdatesJob == null || !VerifyUpdatesJob!!.isActive) {
+        if (VerifyUpdatesJob == null || VerifyUpdatesJob!!.isActive) {
             VerifyUpdatesJob = CoroutineScope(Dispatchers.Default).launch {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
@@ -85,11 +87,22 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                         SendRequestForUpdate("0")
                                     }
                                 }
+                            } else if (answerTypeConstants.IsMessege) {
+                                if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
+                                    if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                        if (answerType.BLOB_4 == null) {
+                                            answerType.BLOB_4 =
+                                                RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
+                                        }
+                                    } else if (answerType.BLOB_2 == null) {
+                                        answerType.BLOB_4 =
+                                            RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
+                                    }
+                                }
+                                updateObjectInfo(null)
                             }
 
-                            if(answerTypeConstants.IsMessege){
-
-                            }
+                            localFileSevice?.open_file_channel()
 
                         } catch (e: my_user_exceptions_class) {
                             throw e
@@ -129,8 +142,4 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         updateObjectInfo(this)
     }
 
-
-    companion object {
-
-    }
 }
