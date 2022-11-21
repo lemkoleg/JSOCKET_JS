@@ -39,7 +39,7 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT
 ON CashLastUpdate
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
-AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M')
+AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M')
 BEGIN
 
   DELETE FROM CashLastUpdate
@@ -52,13 +52,6 @@ BEGIN
                                     WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
                                       THEN 1
                                     ELSE 0
-                                  END
-                             WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  -- object_info;
-                                THEN
-                                   CASE
-                                      WHEN t1.RECORD_TYPE IN ('J', 'K', 'L')
-                                         THEN 1
-                                      ELSE 0
                                   END
 
                              WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
@@ -77,8 +70,6 @@ BEGIN
                                          WHERE VALUE_NAME = CASE
                                                               WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS'
-                                                               WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  -- object_info;
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'
                                                                WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'
                                                               ELSE
@@ -101,14 +92,33 @@ BEGIN
                              WHERE VALUE_NAME = CASE
                                                   WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS'
-                                                  WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  -- object_info;
-                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO'
                                                   WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS'
                                                   ELSE
                                                     ''
                                                END)
   );
+
+END;
+
+trigger_CashLastUpdate_Control_Count_ObjectsInfo_Insert:
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInfoInsert
+AFTER INSERT
+ON CashLastUpdate
+WHEN new.RECORD_TYPE IN ('J', 'K', 'L')
+BEGIN
+
+  DELETE FROM CashLastUpdate
+  WHERE CASH_SUM IN (SELECT t1.CASH_SUM
+                     FROM CashLastUpdate t1
+                     WHERE t1.RECORD_TYPE IN ('J', 'K', 'L')
+                     ORDER BY t1.LAST_USE DESC
+                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
+                                          FROM MetaData
+                                          WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'));
+
+  DELETE FROM CashData
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
 
 END;
 
@@ -162,7 +172,7 @@ BEGIN
         FROM CashData AS t
         WHERE t.CASH_SUM = new.CASH_SUM
         ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
-        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE
+        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
                             FROM MetaData
                             WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES')
 
@@ -192,6 +202,11 @@ SELECT * FROM CashLastUpdate;
 
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
+
+
+delete_CashLastUpdate:
+DELETE FROM CashLastUpdate
+WHERE CASH_SUM = ?;
 
 
 

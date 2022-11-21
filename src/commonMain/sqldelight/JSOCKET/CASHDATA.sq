@@ -298,6 +298,15 @@ VALUES
  clear_CashData:
   DELETE FROM CashData;
 
+ delete_CashData:
+   DELETE FROM CashData
+   WHERE CASH_SUM = ?;
+
+  delete_CashDataRecord:
+    DELETE FROM CashData
+    WHERE CASH_SUM = ?
+    AND RECORD_TABLE_ID = ?;
+
  update_CashData_SortNewNumbersPositions:
   WITH tab AS (SELECT  c.CASH_SUM AS cash_sum,
                        c.RECORD_TABLE_ID AS record_id,

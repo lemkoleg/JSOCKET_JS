@@ -460,6 +460,17 @@ WHERE  CASH_SUM = ?
 AND substr(STRING_20, 7, 1) = "1";
 """
 
+const val DELETE_CASHDATA = """
+DELETE FROM CashData 
+WHERE CASH_SUM = ?;
+"""
+
+const val DELETE_CASHDATA_RECORD = """
+DELETE FROM CashData 
+WHERE CASH_SUM = ? 
+AND RECORD_TABLE_ID = ?;
+"""
+
 
 /////////////last update///////////////////////////
 
@@ -666,6 +677,11 @@ SELECT * FROM CashLastUpdate;
 
 const val CLEAR_LASTUPDATE = """
 DELETE FROM CashLastUpdate;
+"""
+
+const val DELETE_LASTUPDATE = """
+DELETE FROM CashLastUpdate 
+WHERE CASH_SUM = ?;
 """
 
 /////////////commands///////////////////////////

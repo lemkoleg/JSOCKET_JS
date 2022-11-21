@@ -813,7 +813,7 @@ open class JSOCKET() {
             connection_coocki = myConnectionsCoocki
             device_id = myDeviceId
             lang = myLang
-            last_messege_update = globalLastUpdatingDate.value
+            last_messege_update = globalLastChatsSelect.value
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1414,7 +1414,7 @@ open class JSOCKET() {
                         object_info.BLOB_4 = answer_type.BLOB_4
                         KBigAvatar.ADD_NEW_BIG_AVATAR(
                             KBigAvatar(
-                                L_AVATAR_ID = answer_type.answerTypeValues.GetMainAvatarId(),
+                                L_AVATAR_ID = object_info.answerTypeValues.GetMainAvatarId(),
                                 L_AVATAR = answer_type.BLOB_4!!
                             )
                         )
@@ -1422,7 +1422,7 @@ open class JSOCKET() {
                     break
                 }
 
-                if (answer_type.RECORD_TYPE.isEmpty()) {
+                if(answer_type.RECORD_TYPE.isEmpty()) {
                     throw my_user_exceptions_class(
                         l_class_name = "JSOCKET",
                         l_function_name = "deserialize_ANSWERS_TYPES",
@@ -1430,6 +1430,8 @@ open class JSOCKET() {
                         l_additional_text = "answer_type.RECORD_TYPE is empty"
                     )
                 }
+
+
 
                 if (record_type == "0") {
                     record_type = answer_type.RECORD_TYPE
@@ -1532,6 +1534,14 @@ open class JSOCKET() {
                             record_type = answer_type.RECORD_TYPE
                             arr = ArrayDeque()
                         }
+                    }else{    // delete chat;
+                        if(answer_type.RECORD_TYPE == "8" &&
+                            answer_type.answerTypeValues.GetMainAccountId() == Account_Id &&
+                            answer_type.answerTypeValues.GetDateDelete() > 0
+                        ){  // if deleted chat
+                             KChat.DELETE_CHATS(answer_type.answerTypeValues.GetChatId())
+                            continue
+                        }
                     }
                 }
 
@@ -1579,7 +1589,7 @@ open class JSOCKET() {
                                 L_COURSE = "1"
                             )
                         }
-                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                        "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES;
                             cash_sum = GetCashSum(
                                 L_OBJECT_ID = arr.last().answerTypeValues.GetChatId(),
                                 L_RECORD_TYPE = arr.last().RECORD_TYPE,
@@ -1638,6 +1648,9 @@ open class JSOCKET() {
                             is_new_reg_data = true
                             KRegData.ADD_NEW_REG_DATA(arr)
                         }
+                        "J", "K", "L" -> {  // object_info
+                            null
+                         }
                         else -> {
                             if (currentCashData == null) {
                                 currentCashData = CASH_DATAS[this.check_sum]

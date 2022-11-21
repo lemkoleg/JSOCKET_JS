@@ -64,7 +64,7 @@ private val KChatsVerifyUpdatesLock = Mutex()
 @ExperimentalTime
 @InternalAPI
 @JsName("globalLastUpdatingDate")
-val globalLastUpdatingDate: AtomicLong = AtomicLong(0L)
+val globalLastChatsSelect: AtomicLong = AtomicLong(0L)
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -86,7 +86,7 @@ private val sendedlSelectAllDataOfChat: MutableMap<String, Long> = mutableMapOf(
 object KChat {
 
     @JsName("SELECT_ALL_DATA_ON_CHAT")
-    suspend fun SELECT_ALL_DATA_ON_CHAT(cats_id: String): Promise<Unit?> =
+    fun SELECT_ALL_DATA_ON_CHAT(cats_id: String): Promise<Unit?> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
@@ -95,25 +95,25 @@ object KChat {
                         if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
                             if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixLong()) {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                    PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                 }
                                 return@withTimeoutOrNull
 
-                            }else{
+                            } else {
                                 sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                    PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                 }
                             }
-                        }else{
+                        } else {
                             sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
 
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("SELECT_ALL_DATA_ON_CHAT: Set new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                             }
                         }
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("SELECT_ALL_DATA_ON_CHAT: Start new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                            PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Start new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                         }
                         val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                         socket.value_id5 = cats_id
@@ -144,29 +144,29 @@ object KChat {
         }.toPromise(EmptyCoroutineContext)
 
     @JsName("VERIFY_UPDATES")
-    suspend fun VERIFY_UPDATES(new_updates: Long): Promise<Unit?> =
+    fun VERIFY_UPDATES(new_updates: Long): Promise<Unit?> =
         CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
                         KChatsVerifyUpdatesLock.lock()
-                        when{
+                        when {
                             (sendedVerifyUpdates > new_updates) -> {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("VERIFY_UPDATES: More later updetes is sended;")
+                                    PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: More later updetes is sended;")
                                 }
                                 return@withTimeoutOrNull
                             }
                             (sendedVerifyUpdates == new_updates) -> {
-                                if(TimeOutendedVerifyUpdates > DateTime.nowUnixLong()){
+                                if (TimeOutendedVerifyUpdates > DateTime.nowUnixLong()) {
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("VERIFY_UPDATES: Time out of sended updates is not ended;")
+                                        PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Time out of sended updates is not ended;")
                                     }
                                     return@withTimeoutOrNull
-                                }else{
+                                } else {
                                     TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("VERIFY_UPDATES: Time out of sended updates is ended; Set new timeout;")
+                                        PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Time out of sended updates is ended; Set new timeout;")
                                     }
                                 }
                             }
@@ -174,14 +174,14 @@ object KChat {
                                 sendedVerifyUpdates = new_updates
                                 TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("VERIFY_UPDATES: Set new update;")
+                                    PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Set new update;")
                                 }
 
                             }
                         }
 
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("VERIFY_UPDATES: Sended new request for verify updates;")
+                            PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates;")
                         }
 
                         val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
@@ -261,4 +261,39 @@ object KChat {
                 l_additional_text = "Time out is up"
             )
         }.toPromise(EmptyCoroutineContext)
+
+    @JsName("DELETE_CHATS")
+    suspend fun DELETE_CHATS(l_chat_id: String) {
+        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            try {
+                try {
+                    KChatsGlobalLock.lock()
+                    CHATS!!.DELETE(l_chat_id)
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KChats",
+                        l_function_name = "GET_CHATS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    KChatsGlobalLock.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        } ?: throw my_user_exceptions_class(
+            l_class_name = "KChats",
+            l_function_name = "GET_CHATS",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up"
+        )
+
+        throw my_user_exceptions_class(
+            l_class_name = "KChats",
+            l_function_name = "GET_CHATS",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up"
+        )
+    }
 }

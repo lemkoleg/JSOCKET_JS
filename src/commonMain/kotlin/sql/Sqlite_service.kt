@@ -504,7 +504,7 @@ object Sqlite_service : CoroutineScope {
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "InsertRegData",
+                    l_function_name = "LoadRegData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )
@@ -655,6 +655,7 @@ object Sqlite_service : CoroutineScope {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockCASHLASTUPDATE.lock()
                     statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(cash)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -665,7 +666,7 @@ object Sqlite_service : CoroutineScope {
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "InsertCashData",
+                    l_function_name = "InsertCashLastUpdate",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )
@@ -695,7 +696,7 @@ object Sqlite_service : CoroutineScope {
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "LoadSaveMedia",
+                    l_function_name = "LoadCashLastUpdate",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.message
                 )
@@ -707,6 +708,7 @@ object Sqlite_service : CoroutineScope {
             e.ExceptionHand(null)
         }
     }
+
 
     /////////////cash data///////////////////////////
 
@@ -938,6 +940,40 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
+    @JsName("DeleteCash")
+    fun DeleteCash(cash_sum: String, object_id: String? = null) = Sqlite_serviceScope.launch {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                    lockCASHLASTUPDATE.lock()
+                    if(object_id != null){
+                        statCASHLASTUPDATE.DELETE_CASHDATA_RECORD(cash_sum, object_id)
+                    }else{
+                        statCASHLASTUPDATE.DELETE_CASHDATA(cash_sum)
+                        statCASHLASTUPDATE.DELETE_LASTUPDATE(cash_sum)
+                    }
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "DeleteCash",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "DeleteCash",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statCASHLASTUPDATE.clear_parameters()
+                lockCASHLASTUPDATE.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+    }
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private const val TIMEOUTCLEANERSECONDS = 20
@@ -1044,10 +1080,8 @@ object Sqlite_service : CoroutineScope {
 
             try {
                 statement.TABLE_SAVEMEDIA()
-                statement.INDEX_SAVEMEDIA_CONNECTIONID()
                 statement.INDEX_SAVEMEDIA_LASTUSED()
                 statement.INDEX_SAVEMEDIA_ISTEMP()
-                statement.INDEX_SAVEMEDIA_AVATARID()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_COUNT()
                 KSaveMedia.RE_LOAD_SAVE_MEDIA()

@@ -956,6 +956,36 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             -> {
 
             }
+            "O" //SAVE OBJECT_INFO;
+            -> {
+                GetAlbumId = { getIDENTIFICATOR_8() }
+                GetAlbumName = { getSTRING_10() }
+
+                GetObjectId = { getIDENTIFICATOR_5() }
+                GetObjectSize = { getINTEGER_4() }
+                GetLengthSeconds = { getINTEGER_5() }
+                GetObjectName = { getSTRING_5() }
+                GetObjectServer = { getSTRING_6() }
+                GetObjectLink = { getSTRING_8() }
+                GetObjectExtension = { getSTRING_9() }
+                GetObjectProfile = { getSTRING_7().substring(0, 5) }
+                GetObjectType = { getSTRING_7().substring(5, 6) }
+                GetObjectAccess = { getSTRING_7().substring(6, 7) }
+                GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                GetObjectLikes = { getLONG_5() }
+                GetObjectDisLikes = { getLONG_6() }
+                GetObjectComments = { getLONG_7() }
+                GetObjectListens = { getLONG_8() }
+                GetObjectDescriptors = { getLONG_9() }
+                GetObjectListensPeriod = { getINTEGER_6() }
+
+                answerType.CASH_SUM = GetObjectId()
+                answerType.RECORD_TABLE_ID = GetObjectLink()
+
+                IsHaveAccountInfo = true
+                IsHaveAlbumInfo = true
+
+            }
             else
             -> {
                 throw my_user_exceptions_class(

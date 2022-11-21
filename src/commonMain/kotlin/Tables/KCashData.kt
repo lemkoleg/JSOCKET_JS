@@ -143,12 +143,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr.isNotEmpty()) {
             arr.forEach {
-                if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
-
-                    CoroutineScope(Dispatchers.Default).launch {
-                        globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
-                    }
-                }
                 CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
             }
             ORDERED_CASH_DATA.addAll(arr)
@@ -597,34 +591,34 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
 
                             if (CashLastUpdate.RECORD_TYPE == "3") {  // chats;
-                                val chats_likes_last_update = KCashLastUpdate(
+                                val chats_likes_last_update = GetCashSum(
                                     L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                     L_RECORD_TYPE = "8"
                                 )
-                                CASH_DATAS[chats_likes_last_update.CASH_SUM]?.UPDATE_LAST_SELECT(
+                                CASH_DATAS[chats_likes_last_update]?.UPDATE_LAST_SELECT(
                                     lastSelect = lastSelect,
                                     object_recod_id_from = "",
                                     udpdate_all = true
                                 )
 
 
-                                val chats_cost_types_last_update = KCashLastUpdate(
+                                val chats_cost_types_last_update = GetCashSum(
                                     L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                     L_RECORD_TYPE = "9",
                                     L_COURSE = "0"
                                 )
-                                CASH_DATAS[chats_cost_types_last_update.CASH_SUM]?.UPDATE_LAST_SELECT(
+                                CASH_DATAS[chats_cost_types_last_update]?.UPDATE_LAST_SELECT(
                                     lastSelect = lastSelect,
                                     object_recod_id_from = "",
                                     udpdate_all = true
                                 )
 
-                                val messeges_last_update = KCashLastUpdate(
+                                val messeges_last_update = GetCashSum(
                                     L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                     L_RECORD_TYPE = "4",
                                     L_COURSE = "1"
                                 )
-                                CASH_DATAS[messeges_last_update.CASH_SUM]?.UPDATE_LAST_SELECT(
+                                CASH_DATAS[messeges_last_update]?.UPDATE_LAST_SELECT(
                                     lastSelect = lastSelect,
                                     object_recod_id_from = "",
                                     udpdate_all = false
@@ -632,13 +626,13 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             }
                         }
 
-                        if (CashLastUpdate.RECORD_TYPE == "3" && object_recod_id_from.isEmpty()) {
-                            val notices_last_update = KCashLastUpdate(
+                        if (CashLastUpdate.RECORD_TYPE == "N" && object_recod_id_from.isEmpty()) {
+                            val notices_last_update = GetCashSum(
                                 L_OBJECT_ID = Account_Id,
                                 L_RECORD_TYPE = "R",
                                 L_COURSE = "0"
                             )
-                            CASH_DATAS[notices_last_update.CASH_SUM]?.UPDATE_LAST_SELECT(
+                            CASH_DATAS[notices_last_update]?.UPDATE_LAST_SELECT(
                                 lastSelect = lastSelect,
                                 object_recod_id_from = "",
                                 udpdate_all = false
@@ -667,6 +661,81 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 l_additional_text = "Time out is up"
             )
         }.toPromise(EmptyCoroutineContext)
+
+
+    @JsName("DELETE")
+    suspend fun DELETE(object_id: String){
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KCashDataLock.lock()
+
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("KCashData.DELETE")
+                        }
+
+                        val cash = CASH_DATA_RECORDS.remove(object_id)
+
+                        if(cash != null){
+                            ORDERED_CASH_DATA.remove(cash)
+                        }
+
+                        Sqlite_service.DeleteCash(CashLastUpdate.CASH_SUM, object_id)
+
+                        if(CashLastUpdate.RECORD_TYPE == "3"){ // chats
+                            val chats_likes_last_update = GetCashSum(
+                                L_OBJECT_ID = object_id,
+                                L_RECORD_TYPE = "8"
+                            )
+                            Sqlite_service.DeleteCash(chats_likes_last_update)
+                            CASH_DATAS.remove(chats_likes_last_update)
+                            CASH_LAST_UPDATE.remove(chats_likes_last_update)
+
+
+                            val chats_cost_types_last_update = GetCashSum(
+                                L_OBJECT_ID = object_id,
+                                L_RECORD_TYPE = "9",
+                                L_COURSE = "0"
+                            )
+                            Sqlite_service.DeleteCash(chats_cost_types_last_update)
+                            CASH_DATAS.remove(chats_cost_types_last_update)
+                            CASH_LAST_UPDATE.remove(chats_cost_types_last_update)
+
+
+                            val messeges_last_update = GetCashSum(
+                                L_OBJECT_ID = object_id,
+                                L_RECORD_TYPE = "4",
+                                L_COURSE = "1"
+                            )
+                            Sqlite_service.DeleteCash(messeges_last_update)
+                            CASH_DATAS.remove(messeges_last_update)
+                            CASH_LAST_UPDATE.remove(messeges_last_update)
+                        }
+
+                    } catch (e: my_user_exceptions_class) {
+                        throw e
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashData",
+                            l_function_name = "DELETE",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KCashDataLock.unlock()
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+                return@withTimeoutOrNull false
+            } ?: throw my_user_exceptions_class(
+                l_class_name = "KCashData",
+                l_function_name = "DELETE",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
+        }
+
 
     fun FetifyFirsBlock() {
         Get(l_record_table_id_from = "")
@@ -916,10 +985,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                             SELECT_ALL_DATA_OF_CHAT(it.answerTypeValues.GetChatId())
                                         }
                                     }
-                                    if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
-
-                                        globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
-                                    }
                                 }
                             }
                             return@withTimeoutOrNull SetLastBlock()
@@ -993,10 +1058,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr_chats_likes.isEmpty()) {
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
-        } else {
-            arr_chats_likes.forEach { it1 ->
-                globalLastUpdatingDate.setGreaterValue(it1.answerTypeValues.GetRecordLastUpdate())
-            }
         }
 
         var chats_cost_types_last_update = KCashLastUpdate(
@@ -1045,7 +1106,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr_messeges.isEmpty() && CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
-        }else{
+        } else {
             CASH_DATAS[messeges_last_update.CASH_SUM]!!.FetifyFirsBlock()
         }
     }
@@ -1187,11 +1248,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     }
                                     if (it.RECORD_TYPE == "3") { // CHATS;
                                         k.SELECT_ALL_DATA_OF_CHAT(it.answerTypeValues.GetChatId())
-                                    }
-
-                                    if (it.RECORD_TYPE == "8" && it.answerTypeValues.GetMainAccountId() == Account_Id) { //CHATS_LIKES;
-
-                                        globalLastUpdatingDate.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                                        if (it.INTEGER_20 == 1) {
+                                            globalLastChatsSelect.setGreaterValue(it.LONG_20)
+                                        }
                                     }
                                     k.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
                                 }

@@ -171,6 +171,9 @@ expect class SQLStatement() {
     @JsName("CLEAR_LASTUPDATE")
     suspend fun CLEAR_LASTUPDATE()
 
+    @JsName("DELETE_LASTUPDATE")
+    suspend fun DELETE_LASTUPDATE(cash_sum:String)
+
     /////////////cash data///////////////////////////
 
     @JsName("TABLE_CASHDATA")
@@ -214,6 +217,12 @@ expect class SQLStatement() {
 
     @JsName("DELETE_CASHDATA_DELETED_RECORDS")
     suspend fun DELETE_CASHDATA_DELETED_RECORDS(cash_sum:String)
+
+    @JsName("DELETE_CASHDATA")
+    suspend fun DELETE_CASHDATA(cash_sum:String)
+
+    @JsName("DELETE_CASHDATA_RECORD")
+    suspend fun DELETE_CASHDATA_RECORD(cash_sum:String, record_id: String)
 
     /////////////////////////////////////////////////////////////////////////
     @JsName("connect")

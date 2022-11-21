@@ -27,12 +27,9 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.stream.asVfsFile
 import com.soywiz.korio.stream.openAsync
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import kotlin.coroutines.EmptyCoroutineContext
@@ -245,8 +242,9 @@ class FileService(
                         IsDownloaded = true
                     }
                 }
-                return receive_file()
-            } else return null
+
+            }
+            return receive_file()
 
         } else { // take_a_new_file();
 
@@ -287,6 +285,11 @@ class FileService(
     @JsName("send_file")
     fun send_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
         try {
+
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                PrintInformation.PRINT_INFO("FileService.send_file: start send file: $ServerFileName")
+            }
+
             while (IsInterrupted.get() == 0) {
 
                 MaxTryingSendReceiveFileChunks--
@@ -329,6 +332,9 @@ class FileService(
 
                 if (SELF_Jsocket.value_par2.equals("B")) {
                     IsDownloaded = true
+                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                        PrintInformation.PRINT_INFO("FileService.send_file: finish send file: $ServerFileName")
+                    }
                     break
                 } else {
                     if (ServerFileName.isNotEmpty()) {
@@ -377,9 +383,15 @@ class FileService(
     @JsName("receive_file")
     fun receive_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
         try {
+
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                PrintInformation.PRINT_INFO("FileService.receive_file: start send file: ${save_media!!.FILE_FULL_NAME}")
+            }
+
             while (IsInterrupted.get() == 0) {
 
                 if (IsDownloaded) break
+
 
                 MaxTryingSendReceiveFileChunks--
 
@@ -458,14 +470,32 @@ class FileService(
                                     if (CurrentChunkReceiveFile.compareAndSet(i, i)) {
                                         condition.cSignal()
                                     }
+                                    if(IsDownloaded){
+
+                                        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                                            FileServiceLock.withLock {
+                                                CoroutineScope(Dispatchers.Default).launch {
+                                                    SELF_Jsocket.value_par2 = "B"
+                                                    SELF_Jsocket.send_request()
+                                                }
+                                                if(FinishDownloadedFile()){
+                                                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                                        PrintInformation.PRINT_INFO("FileService.receive_file: finish send file: ${save_media!!.FILE_FULL_NAME}")
+                                                    }
+                                                    save_media!!.IS_DOWNLOAD = 1
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } finally {
-            IsDownloaded = this@FileService.FinishDownloadedFile()
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+            return@async false
         }
         return@async IsDownloaded
     }.toPromise(EmptyCoroutineContext)
@@ -642,7 +672,7 @@ class FileService(
                     }
                     return@withTimeoutOrNull false
                 } ?: throw my_user_exceptions_class(
-                    l_class_name = "KMetaData",
+                    l_class_name = "FileService",
                     l_function_name = "getImmageAvatarFromFileName",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
@@ -660,7 +690,7 @@ class FileService(
                             if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "FileService",
-                                    l_function_name = "getImmageAvatarFromFileName",
+                                    l_function_name = "getImmageAvatarFromByteArray",
                                     name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
                                 )
                             }
@@ -675,7 +705,7 @@ class FileService(
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "FileService",
-                                l_function_name = "getImmageAvatarFromFileName",
+                                l_function_name = "getImmageAvatarFromByteArray",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = ex.message
                             )
@@ -706,7 +736,7 @@ class FileService(
             if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
                 throw my_user_exceptions_class(
                     l_class_name = "FileService",
-                    l_function_name = "getImmageAvatarFromFileName",
+                    l_function_name = "getImmageAvatarFromByteArrayWithKoord",
                     name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
                 )
             }
