@@ -1111,7 +1111,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         }
     }
 
-    fun GetCashSum(
+    private fun GetCashSum(
         L_OBJECT_ID: String,
         L_RECORD_TYPE: String,
         L_COURSE: String = "0",

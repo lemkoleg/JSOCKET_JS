@@ -14,6 +14,7 @@ import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import p_jsocket.FileService
+import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -26,6 +27,10 @@ private val KObjectInfoLock = Mutex()
 @KorioExperimentalApi
 val OBJECTS_INFO: MutableMap<String, KObjectInfo> = mutableMapOf()
 
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val SAVE_OBJECT_INFO_IDS: MutableMap<String, String> = mutableMapOf()
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -252,6 +257,59 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                     l_additional_text = "Time out is up"
                 )
             }.toPromise(EmptyCoroutineContext)
+
+
+        @JsName("LOAD_SAVE_OBJECT_INFO_IDS")
+        suspend fun LOAD_SAVE_OBJECT_INFO_IDS(ids: ArrayList<String>) {
+            try {
+                try {
+                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                        GlobalLock.lock()
+                        ids.forEach {
+                            SAVE_OBJECT_INFO_IDS[it] = it
+                        }
+                    } ?: throw my_user_exceptions_class(
+                        l_class_name = "KObjectInfo",
+                        l_function_name = "LOAD_SAVE_OBJECT_INFO_IDS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Time out is up"
+                    )
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KObjectInfo",
+                        l_function_name = "LOAD_SAVE_OBJECT_INFO_IDS",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    GlobalLock.unlock()
+                }
+
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+        }
+
+        @JsName("RE_LOAD_SAVE_OBJECT_INFO_IDS")
+        fun RE_LOAD_SAVE_OBJECT_INFO_IDS(): Job {
+            return Sqlite_service.LoadCashDataAllObjectsIdOnCasSum(GetCashSum(Account_Id, "O"))
+        }
+
+        private fun GetCashSum(
+            L_OBJECT_ID: String,
+            L_RECORD_TYPE: String,
+            L_COURSE: String = "0",
+            L_SORT: String = "0",
+            L_LINK_OWNER: String = "",
+            L_MESS_COUNT_FROM: String = "",
+            L_OTHER_CONDITIONS_1: String = "",
+            L_OTHER_CONDITIONS_2: String = "",
+            L_OTHER_CONDITIONS_3: String = ""
+        ): String {
+            return (L_OBJECT_ID + L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
+                    L_MESS_COUNT_FROM + L_OTHER_CONDITIONS_1 + L_OTHER_CONDITIONS_2 + L_OTHER_CONDITIONS_3)
+
+        }
     }
 
 }

@@ -295,6 +295,11 @@ VALUES
    WHERE CASH_SUM = ?
    AND RECORD_TABLE_ID = ?;
 
+ select_CashDataAllRecordsIdOnCashSum:
+   SELECT RECORD_TABLE_ID
+   FROM CashData
+   WHERE CASH_SUM = ?;
+
  clear_CashData:
   DELETE FROM CashData;
 

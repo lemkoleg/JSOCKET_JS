@@ -241,7 +241,7 @@ class KBigAvatar {
                 try {
                     try {
                         KBigAvatarLock.lock()
-                        if(P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId().isEmpty()){
+                        if (P_ANSWER_TYPE.answerTypeValues.GetMainAvatarId().isEmpty()) {
                             return@withTimeoutOrNull null
                         }
                         val kBigAvatar: KBigAvatar?
@@ -285,7 +285,7 @@ class KBigAvatar {
                 jsocket.value_id4 = P_ANSWER_TYPE.answerTypeValues.GetObjectId()
                 jsocket.value_id5 = P_ANSWER_TYPE.answerTypeValues.GetLinkOwner()
                 jsocket.value_par1 = P_ANSWER_TYPE.answerTypeValues.GetMessegeId().toString()
-                jsocket.value_par3 = if(P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 0) "1" else "2"
+                jsocket.value_par3 = if (P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 0) "1" else "2"
                 jsocket.value_par4 = P_ANSWER_TYPE.answerTypeValues.GetObjectLink()
                 jsocket.value_par5 = P_ANSWER_TYPE.answerTypeValues.GetAvatarLink()
                 jsocket.value_par6 = P_ANSWER_TYPE.answerTypeValues.GetAvatarServer()
@@ -341,93 +341,101 @@ class KBigAvatar {
         suspend fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
             try {
                 try {
-                    KBigAvatarLock.lock()
-                    ids.forEach {
-                        BIG_AVATARS_IDS[it] = it
-                    }
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "KBigAvatar",
-                        l_function_name = "LOAD_BIG_AVATAR_ADS",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
-                    )
-                } finally {
-                    KBigAvatarLock.unlock()
-                }
-
-            } catch (e: my_user_exceptions_class) {
-                e.ExceptionHand(null)
-            }
-        }
-
-
-        @JsName("LOAD_BIG_AVATARS")
-        suspend fun LOAD_BIG_AVATARS(irr: ArrayList<KBigAvatar>) {
-            try {
-                try {
-                    KBigAvatarLock.lock()
-                    irr.forEach {
-                        BIG_AVATARS_IDS[it.AVATAR_ID] = it.AVATAR_ID
-                        BIG_AVATARS[it.AVATAR_ID] = it
-                    }
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "KBigAvatar",
-                        l_function_name = "LOAD_BIG_AVATARS",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
-                    )
-                } finally {
-                    KBigAvatarLock.unlock()
-                }
-
-            } catch (e: my_user_exceptions_class) {
-                e.ExceptionHand(null)
-            }
-        }
-
-
-        @JsName("INSERT_BIG_AVATAR_INTO_MAP")
-        fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
-            KBigAvatar_serviceScope.launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    try {
-                        try {
-                            KBigAvatarLock.lock()
-                            BIG_AVATARS_IDS[kBigAvatar.getAVATAR_ID()] = kBigAvatar.getAVATAR_ID()
-                            BIG_AVATARS[kBigAvatar.getAVATAR_ID()] = kBigAvatar
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KBigAvatar",
-                                l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            KBigAvatarLock.unlock()
+                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                        KBigAvatarLock.lock()
+                        ids.forEach {
+                            BIG_AVATARS_IDS[it] = it
                         }
-
-                    } catch (e: my_user_exceptions_class) {
-                        e.ExceptionHand(null)
-                    }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "KBigAvatar",
-                    l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
+                    l_function_name = "LOAD_BIG_AVATARS_IDS",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "KBigAvatar",
+                    l_function_name = "LOAD_BIG_AVATAR_ADS",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                KBigAvatarLock.unlock()
             }
-        }
 
-        @JsName("RE_LOAD_BIG_AVATAR_IDS")
-        fun RE_LOAD_BIG_AVATAR_IDS(): Job {
-            return Sqlite_service.LoadBigAvatarsIds()
-        }
-
-        @JsName("RE_LOAD_BIG_AVATAR")
-        fun RE_LOAD_BIG_AVATAR(): Job {
-            return Sqlite_service.LoadBigAvatars()
+        } catch (e: my_user_exceptions_class)
+        {
+            e.ExceptionHand(null)
         }
     }
+
+
+    @JsName("LOAD_BIG_AVATARS")
+    suspend fun LOAD_BIG_AVATARS(irr: ArrayList<KBigAvatar>) {
+        try {
+            try {
+                KBigAvatarLock.lock()
+                irr.forEach {
+                    BIG_AVATARS_IDS[it.AVATAR_ID] = it.AVATAR_ID
+                    BIG_AVATARS[it.AVATAR_ID] = it
+                }
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "KBigAvatar",
+                    l_function_name = "LOAD_BIG_AVATARS",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                KBigAvatarLock.unlock()
+            }
+
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+    }
+
+
+    @JsName("INSERT_BIG_AVATAR_INTO_MAP")
+    fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
+        KBigAvatar_serviceScope.launch {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                try {
+                    try {
+                        KBigAvatarLock.lock()
+                        BIG_AVATARS_IDS[kBigAvatar.getAVATAR_ID()] = kBigAvatar.getAVATAR_ID()
+                        BIG_AVATARS[kBigAvatar.getAVATAR_ID()] = kBigAvatar
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KBigAvatar",
+                            l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        KBigAvatarLock.unlock()
+                    }
+
+                } catch (e: my_user_exceptions_class) {
+                    e.ExceptionHand(null)
+                }
+            } ?: throw my_user_exceptions_class(
+                l_class_name = "KBigAvatar",
+                l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Time out is up"
+            )
+        }
+    }
+
+    @JsName("RE_LOAD_BIG_AVATAR_IDS")
+    fun RE_LOAD_BIG_AVATAR_IDS(): Job {
+        return Sqlite_service.LoadBigAvatarsIds()
+    }
+
+    @JsName("RE_LOAD_BIG_AVATAR")
+    fun RE_LOAD_BIG_AVATAR(): Job {
+        return Sqlite_service.LoadBigAvatars()
+    }
+}
 }

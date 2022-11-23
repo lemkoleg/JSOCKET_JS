@@ -873,6 +873,37 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
+    @JsName("LoadCashDataAllObjectsIdOnCasSum")
+    fun LoadCashDataAllObjectsIdOnCasSum(cash: String) = Sqlite_serviceScope.launch {
+        try {
+            try {
+                withTimeoutOrNull(CLIENT_TIMEOUT) {
+                        lockCASHLASTUPDATE.lock()
+                        val arr: ArrayList<String> = statCASHLASTUPDATE.SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM(cash)
+                        KObjectInfo.LOAD_SAVE_OBJECT_INFO_IDS(arr)
+
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "LoadCashData",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
+            } finally {
+                statCASHLASTUPDATE.clear_parameters()
+                lockCASHLASTUPDATE.unlock()
+            }
+        } catch (e: my_user_exceptions_class) {
+            e.ExceptionHand(null)
+        }
+    }
+
 
     @JsName("OrederCashData")
     private fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launch {
@@ -1082,6 +1113,7 @@ object Sqlite_service : CoroutineScope {
                 statement.TABLE_SAVEMEDIA()
                 statement.INDEX_SAVEMEDIA_LASTUSED()
                 statement.INDEX_SAVEMEDIA_ISTEMP()
+                statement.INDEX_SAVEMEDIA_AVATAR_ID()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_COUNT()
                 KSaveMedia.RE_LOAD_SAVE_MEDIA()
@@ -1109,6 +1141,7 @@ object Sqlite_service : CoroutineScope {
                 statement.INDEX_CASHDATA_NUMBER_POSITION_ASC()
                 statement.TRIGGER_CASHDATA_AFTER_INSERT()
                 KCashData.RE_LOAD_CASH_DATA()
+                KObjectInfo.RE_LOAD_SAVE_OBJECT_INFO_IDS()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

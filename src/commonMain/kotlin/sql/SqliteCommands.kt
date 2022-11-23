@@ -403,6 +403,14 @@ WHERE CASH_SUM = ?
 AND RECORD_TABLE_ID = ?; 
 """
 
+const val SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM = """
+SELECT RECORD_TABLE_ID 
+FROM CashData 
+WHERE CASH_SUM = ?; 
+"""
+
+
+
 const val CLEAR_CASHDATA = """
 DELETE FROM CashData;
 """
@@ -480,7 +488,7 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
  OBJECT_ID TEXT NOT NULL, 
  RECORD_TYPE TEXT NOT NULL, 
  COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up; 
- SORT TEXT NOT NULL DEFAULT "", 
+ SORT TEXT NOT NULL DEFAULT "0", 
  LINK_OWNER TEXT NOT NULL DEFAULT "", 
  MESS_COUNT_FROM TEXT NOT NULL DEFAULT "", 
  OTHER_CONDITIONS_1 TEXT NOT NULL DEFAULT "", 
@@ -520,29 +528,22 @@ CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT 
 ON CashLastUpdate 
 WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
-AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'J', 'K', 'L', 'A', 'C', 'E', 'G', 'M') 
+AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
   WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
                      FROM CashLastUpdate t1 
                      WHERE CASE 
-                             WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')    
+                             WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links; 
                                THEN 
                                   CASE 
                                     WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                       THEN 1 
                                     ELSE 0 
                                   END 
-                             WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  -- object_info; 
-                                THEN 
-                                   CASE 
-                                      WHEN t1.RECORD_TYPE IN ('J', 'K', 'L') 
-                                         THEN 1 
-                                      ELSE 0 
-                                  END 
 
-                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  
+                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments 
                                    THEN 
                                       CASE 
                                          WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
@@ -553,13 +554,11 @@ BEGIN
                              ELSE 0 
                            END 
                      ORDER BY t1.LAST_USE DESC 
-                     LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
-                                          FROM MetaData 
-                                          WHERE VALUE_NAME = CASE 
+                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
+                                         FROM MetaData 
+                                         WHERE VALUE_NAME = CASE 
                                                               WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
-                                                               WHEN new.RECORD_TYPE IN ('J', 'K', 'L')  
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO' 
                                                                WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                                                   THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
                                                               ELSE 
@@ -577,14 +576,12 @@ BEGIN
         FROM CashData AS t3 
         WHERE t3.CASH_SUM = new.CASH_SUM 
         ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC 
-        LIMIT 100 00 OFFSET (SELECT  VALUE_VALUE 
+        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
                              FROM MetaData 
                              WHERE VALUE_NAME = CASE 
                                                   WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_LINKS' 
-                                                  WHEN new.RECORD_TYPE IN ('J', 'K', 'L')   
-                                                     THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_OBJECT_INFO' 
-                                                  WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G') 
+                                                  WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS' 
                                                   ELSE 
                                                     '' 
@@ -592,6 +589,28 @@ BEGIN
   ); 
 
 END; 
+"""
+
+const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT = """
+CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInfoInsert 
+AFTER INSERT 
+ON CashLastUpdate 
+WHEN new.RECORD_TYPE IN ('J', 'K', 'L') 
+BEGIN 
+
+  DELETE FROM CashLastUpdate 
+  WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
+                     FROM CashLastUpdate t1 
+                     WHERE t1.RECORD_TYPE IN ('J', 'K', 'L') 
+                     ORDER BY t1.LAST_USE DESC 
+                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
+                                          FROM MetaData 
+                                          WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')); 
+
+  DELETE FROM CashData 
+  WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
+
+END;
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT = """
@@ -866,6 +885,7 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  OBJECT_SIZE INTEGER NOT NULL, 
  OBJECT_LENGTH_SECONDS INTEGER NOT NULL, 
  OBJECT_EXTENSION TEXT NOT NULL, 
+ AVATAR_ID INTEGER, 
  IS_TEMP INTEGER NOT NULL, 
  LAST_USED INTEGER NOT NULL); 
 """
@@ -878,6 +898,12 @@ CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_LIN
 const val INDEX_SAVEMEDIA_ISTEMP = """
 CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, OBJECT_LINK); 
 """
+
+const val INDEX_SAVEMEDIA_AVATAR_ID = """
+CREATE INDEX IF NOT EXISTS ISaveMediaIsAvatarId ON SaveMedia(AVATAR_ID); 
+"""
+
+
 
 const val TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT = """
 CREATE TRIGGER IF NOT EXISTS TSaveMediaControlTempCounts 
@@ -933,10 +959,11 @@ INSERT OR REPLACE INTO SaveMedia
   OBJECT_SIZE, 
   OBJECT_LENGTH_SECONDS, 
   OBJECT_EXTENSION, 
+  AVATAR_ID, 
   IS_TEMP, 
   LAST_USED) 
 VALUES 
-(?, ?, ?, ?, ?, ?); 
+(?, ?, ?, ?, ?, ?, ?); 
 """
 
 const val SELECT_SAVEMEDIA_ALL = """
