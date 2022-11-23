@@ -107,6 +107,7 @@ class FileService(
 
             }
             save_media = s
+            save_media!!.AVATAR_ID = answerType.answerTypeValues.GetMainAvatarId()
             IsDownloaded = s.IS_DOWNLOAD == 1
             fIleFullName = save_media!!.FILE_FULL_NAME
 

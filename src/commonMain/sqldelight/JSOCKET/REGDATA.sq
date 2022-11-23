@@ -33,17 +33,7 @@ trigger_RegData_insert:
 CREATE TRIGGER IF NOT EXISTS TRegData_Insert
  BEFORE INSERT ON RegData
  BEGIN
- DELETE FROM RegData
- WHERE CONNECTION_ID != new.CONNECTION_ID;
-END;
-
-trigger_RegData_delete:
-CREATE TRIGGER IF NOT EXISTS TRegData_Delete
- AFTER DELETE ON RegData
- FOR EACH ROW
- BEGIN
- DELETE FROM Chats;
- DELETE FROM CashLastUpdate;
+ DELETE FROM RegData;
 END;
        
 insert_RegData:

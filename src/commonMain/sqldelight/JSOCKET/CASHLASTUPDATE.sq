@@ -1,6 +1,7 @@
 table_CashLastUpdate:
 CREATE TABLE IF NOT EXISTS CashLastUpdate
-(CASH_SUM TEXT NOT NULL,
+(CONNECTION_ID TEXT NOT NULL,
+ CASH_SUM TEXT NOT NULL,
  OBJECT_ID TEXT NOT NULL,
  RECORD_TYPE TEXT NOT NULL,
  COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up;
@@ -11,23 +12,30 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
  OTHER_CONDITIONS_2 TEXT NOT NULL DEFAULT "",
  OTHER_CONDITIONS_3 TEXT NOT NULL DEFAULT "",
  LAST_USE INTEGER NOT NULL,     -- last mess count for chats;
- PRIMARY KEY (CASH_SUM)
+ PRIMARY KEY (CONNECTION_ID, CASH_SUM)
 );
 
 index_CashLastUpdate_last_use:
 CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
 
 index_CashLastUpdate_record_type_cash_sum:
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CASH_SUM);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CONNECTION_ID, CASH_SUM);
 
 index_CashLastUpdate_record_type_last_use_cash_sum:
 CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CASH_SUM);
+
+index_CashLastUpdate_CashSum:
+CREATE INDEX IF NOT EXISTS CashLastUpdate_CashSum ON CashLastUpdate(CASH_SUM);
 
 trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert
 AFTER INSERT
 ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0)
+WHEN ((SELECT count(*)
+       FROM CashData t
+       WHERE t.CONNECTION_ID = new.CONNECTION_ID
+       AND   t.CASH_SUM = new.CASH_SUM
+       LIMIT 1) = 0)
 BEGIN
 DELETE FROM CashLastUpdate
 WHERE rowid = new.rowid;
@@ -38,7 +46,10 @@ trigger_CashLastUpdate_Control_Count_Links_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert
 AFTER INSERT
 ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+WHEN ((SELECT count(*)
+       FROM CashData t
+       WHERE t.CASH_SUM = new.CASH_SUM
+       LIMIT 1) > 0)
 AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M')
 BEGIN
 
@@ -81,11 +92,13 @@ BEGIN
 
 
   DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
+  WHERE CONNECTION_ID = new.CONNECTION_ID
+  AND   CASH_SUM = new.CASH_SUM
   AND   RECORD_TABLE_ID IN (
         SELECT t3.RECORD_TABLE_ID
         FROM CashData AS t3
-        WHERE t3.CASH_SUM = new.CASH_SUM
+        WHERE t3.CONNECTION_ID = new.CONNECTION_ID
+        AND   t3.CASH_SUM = new.CASH_SUM
         ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC
         LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
                              FROM MetaData
@@ -126,17 +139,22 @@ trigger_CashLastUpdate_Control_Count_Chats_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountChatsInsert
 AFTER INSERT
 ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+WHEN ((SELECT count(*)
+       FROM CashData t
+       WHERE t.CASH_SUM = new.CASH_SUM
+       LIMIT 1) > 0)
 AND new.RECORD_TYPE = '3'
 AND 1 == 0 -- not use/ all chats data save;
 BEGIN
 
   DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND RECORD_TABLE_ID IN (
+  WHERE CONNECTION_ID = new.CONNECTION_ID
+  AND   CASH_SUM = new.CASH_SUM
+  AND   RECORD_TABLE_ID IN (
         SELECT t.RECORD_TABLE_ID
         FROM CashData AS t
-        WHERE t.CASH_SUM = new.CASH_SUM
+        WHERE t.CONNECTION_ID = new.CONNECTION_ID
+        AND   t.CASH_SUM = new.CASH_SUM
         ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
         LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
                              FROM MetaData
@@ -145,11 +163,13 @@ BEGIN
   );
 
   DELETE FROM CashLastUpdate
-  WHERE  RECORD_TYPE = '4'
-  AND CASH_SUM NOT IN (
+  WHERE RECORD_TYPE = '4'
+  AND   CONNECTION_ID = new.CONNECTION_ID
+  AND   CASH_SUM NOT IN (
           SELECT t1.RECORD_TABLE_ID||'410'
           FROM CashData AS t1
-          WHERE t1.CASH_SUM = new.CASH_SUM);
+          WHERE t1.CONNECTION_ID = new.CONNECTION_ID
+          AND   t1.CASH_SUM = new.CASH_SUM);
 
   DELETE FROM CashData
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
@@ -160,17 +180,22 @@ trigger_CashLastUpdate_Control_Count_Mess_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountMessInsert
 AFTER INSERT
 ON CashLastUpdate
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0)
+WHEN ((SELECT count(*)
+       FROM CashData t
+       WHERE t.CASH_SUM = new.CASH_SUM
+       LIMIT 1) > 0)
 AND new.RECORD_TYPE = '4'
 AND 1 == 0 -- not use/ all messegess data save;
 BEGIN
 
   DELETE FROM CashData
-  WHERE CASH_SUM = new.CASH_SUM
-  AND RECORD_TABLE_ID IN (
+  WHERE CONNECTION_ID = new.CONNECTION_ID
+  AND   CASH_SUM = new.CASH_SUM
+  AND   RECORD_TABLE_ID IN (
         SELECT t.RECORD_TABLE_ID
         FROM CashData AS t
-        WHERE t.CASH_SUM = new.CASH_SUM
+        WHERE t.CONNECTION_ID = new.CONNECTION_ID
+        AND   t.CASH_SUM = new.CASH_SUM
         ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
         LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
                             FROM MetaData
@@ -183,7 +208,8 @@ END;
 
 insert_CashLastUpdate:
 REPLACE INTO CashLastUpdate
-(CASH_SUM,
+(CONNECTION_ID,
+ CASH_SUM,
  OBJECT_ID,
  RECORD_TYPE,
  COURSE,
@@ -195,10 +221,12 @@ REPLACE INTO CashLastUpdate
  OTHER_CONDITIONS_3,
  LAST_USE)
 VALUES
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+((SELECT CONNECTION_ID FROM RegData), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 select_CashLastUpdateAll:
-SELECT * FROM CashLastUpdate;
+SELECT *
+FROM CashLastUpdate
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData);
 
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
@@ -206,7 +234,8 @@ DELETE FROM CashLastUpdate;
 
 delete_CashLastUpdate:
 DELETE FROM CashLastUpdate
-WHERE CASH_SUM = ?;
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+AND   CASH_SUM = ?;
 
 
 

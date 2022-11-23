@@ -948,7 +948,6 @@ object Sqlite_service : CoroutineScope {
                     val c = CASH_LAST_UPDATE[cash_sum]
                     c!!.LAST_USE = last_select
                     statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(c)
-                    //statCASHLASTUPDATE.DELETE_CASHDATA_DELETED_RECORDS(cash_sum)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "UpdateCashDataNewLastSelect",

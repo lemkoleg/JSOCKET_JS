@@ -59,6 +59,8 @@ class KSaveMedia(val L_OBJECT_LINK: String,
 
     var FILE_FULL_NAME: String = ""
 
+    var AVATAR_ID: String = ""
+
     init {
         ensureNeverFrozen()
 

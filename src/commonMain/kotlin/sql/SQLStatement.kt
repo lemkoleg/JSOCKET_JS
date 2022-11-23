@@ -121,6 +121,9 @@ expect class SQLStatement() {
     @JsName("INDEX_SAVEMEDIA_ISTEMP")
     suspend fun INDEX_SAVEMEDIA_ISTEMP()
 
+    @JsName("INDEX_SAVEMEDIA_OBJECT_LINK")
+    suspend fun INDEX_SAVEMEDIA_OBJECT_LINK()
+
     @JsName("INDEX_SAVEMEDIA_AVATAR_ID")
     suspend fun INDEX_SAVEMEDIA_AVATAR_ID()
 
@@ -152,6 +155,9 @@ expect class SQLStatement() {
 
     @JsName("INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM")
     suspend fun INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM()
+
+    @JsName("INDEX_CASHLASTUPDATE_CASH_SUM")
+    suspend fun INDEX_CASHLASTUPDATE_CASH_SUM()
 
     @JsName("TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT")
     suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT()
@@ -191,6 +197,9 @@ expect class SQLStatement() {
     @JsName("TRIGGER_CASHDATA_AFTER_INSERT")
     suspend fun TRIGGER_CASHDATA_AFTER_INSERT()
 
+    @JsName("TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO")
+    suspend fun TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO()
+
     @JsName("TRIGGER_CASHDATA_AFTER_UPDATE")
     suspend fun TRIGGER_CASHDATA_AFTER_UPDATE()
 
@@ -223,9 +232,6 @@ expect class SQLStatement() {
                                                 cash_sum:String,
                                                 record_table_id_from:String,
                                                 limit: Int)
-
-    @JsName("DELETE_CASHDATA_DELETED_RECORDS")
-    suspend fun DELETE_CASHDATA_DELETED_RECORDS(cash_sum:String)
 
     @JsName("DELETE_CASHDATA")
     suspend fun DELETE_CASHDATA(cash_sum:String)

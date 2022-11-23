@@ -99,7 +99,8 @@ WHERE AVATAR_ID = ?;
 
 const val TABLE_CASHDATA = """
 CREATE TABLE IF NOT EXISTS CashData 
-(CASH_SUM TEXT NOT NULL, 
+(CONNECTION_ID TEXT NOT NULL, 
+ CASH_SUM TEXT NOT NULL, 
  RECORD_TABLE_ID TEXT NOT NULL, 
  IDENTIFICATOR_1 TEXT, 
  IDENTIFICATOR_2 TEXT, 
@@ -186,26 +187,35 @@ CREATE TABLE IF NOT EXISTS CashData
  BLOB_3 BLOB, 
  INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 0,  
  NEXT_RECORD_TABLE_ID TEXT NOT NULL DEFAULT "",  
- PRIMARY KEY (CASH_SUM, RECORD_TABLE_ID) 
+ PRIMARY KEY (CONNECTION_ID, CASH_SUM, RECORD_TABLE_ID) 
  );
 """
 
 const val INDEX_CASHDATA_NUMBER_POSITION_ASC = """
-CREATE INDEX CashData_NumberPositionAsc ON CashData(CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
+CREATE INDEX IF NOT EXISTS CashData_NumberPositionAsc ON CashData(CONNECTION_ID, CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC, RECORD_TABLE_ID);
+"""
+
+const val INDEX_CASHDATA_CASH_SUM = """
+CREATE INDEX IF NOT EXISTS CashData_CashSum ON CashData(CASH_SUM);
 """
 
 const val TRIGGER_CASHDATA_AFTER_INSERT = """
  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
   AFTER INSERT ON CashData 
   FOR EACH ROW 
-  WHEN EXISTS (SELECT c.RECORD_TABLE_ID 
+  WHEN SUBSTR(new.CASH_SUM, 19, 1) != 'J' -- not for objects; 
+  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'K' -- not for objects; 
+  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'L' -- not for objects; 
+  AND EXISTS (SELECT c.RECORD_TABLE_ID 
                FROM   CashData AS c 
-               WHERE  c.CASH_SUM = new.CASH_SUM 
+               WHERE  c.CONNECTION_ID = new.CONNECTION_ID 
+               AND    c.CASH_SUM = new.CASH_SUM 
                ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC 
                LIMIT 1 OFFSET new.INTEGER_20 - 1) 
   AND new.RECORD_TABLE_ID != (SELECT c.RECORD_TABLE_ID 
                               FROM   CashData AS c 
-                              WHERE  c.CASH_SUM = new.CASH_SUM 
+                              WHERE  c.CONNECTION_ID = new.CONNECTION_ID 
+                              AND    c.CASH_SUM = new.CASH_SUM 
                               ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC 
                               LIMIT 1 OFFSET new.INTEGER_20 - 1) 
   BEGIN 
@@ -214,7 +224,8 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
                c1.INTEGER_20, 
                c1.INTEGER_20_LEVEL 
         FROM CashData AS c1 
-        WHERE c1.CASH_SUM = new.CASH_SUM 
+        WHERE c1.CONNECTION_ID = new.CONNECTION_ID 
+        AND   c1.CASH_SUM = new.CASH_SUM 
         ORDER BY c1.CASH_SUM, 
                  c1.INTEGER_20 ASC, 
                  c1.INTEGER_20_LEVEL ASC 
@@ -224,7 +235,8 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
      SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1), 
             INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1), 
             INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1) 
-     WHERE  CASH_SUM = new.CASH_SUM 
+     WHERE  CONNECTION_ID = new.CONNECTION_ID 
+     AND    CASH_SUM = new.CASH_SUM 
      AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID; 
 
    WITH tab2 (record_id, next_record_id, integer_20_level) 
@@ -232,15 +244,116 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
                   c2.NEXT_RECORD_TABLE_ID, 
                   c2.INTEGER_20_LEVEL 
            FROM CashData AS c2 
-           WHERE c2.CASH_SUM = new.CASH_SUM 
+           WHERE c2.CONNECTION_ID = new.CONNECTION_ID 
+           AND   c2.CASH_SUM = new.CASH_SUM 
            AND   c2.RECORD_TABLE_ID = new.RECORD_TABLE_ID) 
 
    UPDATE CashData 
        SET    INTEGER_20_LEVEL = ifnull((SELECT integer_20_level FROM tab2 LIMIT 1), 0) + 1 
-       WHERE  CASH_SUM = new.CASH_SUM 
+       WHERE  CONNECTION_ID = new.CONNECTION_ID 
+       AND    CASH_SUM = new.CASH_SUM 
        AND    RECORD_TABLE_ID = (SELECT next_record_id  FROM tab2 LIMIT 1); 
 
   END; 
+"""
+
+const val TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO = """
+ CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsertObjectsInfo 
+    AFTER INSERT ON CashData 
+    FOR EACH ROW 
+    WHEN SUBSTR(new.CASH_SUM, 19, 1) == 'J' -- not for objects; 
+    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'K' -- not for objects; 
+    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'L' -- not for objects; 
+    BEGIN 
+
+     UPDATE CashData 
+       SET    IDENTIFICATOR_1 = new.IDENTIFICATOR_1, 
+              IDENTIFICATOR_2 = new.IDENTIFICATOR_2, 
+              IDENTIFICATOR_3 = new.IDENTIFICATOR_3, 
+              IDENTIFICATOR_4 = new.IDENTIFICATOR_4, 
+              IDENTIFICATOR_5 = new.IDENTIFICATOR_5, 
+              IDENTIFICATOR_6 = new.IDENTIFICATOR_6, 
+              IDENTIFICATOR_7 = new.IDENTIFICATOR_7, 
+              IDENTIFICATOR_8 = new.IDENTIFICATOR_8, 
+              IDENTIFICATOR_9 = new.IDENTIFICATOR_9, 
+              IDENTIFICATOR_10 = new.IDENTIFICATOR_10, 
+              IDENTIFICATOR_11 = new.IDENTIFICATOR_11, 
+              IDENTIFICATOR_12 = new.IDENTIFICATOR_12, 
+              IDENTIFICATOR_13 = new.IDENTIFICATOR_13, 
+              IDENTIFICATOR_14 = new.IDENTIFICATOR_14, 
+              IDENTIFICATOR_15 = new.IDENTIFICATOR_15, 
+              IDENTIFICATOR_16 = new.IDENTIFICATOR_16, 
+              IDENTIFICATOR_17 = new.IDENTIFICATOR_17, 
+              IDENTIFICATOR_18 = new.IDENTIFICATOR_18, 
+              IDENTIFICATOR_19 = new.IDENTIFICATOR_19, 
+              IDENTIFICATOR_20 = new.IDENTIFICATOR_20, 
+              INTEGER_1 = new.INTEGER_1, 
+              INTEGER_2 = new.INTEGER_2, 
+              INTEGER_3 = new.INTEGER_3, 
+              INTEGER_4 = new.INTEGER_4, 
+              INTEGER_5 = new.INTEGER_5, 
+              INTEGER_6 = new.INTEGER_6, 
+              INTEGER_7 = new.INTEGER_7, 
+              INTEGER_8 = new.INTEGER_8, 
+              INTEGER_9 = new.INTEGER_9, 
+              INTEGER_10 = new.INTEGER_10, 
+              INTEGER_11 = new.INTEGER_11, 
+              INTEGER_12 = new.INTEGER_12, 
+              INTEGER_13 = new.INTEGER_13, 
+              INTEGER_14 = new.INTEGER_14, 
+              INTEGER_15 = new.INTEGER_15, 
+              INTEGER_16 = new.INTEGER_16, 
+              INTEGER_17 = new.INTEGER_17, 
+              INTEGER_18 = new.INTEGER_18, 
+              INTEGER_19 = new.INTEGER_19, 
+              LONG_1 = new.LONG_1, 
+              LONG_2 = new.LONG_2, 
+              LONG_3 = new.LONG_3, 
+              LONG_4 = new.LONG_4, 
+              LONG_5 = new.LONG_5, 
+              LONG_6 = new.LONG_6, 
+              LONG_7 = new.LONG_7, 
+              LONG_8 = new.LONG_8, 
+              LONG_9 = new.LONG_9, 
+              LONG_10 = new.LONG_10, 
+              LONG_11 = new.LONG_11, 
+              LONG_12 = new.LONG_12, 
+              LONG_13 = new.LONG_13, 
+              LONG_14 = new.LONG_14, 
+              LONG_15 = new.LONG_15, 
+              LONG_16 = new.LONG_16, 
+              LONG_17 = new.LONG_17, 
+              LONG_18 = new.LONG_18, 
+              LONG_19 = new.LONG_19, 
+              LONG_20 = new.LONG_20, 
+              STRING_1 = new.STRING_1, 
+              STRING_2 = new.STRING_2, 
+              STRING_3 = new.STRING_3, 
+              STRING_4 = new.STRING_4, 
+              STRING_5 = new.STRING_5, 
+              STRING_6 = new.STRING_6, 
+              STRING_7 = new.STRING_7, 
+              STRING_8 = new.STRING_8, 
+              STRING_9 = new.STRING_9, 
+              STRING_10 = new.STRING_10, 
+              STRING_11 = new.STRING_11, 
+              STRING_12 = new.STRING_12, 
+              STRING_13 = new.STRING_13, 
+              STRING_14 = new.STRING_14, 
+              STRING_15 = new.STRING_15, 
+              STRING_16 = new.STRING_16, 
+              STRING_17 = new.STRING_17, 
+              STRING_18 = new.STRING_18, 
+              STRING_19 = new.STRING_19, 
+              STRING_20 = new.STRING_20, 
+              BLOB_1 = new.BLOB_1, 
+              BLOB_2 = new.BLOB_2, 
+              BLOB_3 = new.BLOB_3 
+       WHERE  CONNECTION_ID = new.CONNECTION_ID 
+       AND    CASH_SUM = (SELECT ACCOUNT_ID FROM RegData) + 'O00' -- update SAVE_OBJECT_INFO; 
+       AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID; 
+
+    END; 
 """
 
 const val TRIGGER_CASHDATA_AFTER_UPDATE = """
@@ -259,7 +372,8 @@ const val TRIGGER_CASHDATA_AFTER_UPDATE = """
 
 const val INSERT_CASHDATA = """
 INSERT OR REPLACE INTO CashData  
-( CASH_SUM, 
+( CONNECTION_ID, 
+  CASH_SUM, 
   RECORD_TABLE_ID, 
   IDENTIFICATOR_1, 
   IDENTIFICATOR_2, 
@@ -345,7 +459,7 @@ INSERT OR REPLACE INTO CashData
   BLOB_2, 
   BLOB_3) 
 VALUES 
-(?, ?, 
+((SELECT CONNECTION_ID FROM RegData), ?,?,
  ?, ?, ?, ?, ?,
  ?, ?, ?, ?, ?,
  ?, ?, ?, ?, ?,
@@ -364,21 +478,25 @@ VALUES
 
 const val SELECT_CASHDATA_ALL = """
 SELECT  * 
-FROM CashData 
-ORDER BY CASH_SUM, INTEGER_20 ASC;
+  FROM CashData 
+  WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+  ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC; 
 """
 
 const val SELECT_CASHDATA_ALL_ON_CASH_SUM = """
-SELECT  * 
-FROM CashData 
-WHERE CASH_SUM = ? 
-ORDER BY CASH_SUM, INTEGER_20 ASC;
+ SELECT  * 
+  FROM CashData 
+  WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+  AND    CASH_SUM = ? 
+  ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC; 
 """
 
 const val SELECT_CASHDATA_CHUNK_ON_CASH_SUM = """
-SELECT  * 
+WITH tab AS (SELECT CONNECTION_ID FROM RegData) 
+   SELECT  * 
    FROM CashData AS c 
-   WHERE c.CASH_SUM = ? 
+   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+   AND   c.CASH_SUM = ? 
    ORDER BY c.CASH_SUM, 
             c.INTEGER_20 ASC, 
             c.INTEGER_20_LEVEL ASC 
@@ -390,23 +508,26 @@ SELECT  *
                                                            ) AS RowNumber, 
                                                          c1.RECORD_TABLE_ID AS record_id 
                                                   FROM CashData AS c1 
-                                                  WHERE c1.CASH_SUM = ? 
+                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                                  AND    c1.CASH_SUM = ? 
                                                   ORDER BY c1.CASH_SUM, 
                                                            c1.RECORD_TABLE_ID) AS tab1 
-                                WHERE record_id = ?), 0); 
+                      WHERE record_id = ?), 0); 
 """
 
 const val SELECT_CASHDATA = """
 SELECT  * 
-FROM CashData 
-WHERE CASH_SUM = ? 
-AND RECORD_TABLE_ID = ?; 
+   FROM CashData 
+   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+   AND   CASH_SUM = ? 
+   AND   RECORD_TABLE_ID = ?;  
 """
 
 const val SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM = """
 SELECT RECORD_TABLE_ID 
-FROM CashData 
-WHERE CASH_SUM = ?; 
+   FROM CashData 
+   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+   AND   CASH_SUM = ?; 
 """
 
 
@@ -417,66 +538,63 @@ DELETE FROM CashData;
 
 
 const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
- WITH tab AS (SELECT  c.CASH_SUM AS cash_sum, 
-                       c.RECORD_TABLE_ID AS record_id, 
+ WITH tab AS (SELECT  c.RECORD_TABLE_ID AS record_id, 
                        row_number() OVER ( 
-                           ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+                           ORDER BY CONNECTION_ID, CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
                        ) AS RowNumber 
-              FROM     CashData AS c 
-              WHERE     c.CASH_SUM = ? 
-             ORDER BY   c.CASH_SUM, 
-                        c.RECORD_TABLE_ID) 
+              FROM      CashData AS c 
+              WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+              AND       c.CASH_SUM = ? 
+              ORDER BY  c.RECORD_TABLE_ID) 
 
   UPDATE CashData 
   SET   INTEGER_20 = (SELECT t.RowNumber 
                       FROM tab AS t 
-                      WHERE t.cash_sum = ? 
-                      AND   t.record_id = RECORD_TABLE_ID), 
+                      WHERE t.record_id = RECORD_TABLE_ID), 
         INTEGER_20_LEVEL = 0, 
         NEXT_RECORD_TABLE_ID = "" 
-        WHERE CASH_SUM = ?; 
+        WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+        AND   CASH_SUM = ?; 
 """
 
 const val UPDATE_CASHDATA_NEW_LAST_SELECT = """
+   WITH tab AS (SELECT CONNECTION_ID FROM RegData) 
        UPDATE CashData 
        SET    LONG_20 = ? 
-       WHERE  CASH_SUM = ? 
+       WHERE  CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+       AND    CASH_SUM = ? 
        AND    RECORD_TABLE_ID IN (SELECT c.RECORD_TABLE_ID 
                                   FROM   CashData AS c 
-                                  WHERE  c.CASH_SUM = ? 
+                                  WHERE  c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                  AND    c.CASH_SUM = ? 
                                   ORDER BY c.CASH_SUM, 
                                            c.INTEGER_20 ASC, 
                                            c.INTEGER_20_LEVEL ASC 
-                                  LIMIT ?
+                                  LIMIT ? 
                                   OFFSET 0 + ifnull((SELECT tab1.RowNumber 
-                                                  FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
-                                                               row_number() OVER ( 
-                                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
-                                                                ) AS RowNumber 
-                                                         FROM   CashData AS c1 
-                                                         WHERE  c1.CASH_SUM = ? 
-                                                         ORDER BY c1.RECORD_TABLE_ID) AS tab1 
-                                                  WHERE  tab1.record_id = ?), 0) 
+                                                     FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
+                                                                  row_number() OVER ( 
+                                                                          ORDER BY c1.CONNECTION_ID, c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
+                                                                   ) AS RowNumber 
+                                                           FROM   CashData AS c1 
+                                                           WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                                           AND      c1.CASH_SUM = ? 
+                                                           ORDER BY c1.RECORD_TABLE_ID) AS tab1 
+                                                     WHERE tab1.record_id = ?), 0) 
                                   ); 
-"""
-
-
-const val DELETE_CASHDATA_DELETED_RECORD = """
-DELETE
-FROM CashData
-WHERE  CASH_SUM = ?
-AND substr(STRING_20, 7, 1) = "1";
 """
 
 const val DELETE_CASHDATA = """
 DELETE FROM CashData 
-WHERE CASH_SUM = ?;
+   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+   AND   CASH_SUM = ?; 
 """
 
 const val DELETE_CASHDATA_RECORD = """
 DELETE FROM CashData 
-WHERE CASH_SUM = ? 
-AND RECORD_TABLE_ID = ?;
+    WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+    AND   CASH_SUM = ? 
+    AND   RECORD_TABLE_ID = ?; 
 """
 
 
@@ -484,7 +602,8 @@ AND RECORD_TABLE_ID = ?;
 
 const val TABLE_CASHLASTUPDATE  = """
 CREATE TABLE IF NOT EXISTS CashLastUpdate 
-(CASH_SUM TEXT NOT NULL, 
+(CONNECTION_ID TEXT NOT NULL, 
+ CASH_SUM TEXT NOT NULL, 
  OBJECT_ID TEXT NOT NULL, 
  RECORD_TYPE TEXT NOT NULL, 
  COURSE TEXT NOT NULL DEFAULT "0",  -- o-down; 1-up; 
@@ -495,7 +614,7 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
  OTHER_CONDITIONS_2 TEXT NOT NULL DEFAULT "", 
  OTHER_CONDITIONS_3 TEXT NOT NULL DEFAULT "", 
  LAST_USE INTEGER NOT NULL,     -- last mess count for chats; 
- PRIMARY KEY (CASH_SUM) 
+ PRIMARY KEY (CONNECTION_ID, CASH_SUM) 
 ); 
 """
 
@@ -505,29 +624,40 @@ CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DES
 """
 
 const val INDEX_CASHLASTUPDATE_RECORD_TYPE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CASH_SUM);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CONNECTION_ID, CASH_SUM);
 """
 
 const val INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM = """
 CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CASH_SUM);
 """
 
+const val INDEX_CASHLASTUPDATE_CASH_SUM = """
+CREATE INDEX IF NOT EXISTS CashLastUpdate_CashSum ON CashLastUpdate(CASH_SUM);
+"""
+
 const val TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert 
 AFTER INSERT 
 ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) = 0) 
+WHEN ((SELECT count(*) 
+       FROM CashData t 
+       WHERE t.CONNECTION_ID = new.CONNECTION_ID 
+       AND   t.CASH_SUM = new.CASH_SUM 
+       LIMIT 1) = 0) 
 BEGIN 
-DELETE FROM CashLastUpdate
+DELETE FROM CashLastUpdate 
 WHERE rowid = new.rowid; 
-END; 
+END;  
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountLinksInsert 
 AFTER INSERT 
 ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+WHEN ((SELECT count(*) 
+       FROM CashData t 
+       WHERE t.CASH_SUM = new.CASH_SUM 
+       LIMIT 1) > 0) 
 AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M') 
 BEGIN 
 
@@ -543,7 +673,7 @@ BEGIN
                                     ELSE 0 
                                   END 
 
-                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments 
+                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
                                    THEN 
                                       CASE 
                                          WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
@@ -570,11 +700,13 @@ BEGIN
 
 
   DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
+  WHERE CONNECTION_ID = new.CONNECTION_ID 
+  AND   CASH_SUM = new.CASH_SUM 
   AND   RECORD_TABLE_ID IN ( 
         SELECT t3.RECORD_TABLE_ID 
         FROM CashData AS t3 
-        WHERE t3.CASH_SUM = new.CASH_SUM 
+        WHERE t3.CONNECTION_ID = new.CONNECTION_ID 
+        AND   t3.CASH_SUM = new.CASH_SUM 
         ORDER BY t3.INTEGER_20 ASC, t3.INTEGER_20_LEVEL ASC 
         LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
                              FROM MetaData 
@@ -594,7 +726,7 @@ END;
 const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInfoInsert 
 AFTER INSERT 
-ON CashLastUpdate 
+ON CashLastUpdate
 WHEN new.RECORD_TYPE IN ('J', 'K', 'L') 
 BEGIN 
 
@@ -610,37 +742,44 @@ BEGIN
   DELETE FROM CashData 
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
 
-END;
+END; 
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountChatsInsert 
 AFTER INSERT 
 ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+WHEN ((SELECT count(*) 
+       FROM CashData t 
+       WHERE t.CASH_SUM = new.CASH_SUM 
+       LIMIT 1) > 0) 
 AND new.RECORD_TYPE = '3' 
-AND 1 == 0 -- not use/ all messegess data save;
+AND 1 == 0 -- not use/ all chats data save; 
 BEGIN 
 
   DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
-  AND RECORD_TABLE_ID IN ( 
+  WHERE CONNECTION_ID = new.CONNECTION_ID 
+  AND   CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
         SELECT t.RECORD_TABLE_ID 
         FROM CashData AS t 
-        WHERE t.CASH_SUM = new.CASH_SUM 
+        WHERE t.CONNECTION_ID = new.CONNECTION_ID 
+        AND   t.CASH_SUM = new.CASH_SUM 
         ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
-        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
-                            FROM MetaData 
-                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS') 
+        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
+                             FROM MetaData 
+                             WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS') 
 
   ); 
 
   DELETE FROM CashLastUpdate 
-  WHERE  RECORD_TYPE = '4' 
-  AND CASH_SUM NOT IN ( 
-          SELECT t1.RECORD_TABLE_ID||'4' 
+  WHERE RECORD_TYPE = '4' 
+  AND   CONNECTION_ID = new.CONNECTION_ID 
+  AND   CASH_SUM NOT IN ( 
+          SELECT t1.RECORD_TABLE_ID||'410' 
           FROM CashData AS t1 
-          WHERE t1.CASH_SUM = new.CASH_SUM); 
+          WHERE t1.CONNECTION_ID = new.CONNECTION_ID 
+          AND   t1.CASH_SUM = new.CASH_SUM); 
 
   DELETE FROM CashData 
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
@@ -652,19 +791,24 @@ const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountMessInsert 
 AFTER INSERT 
 ON CashLastUpdate 
-WHEN ((SELECT count(*) FROM CashData t WHERE t.CASH_SUM = new.CASH_SUM LIMIT 1) > 0) 
+WHEN ((SELECT count(*) 
+       FROM CashData t 
+       WHERE t.CASH_SUM = new.CASH_SUM 
+       LIMIT 1) > 0) 
 AND new.RECORD_TYPE = '4' 
-AND 1 == 0 -- not use/ all messegess data save;
+AND 1 == 0 -- not use/ all messegess data save; 
 BEGIN 
 
   DELETE FROM CashData 
-  WHERE CASH_SUM = new.CASH_SUM 
-  AND RECORD_TABLE_ID IN ( 
+  WHERE CONNECTION_ID = new.CONNECTION_ID 
+  AND   CASH_SUM = new.CASH_SUM 
+  AND   RECORD_TABLE_ID IN ( 
         SELECT t.RECORD_TABLE_ID 
         FROM CashData AS t 
-        WHERE t.CASH_SUM = new.CASH_SUM 
+        WHERE t.CONNECTION_ID = new.CONNECTION_ID 
+        AND   t.CASH_SUM = new.CASH_SUM 
         ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
-        LIMIT 10000 OFFSET (SELECT  VALUE_VALUE 
+        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
                             FROM MetaData 
                             WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES') 
 
@@ -675,7 +819,8 @@ END;
 
 const val INSERT_CASHLASTUPDATE = """
 REPLACE INTO CashLastUpdate 
-(CASH_SUM, 
+(CONNECTION_ID, 
+ CASH_SUM, 
  OBJECT_ID, 
  RECORD_TYPE, 
  COURSE, 
@@ -687,11 +832,13 @@ REPLACE INTO CashLastUpdate
  OTHER_CONDITIONS_3, 
  LAST_USE) 
 VALUES 
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+((SELECT CONNECTION_ID FROM RegData), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
 """
 
 const val SELECT_CASHLASTUPDATE_ALL = """
-SELECT * FROM CashLastUpdate;
+SELECT * 
+FROM CashLastUpdate 
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData); 
 """
 
 const val CLEAR_LASTUPDATE = """
@@ -700,7 +847,8 @@ DELETE FROM CashLastUpdate;
 
 const val DELETE_LASTUPDATE = """
 DELETE FROM CashLastUpdate 
-WHERE CASH_SUM = ?;
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+AND   CASH_SUM = ?; 
 """
 
 /////////////commands///////////////////////////
@@ -829,20 +977,9 @@ CHECK (
 
 const val TRIGGER_REGDATA_INSERT  = """
 CREATE TRIGGER TRegData_Insert 
- AFTER INSERT ON RegData 
+ BEFORE INSERT ON RegData 
  BEGIN 
- DELETE FROM RegData 
- WHERE CONNECTION_ID != new.CONNECTION_ID; 
-END;
-"""
-
-const val TRIGGER_REGDATA_DELETE= """
-CREATE TRIGGER TRegData_Delete 
- AFTER DELETE ON RegData 
- FOR EACH ROW 
- BEGIN 
- DELETE FROM Chats; 
- DELETE FROM CashLastUpdate; 
+ DELETE FROM RegData;
 END;
 """
 
@@ -880,23 +1017,28 @@ SELECT * FROM RegData LIMIT 1;
 /////////////save media///////////////////////////
 
 const val TABLE_SAVEMEDIA = """
-CREATE TABLE IF NOT EXISTS SaveMedia 
-(OBJECT_LINK TEXT PRIMARY KEY, 
+ CONNECTION_ID TEXT NOT NULL, 
+ OBJECT_LINK TEXT NOT NULL, 
  OBJECT_SIZE INTEGER NOT NULL, 
  OBJECT_LENGTH_SECONDS INTEGER NOT NULL, 
  OBJECT_EXTENSION TEXT NOT NULL, 
- AVATAR_ID INTEGER, 
+ AVATAR_ID TEXT, 
  IS_TEMP INTEGER NOT NULL, 
- LAST_USED INTEGER NOT NULL); 
+ LAST_USED INTEGER NOT NULL, 
+ PRIMARY KEY (CONNECTION_ID, OBJECT_LINK)); 
 """
 
 
 const val INDEX_SAVEMEDIA_LASTUSED = """
-CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_LINK); 
+CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_LINK);
 """
 
 const val INDEX_SAVEMEDIA_ISTEMP = """
-CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, OBJECT_LINK); 
+CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, LAST_USED, OBJECT_LINK);
+"""
+
+const val INDEX_SAVEMEDIA_OBJECT_LINK = """
+CREATE INDEX IF NOT EXISTS ISaveMediaObjectLink ON SaveMedia(OBJECT_LINK);
 """
 
 const val INDEX_SAVEMEDIA_AVATAR_ID = """
@@ -918,14 +1060,16 @@ AND
  FROM MetaData 
  WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA') 
 BEGIN 
-DELETE FROM SaveMedia WHERE OBJECT_LINK NOT IN 
-(SELECT OBJECT_LINK FROM SaveMedia 
- WHERE IS_TEMP = 1 
- ORDER BY LAST_USED 
- LIMIT (SELECT VALUE_VALUE 
-        FROM  MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')) 
- AND IS_TEMP = 1; 
+
+ DELETE FROM SaveMedia 
+ WHERE OBJECT_LINK IN 
+   (SELECT OBJECT_LINK FROM SaveMedia 
+    WHERE IS_TEMP = 1 
+    ORDER BY LAST_USED 
+    LIMIT  100000 
+    OFFSET (SELECT VALUE_VALUE 
+            FROM  MetaData 
+            WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')); 
 END; 
 """
 
@@ -935,27 +1079,29 @@ AFTER INSERT ON SaveMedia
 WHEN 
 new.IS_TEMP = 0 
 AND 
-(SELECT count(*) 
- FROM SaveMedia 
- WHERE IS_TEMP = 0)> 
-(SELECT  VALUE_VALUE 
- FROM MetaData 
- WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA') 
+ (SELECT count(*) 
+  FROM SaveMedia 
+  WHERE IS_TEMP = 0)> 
+ (SELECT  VALUE_VALUE 
+  FROM MetaData 
+  WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA') 
 BEGIN 
-DELETE FROM SaveMedia WHERE OBJECT_LINK NOT IN 
-(SELECT OBJECT_LINK FROM SaveMedia 
- WHERE IS_TEMP = 0 
- ORDER BY LAST_USED 
- LIMIT (SELECT VALUE_VALUE 
-        FROM  MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')) 
- AND IS_TEMP = 0; 
+ DELETE FROM SaveMedia 
+ WHERE OBJECT_LINK IN 
+    (SELECT OBJECT_LINK FROM SaveMedia 
+     WHERE IS_TEMP = 0 
+     ORDER BY LAST_USED 
+     LIMIT  100000 
+     OFFSET (SELECT VALUE_VALUE 
+             FROM  MetaData 
+             WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')); 
 END; 
 """
 
 const val INSERT_SAVEMEDIA = """
-INSERT OR REPLACE INTO SaveMedia 
-( OBJECT_LINK, 
+REPLACE INTO SaveMedia 
+( CONNECTION_ID, 
+  OBJECT_LINK, 
   OBJECT_SIZE, 
   OBJECT_LENGTH_SECONDS, 
   OBJECT_EXTENSION, 
@@ -963,16 +1109,18 @@ INSERT OR REPLACE INTO SaveMedia
   IS_TEMP, 
   LAST_USED) 
 VALUES 
-(?, ?, ?, ?, ?, ?, ?); 
+((SELECT CONNECTION_ID FROM RegData), ?, ?, ?, ?, ?, ?, ?); 
 """
 
 const val SELECT_SAVEMEDIA_ALL = """
-SELECT *
-FROM SaveMedia; 
+SELECT * 
+FROM SaveMedia 
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData); 
 """
 
 const val DELETE_SAVEMEDIA = """
 DELETE FROM SaveMedia 
-WHERE OBJECT_LINK = ?;
+WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+AND   OBJECT_LINK = ?; 
 """
 

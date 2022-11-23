@@ -152,12 +152,16 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {
-                    LocalLock.lock()
                     VerifyUpdatesJob!!.join()
+                    LocalLock.lock()
                     if (answerTypeConstants.IsMusic || answerTypeConstants.IsVideo) {
                         if (promiseDowloadFile!!.await()) {
                             if (answerType.RECORD_TYPE != "O") {
                                 answerType.answerTypeValues.setRECORD_TYPE("O")
+                                answerType.INTEGER_20 = 1
+                                val d = ArrayDeque<ANSWER_TYPE>()
+                                d.add(answerType)
+                                SAVE_OBJECT_INFO!!.SET_RECORDS(d)
                             }
                         }
                     }
@@ -207,8 +211,8 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     companion object {
         private val GlobalLock = Mutex()
 
-        @JsName("SAVE_OBJECT_INFO")
-        fun SAVE_OBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
+        @JsName("GET_SAVE_OBJECT_INFO")
+        fun GET_SAVE_OBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
