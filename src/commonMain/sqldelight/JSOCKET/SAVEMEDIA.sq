@@ -11,13 +11,10 @@ CREATE TABLE IF NOT EXISTS SaveMedia
  PRIMARY KEY (CONNECTION_ID, OBJECT_LINK));
 
 index_SaveMedia_LastUsed:
-CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_LINK);
+CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, IS_TEMP, CONNECTION_ID, OBJECT_LINK);
 
 index_SaveMedia_IsTemp:
-CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, LAST_USED, OBJECT_LINK);
-
-index_SaveMedia_Object_Link:
-CREATE INDEX IF NOT EXISTS ISaveMediaObjectLink ON SaveMedia(OBJECT_LINK);
+CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP);
 
 index_SaveMedia_AvatarId:
 CREATE INDEX IF NOT EXISTS ISaveMediaAvatarId ON SaveMedia(AVATAR_ID);
@@ -38,38 +35,39 @@ AND
 BEGIN
 
  DELETE FROM SaveMedia
- WHERE OBJECT_LINK IN
-   (SELECT OBJECT_LINK FROM SaveMedia
-    WHERE IS_TEMP = 1
-    ORDER BY LAST_USED
-    LIMIT  100000
-    OFFSET (SELECT VALUE_VALUE
-            FROM  MetaData
-            WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA'));
+ WHERE LAST_USED <
+   ifnull((SELECT LAST_USED FROM SaveMedia
+           WHERE IS_TEMP = 1
+           LIMIT  100000
+           OFFSET (SELECT VALUE_VALUE
+                   FROM  MetaData
+                   WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')), 0)
+ AND IS_TEMP = 1;
 END;
 
 trigger_SaveMedia_control_count:
 CREATE TRIGGER IF NOT EXISTS TSaveMediaControlCounts
 AFTER INSERT ON SaveMedia
 WHEN
-new.IS_TEMP = 0
+new.IS_TEMP = 1
 AND
- (SELECT count(*)
-  FROM SaveMedia
-  WHERE IS_TEMP = 0)>
- (SELECT  VALUE_VALUE
-  FROM MetaData
-  WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')
+(SELECT count(*)
+ FROM SaveMedia
+ WHERE IS_TEMP = 0)>
+(SELECT  VALUE_VALUE
+ FROM MetaData
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')
 BEGIN
+
  DELETE FROM SaveMedia
- WHERE OBJECT_LINK IN
-    (SELECT OBJECT_LINK FROM SaveMedia
-     WHERE IS_TEMP = 0
-     ORDER BY LAST_USED
-     LIMIT  100000
-     OFFSET (SELECT VALUE_VALUE
-             FROM  MetaData
-             WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA'));
+ WHERE LAST_USED <
+   ifnull((SELECT LAST_USED FROM SaveMedia
+           WHERE IS_TEMP = 0
+           LIMIT  100000
+           OFFSET (SELECT VALUE_VALUE
+                   FROM  MetaData
+                   WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')), 0)
+ AND IS_TEMP = 0;
 END;
 
 insert_SaveMedia:

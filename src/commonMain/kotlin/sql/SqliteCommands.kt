@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS CashData
  BLOB_1 BLOB , 
  BLOB_2 BLOB , 
  BLOB_3 BLOB, 
- INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 0,  
+ INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 100001,  
  NEXT_RECORD_TABLE_ID TEXT NOT NULL DEFAULT "",  
  PRIMARY KEY (CONNECTION_ID, CASH_SUM, RECORD_TABLE_ID) 
  );
@@ -203,9 +203,7 @@ const val TRIGGER_CASHDATA_AFTER_INSERT = """
  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert 
   AFTER INSERT ON CashData 
   FOR EACH ROW 
-  WHEN SUBSTR(new.CASH_SUM, 19, 1) != 'J' -- not for objects; 
-  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'K' -- not for objects; 
-  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'L' -- not for objects; 
+  WHEN SUBSTR(new.CASH_SUM, 19, 1) NOT IN ('J', 'K', 'L') -- not for objects info; 
   AND EXISTS (SELECT c.RECORD_TABLE_ID 
                FROM   CashData AS c 
                WHERE  c.CONNECTION_ID = new.CONNECTION_ID 
@@ -261,9 +259,7 @@ const val TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO = """
  CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsertObjectsInfo 
     AFTER INSERT ON CashData 
     FOR EACH ROW 
-    WHEN SUBSTR(new.CASH_SUM, 19, 1) == 'J' -- not for objects; 
-    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'K' -- not for objects; 
-    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'L' -- not for objects; 
+    WHEN SUBSTR(new.CASH_SUM, 19, 1) IN ('J', 'K', 'L') -- for objects info;
     BEGIN 
 
      UPDATE CashData 
@@ -492,26 +488,25 @@ const val SELECT_CASHDATA_ALL_ON_CASH_SUM = """
 """
 
 const val SELECT_CASHDATA_CHUNK_ON_CASH_SUM = """
-WITH tab AS (SELECT CONNECTION_ID FROM RegData) 
    SELECT  * 
    FROM CashData AS c 
-   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
    AND   c.CASH_SUM = ? 
-   ORDER BY c.CASH_SUM, 
+   ORDER BY c.CONNECTION_ID, 
+            c.CASH_SUM, 
             c.INTEGER_20 ASC, 
             c.INTEGER_20_LEVEL ASC 
    LIMIT (SELECT  VALUE_VALUE AS val 
           FROM MetaData 
           WHERE VALUE_NAME = 'LIMIT_FOR_SELECT') 
    OFFSET 0 + ifnull((SELECT tab1.RowNumber FROM (SELECT row_number() OVER ( 
-                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
+                                                          ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
                                                            ) AS RowNumber, 
                                                          c1.RECORD_TABLE_ID AS record_id 
                                                   FROM CashData AS c1 
-                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
                                                   AND    c1.CASH_SUM = ? 
-                                                  ORDER BY c1.CASH_SUM, 
-                                                           c1.RECORD_TABLE_ID) AS tab1 
+                                                  ORDER BY record_id) AS tab1 
                       WHERE record_id = ?), 0); 
 """
 
@@ -538,34 +533,40 @@ DELETE FROM CashData;
 
 
 const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
- WITH tab AS (SELECT  c.RECORD_TABLE_ID AS record_id, 
-                       row_number() OVER ( 
-                           ORDER BY CONNECTION_ID, CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
-                       ) AS RowNumber 
-              FROM      CashData AS c 
-              WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
-              AND       c.CASH_SUM = ? 
-              ORDER BY  c.RECORD_TABLE_ID) 
+  DELETE FROM CashDataNumbersOfRecords; 
+  WITH tab AS (SELECT CONNECTION_ID AS conn, 
+                      CASH_SUM AS cash, 
+                      RECORD_TABLE_ID AS rec_num, 
+                      row_number() OVER ( 
+                           ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC 
+                      ) AS row_num 
+                FROM      CashData 
+                WHERE     CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+                AND       CASH_SUM = ?) 
+  INSERT INTO CashDataNumbersOfRecords 
+  SELECT conn, cash, rec_num, row_num 
+  FROM      tab; 
 
   UPDATE CashData 
-  SET   INTEGER_20 = (SELECT t.RowNumber 
-                      FROM tab AS t 
-                      WHERE t.record_id = RECORD_TABLE_ID), 
-        INTEGER_20_LEVEL = 0, 
-        NEXT_RECORD_TABLE_ID = "" 
-        WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
-        AND   CASH_SUM = ?; 
+  SET   INTEGER_20 = (SELECT t.NUM_POSISTION 
+                      FROM CashDataNumbersOfRecords AS t 
+                      WHERE t.CONN_ID = CONNECTION_ID 
+                      AND   t.CASHSUM = CASH_SUM 
+                      AND t.REC_TABLE_ID = RECORD_TABLE_ID), 
+         INTEGER_20_LEVEL = 100000, 
+         NEXT_RECORD_TABLE_ID = "" 
+   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
+   AND   CASH_SUM = ?; 
 """
 
 const val UPDATE_CASHDATA_NEW_LAST_SELECT = """
-   WITH tab AS (SELECT CONNECTION_ID FROM RegData) 
-       UPDATE CashData 
+   UPDATE CashData 
        SET    LONG_20 = ? 
-       WHERE  CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+       WHERE  CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
        AND    CASH_SUM = ? 
        AND    RECORD_TABLE_ID IN (SELECT c.RECORD_TABLE_ID 
                                   FROM   CashData AS c 
-                                  WHERE  c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                  WHERE  c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
                                   AND    c.CASH_SUM = ? 
                                   ORDER BY c.CASH_SUM, 
                                            c.INTEGER_20 ASC, 
@@ -574,10 +575,10 @@ const val UPDATE_CASHDATA_NEW_LAST_SELECT = """
                                   OFFSET 0 + ifnull((SELECT tab1.RowNumber 
                                                      FROM (SELECT c1.RECORD_TABLE_ID AS record_id, 
                                                                   row_number() OVER ( 
-                                                                          ORDER BY c1.CONNECTION_ID, c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
+                                                                          ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC 
                                                                    ) AS RowNumber 
                                                            FROM   CashData AS c1 
-                                                           WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab) 
+                                                           WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
                                                            AND      c1.CASH_SUM = ? 
                                                            ORDER BY c1.RECORD_TABLE_ID) AS tab1 
                                                      WHERE tab1.record_id = ?), 0) 
@@ -620,19 +621,7 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
 
 
 const val INDEX_CASHLASTUPDATE_LAST_USE = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
-"""
-
-const val INDEX_CASHLASTUPDATE_RECORD_TYPE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CONNECTION_ID, CASH_SUM);
-"""
-
-const val INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CASH_SUM);
-"""
-
-const val INDEX_CASHLASTUPDATE_CASH_SUM = """
-CREATE INDEX IF NOT EXISTS CashLastUpdate_CashSum ON CashLastUpdate(CASH_SUM);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CONNECTION_ID, CASH_SUM);
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT = """
@@ -656,44 +645,65 @@ AFTER INSERT
 ON CashLastUpdate 
 WHEN ((SELECT count(*) 
        FROM CashData t 
-       WHERE t.CASH_SUM = new.CASH_SUM 
+       WHERE t.CONNECTION_ID = new.CONNECTION_ID 
+       AND   t.CASH_SUM = new.CASH_SUM 
        LIMIT 1) > 0) 
 AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
-  WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
-                     FROM CashLastUpdate t1 
-                     WHERE CASE 
-                             WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links; 
-                               THEN 
-                                  CASE 
-                                    WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
-                                      THEN 1 
-                                    ELSE 0 
-                                  END 
-
-                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
-                                   THEN 
-                                      CASE 
-                                         WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE 
+                           FROM CashLastUpdate t1 
+                           WHERE CASE 
+                                   WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links; 
+                                     THEN 
+                                        CASE 
+                                          WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
                                             THEN 1 
                                           ELSE 0 
-                                    END 
+                                         END 
 
-                             ELSE 0 
-                           END 
-                     ORDER BY t1.LAST_USE DESC 
-                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
-                                         FROM MetaData 
-                                         WHERE VALUE_NAME = CASE 
-                                                              WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
-                                                               WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
-                                                              ELSE 
-                                                                 '' 
-                                                            END)); 
+                                    WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments 
+                                      THEN 
+                                         CASE 
+                                            WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+                                              THEN 1 
+                                            ELSE 0 
+                                         END 
+
+                                      ELSE 0 
+                                    END  
+                           ORDER BY t1.LAST_USE DESC 
+                           LIMIT 1 
+                           OFFSET (SELECT  VALUE_VALUE 
+                                   FROM MetaData 
+                                   WHERE VALUE_NAME = CASE 
+                                                         WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                                                           THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS' 
+                                                          WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+                                                             THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS' 
+                                                          ELSE 
+                                                            '' 
+                                                        END)), 0) 
+  AND CASE 
+       WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links; 
+          THEN 
+            CASE 
+              WHEN RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I') 
+                 THEN 1 
+              ELSE 0 
+            END 
+
+      WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments 
+        THEN 
+           CASE 
+              WHEN RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
+                 THEN 1 
+              ELSE 0 
+           END 
+
+       ELSE 0 
+  END; 
 
   DELETE FROM CashData 
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
@@ -716,28 +726,34 @@ BEGIN
                                                   WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M') 
                                                      THEN 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_TEXT_LISTS' 
                                                   ELSE 
-                                                    '' 
+                                                    ''  
                                                END) 
   ); 
 
-END; 
+END;
 """
 
 const val TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT = """
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInfoInsert 
 AFTER INSERT 
-ON CashLastUpdate
-WHEN new.RECORD_TYPE IN ('J', 'K', 'L') 
+ON CashLastUpdate 
+WHEN ((SELECT count(*) 
+       FROM CashData t 
+       WHERE t.CASH_SUM = new.CASH_SUM 
+       LIMIT 1) > 0) 
+AND  new.RECORD_TYPE IN ('J', 'K', 'L') 
 BEGIN 
 
   DELETE FROM CashLastUpdate 
-  WHERE CASH_SUM IN (SELECT t1.CASH_SUM 
-                     FROM CashLastUpdate t1 
-                     WHERE t1.RECORD_TYPE IN ('J', 'K', 'L') 
-                     ORDER BY t1.LAST_USE DESC 
-                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
-                                          FROM MetaData 
-                                          WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')); 
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE 
+                            FROM CashLastUpdate t1 
+                            WHERE t1.RECORD_TYPE IN ('J', 'K', 'L') 
+                            ORDER BY t1.LAST_USE DESC 
+                            LIMIT 1 
+                            OFFSET (SELECT  VALUE_VALUE 
+                                    FROM MetaData 
+                                    WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')), 0) 
+  AND new.RECORD_TYPE IN ('J', 'K', 'L');  -- objects info; 
 
   DELETE FROM CashData 
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2); 
@@ -757,20 +773,16 @@ AND new.RECORD_TYPE = '3'
 AND 1 == 0 -- not use/ all chats data save; 
 BEGIN 
 
-  DELETE FROM CashData 
-  WHERE CONNECTION_ID = new.CONNECTION_ID 
-  AND   CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-        SELECT t.RECORD_TABLE_ID 
-        FROM CashData AS t 
-        WHERE t.CONNECTION_ID = new.CONNECTION_ID 
-        AND   t.CASH_SUM = new.CASH_SUM 
-        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
-        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
-                             FROM MetaData 
-                             WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS') 
-
-  ); 
+  DELETE FROM CashLastUpdate 
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE 
+                           FROM CashLastUpdate t1 
+                           WHERE t1.RECORD_TYPE = '3' 
+                           ORDER BY t1.LAST_USE DESC 
+                           LIMIT 1 
+                           OFFSET (SELECT  VALUE_VALUE 
+                                   FROM MetaData 
+                                   WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS')), 0) 
+  AND new.RECORD_TYPE = '3';  -- chats; 
 
   DELETE FROM CashLastUpdate 
   WHERE RECORD_TYPE = '4' 
@@ -799,20 +811,16 @@ AND new.RECORD_TYPE = '4'
 AND 1 == 0 -- not use/ all messegess data save; 
 BEGIN 
 
-  DELETE FROM CashData 
-  WHERE CONNECTION_ID = new.CONNECTION_ID 
-  AND   CASH_SUM = new.CASH_SUM 
-  AND   RECORD_TABLE_ID IN ( 
-        SELECT t.RECORD_TABLE_ID 
-        FROM CashData AS t 
-        WHERE t.CONNECTION_ID = new.CONNECTION_ID 
-        AND   t.CASH_SUM = new.CASH_SUM 
-        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC 
-        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE 
-                            FROM MetaData 
-                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES') 
-
-  ); 
+  DELETE FROM CashLastUpdate 
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE 
+                           FROM CashLastUpdate t1 
+                           WHERE t1.RECORD_TYPE = '4' 
+                           ORDER BY t1.LAST_USE DESC 
+                           LIMIT 1 
+                           OFFSET (SELECT  VALUE_VALUE 
+                                   FROM MetaData 
+                                   WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES')), 0) 
+  AND new.RECORD_TYPE = '4';  -- messeges; 
 
 END; 
 """
@@ -1030,15 +1038,11 @@ const val TABLE_SAVEMEDIA = """
 
 
 const val INDEX_SAVEMEDIA_LASTUSED = """
-CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, OBJECT_LINK);
+CREATE INDEX IF NOT EXISTS ISaveMediaLastUsed ON SaveMedia(LAST_USED, IS_TEMP, CONNECTION_ID, OBJECT_LINK);
 """
 
 const val INDEX_SAVEMEDIA_ISTEMP = """
-CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP, LAST_USED, OBJECT_LINK);
-"""
-
-const val INDEX_SAVEMEDIA_OBJECT_LINK = """
-CREATE INDEX IF NOT EXISTS ISaveMediaObjectLink ON SaveMedia(OBJECT_LINK);
+CREATE INDEX IF NOT EXISTS ISaveMediaIsTemp ON SaveMedia(IS_TEMP);
 """
 
 const val INDEX_SAVEMEDIA_AVATAR_ID = """
@@ -1062,14 +1066,14 @@ AND
 BEGIN 
 
  DELETE FROM SaveMedia 
- WHERE OBJECT_LINK IN 
-   (SELECT OBJECT_LINK FROM SaveMedia 
-    WHERE IS_TEMP = 1 
-    ORDER BY LAST_USED 
-    LIMIT  100000 
-    OFFSET (SELECT VALUE_VALUE 
-            FROM  MetaData 
-            WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')); 
+ WHERE LAST_USED < 
+   ifnull((SELECT LAST_USED FROM SaveMedia 
+           WHERE IS_TEMP = 1 
+           LIMIT  100000 
+           OFFSET (SELECT VALUE_VALUE 
+                   FROM  MetaData 
+                   WHERE VALUE_NAME = 'MAX_COUNT_OF_TEMP_SAVEMEDIA')), 0) 
+ AND IS_TEMP = 1; 
 END; 
 """
 
@@ -1077,25 +1081,26 @@ const val TRIGGER_SAVEMEDIA_CONTROL_COUNT = """
 CREATE TRIGGER IF NOT EXISTS TSaveMediaControlCounts 
 AFTER INSERT ON SaveMedia 
 WHEN 
-new.IS_TEMP = 0 
+new.IS_TEMP = 1 
 AND 
- (SELECT count(*) 
-  FROM SaveMedia 
-  WHERE IS_TEMP = 0)> 
- (SELECT  VALUE_VALUE 
-  FROM MetaData 
-  WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA') 
+(SELECT count(*) 
+ FROM SaveMedia 
+ WHERE IS_TEMP = 0)> 
+(SELECT  VALUE_VALUE 
+ FROM MetaData 
+ WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA') 
 BEGIN 
+
  DELETE FROM SaveMedia 
- WHERE OBJECT_LINK IN 
-    (SELECT OBJECT_LINK FROM SaveMedia 
-     WHERE IS_TEMP = 0 
-     ORDER BY LAST_USED 
-     LIMIT  100000 
-     OFFSET (SELECT VALUE_VALUE 
-             FROM  MetaData 
-             WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')); 
-END; 
+ WHERE LAST_USED < 
+   ifnull((SELECT LAST_USED FROM SaveMedia 
+           WHERE IS_TEMP = 0 
+           LIMIT  100000 
+           OFFSET (SELECT VALUE_VALUE 
+                   FROM  MetaData 
+                   WHERE VALUE_NAME = 'MAX_COUNT_OF_SAVEMEDIA')), 0) 
+ AND IS_TEMP = 0; 
+END;  
 """
 
 const val INSERT_SAVEMEDIA = """

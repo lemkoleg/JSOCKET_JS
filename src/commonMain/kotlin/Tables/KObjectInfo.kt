@@ -206,6 +206,9 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     fun merge(v: ANSWER_TYPE) {
         answerType.merge(v)
         updateObjectInfo(this)
+        val arr = ArrayDeque<ANSWER_TYPE>()
+        arr.addLast(answerType)
+        Sqlite_service.InsertCashData(arr)
     }
 
     companion object {

@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS CashData
  BLOB_1 BLOB ,
  BLOB_2 BLOB ,
  BLOB_3 BLOB,
- INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 100000, -- for sort NEW NUMBERS POSITION
+ INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 100001, -- for sort NEW NUMBERS POSITION
  NEXT_RECORD_TABLE_ID TEXT NOT NULL DEFAULT "",  -- for sort NEW NUMBERS POSITION
  PRIMARY KEY (CONNECTION_ID, CASH_SUM, RECORD_TABLE_ID)
  );
@@ -101,9 +101,7 @@ CREATE TABLE IF NOT EXISTS CashData
   CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
   AFTER INSERT ON CashData
   FOR EACH ROW
-  WHEN SUBSTR(new.CASH_SUM, 19, 1) != 'J' -- not for objects;
-  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'K' -- not for objects;
-  AND  SUBSTR(new.CASH_SUM, 19, 1) != 'L' -- not for objects;
+  WHEN SUBSTR(new.CASH_SUM, 19, 1) NOT IN ('J', 'K', 'L') -- not for objects info;
   AND EXISTS (SELECT c.RECORD_TABLE_ID
                FROM   CashData AS c
                WHERE  c.CONNECTION_ID = new.CONNECTION_ID
@@ -117,7 +115,7 @@ CREATE TABLE IF NOT EXISTS CashData
                               ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC
                               LIMIT 1 OFFSET new.INTEGER_20 - 1)
   BEGIN
-    WITH tab (record_id, integer_20, integer_20_level)
+    WITH tab (record_id_1, integer_20_1, integer_20_level_1)
     AS (SELECT c1.RECORD_TABLE_ID,
                c1.INTEGER_20,
                c1.INTEGER_20_LEVEL
@@ -130,16 +128,15 @@ CREATE TABLE IF NOT EXISTS CashData
         LIMIT 1 OFFSET new.INTEGER_20 - 1)
 
    UPDATE CashData
-     SET    NEXT_RECORD_TABLE_ID = (SELECT record_id FROM tab LIMIT 1),
-            INTEGER_20 = (SELECT integer_20 FROM tab LIMIT 1),
-            INTEGER_20_LEVEL = (SELECT integer_20_level FROM tab LIMIT 1)
-     WHERE  CONNECTION_ID = new.CONNECTION_ID
-     AND    CASH_SUM = new.CASH_SUM
-     AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
+   SET    NEXT_RECORD_TABLE_ID = (SELECT record_id_1 FROM tab LIMIT 1),
+          INTEGER_20 = (SELECT integer_20_1 FROM tab LIMIT 1),
+          INTEGER_20_LEVEL = (SELECT integer_20_level_1 FROM tab LIMIT 1)
+   WHERE  CONNECTION_ID = new.CONNECTION_ID
+   AND    CASH_SUM = new.CASH_SUM
+   AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
 
-   WITH tab2 (record_id, next_record_id, integer_20_level)
-       AS (SELECT c2.RECORD_TABLE_ID,
-                  c2.NEXT_RECORD_TABLE_ID,
+   WITH tab2 (next_record_id_2, integer_20_level_2)
+       AS (SELECT c2.NEXT_RECORD_TABLE_ID,
                   c2.INTEGER_20_LEVEL
            FROM CashData AS c2
            WHERE c2.CONNECTION_ID = new.CONNECTION_ID
@@ -147,20 +144,71 @@ CREATE TABLE IF NOT EXISTS CashData
            AND   c2.RECORD_TABLE_ID = new.RECORD_TABLE_ID)
 
    UPDATE CashData
-       SET    INTEGER_20_LEVEL = ifnull((SELECT integer_20_level FROM tab2 LIMIT 1), 0) + 1
-       WHERE  CONNECTION_ID = new.CONNECTION_ID
-       AND    CASH_SUM = new.CASH_SUM
-       AND    RECORD_TABLE_ID = (SELECT next_record_id  FROM tab2 LIMIT 1);
+   SET    INTEGER_20_LEVEL = ifnull((SELECT integer_20_level_2 FROM tab2 LIMIT 1), 0) + 1
+   WHERE  CONNECTION_ID = new.CONNECTION_ID
+   AND    CASH_SUM = new.CASH_SUM
+   AND    RECORD_TABLE_ID = (SELECT next_record_id_2  FROM tab2 LIMIT 1);
 
   END;
+
+  /**   alternative version 3.33
+     CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
+       AFTER INSERT ON CashData
+       FOR EACH ROW
+       WHEN SUBSTR(new.CASH_SUM, 19, 1) NOT IN ('J', 'K', 'L') -- not for objects info;
+       AND EXISTS (SELECT c.RECORD_TABLE_ID
+                    FROM   CashData AS c
+                    WHERE  c.CONNECTION_ID = new.CONNECTION_ID
+                    AND    c.CASH_SUM = new.CASH_SUM
+                    ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC
+                    LIMIT 1 OFFSET new.INTEGER_20 - 1)
+       AND new.RECORD_TABLE_ID != (SELECT c.RECORD_TABLE_ID
+                                   FROM   CashData AS c
+                                   WHERE  c.CONNECTION_ID = new.CONNECTION_ID
+                                   AND    c.CASH_SUM = new.CASH_SUM
+                                   ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC
+                                   LIMIT 1 OFFSET new.INTEGER_20 - 1)
+       BEGIN
+
+        UPDATE CashData
+        SET    NEXT_RECORD_TABLE_ID = record_id_1,
+               INTEGER_20 = integer_20_1,
+               INTEGER_20_LEVEL = integer_20_level_1
+        FROM  (SELECT c1.RECORD_TABLE_ID AS record_id_1,
+                      c1.INTEGER_20 AS integer_20_1,
+                      c1.INTEGER_20_LEVEL AS integer_20_level_1
+               FROM CashData AS c1
+               WHERE c1.CONNECTION_ID = new.CONNECTION_ID
+               AND   c1.CASH_SUM = new.CASH_SUM
+               ORDER BY c1.CASH_SUM,
+                        c1.INTEGER_20 ASC,
+                       c1.INTEGER_20_LEVEL ASC
+               LIMIT 1 OFFSET new.INTEGER_20 - 1)
+        WHERE  CONNECTION_ID = new.CONNECTION_ID
+        AND    CASH_SUM = new.CASH_SUM
+        AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
+
+
+        UPDATE CashData
+        SET    INTEGER_20_LEVEL = ifnull(integer_20_level_2, 0) + 1
+        FROM  (SELECT c2.NEXT_RECORD_TABLE_ID AS next_record_id_2,
+                      c2.INTEGER_20_LEVEL AS integer_20_level_2
+               FROM CashData AS c2
+               WHERE c2.CONNECTION_ID = new.CONNECTION_ID
+               AND   c2.CASH_SUM = new.CASH_SUM
+               AND   c2.RECORD_TABLE_ID = new.RECORD_TABLE_ID)
+        WHERE  CONNECTION_ID = new.CONNECTION_ID
+        AND    CASH_SUM = new.CASH_SUM
+        AND    RECORD_TABLE_ID = next_record_id_2;
+
+       END;
+     */
 
    trigger_CashData_After_Insert_Objects_Info:
     CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsertObjectsInfo
     AFTER INSERT ON CashData
     FOR EACH ROW
-    WHEN SUBSTR(new.CASH_SUM, 19, 1) == 'J' -- not for objects;
-    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'K' -- not for objects;
-    OR   SUBSTR(new.CASH_SUM, 19, 1) == 'L' -- not for objects;
+    WHEN SUBSTR(new.CASH_SUM, 19, 1) IN ('J', 'K', 'L') -- for objects info;
     BEGIN
 
      UPDATE CashData
@@ -385,26 +433,25 @@ VALUES
   ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
 
  select_CashData_CHUNK_ON_CASH_SUM:
-   WITH tab AS (SELECT CONNECTION_ID FROM RegData)
    SELECT  *
    FROM CashData AS c
-   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab)
+   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
    AND   c.CASH_SUM = ?
-   ORDER BY c.CASH_SUM,
+   ORDER BY c.CONNECTION_ID,
+            c.CASH_SUM,
             c.INTEGER_20 ASC,
             c.INTEGER_20_LEVEL ASC
    LIMIT (SELECT  VALUE_VALUE AS val
           FROM MetaData
           WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
    OFFSET 0 + ifnull((SELECT tab1.RowNumber FROM (SELECT row_number() OVER (
-                                                          ORDER BY c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
+                                                          ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
                                                            ) AS RowNumber,
                                                          c1.RECORD_TABLE_ID AS record_id
                                                   FROM CashData AS c1
-                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab)
+                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
                                                   AND    c1.CASH_SUM = ?
-                                                  ORDER BY c1.CASH_SUM,
-                                                           c1.RECORD_TABLE_ID) AS tab1
+                                                  ORDER BY record_id) AS tab1
                       WHERE record_id = ?), 0);
 
  select_CashData:
@@ -435,34 +482,40 @@ VALUES
     AND   RECORD_TABLE_ID = ?;
 
  update_CashData_SortNewNumbersPositions:
-  WITH tab AS (SELECT  c.RECORD_TABLE_ID AS record_id,
-                       row_number() OVER (
-                           ORDER BY CONNECTION_ID, CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                       ) AS RowNumber
-              FROM      CashData AS c
-              WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
-              AND       c.CASH_SUM = ?
-              ORDER BY  c.RECORD_TABLE_ID)
+  DELETE FROM CashDataNumbersOfRecords;
+  WITH tab AS (SELECT CONNECTION_ID AS conn,
+                      CASH_SUM AS cash,
+                      RECORD_TABLE_ID AS rec_num,
+                      row_number() OVER (
+                           ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                      ) AS row_num
+                FROM      CashData
+                WHERE     CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+                AND       CASH_SUM = ?)
+  INSERT INTO CashDataNumbersOfRecords
+  SELECT conn, cash, rec_num, row_num
+  FROM      tab;
 
   UPDATE CashData
-  SET   INTEGER_20 = (SELECT t.RowNumber
-                      FROM tab AS t
-                      WHERE t.record_id = RECORD_TABLE_ID),
-        INTEGER_20_LEVEL = 0,
-        NEXT_RECORD_TABLE_ID = ""
-        WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
-        AND   CASH_SUM = ?;
+  SET   INTEGER_20 = (SELECT t.NUM_POSISTION
+                      FROM CashDataNumbersOfRecords AS t
+                      WHERE t.CONN_ID = CONNECTION_ID
+                      AND   t.CASHSUM = CASH_SUM
+                      AND t.REC_TABLE_ID = RECORD_TABLE_ID),
+         INTEGER_20_LEVEL = 100000,
+         NEXT_RECORD_TABLE_ID = ""
+   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+   AND   CASH_SUM = ?;
 
 
  update_CashData_NEW_LAST_SELECT:
-    WITH tab AS (SELECT CONNECTION_ID FROM RegData)
        UPDATE CashData
        SET    LONG_20 = ?
-       WHERE  CONNECTION_ID = (SELECT CONNECTION_ID FROM tab)
+       WHERE  CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
        AND    CASH_SUM = ?
        AND    RECORD_TABLE_ID IN (SELECT c.RECORD_TABLE_ID
                                   FROM   CashData AS c
-                                  WHERE  c.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab)
+                                  WHERE  c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
                                   AND    c.CASH_SUM = ?
                                   ORDER BY c.CASH_SUM,
                                            c.INTEGER_20 ASC,
@@ -471,10 +524,10 @@ VALUES
                                   OFFSET 0 + ifnull((SELECT tab1.RowNumber
                                                      FROM (SELECT c1.RECORD_TABLE_ID AS record_id,
                                                                   row_number() OVER (
-                                                                          ORDER BY c1.CONNECTION_ID, c1.CASH_SUM, c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
+                                                                          ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
                                                                    ) AS RowNumber
                                                            FROM   CashData AS c1
-                                                           WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM tab)
+                                                           WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
                                                            AND      c1.CASH_SUM = ?
                                                            ORDER BY c1.RECORD_TABLE_ID) AS tab1
                                                      WHERE tab1.record_id = ?), 0)

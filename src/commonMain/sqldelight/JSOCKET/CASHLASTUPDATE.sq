@@ -16,16 +16,8 @@ CREATE TABLE IF NOT EXISTS CashLastUpdate
 );
 
 index_CashLastUpdate_last_use:
-CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(LAST_USE DESC);
+CREATE INDEX IF NOT EXISTS ICashLastUpdateLastUse ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CONNECTION_ID, CASH_SUM);
 
-index_CashLastUpdate_record_type_cash_sum:
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeCashSum ON CashLastUpdate(RECORD_TYPE, CONNECTION_ID, CASH_SUM);
-
-index_CashLastUpdate_record_type_last_use_cash_sum:
-CREATE INDEX IF NOT EXISTS ICashLastUpdateRecordTypeLastUseCashSum ON CashLastUpdate(RECORD_TYPE, LAST_USE DESC, CASH_SUM);
-
-index_CashLastUpdate_CashSum:
-CREATE INDEX IF NOT EXISTS CashLastUpdate_CashSum ON CashLastUpdate(CASH_SUM);
 
 trigger_CashLastUpdate_Control_Empty_Blocks_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdate_Control_Empty_Blocks_Insert
@@ -48,44 +40,65 @@ AFTER INSERT
 ON CashLastUpdate
 WHEN ((SELECT count(*)
        FROM CashData t
-       WHERE t.CASH_SUM = new.CASH_SUM
+       WHERE t.CONNECTION_ID = new.CONNECTION_ID
+       AND   t.CASH_SUM = new.CASH_SUM
        LIMIT 1) > 0)
 AND new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I', 'A', 'C', 'E', 'G', 'M')
 BEGIN
 
   DELETE FROM CashLastUpdate
-  WHERE CASH_SUM IN (SELECT t1.CASH_SUM
-                     FROM CashLastUpdate t1
-                     WHERE CASE
-                             WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
-                               THEN
-                                  CASE
-                                    WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
-                                      THEN 1
-                                    ELSE 0
-                                  END
-
-                             WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
-                                   THEN
-                                      CASE
-                                         WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE
+                           FROM CashLastUpdate t1
+                           WHERE CASE
+                                   WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+                                     THEN
+                                        CASE
+                                          WHEN t1.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
                                             THEN 1
                                           ELSE 0
-                                    END
+                                         END
 
-                             ELSE 0
-                           END
-                     ORDER BY t1.LAST_USE DESC
-                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
-                                         FROM MetaData
-                                         WHERE VALUE_NAME = CASE
-                                                              WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS'
-                                                               WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
-                                                                  THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'
-                                                              ELSE
-                                                                 ''
-                                                            END));
+                                    WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
+                                      THEN
+                                         CASE
+                                            WHEN t1.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
+                                              THEN 1
+                                            ELSE 0
+                                         END
+
+                                      ELSE 0
+                                    END
+                           ORDER BY t1.LAST_USE DESC
+                           LIMIT 1
+                           OFFSET (SELECT  VALUE_VALUE
+                                   FROM MetaData
+                                   WHERE VALUE_NAME = CASE
+                                                         WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
+                                                           THEN 'MAX_COUNT_OF_CASHDATA_OF_LINKS'
+                                                          WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
+                                                             THEN 'MAX_COUNT_OF_CASHDATA_OF_TEXT_LISTS'
+                                                          ELSE
+                                                            ''
+                                                        END)), 0)
+  AND CASE
+       WHEN new.RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')  -- links;
+          THEN
+            CASE
+              WHEN RECORD_TYPE IN ('B', 'D', 'F', 'H', 'I')
+                 THEN 1
+              ELSE 0
+            END
+
+      WHEN new.RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')  -- messegess, comments
+        THEN
+           CASE
+              WHEN RECORD_TYPE IN ('A', 'C', 'E', 'G', 'M')
+                 THEN 1
+              ELSE 0
+           END
+
+       ELSE 0
+  END;
 
   DELETE FROM CashData
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
@@ -118,17 +131,23 @@ trigger_CashLastUpdate_Control_Count_ObjectsInfo_Insert:
 CREATE TRIGGER IF NOT EXISTS TCashLastUpdateControlCountObjectsInfoInsert
 AFTER INSERT
 ON CashLastUpdate
-WHEN new.RECORD_TYPE IN ('J', 'K', 'L')
+WHEN ((SELECT count(*)
+       FROM CashData t
+       WHERE t.CASH_SUM = new.CASH_SUM
+       LIMIT 1) > 0)
+AND  new.RECORD_TYPE IN ('J', 'K', 'L')
 BEGIN
 
   DELETE FROM CashLastUpdate
-  WHERE CASH_SUM IN (SELECT t1.CASH_SUM
-                     FROM CashLastUpdate t1
-                     WHERE t1.RECORD_TYPE IN ('J', 'K', 'L')
-                     ORDER BY t1.LAST_USE DESC
-                     LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
-                                          FROM MetaData
-                                          WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO'));
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE
+                            FROM CashLastUpdate t1
+                            WHERE t1.RECORD_TYPE IN ('J', 'K', 'L')
+                            ORDER BY t1.LAST_USE DESC
+                            LIMIT 1
+                            OFFSET (SELECT  VALUE_VALUE
+                                    FROM MetaData
+                                    WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_OF_OBJECT_INFO')), 0)
+  AND new.RECORD_TYPE IN ('J', 'K', 'L');  -- objects info;
 
   DELETE FROM CashData
   WHERE CASH_SUM NOT IN (SELECT t2.CASH_SUM FROM CashLastUpdate AS t2);
@@ -147,20 +166,16 @@ AND new.RECORD_TYPE = '3'
 AND 1 == 0 -- not use/ all chats data save;
 BEGIN
 
-  DELETE FROM CashData
-  WHERE CONNECTION_ID = new.CONNECTION_ID
-  AND   CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-        SELECT t.RECORD_TABLE_ID
-        FROM CashData AS t
-        WHERE t.CONNECTION_ID = new.CONNECTION_ID
-        AND   t.CASH_SUM = new.CASH_SUM
-        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
-        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
-                             FROM MetaData
-                             WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS')
-
-  );
+  DELETE FROM CashLastUpdate
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE
+                           FROM CashLastUpdate t1
+                           WHERE t1.RECORD_TYPE = '3'
+                           ORDER BY t1.LAST_USE DESC
+                           LIMIT 1
+                           OFFSET (SELECT  VALUE_VALUE
+                                   FROM MetaData
+                                   WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_CHATS')), 0)
+  AND new.RECORD_TYPE = '3';  -- chats;
 
   DELETE FROM CashLastUpdate
   WHERE RECORD_TYPE = '4'
@@ -188,20 +203,16 @@ AND new.RECORD_TYPE = '4'
 AND 1 == 0 -- not use/ all messegess data save;
 BEGIN
 
-  DELETE FROM CashData
-  WHERE CONNECTION_ID = new.CONNECTION_ID
-  AND   CASH_SUM = new.CASH_SUM
-  AND   RECORD_TABLE_ID IN (
-        SELECT t.RECORD_TABLE_ID
-        FROM CashData AS t
-        WHERE t.CONNECTION_ID = new.CONNECTION_ID
-        AND   t.CASH_SUM = new.CASH_SUM
-        ORDER BY t.INTEGER_20 ASC, t.INTEGER_20_LEVEL ASC
-        LIMIT 100000 OFFSET (SELECT  VALUE_VALUE
-                            FROM MetaData
-                            WHERE VALUE_NAME =  'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES')
-
-  );
+  DELETE FROM CashLastUpdate
+  WHERE LAST_USE < ifnull((SELECT t1.LAST_USE
+                           FROM CashLastUpdate t1
+                           WHERE t1.RECORD_TYPE = '4'
+                           ORDER BY t1.LAST_USE DESC
+                           LIMIT 1
+                           OFFSET (SELECT  VALUE_VALUE
+                                   FROM MetaData
+                                   WHERE VALUE_NAME = 'MAX_COUNT_OF_CASHDATA_BLOCKS_OF_MESSEGES')), 0)
+  AND new.RECORD_TYPE = '4';  -- messeges;
 
 END;
 

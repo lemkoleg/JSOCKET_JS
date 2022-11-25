@@ -1130,8 +1130,6 @@ object Sqlite_service : CoroutineScope {
             try {
                 statement.TABLE_CASHLASTUPDATE()
                 statement.INDEX_CASHLASTUPDATE_LAST_USE()
-                statement.INDEX_CASHLASTUPDATE_RECORD_TYPE_CASH_SUM()
-                statement.INDEX_CASHLASTUPDATE_RECORD_TYPE_LAST_USE_CASH_SUM()
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT()
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT()
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT()
