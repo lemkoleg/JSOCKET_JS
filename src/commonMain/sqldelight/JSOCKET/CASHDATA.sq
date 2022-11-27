@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS CashData
  BLOB_3 BLOB,
  INTEGER_20_LEVEL INTEGER NOT NULL DEFAULT 100001, -- for sort NEW NUMBERS POSITION
  NEXT_RECORD_TABLE_ID TEXT NOT NULL DEFAULT "",  -- for sort NEW NUMBERS POSITION
+ INTEGER_20_TECHNICAL_FIELD INTEGER NOT NULL DEFAULT 0, -- for sort NEW NUMBERS POSITION
  PRIMARY KEY (CONNECTION_ID, CASH_SUM, RECORD_TABLE_ID)
  );
 
@@ -482,31 +483,29 @@ VALUES
     AND   RECORD_TABLE_ID = ?;
 
  update_CashData_SortNewNumbersPositions:
-  DELETE FROM CashDataNumbersOfRecords;
-  WITH tab AS (SELECT CONNECTION_ID AS conn,
-                      CASH_SUM AS cash,
-                      RECORD_TABLE_ID AS rec_num,
+  WITH tab AS (SELECT c.RECORD_TABLE_ID AS record_id,
                       row_number() OVER (
-                           ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                      ) AS row_num
-                FROM      CashData
-                WHERE     CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
-                AND       CASH_SUM = ?)
-  INSERT INTO CashDataNumbersOfRecords
-  SELECT conn, cash, rec_num, row_num
-  FROM      tab;
+                          ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
+                      ) AS RowNumber
+               FROM      CashData AS c
+               WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+               AND       c.CASH_SUM = ?
+               ORDER BY  record_id)
 
-  UPDATE CashData
-  SET   INTEGER_20 = (SELECT t.NUM_POSISTION
-                      FROM CashDataNumbersOfRecords AS t
-                      WHERE t.CONN_ID = CONNECTION_ID
-                      AND   t.CASHSUM = CASH_SUM
-                      AND t.REC_TABLE_ID = RECORD_TABLE_ID),
-         INTEGER_20_LEVEL = 100000,
-         NEXT_RECORD_TABLE_ID = ""
-   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
-   AND   CASH_SUM = ?;
+    UPDATE CashData
+    SET   INTEGER_20_TECHNICAL_FIELD = (SELECT t.RowNumber
+                                        FROM tab AS t
+                                        WHERE t.record_id = RECORD_TABLE_ID)
+    WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+    AND   CASH_SUM = ?;
 
+     UPDATE CashData
+     SET   INTEGER_20 = INTEGER_20_TECHNICAL_FIELD,
+           INTEGER_20_TECHNICAL_FIELD = 0,
+           NEXT_RECORD_TABLE_ID = "",
+           INTEGER_20_LEVEL = 100000
+     WHERE CONNECTION_ID =(SELECT CONNECTION_ID FROM RegData)
+     AND   CASH_SUM = ?;
 
  update_CashData_NEW_LAST_SELECT:
        UPDATE CashData
