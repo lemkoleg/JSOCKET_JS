@@ -28,9 +28,8 @@ CREATE INDEX IBigAvatarsLastUse ON BigAvatars(LAST_USE DESC);
 """
 
 const val TRIGGER_BIG_AVATARS_CONTROL_COUNT = """
-CREATE TRIGGER TBigAvatarsControlCounts 
+CREATE TRIGGER IF NOT EXISTS TBigAvatarsControlCounts 
 AFTER INSERT ON BigAvatars 
-FOR EACH ROW 
 WHEN 
 (SELECT count(*) 
  FROM BigAvatars)> 
@@ -38,27 +37,19 @@ WHEN
  FROM MetaData 
  WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS') 
 BEGIN 
-DELETE FROM BigAvatars WHERE AVATAR_ID NOT IN 
-(SELECT AVATAR_ID FROM BigAvatars 
- WHERE AVATAR_ID NOT IN (SELECT AVATAR_ID 
-                         FROM SaveMedia) 
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID 
-                         FROM RegData) 
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID 
-                         FROM Chats 
-                         WHERE 1 = (SELECT VALUE_VALUE 
-                                     FROM MetaData 
-                                     WHERE VALUE_NAME = 'IS_SAVE_CHATS_BIG_AVATARS_IN_CASHE_PERMINENTLY')) 
- AND   AVATAR_ID NOT IN (SELECT AVATAR_ID 
-                         FROM ChatsLikes 
-                         WHERE 1 = (SELECT VALUE_VALUE 
-                         FROM MetaData 
-                         WHERE VALUE_NAME = 'IS_SAVE_CHATS_LIKES_BIG_AVATARS_IN_CASHE_PERMINENTLY')) 
+DELETE FROM BigAvatars WHERE AVATAR_ID IN 
+(SELECT c.AVATAR_ID FROM BigAvatars AS c 
+ WHERE  c.AVATAR_ID NOT IN (SELECT c1.AVATAR_ID 
+                            FROM SaveMedia AS c1 
+                            UNION ALL 
+                            SELECT c2.AVATAR_ID 
+                            FROM RegData AS c2) 
  ORDER BY LAST_USE DESC 
- LIMIT (SELECT  VALUE_VALUE 
-        FROM MetaData 
-        WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')); 
-END;
+ LIMIT 100000 
+ OFFSET (SELECT  VALUE_VALUE 
+         FROM MetaData 
+         WHERE VALUE_NAME = 'MAX_COUNT_OF_BIG_AVATARS')); 
+END; 
 """
 
 const val INSERT_BIG_AVATARS = """
@@ -549,7 +540,9 @@ const val CASHDATA_SORT_NEW_NUMBER_POSITIONS = """
                                         WHERE t.record_id = RECORD_TABLE_ID) 
     WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData) 
     AND   CASH_SUM = ?; 
+"""
 
+const val CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH = """
      UPDATE CashData 
      SET   INTEGER_20 = INTEGER_20_TECHNICAL_FIELD, 
            INTEGER_20_TECHNICAL_FIELD = 0, 
@@ -984,11 +977,11 @@ CHECK (
 """
 
 const val TRIGGER_REGDATA_INSERT  = """
-CREATE TRIGGER TRegData_Insert 
+CREATE TRIGGER IF NOT EXISTS TRegData_Insert 
  BEFORE INSERT ON RegData 
  BEGIN 
- DELETE FROM RegData;
-END;
+ DELETE FROM RegData; 
+END; 
 """
 
 const val INSERT_REGDATA = """
@@ -1118,7 +1111,7 @@ VALUES
 """
 
 const val SELECT_SAVEMEDIA_ALL = """
-SELECT * 
+SELECT OBJECT_LINK, OBJECT_SIZE, OBJECT_LENGTH_SECONDS, OBJECT_EXTENSION, AVATAR_ID, IS_TEMP, LAST_USED 
 FROM SaveMedia 
 WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData); 
 """

@@ -3,11 +3,11 @@
 package p_client
 
 import atomic.AtomicBoolean
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 /**
@@ -20,6 +20,8 @@ import kotlin.time.ExperimentalTime
  * Invocation has no additional effect if already shut down.
  */
 @InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 class KorosTimerTask(
     _delay: Long = 0,
     _repeat: Long = 0,
@@ -47,7 +49,6 @@ class KorosTimerTask(
     val repeat = _repeat
 
 
-    @ExperimentalTime
     fun start() {
         job = KorosTimerTask.launch {
             delay(delay)
@@ -73,7 +74,7 @@ class KorosTimerTask(
      * we will let it finish, but not run it again.
      * Invocation has no additional effect if already shut down.
      */
-    @InternalAPI
+
     fun shutdown() {
         KorosTimerTask.launch {
             keepRunning.setNewValue(true)
@@ -84,7 +85,7 @@ class KorosTimerTask(
      * Immediately stops the timer task, even if the job is currently running,
      * by cancelling the underlying Koros Job.
      */
-    @InternalAPI
+
     fun cancel() {
         shutdown()
         job?.cancel("cancel() called")

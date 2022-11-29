@@ -495,6 +495,18 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.lock()
                     statREG_DATA.SELECT_REGDATA_ALL()
+                    isPRO = if(myRequestProfile.isNotEmpty()){
+                        myRequestProfile.substring(0, 1) == "1"
+                    }else{
+                        false
+                    }
+
+                    mailConfirm = if(myRequestProfile.length > 3){
+                        myRequestProfile.substring(2, 3) == "1"
+                    }else{
+                        false
+                    }
+
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadRegData",
@@ -713,7 +725,7 @@ object Sqlite_service : CoroutineScope {
     /////////////cash data///////////////////////////
 
     @JsName("InsertCashData")
-    fun InsertCashData(arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launch {
+    fun InsertCashData(cash_sum: String, arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launch {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -722,11 +734,13 @@ object Sqlite_service : CoroutineScope {
                     arr.forEach {
                         if (current_cas_sum.isNotEmpty() && current_cas_sum != it.CASH_SUM) {
                             statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
+                            statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(current_cas_sum)
                         }
                         current_cas_sum = it.CASH_SUM
-                        statCASHLASTUPDATE.INSERT_CASHDATA(it)
+                        statCASHLASTUPDATE.INSERT_CASHDATA(cash_sum, it)
                     }
                     statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
+                    statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(current_cas_sum)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertCashData",

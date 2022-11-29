@@ -1,7 +1,5 @@
 package CrossPlatforms
 
-import com.soywiz.korio.file.VfsFile
-import com.soywiz.korio.stream.AsyncStream
 import kotlinx.coroutines.await
 import kotlin.js.Promise
 

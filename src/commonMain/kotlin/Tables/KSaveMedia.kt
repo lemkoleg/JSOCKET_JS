@@ -53,13 +53,14 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                  val L_OBJECT_SIZE: Long,
                  val L_OBJECT_LENGTH_SECONDS: Int,
                  val L_OBJECT_EXTENSION: String,
+                 L_AVATAR_ID: String?,
                  var L_IS_TEMP: Int = 0,
                  var L_LAST_USED: Long = 0L,
                  var IS_DOWNLOAD: Int = 0) {
 
     var FILE_FULL_NAME: String = ""
 
-    var AVATAR_ID: String = ""
+    var AVATAR_ID: String? = L_AVATAR_ID
 
     init {
         ensureNeverFrozen()
@@ -88,6 +89,14 @@ class KSaveMedia(val L_OBJECT_LINK: String,
     fun setIsPerminent() {
         if (L_IS_TEMP == 1) {
             L_IS_TEMP = 0
+        }
+        L_LAST_USED = DateTime.nowUnixLong()
+        AddNewSaveMedia(this)
+    }
+
+    fun setIsNotPerminent() {
+        if (L_IS_TEMP == 0) {
+            L_IS_TEMP = 1
         }
         AddNewSaveMedia(this)
     }

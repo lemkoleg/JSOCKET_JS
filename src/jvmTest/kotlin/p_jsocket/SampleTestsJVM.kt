@@ -1,27 +1,25 @@
 package p_jsocket
 
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.utils.io.core.BytePacketBuilder
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
-import kotlin.test.Test
+import CrossPlatforms.PrintInformation
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import io.ktor.utils.io.core.*
 import kotlin.time.ExperimentalTime
 
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 class SampleTestsJVM {
-    @KtorExperimentalAPI
-    @DangerousInternalIoApi
-    @InternalAPI
-    @ExperimentalTime
-    @ExperimentalStdlibApi
-    @Test
-    @io.ktor.utils.io.core.ExperimentalIoApi
-    fun testMe()  = run < Unit > {
+    suspend fun testMe()  = run < Unit > {
         val l = JSOCKET()
         val t = JSOCKET()
         val h = HASH()
-        val b = byteArrayOf('r'.toByte(),'t'.toByte(),'y'.toByte(),'u'.toByte(),
-            'i'.toByte(),'o'.toByte(),'p'.toByte(),'d'.toByte(),'f'.toByte(),'1'.toByte(),'2'.toByte(),
-            '3'.toByte(),'4'.toByte(),'5'.toByte())
+        val b = byteArrayOf(
+            'r'.code.toByte(), 't'.code.toByte(), 'y'.code.toByte(), 'u'.code.toByte(),
+            'i'.code.toByte(), 'o'.code.toByte(), 'p'.code.toByte(), 'd'.code.toByte(),
+            'f'.code.toByte(), '1'.code.toByte(), '2'.code.toByte(),
+            '3'.code.toByte(), '4'.code.toByte(), '5'.code.toByte()
+        )
         PrintInformation.PRINT_INFO("ch = ${h.getCheckSumFromByteArray(b, 42423424324324L)}")
         PrintInformation.PRINT_INFO("just_do_it_label = ${l.just_do_it_label}")
         PrintInformation.PRINT_INFO("just_do_it_label = ${t.just_do_it_label}")
@@ -36,7 +34,7 @@ class SampleTestsJVM {
         l.object_size = 70911108L
         l.object_server = "FILE_SERVER_1"
         l.value_id1 = "106092821675592771"
-        //MyJSOCKET.value_id2 = "10496594134378562A"
+        //MyJSOCKET.value_id2 = "10496594134378562A";
         l.value_par1 = "34242423423"
         l.value_par2 = "fsfsfsf"
         l.value_par3 = "gbdfbfd"
@@ -47,12 +45,11 @@ class SampleTestsJVM {
         l.value_par8 = "p"
         l.value_par9 = "9C992BF1"
         l.db_massage = "ввівапрнооь.юх"
-        val bch: BytePacketBuilder
-        bch = l.serialize(true, verify_fields = true)!!
-        PrintInformation.PRINT_INFO("bch1 = ${bch.size}")
+        val bch = ByteReadPacket(l.serialize(true))
+        PrintInformation.PRINT_INFO("bch1 = ${bch.remaining}")
         PrintInformation.PRINT_INFO("l.check_sum = ${l.check_sum}")
-        t.deserialize(bch.build(), l.connection_coocki, false)
-        PrintInformation.PRINT_INFO("bch1 = ${bch.size}")
+        t.deserialize(bch, l.connection_coocki, false)
+        PrintInformation.PRINT_INFO("bch1 = ${bch.remaining}")
         PrintInformation.PRINT_INFO("connection_id = ${t.connection_id}")
         PrintInformation.PRINT_INFO("connection_coocki = ${t.connection_coocki}")
         PrintInformation.PRINT_INFO("just_do_it = ${t.just_do_it}")

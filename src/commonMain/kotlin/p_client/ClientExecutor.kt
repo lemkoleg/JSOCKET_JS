@@ -25,21 +25,15 @@ import kotlin.time.ExperimentalTime
 
 
 @JsName("ClientExecutor")
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 class ClientExecutor {
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private lateinit var jsocket: Jsocket
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private var curCommand: Command? = null
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     suspend fun execute(lJsocket: Jsocket) {
         try {
             jsocket = lJsocket
@@ -127,8 +121,7 @@ class ClientExecutor {
                         )
                     }
                 }
-                val f = FileService()
-                jsocket.content = f.getImmageAvatarFromFileName(jsocket.AvatarFullPathForSend)
+                jsocket.content = FileService.getImmageAvatarFromFileName(jsocket.AvatarFullPathForSend).await()
                 jsocket.AvatarFullPathForSend = ""
             }
 
@@ -152,8 +145,6 @@ class ClientExecutor {
                 -> update_account()
                 1011000038
                 -> quit_account()
-                1011000028
-                -> selectBigAvatar()
                 1011000093, // LOAD_NEW_OBJECT
                 1011000094  // INSERT_MESSEGE_WITH_OBJECT
                 -> execute_with_send_file()
@@ -173,18 +164,12 @@ class ClientExecutor {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private suspend fun default_execute() {
         jsocket.send_request()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private suspend fun update_account() {
         try {
             if (jsocket.value_par7.trim().isEmpty()) {
@@ -294,27 +279,9 @@ class ClientExecutor {
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
-    private suspend fun selectBigAvatar() {
-        jsocket.content = KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(jsocket).await()?.getAVATAR()
-    }
-
-
     ////////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private suspend fun self_execute() {
         when (jsocket.just_do_it) {
-            1011000057 -> {// DELETE_SAVE_MEDIA
-                val s = SAVE_MEDIA[jsocket.local_answer_type!!.answerTypeValues.GetObjectId()]
-                if(s != null){
-                    KSaveMedia.DeleteSaveMedia(s.OBJECT_ID)
-                }
-            }
             1011000025 -> {// CLEAR_SAVE_MEDIA
                 KSaveMedia.ClearSaveMedia()
             }
@@ -324,14 +291,15 @@ class ClientExecutor {
                 f.receive_file().await()
             }
             else -> {
+                throw my_user_exceptions_class(
+                    l_class_name = "ClientExecutor",
+                    l_function_name = "self_execute",
+                    name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND")
             }
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private suspend fun execute_with_send_file() {
 
         if (jsocket.FileFullPathForSend.isNotEmpty()) {
@@ -368,9 +336,6 @@ class ClientExecutor {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @InternalAPI
-    @ExperimentalTime
-    @KorioExperimentalApi
     private suspend fun quit_account() {
         jsocket.send_request()
         if (jsocket.just_do_it_successfull == "0") {

@@ -282,7 +282,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                         )
                     } finally {
                         if (chenged_records.isNotEmpty()) {
-                            Sqlite_service.InsertCashData(chenged_records)
+                            Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
                             CashLastUpdate.INSERT_CASH_LASTUPDATE()
                         }
                         KCashDataLock.unlock()
@@ -515,7 +515,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             }
                         }
                         if (chenged_records.isNotEmpty()) {
-                            Sqlite_service.InsertCashData(chenged_records)
+                            Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
                         }
                         if (kCashDataUpdateParameters != null && kCashDataUpdateParameters.count_of_all_records == 0) {
                             Connection.removeRequest(l_just_do_it_label)

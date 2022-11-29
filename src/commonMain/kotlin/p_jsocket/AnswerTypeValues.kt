@@ -234,8 +234,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetCommentsStartText")
     var GetCommentsStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetCommentsHaveFullText")
-    var GetCommentsHaveFullText: () -> String = { getEMPTY_STRING() }
+    @JsName("HaveFullText")
+    var HaveFullText: () -> Boolean = { false }
 
     @JsName("GetCommentsCountsAnswers")
     var GetCommentsCountsAnswers: () -> Int = { getEMPTY_INTEGER() }
@@ -670,7 +670,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
-                GetCommentsHaveFullText = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(8, 9) == "1" }
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -729,7 +729,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
-                GetCommentsHaveFullText = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(8, 9) == "1"}
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -793,7 +793,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
-                GetCommentsHaveFullText = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(8, 9) == "1"}
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -819,6 +819,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                HaveFullText = { getSTRING_7().substring(10, 11) == "1"}
                 GetObjectLikes = { getLONG_5() }
                 GetObjectDisLikes = { getLONG_6() }
                 GetObjectComments = { getLONG_7() }
@@ -846,7 +847,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
-                GetCommentsHaveFullText = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(8, 9) == "1"}
                 GetCommentsCountsAnswers = { getINTEGER_4() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
                 GetObjectDisLikes = { getINTEGER_6().toLong() }
@@ -875,6 +876,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
                 GetAlbumsTypeContent = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(9, 10) == "1"}
                 GetAddingDate = { getLONG_4() }
                 GetObjectComments = { getINTEGER_4().toLong() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
@@ -908,6 +910,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
                 GetAlbumsTypeContent = { getSTRING_7().substring(8, 9) }
+                HaveFullText = { getSTRING_7().substring(9, 10) == "1"}
                 GetAddingDate = { getLONG_4() }
                 GetObjectComments = { getINTEGER_4().toLong() }
                 GetObjectLikes = { getINTEGER_5().toLong() }
@@ -938,6 +941,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                HaveFullText = { getSTRING_7().substring(10, 11) == "1"}
                 GetObjectLikes = { getLONG_5() }
                 GetObjectDisLikes = { getLONG_6() }
                 GetObjectComments = { getLONG_7() }
@@ -972,6 +976,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetObjectType = { getSTRING_7().substring(5, 6) }
                 GetObjectAccess = { getSTRING_7().substring(6, 7) }
                 GetObjectStatus = { getSTRING_7().substring(7, 8) }
+                HaveFullText = { getSTRING_7().substring(10, 11) == "1"}
                 GetObjectLikes = { getLONG_5() }
                 GetObjectDisLikes = { getLONG_6() }
                 GetObjectComments = { getLONG_7() }

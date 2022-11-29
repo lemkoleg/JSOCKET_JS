@@ -445,15 +445,15 @@ VALUES
    LIMIT (SELECT  VALUE_VALUE AS val
           FROM MetaData
           WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
-   OFFSET 0 + ifnull((SELECT tab1.RowNumber FROM (SELECT row_number() OVER (
+   OFFSET 0 + ifnull((SELECT tab1.INTEGER_19 FROM (SELECT row_number() OVER (
                                                           ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
-                                                           ) AS RowNumber,
+                                                           ) AS INTEGER_19,
                                                          c1.RECORD_TABLE_ID AS record_id
-                                                  FROM CashData AS c1
-                                                  WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
-                                                  AND    c1.CASH_SUM = ?
-                                                  ORDER BY record_id) AS tab1
-                      WHERE record_id = ?), 0);
+                                                   FROM CashData AS c1
+                                                   WHERE  c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+                                                   AND    c1.CASH_SUM = ?
+                                                   ORDER BY record_id) AS tab1
+                      WHERE tab1.record_id = ?), 0);
 
  select_CashData:
    SELECT  *
@@ -486,19 +486,20 @@ VALUES
   WITH tab AS (SELECT c.RECORD_TABLE_ID AS record_id,
                       row_number() OVER (
                           ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
-                      ) AS RowNumber
+                      ) AS INTEGER_19
                FROM      CashData AS c
                WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
                AND       c.CASH_SUM = ?
                ORDER BY  record_id)
 
     UPDATE CashData
-    SET   INTEGER_20_TECHNICAL_FIELD = (SELECT t.RowNumber
+    SET   INTEGER_20_TECHNICAL_FIELD = (SELECT t.INTEGER_19
                                         FROM tab AS t
                                         WHERE t.record_id = RECORD_TABLE_ID)
     WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
     AND   CASH_SUM = ?;
 
+  update_CashData_SortNewNumbersPositionsFinish:
      UPDATE CashData
      SET   INTEGER_20 = INTEGER_20_TECHNICAL_FIELD,
            INTEGER_20_TECHNICAL_FIELD = 0,
@@ -520,11 +521,11 @@ VALUES
                                            c.INTEGER_20 ASC,
                                            c.INTEGER_20_LEVEL ASC
                                   LIMIT ?
-                                  OFFSET 0 + ifnull((SELECT tab1.RowNumber
+                                  OFFSET 0 + ifnull((SELECT tab1.INTEGER_19
                                                      FROM (SELECT c1.RECORD_TABLE_ID AS record_id,
                                                                   row_number() OVER (
                                                                           ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
-                                                                   ) AS RowNumber
+                                                                   ) AS INTEGER_19
                                                            FROM   CashData AS c1
                                                            WHERE    c1.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
                                                            AND      c1.CASH_SUM = ?

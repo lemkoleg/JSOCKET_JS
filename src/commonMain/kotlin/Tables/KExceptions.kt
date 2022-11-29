@@ -206,6 +206,16 @@ fun init(): Boolean {
         )
     )
 
+    USERS_EXCEPTIONS["EXC_ERROR_LOAD_FILE"] = KExceptions(
+        KExceptions.KException(
+            "EXC_ERROR_LOAD_FILE",
+            "ENG",
+            "An error occurred while loading the file. Try again.",
+            "4",
+            0
+        )
+    )
+
     return true
 }
 

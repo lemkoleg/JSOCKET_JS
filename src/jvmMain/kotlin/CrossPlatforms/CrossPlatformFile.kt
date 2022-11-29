@@ -2,22 +2,19 @@ package CrossPlatforms
 
 import com.soywiz.korio.file.VfsFile
 import com.soywiz.korio.file.VfsOpenMode
-import com.soywiz.korio.file.baseNameWithoutCompoundExtension
 import com.soywiz.korio.file.extension
+import com.soywiz.korio.file.fullName
 import com.soywiz.korio.file.std.resourcesVfs
 
 
-// 1-read, 2-re-write 3-random write, 4 - write-append
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
     val file: VfsFile = resourcesVfs[fullName]
 
-    actual suspend fun create(size: Long) {
-        if(file.exists() && file.isFile()){
-            file.delete()
-        }
+    actual suspend fun create(size: Long){
         file.open(VfsOpenMode.CREATE)
-        file.writeChunk(ByteArray(1), size - 2, true)
+        val b = ByteArray(1)
+        file.writeChunk(b, (size - 1))
     }
 
     actual suspend fun size():Long {
@@ -36,7 +33,7 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
         return file.isFile()
     }
 
-    actual suspend fun delete():Boolean {
+    actual suspend  fun delete():Boolean {
         return file.delete()
     }
 
@@ -52,7 +49,6 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
         file.writeChunk(data, offset)
     }
 
-
     actual fun appendExtension(v: String) {
         file.appendExtension(v)
     }
@@ -62,11 +58,11 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
     }
 
     actual fun getFileName(): String {
-        return file.pathInfo.baseNameWithoutCompoundExtension.lowercase()
+        return file.fullName
     }
 
     actual fun getFileExtension(): String {
-        return file.pathInfo.extension.lowercase()
+        return file.extension
     }
 
 }

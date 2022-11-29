@@ -22,7 +22,7 @@ actual val slash: String = System.getProperty("file.separator")
 actual suspend fun getMyDeviceId(): String {
 
     if (result.trim().isEmpty()) {
-        when (System.getProperty("os.name").trim().toUpperCase().substring(0, 3)) {
+        when (System.getProperty("os.name").trim().uppercase(Locale.getDefault()).substring(0, 3)) {
                 "WIN" -> serialNumberWindows
                 "LIN" -> serialNumberLinux
                 "MAC" -> serialNumberMacOS
@@ -57,8 +57,7 @@ actual suspend fun getMyDeviceId(): String {
             val os: OutputStream
             val `is`: InputStream
             val runtime: Runtime = Runtime.getRuntime()
-            val process: Process?
-            process = runtime.exec(arrayOf("wmic", "bios", "get", "serialnumber"))
+            val process: Process = runtime.exec(arrayOf("wmic", "bios", "get", "serialnumber"))
             os = process.outputStream
             `is` = process.inputStream
             try {
@@ -179,8 +178,7 @@ actual suspend fun getMyDeviceId(): String {
             val os: OutputStream?
             val `is`: InputStream?
             val runtime: Runtime = Runtime.getRuntime()
-            val process: Process?
-            process = runtime.exec(arrayOf("/usr/sbin/system_profiler", "SPHardwareDataType"))
+            val process: Process = runtime.exec(arrayOf("/usr/sbin/system_profiler", "SPHardwareDataType"))
             os = process.outputStream
             `is` = process.inputStream
             try {

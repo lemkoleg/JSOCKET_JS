@@ -102,9 +102,12 @@ class FileService(
                     L_OBJECT_LINK = answerType.answerTypeValues.GetObjectId(),
                     L_OBJECT_SIZE = answerType.answerTypeValues.GetObjectSize().toLong(),
                     L_OBJECT_LENGTH_SECONDS = answerType.answerTypeValues.GetLengthSeconds(),
-                    L_OBJECT_EXTENSION = answerType.answerTypeValues.GetObjectExtension()
+                    L_OBJECT_EXTENSION = answerType.answerTypeValues.GetObjectExtension(),
+                    L_AVATAR_ID = answerType.answerTypeValues.GetMainAvatarId()
                 )
 
+            } else {
+                s.setLAST_USED()
             }
             save_media = s
             save_media!!.AVATAR_ID = answerType.answerTypeValues.GetMainAvatarId()
@@ -471,7 +474,7 @@ class FileService(
                                     if (CurrentChunkReceiveFile.compareAndSet(i, i)) {
                                         condition.cSignal()
                                     }
-                                    if(IsDownloaded){
+                                    if (IsDownloaded) {
 
                                         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                             FileServiceLock.withLock {
@@ -479,7 +482,7 @@ class FileService(
                                                     SELF_Jsocket.value_par2 = "B"
                                                     SELF_Jsocket.send_request()
                                                 }
-                                                if(FinishDownloadedFile()){
+                                                if (FinishDownloadedFile()) {
                                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                         PrintInformation.PRINT_INFO("FileService.receive_file: finish send file: ${save_media!!.FILE_FULL_NAME}")
                                                     }
@@ -558,7 +561,8 @@ class FileService(
             l_class_name = "FileService",
             l_function_name = "get_file_chunk",
             name_of_exception = "EXC_SYSTEM_ERROR",
-            l_additional_text = "Time out is up")
+            l_additional_text = "Time out is up"
+        )
 
     }.toPromise(EmptyCoroutineContext)
 
@@ -615,7 +619,6 @@ class FileService(
     companion object {
 
         @JsName("getImmageAvatarFromFileName")
-
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {

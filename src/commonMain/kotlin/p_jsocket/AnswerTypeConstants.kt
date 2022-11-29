@@ -29,7 +29,7 @@ class AnswerTypeConstants(answerType: ANSWER_TYPE) {
             }
         }
     } else {
-        answerType.RECORD_TABLE_ID.substring(0, 2) == "18" || answerType.RECORD_TABLE_ID.substring(0, 2) == "19"
+        false //answerType.RECORD_TABLE_ID.substring(0, 2) == "18" || answerType.RECORD_TABLE_ID.substring(0, 2) == "19"
     }
 
     val IsGif = if (IsFile) {

@@ -154,18 +154,25 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                 try {
                     VerifyUpdatesJob!!.join()
                     LocalLock.lock()
-                    if (answerTypeConstants.IsMusic || answerTypeConstants.IsVideo) {
-                        if (promiseDowloadFile!!.await()) {
-                            if (answerType.RECORD_TYPE != "O") {
-                                answerType.answerTypeValues.setRECORD_TYPE("O")
-                                answerType.INTEGER_20 = 1
-                                val d = ArrayDeque<ANSWER_TYPE>()
-                                d.add(answerType)
-                                SAVE_OBJECT_INFO!!.SET_RECORDS(d)
+                    if (answerType.RECORD_TYPE != "O") {
+                        if (answerTypeConstants.IsMusic || answerTypeConstants.IsVideo) {
+                            promiseDowloadFile!!.await()
+                            if (!localFileSevice!!.IsDownloaded()) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "KObjectInfo",
+                                    l_function_name = "SaveOffLine",
+                                    name_of_exception = "EXC_ERROR_LOAD_FILE"
+                                )
                             }
+                            answerType.answerTypeValues.setRECORD_TYPE("O")
+                            answerType.INTEGER_20 = 1
+                            val d = ArrayDeque<ANSWER_TYPE>()
+                            d.add(answerType)
+                            SAVE_OBJECT_INFO!!.SET_RECORDS(d)
+                            localFileSevice.save_media!!.setIsPerminent()
                         }
-                    }
 
+                    }
                 } catch (e: my_user_exceptions_class) {
                     throw e
                 } catch (ex: Exception) {
@@ -190,6 +197,41 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         )
     }
 
+    fun DeleteOffLine() = CoroutineScope(Dispatchers.Default).launch {
+        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            try {
+                try {
+                    VerifyUpdatesJob!!.join()
+                    LocalLock.lock()
+                    if (answerType.RECORD_TYPE == "O") {
+                        SAVE_MEDIA[answerType.answerTypeValues.GetObjectLink()]?.setIsNotPerminent()
+                        SAVE_OBJECT_INFO_IDS.remove(answerType.answerTypeValues.GetObjectLink())
+                        SAVE_OBJECT_INFO!!.DELETE(answerType.answerTypeValues.GetObjectLink())
+                    }
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "KObjectInfo",
+                        l_function_name = "DeleteOffLine",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
+                } finally {
+                    LocalLock.unlock()
+                }
+            } catch (e: my_user_exceptions_class) {
+                e.ExceptionHand(null)
+            }
+            return@withTimeoutOrNull false
+        } ?: throw my_user_exceptions_class(
+            l_class_name = "KObjectInfo",
+            l_function_name = "DeleteOffLine",
+            name_of_exception = "EXC_SYSTEM_ERROR",
+            l_additional_text = "Time out is up"
+        )
+    }
+
 
     suspend fun SendRequestForUpdate(what_avatar_select: String) {
 
@@ -199,6 +241,12 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
         val jsocket = answerType.GetJsocket()
         jsocket.just_do_it = 1011000101  //
+        val save_media = SAVE_MEDIA[answerType.answerTypeValues.GetObjectLink()]
+        if (save_media != null && save_media.IS_DOWNLOAD == 1) {
+            jsocket.value_par1 = "0"
+        } else {
+            jsocket.value_par1 = "1"
+        }
         jsocket.value_par3 = what_avatar_select
         jsocket.send_request()
     }
@@ -208,7 +256,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         updateObjectInfo(this)
         val arr = ArrayDeque<ANSWER_TYPE>()
         arr.addLast(answerType)
-        Sqlite_service.InsertCashData(arr)
+        Sqlite_service.InsertCashData(GetCashSum(v.RECORD_TABLE_ID, v.RECORD_TYPE, v.RECORD_TABLE_ID), arr)
     }
 
     companion object {

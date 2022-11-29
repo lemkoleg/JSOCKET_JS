@@ -1,59 +1,68 @@
 package CrossPlatforms
 
+import com.soywiz.korio.file.VfsFile
+import com.soywiz.korio.file.VfsOpenMode
+import com.soywiz.korio.file.extension
+import com.soywiz.korio.file.fullName
+import com.soywiz.korio.file.std.resourcesVfs
+
 
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
+    val file: VfsFile = resourcesVfs[fullName]
 
     actual suspend fun create(size: Long){
-        TODO("Not yet implemented")
+        file.open(VfsOpenMode.CREATE)
+        val b = ByteArray(1)
+        file.writeChunk(b, (size - 1))
     }
 
     actual suspend fun size():Long {
-        TODO("Not yet implemented")
+        return file.size()
     }
 
     actual suspend fun exists():Boolean {
-        TODO("Not yet implemented")
+        return file.exists()
     }
 
     actual suspend fun isDirectory():Boolean {
-        TODO("Not yet implemented")
+        return file.isDirectory()
     }
 
     actual suspend fun isFile():Boolean {
-        TODO("Not yet implemented")
+        return file.isFile()
     }
 
     actual suspend  fun delete():Boolean {
-        TODO("Not yet implemented")
+        return file.delete()
     }
 
     actual suspend fun readAll():ByteArray {
-        TODO("Not yet implemented")
+        return file.readAll()
     }
 
     actual suspend fun read(offset: Long, size: Int):ByteArray {
-        TODO("Not yet implemented")
+        return file.readChunk(offset, size)
     }
 
     actual suspend fun write(data: ByteArray, offset: Long) {
-        TODO("Not yet implemented")
+        file.writeChunk(data, offset)
     }
 
     actual fun appendExtension(v: String) {
-        TODO("Not yet implemented")
+        file.appendExtension(v)
     }
 
     actual suspend fun renameTo(path: String): Boolean {
-        TODO("Not yet implemented")
+        return file.renameTo(path)
     }
 
     actual fun getFileName(): String {
-        TODO("Not yet implemented")
+        return file.fullName
     }
 
     actual fun getFileExtension(): String {
-        TODO("Not yet implemented")
+        return file.extension
     }
 
 

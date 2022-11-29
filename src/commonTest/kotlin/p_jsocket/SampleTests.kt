@@ -2,50 +2,43 @@
 
 package p_jsocket
 
+import CrossPlatforms.PrintInformation
 import Tables.myLang
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.lang.Thread_sleep
 import io.ktor.util.*
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import p_client.InitJsocket
 import p_client.Jsocket
 import kotlin.time.ExperimentalTime
 
 
-
-
-
 const val maxTimeSpanForWaitOutPut = 2000L
 
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
 class SampleTests {
-    @ExperimentalUnsignedTypes
-    @KorioExperimentalApi
-    @DangerousInternalIoApi
-    @InternalAPI
-    @ExperimentalTime
-    @ExperimentalStdlibApi
-    @io.ktor.utils.io.core.ExperimentalIoApi
     fun testMe() = run < Unit > {
 
-        val h: HASH = HASH()
+        val h = HASH()
 
         val m: String = h.getMD5String("AUF")
         val p: String = h.getMD5String("AUF")
         val ll = 24354678876543L
 
         val g: Long = h.getNewCoockiLong(m)
-        PrintInformation.PRINT_INFO(g)
+        PrintInformation.PRINT_INFO(g.toString())
 
 
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
 
             val fileName = "ppppp"
-            val picr = FileService()
-            val k = picr.getImmageAvatarFromFileName("F:\\Foto\\$fileName.JPG")
+            val k = FileService.getImmageAvatarFromFileName("F:\\Foto\\$fileName.JPG").await()
             val l16 = resourcesVfs["F:\\Foto\\"+fileName+"_kotlin4.jpg"]
             if (k != null) {
                 l16.writeBytes(k)
@@ -72,7 +65,7 @@ class SampleTests {
         val l = Jsocket()
         //Thread_sleep(2000)
         //c.close()
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
           /*  Thread_sleep(4000)
 
             CHATS.forEach { v ->
@@ -83,7 +76,7 @@ class SampleTests {
                 }
             }*/
 
-            myLang.setNewValue("RUS")
+            myLang = "RUS"
                 l.connection_id = 0L
                 l.connection_coocki = 0L
                 //l.device_id = "39D91B1549BD5635"
@@ -106,10 +99,9 @@ class SampleTests {
                 l.value_par9 = " C29522CF"
                 l.db_massage = "ввівапрнооь.юх"
                 val fileName = "DSCF2573.jpg"
-                val picr = FileService()
                 val l16 = resourcesVfs["F:\\Foto\\$fileName"].readAll()
                 l.value_par1 = fileName
-                l.content = picr.getImmageAvatarFromByteArray(l16)
+                l.content = FileService.getImmageAvatarFromByteArray(l16).await()
                 val l166 = resourcesVfs["F:\\Foto\\ppppp.jpg"]
                 l.content?.let { l166.writeBytes(it) }
                 //l.execute().await()
