@@ -6,8 +6,10 @@
 @file:Suppress("DuplicatedCode")
 package sql
 
-import p_client.dbLocalName
-
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import p_jsocket.Constants.dbLocalName
+import kotlin.time.ExperimentalTime
 
 
 /**
@@ -16,102 +18,40 @@ import p_client.dbLocalName
  */
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-val table_metadata by lazy { alaSQL.compile(TABLE_METADATA, dbLocalName)}
+///////////////////////////////////big avatars///////////////////////////
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val table_big_avatars by lazy { alaSQL.compile(TABLE_BIG_AVATARS, dbLocalName)}
 
-val insert_metadata by lazy { alaSQL.compile(INSERT_METADATA, dbLocalName)}
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val index_big_avatars_last_use by lazy { alaSQL.compile(INDEX_BIG_AVATARS_LAST_USE, dbLocalName)}
 
-val select_metadata by lazy { alaSQL.compile(SELECT_METADATA)}
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val trigger_big_avatars_control_count by lazy { alaSQL.compile(INDEX_BIG_AVATARS_LAST_USE, dbLocalName)}
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val insert_big_avatars by lazy { alaSQL.compile(INSERT_BIG_AVATARS, dbLocalName)}
 
-val insert_cashdata by lazy { alaSQL.compile(INSERT_CASHDATA)}
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val select_big_avatar by lazy { alaSQL.compile(SELECT_BIG_AVATAR, dbLocalName)}
 
-val update_cashdata by lazy { alaSQL.compile(UPDATE_CASHDATA)}
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val select_bigavatars_all_id by lazy { alaSQL.compile(SELECT_BIGAVATARS_ALL_ID, dbLocalName)}
 
-val select_cashdata by lazy { alaSQL.compile(SELECT_CASHDATA)}
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+val select_bigavatars_all by lazy { alaSQL.compile(SELECT_BIGAVATARS_ALL, dbLocalName)}
 
-val select_all_cashdata by lazy { alaSQL.compile(SELECT_ALL_CASHDATA)}
-
-val select_count_cashdata by lazy { alaSQL.compile(SELECT_COUNT_CASHDATA)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-val insert_regdata by lazy { alaSQL.compile(INSERT_REGDATA)}
-
-val select_all_regdata by lazy { alaSQL.compile(SELECT_ALL_REGDATA)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-val insert_commands by lazy { alaSQL.compile(INSERT_COMMANDS)}
-
-val select_all_commands by lazy { alaSQL.compile(SELECT_ALL_COMMANDS)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-val insert_savemedia by lazy { alaSQL.compile(INSERT_SAVEMEDIA)}
-
-val delete_savemedia by lazy { alaSQL.compile(DELETE_SAVEMEDIA)}
-
-val select_all_savemedia by lazy { alaSQL.compile(SELECT_ALL_SAVEMEDIA)}
-
-val select_count_savemedia by lazy { alaSQL.compile(SELECT_COUNT_SAVEMEDIA)}
-
-val select_last_savemedia by lazy { alaSQL.compile(SELECT_LAST_SAVEMEDIA)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-val insert_big_avatars by lazy { alaSQL.compile(INSERT_BIG_AVATARS)}
-
-val select_big_avatars by lazy { alaSQL.compile(SELECT_BIG_AVATARS)}
-
-val select_count_big_avatars by lazy { alaSQL.compile(SELECT_COUNT_BIG_AVATARS)}
-
-val select_last_big_avatars by lazy { alaSQL.compile(SELECT_LAST_BIG_AVATARS)}
-
-val delete_big_avatars by lazy { alaSQL.compile(DELETE_BIG_AVATARS)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-val insert_sendmedia by lazy { alaSQL.compile(INSERT_SENDMEDIA)}
-
-val delete_sendmedia by lazy { alaSQL.compile(DELETE_SENDMEDIA)}
-
-val delete_all_sendmedia by lazy { alaSQL.compile(DELETE_ALL_SENDMEDIA)}
-
-val select_all_sendmedia by lazy { alaSQL.compile(SELECT_ALL_SENDMEDIA)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-val insert_lastupdate by lazy { alaSQL.compile(INSERT_LASTUPDATE)}
-
-val update_last_use_lastupdate by lazy { alaSQL.compile(UPDATE_LAST_USE_LASTUPDATE)}
-
-val select_lastupdate by lazy { alaSQL.compile(SELECT_LASTUPDATE)}
-
-val delete_lastupdate by lazy { alaSQL.compile(DELETE_LASTUPDATE)}
-
-val select_last_lastupdate by lazy { alaSQL.compile(SELECT_LAST_LASTUPDATE)}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-val insert_chats by lazy { alaSQL.compile(INSERT_CHATS)}
-
-val select_count_chats by lazy { alaSQL.compile(SELECT_COUNT_CHATS)}
-
-val select_chat by lazy { alaSQL.compile(SELECT_CHAT)}
-
-val select_all_chats by lazy { alaSQL.compile(SELECT_ALL_CHATS)}
-
-val select_last_chats by lazy { alaSQL.compile(SELECT_LAST_CHATS)}
-
-val delete_chat by lazy { alaSQL.compile(DELETE_CHAT)}
-
-/////////////////////////////////////////////////////////////////////////
-val insert_messeges by lazy { alaSQL.compile(INSERT_MESSEGES)}
-
-val select_count_messeges by lazy { alaSQL.compile(SELECT_COUNT_MESSEGES)}
-
-val select_messeges by lazy { alaSQL.compile(SELECT_MESSEGES)}
-
-val select_last_messeges by lazy { alaSQL.compile(SELECT_LAST_MESSEGES)}
-
-val delete_messege by lazy { alaSQL.compile(DELETE_MESSEGE)}
 

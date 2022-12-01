@@ -7,14 +7,18 @@
 
 package p_jsocket
 
+import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 /**
  *
  * @author Oleg
  */
+@KorioExperimentalApi
+@ExperimentalTime
 @InternalAPI
 @JsName("JSOCKET_Subscribe")
 class JSOCKET_Subscribe(

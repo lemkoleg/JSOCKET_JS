@@ -7,7 +7,6 @@
 
 package p_jsocket
 
-import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.slash
 import kotlin.js.JsName
 
@@ -84,6 +83,7 @@ fun initDirectories(
         pathPicture18 = rootPath.plus("18")
         pathPicture19 = rootPath.plus("19")
 
+    /*
         var file = CrossPlatformFile(rootPath)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
@@ -107,6 +107,7 @@ fun initDirectories(
             file.createPath()
         }
         file.close()
+        */
 
         pathTemp =
             pathTemp.plus(slash)
@@ -123,6 +124,7 @@ fun initDirectories(
         pathTempPicture19 =
             pathTemp.plus("19")
 
+    /*
         file = CrossPlatformFile(pathMusic14)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
@@ -194,6 +196,7 @@ fun initDirectories(
             file.createPath()
         }
         file.close()
+     */
 
         pathTempMusic14 =
             pathTempMusic14.plus(slash)

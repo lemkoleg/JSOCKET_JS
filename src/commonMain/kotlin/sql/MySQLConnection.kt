@@ -1,9 +1,15 @@
 package sql
 
 import JSOCKET.AvaClubDB
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
+import kotlin.time.ExperimentalTime
 
 var db: AvaClubDB? = null
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 class MySQLConnection(DBName:String){
 
     val dbName = DBName

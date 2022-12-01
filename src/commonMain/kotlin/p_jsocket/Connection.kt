@@ -218,7 +218,7 @@ object Connection : CoroutineScope {
                 throw my_user_exceptions_class(
                     "Connection",
                     "sendData",
-                    "EXC_SOCKET_NOT_ALLOWED"
+                    "EXC_SOCKET_NOT_ALLOWED")
             }
         }
     }
@@ -475,3 +475,4 @@ object Connection : CoroutineScope {
         }
 
     }
+}

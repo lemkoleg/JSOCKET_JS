@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
-import p_jsocket.dbLocalName
+import p_jsocket.Constants.dbLocalName
 import kotlin.time.ExperimentalTime
 
 actual var sqlDriver: SqlDriver? = null
@@ -90,294 +90,296 @@ actual class SQLStatement actual constructor() {
 
     }
 
+
+
+    actual suspend fun clear_parameters() {
+    }
+
     ///////////////////////////////////big avatars///////////////////////////
+
     actual suspend fun TABLE_BIG_AVATARS() {
+        TODO()
     }
 
-    actual suspend fun INDEX_BIG_AVATARS_LAST_USE(){
+    actual suspend fun INDEX_BIG_AVATARS_LAST_USE() { // for clear old last use in trigger
+        TODO()
     }
 
-    actual suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT(){
+    actual suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT() {
+        TODO()
     }
 
-    actual suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar){
+    actual suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar) {
+        TODO()
     }
 
-    actual suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String):KBigAvatar?{
-        return null
+    actual suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String): KBigAvatar? {
+        TODO()
     }
 
-    actual suspend fun SELECT_BIGAVATARS_ALL_ID(){
+    actual suspend fun SELECT_BIGAVATARS_ALL_ID(): ArrayList<String> {  //for save in memory
+        TODO()
     }
 
-    actual suspend fun SELECT_BIGAVATARS_ALL(){
+    actual suspend fun SELECT_BIGAVATARS_ALL(): ArrayList<KBigAvatar> {  //for save in memory
+        TODO()
     }
 
-    actual suspend fun CLEAR_BIG_AVATARS(){
+    actual suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String) {
+        TODO()
     }
 
-    actual suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String){
+    actual suspend fun CLEAR_BIG_AVATARS() {
+        TODO()
     }
 
-    actual suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long){
+    actual suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long) {
+        TODO()
     }
 
-    /////////////cash data///////////////////////////
+///////////// commands ///////////////////////////
 
-    actual suspend fun TABLE_CASHDATA(){
-
-    }
-
-    actual suspend fun INDEX_CASHDATA_NUMBER_POSITION(){
-    }
-
-    actual suspend fun INSERT_CASHDATA(lANSWER_TYPE: ANSWER_TYPE){
-
-    }
-
-    actual suspend fun INSERT_CASHDATAS(lANSWER_TYPES: ArrayDeque<ANSWER_TYPE>){
-
-    }
-
-    actual suspend fun SELECT_CASHDATA_ALL() {
-    }
-
-    actual suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: Long) {
-    }
-
-
-    actual suspend fun CLEAR_CASHDATA(){
-
-    }
-
-    actual fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(){
-
-    }
-
-    /////////////last update///////////////////////////
-
-    actual suspend fun TABLE_CASHLASTUPDATE(){
-    }
-
-    actual suspend fun INDEX_CASHLASTUPDATE_LAST_USE(){
-    }
-
-    actual suspend fun INDEX_CASHLASTUPDATE_CONNECTIONID(){
-    }
-
-    actual suspend fun TRIGGER_CASHLASTUPDATE_DELETE(){
-    }
-
-    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT(){
-    }
-
-    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_UPDATE(){
+    actual suspend fun TABLE_COMMANDS() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_CASHLASTUPDATE_UPDATE(){
+    actual suspend fun INSERT_COMMAND(kCommand: KCommands) {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT(){
+    actual suspend fun SELECT_COMMANDS_ALL(): ArrayList<KCommands> {
+        TODO()
     }
 
-    actual suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate:KCashLastUpdate){
+    actual suspend fun CLEAR_COMMANDS() {
+        TODO()
     }
 
-    actual suspend fun UPDATE_CASHLASTUPDATE_LAST_USE(kCashLastUpdate:KCashLastUpdate){
-    }
+/////////////exceptions///////////////////////////
 
-    actual suspend fun SELECT_CASHLASTUPDATE(L_CONNECTION_ID : Long){
+    actual suspend fun TABLE_EXCEPTION() {
+        TODO()
     }
 
-    actual suspend fun CLEAR_LASTUPDATE(){
+    actual suspend fun INSERT_EXCEPTION(kException: KExceptions.KException) {
+        TODO()
     }
 
-    /////////////chats///////////////////////////
-
-    actual suspend fun TABLE_CHATS(){
+    actual suspend fun SELECT_EXCEPTION_ALL(): ArrayList<KExceptions.KException> {
+        TODO()
     }
 
-    actual suspend fun INDEX_CHATS_LAST_MESS_ADDING(){
+    actual suspend fun CLEAR_EXCEPTION() {
+        TODO()
     }
 
-    actual suspend fun INDEX_CHATS_CONNECTIONID(){
-    }
+/////////////meta data///////////////////////////
 
-    actual suspend fun INDEX_CHATS_AVATARID(){
+    actual suspend fun TABLE_METADATA() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_CHATS_DELETE(){
+    actual suspend fun INSERT_METADATA(kMetaData: KMetaData) {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_CHATS_CONTROL_COUNT(){
+    actual suspend fun CLEAR_METADATA() {
+        TODO()
     }
 
-    @InternalAPI
-    actual suspend fun INSERT_CHATS(kChat: KChat){
+    actual suspend fun SELECT_ALL_METADATA(): ArrayList<KMetaData> {
+        TODO()
     }
 
-    @InternalAPI
-    actual suspend fun SELECT_CHATS_ALL(){
-    }
+/////////////reg data///////////////////////////
 
-    actual suspend fun CLEAR_CHATS(){
+    actual suspend fun TABLE_REGDATA() {
+        TODO()
     }
 
-    /////////////chats cost types///////////////////////////
-
-    actual suspend fun TABLE_CHATS_COST_TYPES(){
+    actual suspend fun TRIGGER_REGDATA_INSERT() {
+        TODO()
     }
 
-    actual suspend fun INSERT_CHATS_COST_TYPES(kChatsCostTypes: KChatsCostTypes){
+    actual suspend fun INSERT_REGDATA() {
+        TODO()
     }
 
-    actual suspend fun SELECT_CHATS_COST_TYPES_ALL(){
+    actual suspend fun CLEAR_REGDATA() {
+        TODO()
     }
 
-    actual suspend fun CLEAR_CHATS_COST_TYPES(){
+    actual suspend fun SELECT_REGDATA_ALL() {
+        TODO()
     }
-
-    /////////////chats likes///////////////////////////
 
-    actual suspend fun TABLE_CHATS_LIKES(){
-    }
+/////////////save media///////////////////////////
 
-    actual suspend fun INDEX_CHATSLIKES_AVATARID(){
+    actual suspend fun TABLE_SAVEMEDIA() {
+        TODO()
     }
 
-    actual suspend fun INDEX_CHATSLIKES_ACCOUNTSID(){
+    actual suspend fun INDEX_SAVEMEDIA_LASTUSED() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_CHATSLIKES_DELETED_RECORD(){
+    actual suspend fun INDEX_SAVEMEDIA_ISTEMP() {
+        TODO()
     }
 
-    actual suspend fun INSERT_CHATS_LIKES(kChatsLikes: KChatsLikes){
+    actual suspend fun INDEX_SAVEMEDIA_AVATAR_ID() {
+        TODO()
     }
 
-    actual suspend fun SELECT_CHATSLIKES_ALL(){
+    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT() {
+        TODO()
     }
 
-    /////////////commands///////////////////////////
-
-    actual suspend fun TABLE_COMMANDS(){
+    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT() {
+        TODO()
     }
 
-    actual suspend fun INSERT_COMMANDS(kCommands: KCommands){
+    actual suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia) {
+        TODO()
     }
 
-    actual suspend fun SELECT_COMMANDS_ALL(){
+    actual suspend fun SELECT_SAVEMEDIA_ALL(conn_id: Long): ArrayList<KSaveMedia> {
+        TODO()
     }
 
-    actual suspend fun CLEAR_COMMANDS(){
+    actual suspend fun DELETE_SAVEMEDIA(v: String) {
+        TODO()
     }
-
-    /////////////exceptions///////////////////////////
 
-    actual suspend fun TABLE_EXCEPTION(){
-    }
+/////////////last update///////////////////////////
 
-    actual suspend fun INSERT_EXCEPTION(kExceptions: KExceptions){
+    actual suspend fun TABLE_CASHLASTUPDATE() {
+        TODO()
     }
 
-    actual suspend fun SELECT_EXCEPTION_ALL(){
+    actual suspend fun INDEX_CASHLASTUPDATE_LAST_USE() {
+        TODO()
     }
 
-    actual suspend fun CLEAR_EXCEPTION(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT() {
+        TODO()
     }
 
-    /////////////messeges///////////////////////////
-
-    actual suspend fun TABLE_MESSEGES(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT() {
+        TODO()
     }
 
-    actual suspend fun INDEX_MESSEGES_ORDER_DESC(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_MESSEGES_CONTROL_COUNT(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_MESSEGES_MESS_WITHOUT_CAHTS(){
+    actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT() {
+        TODO()
     }
 
-    actual suspend fun INSERT_MESSEGES(kMessege: KMessege){
+    actual suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate: KCashLastUpdate) {
+        TODO()
     }
 
-    actual suspend fun SELECT_MESSEGES_LIMIT(L_CHATS_ID: String, L_MESSEGES_COUNT: Long){
+    actual suspend fun SELECT_CASHLASTUPDATE_ALL(): ArrayList<KCashLastUpdate> {
+        TODO()
     }
 
-    actual suspend fun CLEAR_MESSEGES(){
+    actual suspend fun CLEAR_LASTUPDATE() {
+        TODO()
     }
 
-    /////////////meta data///////////////////////////
-    actual suspend fun TABLE_METADATA(){
+    actual suspend fun DELETE_LASTUPDATE(cash_sum: String) {
+        TODO()
     }
 
-    actual suspend fun INSERT_METADATA(kMetaData: KMetaData){
-    }
+/////////////cash data///////////////////////////
 
-    actual suspend fun CLEAR_METADATA(){
+    actual suspend fun TABLE_CASHDATA() {
+        TODO()
     }
 
-    actual suspend fun SELECT_ALL_METADATA(){
+    actual suspend fun INDEX_CASHDATA_NUMBER_POSITION_ASC() {
+        TODO()
     }
 
-    /////////////reg data///////////////////////////
-
-    actual suspend fun TABLE_REGDATA(){
+    actual suspend fun INDEX_CASHDATA_CASH_SUM() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_REGDATA_INSERT(){
+    actual suspend fun TRIGGER_CASHDATA_AFTER_INSERT() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_REGDATA_DELETE(){
+    actual suspend fun TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO() {
+        TODO()
     }
 
-    actual suspend fun INSERT_REGDATA(kRegData: KRegData){
+    actual suspend fun TRIGGER_CASHDATA_AFTER_UPDATE() {
+        TODO()
     }
 
-    actual suspend fun CLEAR_REGDATA(){
+    actual suspend fun INSERT_CASHDATA(cash_sum: String, lANSWER_TYPE: ANSWER_TYPE) {
+        TODO()
     }
 
-    actual suspend fun SELECT_REGDATA_ALL(){
+    actual suspend fun SELECT_CASHDATA_ALL(): ArrayDeque<ANSWER_TYPE> {
+        TODO()
     }
-
-    /////////////save media///////////////////////////
 
-    actual suspend fun TABLE_SAVEMEDIA(){
+    actual suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: String): ArrayDeque<ANSWER_TYPE> {
+        TODO()
     }
 
-    actual suspend fun INDEX_SAVEMEDIA_CONNECTIONID(){
+    actual suspend fun SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
+        CASH_SUM: String,
+        record_id_from: String
+    ): ArrayDeque<ANSWER_TYPE> {
+        TODO()
     }
 
-    actual suspend fun INDEX_SAVEMEDIA_LASTUSED(){
+    actual suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ANSWER_TYPE? {
+        TODO()
     }
 
-    actual suspend fun INDEX_SAVEMEDIA_ISTEMP(){
+    actual suspend fun SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM(CASH_SUM: String): ArrayList<String> {
+        TODO()
     }
 
-    actual suspend fun INDEX_SAVEMEDIA_AVATARID(){
+    actual suspend fun CLEAR_CASHDATA() {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT(){
+    actual suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM: String) {
+        TODO()
     }
 
-    actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT(){
+    actual suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(CASH_SUM: String) {
+        TODO()
     }
 
-    actual suspend fun INSERT_SAVEMEDIA(){
+    actual suspend fun UPDATE_CASHDATA_NEW_LAST_SELECT(
+        last_select: Long,
+        cash_sum: String,
+        record_table_id_from: String,
+        limit: Int
+    ) {
+        TODO()
     }
 
-    actual suspend fun SELECT_SAVEMEDIA_ALL(kSaveMedia: KSaveMedia){
+    actual suspend fun DELETE_CASHDATA(cash_sum: String) {
+        TODO()
     }
 
-    actual suspend fun DELETE_SAVEMEDIA() {
+    actual suspend fun DELETE_CASHDATA_RECORD(cash_sum: String, record_id: String) {
+        TODO()
     }
 
-    /////////////////////////////////////////////////////////////////////////
 
-    actual suspend fun clear_parameters(){
-
-    }
 
 
 }

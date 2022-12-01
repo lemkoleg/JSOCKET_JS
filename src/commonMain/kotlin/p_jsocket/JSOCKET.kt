@@ -42,6 +42,8 @@ private fun returnRequestPostfix(): ByteArray {
 
 
 @JsName("FIELDS_SUBSCRIBE")
+@KorioExperimentalApi
+@ExperimentalTime
 @InternalAPI
 val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
     1 to JSOCKET_Subscribe(
