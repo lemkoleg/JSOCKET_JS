@@ -1,6 +1,6 @@
 package sql
 
-import JSOCKET.AvaClubDB
+import JSOCKETDB.AvaClubDB
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlin.time.ExperimentalTime

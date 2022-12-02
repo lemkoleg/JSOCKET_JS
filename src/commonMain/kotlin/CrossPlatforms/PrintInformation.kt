@@ -31,7 +31,7 @@ object PrintInformation {
                 try {
                     try {
                         PrintInformationLock.lock()
-                        PrintInformation.PRINT_INFO("Information: $text")
+                        println("Information: $text")
                     } catch (e: my_user_exceptions_class) {
                         throw e
                     } catch (ex: Exception) {
@@ -64,7 +64,7 @@ object PrintInformation {
                 try {
                     try {
                         PrintExceptionnLock.lock()
-                        PrintInformation.PRINT_INFO("Information: $text")
+                        println("Information: $text")
                     } catch (e: my_user_exceptions_class) {
                         throw e
                     } catch (ex: Exception) {

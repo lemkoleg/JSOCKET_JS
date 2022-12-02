@@ -1,18 +1,35 @@
 package p_jsocket
 
-import CrossPlatforms.PrintInformation
+import Tables.myConnectionsCoocki
+import Tables.myConnectionsID
+import Tables.myDeviceId
+import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Thread.sleep
+import kotlin.test.Test
 import kotlin.time.ExperimentalTime
 
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
+
 class SampleTestsJVM {
-    suspend fun testMe()  = run < Unit > {
+
+    @Test
+    fun testMe()  = run < Unit > {
+
+        CoroutineScope(Dispatchers.Default).launch {
+            val tt = DateTime.nowUnixLong()
         val l = JSOCKET()
         val t = JSOCKET()
+            myDeviceId = "AAAAAAAAAAAAAAAA"
+            myConnectionsID = 102000111220000003L
+            myConnectionsCoocki = 102000111225633533L
         val h = HASH()
         val b = byteArrayOf(
             'r'.code.toByte(), 't'.code.toByte(), 'y'.code.toByte(), 'u'.code.toByte(),
@@ -20,9 +37,9 @@ class SampleTestsJVM {
             'f'.code.toByte(), '1'.code.toByte(), '2'.code.toByte(),
             '3'.code.toByte(), '4'.code.toByte(), '5'.code.toByte()
         )
-        PrintInformation.PRINT_INFO("ch = ${h.getCheckSumFromByteArray(b, 42423424324324L)}")
-        PrintInformation.PRINT_INFO("just_do_it_label = ${l.just_do_it_label}")
-        PrintInformation.PRINT_INFO("just_do_it_label = ${t.just_do_it_label}")
+        println("ch = ${h.getCheckSumFromByteArray(b, 42423424324324L)}")
+        println("just_do_it_label = ${l.just_do_it_label}")
+        println("just_do_it_label = ${t.just_do_it_label}")
         l.connection_id = 102000111220000003L
         l.connection_coocki = 102000111225633533L
         l.just_do_it = 1011000061
@@ -45,25 +62,28 @@ class SampleTestsJVM {
         l.value_par8 = "p"
         l.value_par9 = "9C992BF1"
         l.db_massage = "ввівапрнооь.юх"
-        val bch = ByteReadPacket(l.serialize(true))
-        PrintInformation.PRINT_INFO("bch1 = ${bch.remaining}")
-        PrintInformation.PRINT_INFO("l.check_sum = ${l.check_sum}")
+        val bch = ByteReadPacket(l.serialize(false))
+        println("bch1 = ${bch.remaining}")
+            println("just_do_it_label = ${t.just_do_it_label}")
         t.deserialize(bch, l.connection_coocki, false)
-        PrintInformation.PRINT_INFO("bch1 = ${bch.remaining}")
-        PrintInformation.PRINT_INFO("connection_id = ${t.connection_id}")
-        PrintInformation.PRINT_INFO("connection_coocki = ${t.connection_coocki}")
-        PrintInformation.PRINT_INFO("just_do_it = ${t.just_do_it}")
-        PrintInformation.PRINT_INFO("just_do_it_label = ${t.just_do_it_label}")
-        PrintInformation.PRINT_INFO("ip_port = ${t.ip_port}")
-        PrintInformation.PRINT_INFO("lang = ${t.lang}")
-        PrintInformation.PRINT_INFO("value_par1 = ${t.value_par1}")
-        PrintInformation.PRINT_INFO("value_par2 = ${t.value_par2}")
-        PrintInformation.PRINT_INFO("value_par3 = ${t.value_par3}")
-        PrintInformation.PRINT_INFO("value_par4 = ${t.value_par4}")
-        PrintInformation.PRINT_INFO("value_par5 = ${t.value_par5}")
-        PrintInformation.PRINT_INFO("value_par6 = ${t.value_par6}")
-        PrintInformation.PRINT_INFO("value_par7 = ${t.value_par7}")
-        PrintInformation.PRINT_INFO("value_par8 = ${t.value_par8}")
-        PrintInformation.PRINT_INFO("db_massage = ${t.db_massage}")
+        println("bch1 = ${bch.remaining}")
+        println("connection_id = ${t.connection_id}")
+        println("connection_coocki = ${t.connection_coocki}")
+        println("just_do_it = ${t.just_do_it}")
+        println("just_do_it_label = ${t.just_do_it_label}")
+        println("ip_port = ${t.ip_port}")
+        println("lang = ${t.lang}")
+        println("value_par1 = ${t.value_par1}")
+        println("value_par2 = ${t.value_par2}")
+        println("value_par3 = ${t.value_par3}")
+        println("value_par4 = ${t.value_par4}")
+        println("value_par5 = ${t.value_par5}")
+        println("value_par6 = ${t.value_par6}")
+        println("value_par7 = ${t.value_par7}")
+        println("value_par8 = ${t.value_par8}")
+        println("db_massage = ${t.db_massage}")
+            println("Time of execute: " + (DateTime.nowUnixLong() - tt))
+    }
+        sleep(10000)
     }
 }

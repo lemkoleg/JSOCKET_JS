@@ -11,7 +11,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 class SampleTestsJS {
 
-    suspend fun testMe()  = run < Unit > {
+    fun testMe()  = run < Unit > {
         val l = JSOCKET()
         val t = JSOCKET()
         val h = HASH()
@@ -54,6 +54,7 @@ class SampleTestsJS {
         PrintInformation.PRINT_INFO("connection_id = ${t.connection_id}")
         PrintInformation.PRINT_INFO("connection_coocki = ${t.connection_coocki}")
         PrintInformation.PRINT_INFO("just_do_it = ${t.just_do_it}")
+        PrintInformation.PRINT_INFO("just_do_it_label = ${t.just_do_it_label}")
         PrintInformation.PRINT_INFO("ip_port = ${t.ip_port}")
         PrintInformation.PRINT_INFO("lang = ${t.lang}")
         PrintInformation.PRINT_INFO("value_par1 = ${t.value_par1}")

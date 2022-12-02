@@ -10,7 +10,7 @@ package p_client
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.slash
-import JSOCKET.AvaClubDB
+import JSOCKETDB.AvaClubDB
 import Tables.myDeviceId
 import atomic.AtomicBoolean
 import com.soywiz.korio.experimental.KorioExperimentalApi

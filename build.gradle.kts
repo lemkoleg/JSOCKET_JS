@@ -1,4 +1,4 @@
-val kotlinVersion = "1.7.20"
+val kotlinVersion = "1.7.22"
 val ktorVersion = "2.0.1"
 val reactiveVersion = "1.2.1"
 val KlockVersion = "2.4.13"
@@ -13,7 +13,7 @@ val Fingerprintjs2Version = "2.1.4"
 val StatelyVersion = "1.2.2"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.7.20"
+    id("org.jetbrains.kotlin.multiplatform") version "1.7.22"
     id("com.squareup.sqldelight")  version "1.5.4"
 }
 
@@ -59,18 +59,20 @@ allprojects {
 
 kotlin {
 
+    /*
     kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {
         binaries.all {
             binaryOptions["memoryModel"] = "experimental"
         }
     }
+     */
 
     jvm("jvm") {
         withJava()
-        compilations["main"].kotlinOptions.jvmTarget = "11"
+        compilations["main"].kotlinOptions.jvmTarget = "1.8"
     }
 
-    js("js") {
+    js(IR) {  // or: LEGACY, BOTH
         browser {
 
         }
@@ -79,10 +81,12 @@ kotlin {
         //}
     }
 
+    BOTH
+
     sqldelight {
         database("AvaClubDB") {
             dialect = SQLDelightDialect
-            packageName = "JSOCKET"
+            packageName = "JSOCKETDB"
             //sourceFolders = listOf<String>("src/commonMain/kotlin/sqldelight")
             schemaOutputDirectory = file("src/commonMain/kotlin/sqldelight/databases")
         }
@@ -104,155 +108,155 @@ kotlin {
     }
 
     sourceSets["commonMain"].dependencies {
-        implementation ( kotlin("stdlib-jdk8", kotlinVersion))
-        implementation ( kotlin("stdlib-common", kotlinVersion))
-        implementation ("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+        api ( kotlin("stdlib-jdk8", kotlinVersion))
+        api ( kotlin("stdlib-common", kotlinVersion))
+        api ("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
-        implementation ("io.ktor:ktor-utils:$ktorVersion")
-        implementation ("io.ktor:ktor-io:$ktorVersion")
-        //implementation("io.ktor:ktor-websocket:$ktorVersion")
-        //implementation("io.ktor:ktor-client-websockets:$ktorVersion")
-        //implementation ("io.ktor:ktor-network:$ktorVersion")
-        //implementation ("io.ktor:ktor-websockets:$ktorVersion")
-        //implementation ("io.ktor:ktor-client-websockets:$ktorVersion")
+        api ("io.ktor:ktor-utils:$ktorVersion")
+        api ("io.ktor:ktor-io:$ktorVersion")
+        //api("io.ktor:ktor-websocket:$ktorVersion")
+        //api("io.ktor:ktor-client-websockets:$ktorVersion")
+        //api ("io.ktor:ktor-network:$ktorVersion")
+        //api ("io.ktor:ktor-websockets:$ktorVersion")
+        //api ("io.ktor:ktor-client-websockets:$ktorVersion")
 
-        implementation ("com.soywiz.korlibs.klock:klock:$KlockVersion")
-        implementation ("com.soywiz.korlibs.korim:korim:$KorimVersion")
-        implementation ("com.soywiz.korlibs.korio:korio:$KorioVersion")
-        implementation ("com.soywiz.korlibs.krypto:krypto:$KryptoVersion")
+        api ("com.soywiz.korlibs.klock:klock:$KlockVersion")
+        api ("com.soywiz.korlibs.korim:korim:$KorimVersion")
+        api ("com.soywiz.korlibs.korio:korio:$KorioVersion")
+        api ("com.soywiz.korlibs.krypto:krypto:$KryptoVersion")
 
-        //implementation ("suparnatural-kotlin-multiplatform:cache-metadata:$cachingVersion")
-        //implementation ("suparnatural-kotlin-multiplatform:fs-metadata:$fsVersion")
+        //api ("suparnatural-kotlin-multiplatform:cache-metadata:$cachingVersion")
+        //api ("suparnatural-kotlin-multiplatform:fs-metadata:$fsVersion")
 
-        implementation ("com.badoo.reaktive:reaktive:$reactiveVersion")
-        implementation ("com.badoo.reaktive:reaktive-annotations:$reactiveVersion")
-        implementation ("com.badoo.reaktive:utils:$reactiveVersion")
+        api ("com.badoo.reaktive:reaktive:$reactiveVersion")
+        api ("com.badoo.reaktive:reaktive-annotations:$reactiveVersion")
+        api ("com.badoo.reaktive:utils:$reactiveVersion")
 
 
-        //implementation(npm("alasql","0.0.51"))
-        //implementation(npm("@nano-sql/adapter-sqlite-cordova"))
-        //implementation(npm("@stevegill/cordova-plugin-device"))
+        //api(npm("alasql","0.0.51"))
+        //api(npm("@nano-sql/adapter-sqlite-cordova"))
+        //api(npm("@stevegill/cordova-plugin-device"))
 
-        implementation ("co.touchlab:stately-common:$StatelyVersion")
-        implementation ("co.touchlab:stately-concurrency:$StatelyVersion")
-        implementation ("co.touchlab:stately-isolate:$StatelyVersion")
+        api ("co.touchlab:stately-common:$StatelyVersion")
+        api ("co.touchlab:stately-concurrency:$StatelyVersion")
+        api ("co.touchlab:stately-isolate:$StatelyVersion")
 
-        implementation ("co.touchlab:stately-isolate:$StatelyVersion")
+        api ("co.touchlab:stately-isolate:$StatelyVersion")
 
     }
 
     sourceSets["commonTest"].dependencies {
-        implementation ( kotlin("test-common", kotlinVersion))
-        implementation ( kotlin("test-annotations-common", kotlinVersion))
+        api ( kotlin("test-common", kotlinVersion))
+        api ( kotlin("test-annotations-common", kotlinVersion))
     }
 
     sourceSets["jvmMain"].dependencies {
-        implementation ( kotlin("stdlib-jdk8", kotlinVersion))
-        implementation ("io.ktor:ktor-utils-jvm:$ktorVersion")
-        implementation ("io.ktor:ktor-io-jvm:$ktorVersion")
-        //implementation ("io.ktor:ktor-client-websockets-jvm:$ktorVersion")
-        //implementation ("io.ktor:ktor-network-jwm:$ktorVersion")
-        //implementation ("io.ktor:ktor-websockets-jwm:$ktorVersion")
+        api ( kotlin("stdlib-jdk8", kotlinVersion))
+        api ("io.ktor:ktor-utils-jvm:$ktorVersion")
+        api ("io.ktor:ktor-io-jvm:$ktorVersion")
+        //api ("io.ktor:ktor-client-websockets-jvm:$ktorVersion")
+        //api ("io.ktor:ktor-network-jwm:$ktorVersion")
+        //api ("io.ktor:ktor-websockets-jwm:$ktorVersion")
 
-        //implementation ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
+        //api ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
 
-        implementation ("com.badoo.reaktive:reaktive-jvm:$reactiveVersion")
-        implementation ("com.badoo.reaktive:reaktive-annotations-jvm:$reactiveVersion")
-        implementation ("com.badoo.reaktive:utils-jvm:$reactiveVersion")
+        api ("com.badoo.reaktive:reaktive-jvm:$reactiveVersion")
+        api ("com.badoo.reaktive:reaktive-annotations-jvm:$reactiveVersion")
+        api ("com.badoo.reaktive:utils-jvm:$reactiveVersion")
 
-        implementation ("com.soywiz.korlibs.klock:klock-jvm:$KlockVersion")
-        implementation ("com.soywiz.korlibs.korim:korim-jvm:$KorimVersion")
-        implementation ("com.soywiz.korlibs.krypto:krypto-jvm:$KryptoVersion")
+        api ("com.soywiz.korlibs.klock:klock-jvm:$KlockVersion")
+        api ("com.soywiz.korlibs.korim:korim-jvm:$KorimVersion")
+        api ("com.soywiz.korlibs.krypto:krypto-jvm:$KryptoVersion")
 
-        implementation ("com.squareup.sqldelight:sqlite-driver:$SQLDelightVersion")
-        //implementation ("com.squareup.sqldelight:native-driver:$SQLDelightVersion")
-        //implementation ("com.squareup.sqldelight:android-driver:$SQLDelightVersion")
+        api ("com.squareup.sqldelight:sqlite-driver:$SQLDelightVersion")
+        //api ("com.squareup.sqldelight:native-driver:$SQLDelightVersion")
+        //api ("com.squareup.sqldelight:android-driver:$SQLDelightVersion")
 
-        implementation(fileTree(mapOf("dir" to "E:/MyNetBeans/Librery/MY_OSHI", "include" to listOf("*.jar"))))
+        api(fileTree(mapOf("dir" to "E:/MyNetBeans/Librery/MY_OSHI", "include" to listOf("*.jar"))))
     }
 
     sourceSets["jvmTest"].dependencies {
-        implementation(kotlin("test"))
-        implementation(kotlin("test-junit"))
+        api(kotlin("test"))
+        api(kotlin("test-junit"))
     }
 
 
     sourceSets["jsMain"].dependencies {
-        implementation(kotlin("stdlib-js", kotlinVersion))
-        implementation("io.ktor:ktor-utils-js:$ktorVersion")
-        implementation("io.ktor:ktor-io-js:$ktorVersion")
-        //implementation ("io.ktor:ktor-client-websockets-js:$ktorVersion")
-        //implementation ("io.ktor:ktor-network-js:$ktorVersion")
-        //implementation ("io.ktor:ktor-websockets-js:$ktorVersion")
+        api(kotlin("stdlib-js", kotlinVersion))
+        api("io.ktor:ktor-utils-js:$ktorVersion")
+        api("io.ktor:ktor-io-js:$ktorVersion")
+        //api ("io.ktor:ktor-client-websockets-js:$ktorVersion")
+        //api ("io.ktor:ktor-network-js:$ktorVersion")
+        //api ("io.ktor:ktor-websockets-js:$ktorVersion")
 
-        //implementation ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
+        //api ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
 
-        //implementation ("com.badoo.reaktive:reaktive-js:$reactiveVersion")
-        //implementation ("com.badoo.reaktive:reaktive-annotations-js:$reactiveVersion")
-        //implementation ("com.badoo.reaktive:utils-js:$reactiveVersion")
+        //api ("com.badoo.reaktive:reaktive-js:$reactiveVersion")
+        //api ("com.badoo.reaktive:reaktive-annotations-js:$reactiveVersion")
+        //api ("com.badoo.reaktive:utils-js:$reactiveVersion")
 
-        implementation("com.soywiz.korlibs.klock:klock-js:$KlockVersion")
-        implementation("com.soywiz.korlibs.korim:korim-js:$KorimVersion")
-        implementation("com.soywiz.korlibs.krypto:krypto-js:$KryptoVersion")
+        api("com.soywiz.korlibs.klock:klock-js:$KlockVersion")
+        api("com.soywiz.korlibs.korim:korim-js:$KorimVersion")
+        api("com.soywiz.korlibs.krypto:krypto-js:$KryptoVersion")
 
-        //implementation ("com.squareup.sqldelight:sqljs-driver:$SQLDelightVersion")
+        //api ("com.squareup.sqldelight:sqljs-driver:$SQLDelightVersion")
 
-        //implementation(fileTree(mapOf("dir" to "E:/MyIntellijIDEA/JSOCKET/src/jsMain/kotlin/js", "include" to listOf("*.js"))))
+        //api(fileTree(mapOf("dir" to "E:/MyIntellijIDEA/JSOCKET/src/jsMain/kotlin/js", "include" to listOf("*.js"))))
 
-        //implementation(npm("@fingerprintjs/fingerprintjs", Fingerprintjs2Version))
-        //implementation(npm("await-signal"))
-        //implementation(npm("text-encoding", TextEncodingVersion))
-        //implementation(npm("alasql", AlaSQLVersion))
-        //implementation(npm("eventemitter3"))
-        //implementation(npm("delay"))
+        //api(npm("@fingerprintjs/fingerprintjs", Fingerprintjs2Version))
+        //api(npm("await-signal"))
+        //api(npm("text-encoding", TextEncodingVersion))
+        //api(npm("alasql", AlaSQLVersion))
+        //api(npm("eventemitter3"))
+        //api(npm("delay"))
 
-        //implementation ("org.webjars.npm:macaddress:0.2.9"
-        //implementation(npm("macaddress", "0.2.9"))
+        //api ("org.webjars.npm:macaddress:0.2.9"
+        //api(npm("macaddress", "0.2.9"))
     }
 
 
 
 
     sourceSets["jsTest"].dependencies {
-        implementation ( kotlin("test-js", kotlinVersion))
+        api ( kotlin("test-js", kotlinVersion))
     }
 
     /*sourceSets["androidMain"].dependencies {
-    implementation ("io.ktor:ktor-utils-android:$ktorVersion")
-    implementation ("io.ktor:ktor-io-android:$ktorVersion")
+    api ("io.ktor:ktor-utils-android:$ktorVersion")
+    api ("io.ktor:ktor-io-android:$ktorVersion")
 
-    //implementation ("suparnatural-kotlin-multiplatform:cache-android:$cachingVersion")
-    //implementation ("suparnatural-kotlin-multiplatform:fs-android:$fsVersion")
+    //api ("suparnatural-kotlin-multiplatform:cache-android:$cachingVersion")
+    //api ("suparnatural-kotlin-multiplatform:fs-android:$fsVersion")
 
-    implementation ("com.badoo.reaktive:reaktive-android:$reactiveVersion")
-    implementation ("com.badoo.reaktive:reaktive-annotations-android:$reactiveVersion")
-    implementation ("com.badoo.reaktive:utils-android:$reactiveVersion")
+    api ("com.badoo.reaktive:reaktive-android:$reactiveVersion")
+    api ("com.badoo.reaktive:reaktive-annotations-android:$reactiveVersion")
+    api ("com.badoo.reaktive:utils-android:$reactiveVersion")
 
-    implementation ("com.soywiz.korlibs.klock:klock-android:$KlockVersion")
-    implementation ("com.soywiz.korlibs.korim:korim-jwm:$KorimVersion")
+    api ("com.soywiz.korlibs.klock:klock-android:$KlockVersion")
+    api ("com.soywiz.korlibs.korim:korim-jwm:$KorimVersion")
     }
 
     sourceSets["androidTest"].dependencies {
     }*/
 
 /*sourceSets["iosX64Main"].dependencies {
-    implementation ("io.ktor:ktor-utils-iosx64:$ktorVersion")
-    implementation ("io.ktor:ktor-io-iosx64:$ktorVersion")
-    //implementation ("io.ktor:ktor-client-websockets-iosx64:$ktorVersion")
-    //implementation ("io.ktor:ktor-network-iosx64:$ktorVersion")
-    //implementation ("io.ktor:ktor-websockets-iosx64:$ktorVersion")
+    api ("io.ktor:ktor-utils-iosx64:$ktorVersion")
+    api ("io.ktor:ktor-io-iosx64:$ktorVersion")
+    //api ("io.ktor:ktor-client-websockets-iosx64:$ktorVersion")
+    //api ("io.ktor:ktor-network-iosx64:$ktorVersion")
+    //api ("io.ktor:ktor-websockets-iosx64:$ktorVersion")
 
-    implementation ("suparnatural-kotlin-multiplatform:cache-iosx64:$cachingVersion")
-    implementation ("suparnatural-kotlin-multiplatform:fs-iosx64:$fsVersion")
+    api ("suparnatural-kotlin-multiplatform:cache-iosx64:$cachingVersion")
+    api ("suparnatural-kotlin-multiplatform:fs-iosx64:$fsVersion")
 
-    //implementation ("com.badoo.reaktive:reaktive-iosx64:$reactiveVersion")
-    //implementation ("com.badoo.reaktive:reaktive-annotations-iosx64:$reactiveVersion")
-    //implementation ("com.badoo.reaktive:utils-iosx64:$reactiveVersion")
+    //api ("com.badoo.reaktive:reaktive-iosx64:$reactiveVersion")
+    //api ("com.badoo.reaktive:reaktive-annotations-iosx64:$reactiveVersion")
+    //api ("com.badoo.reaktive:utils-iosx64:$reactiveVersion")
 
-    implementation "com.squareup.sqldelight:native-driver:$SQLDelightVersion"
+    api "com.squareup.sqldelight:native-driver:$SQLDelightVersion"
 
-    implementation ("com.soywiz.korlibs.klock:klock-iosx64:$KorlibsKlockVersion")
-    implementation ("com.soywiz.korlibs.korim:korim-iosx64:$KorlibsKorimVersion")
+    api ("com.soywiz.korlibs.klock:klock-iosx64:$KorlibsKlockVersion")
+    api ("com.soywiz.korlibs.korim:korim-iosx64:$KorlibsKorimVersion")
 }*/
 
 /*val js = js("js").compilations.all {
@@ -276,24 +280,24 @@ sourceSets {
         kotlin.srcDir("src/commonMain/kotlin")
         resources.srcDir("src/commonMain/resources")
            dependencies {
-            implementation ( kotlin("stdlib-jdk8", kotlinVersion))
-            implementation ( kotlin("stdlib-common", kotlinVersion))
-            implementation ("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+            api ( kotlin("stdlib-jdk8", kotlinVersion))
+            api ( kotlin("stdlib-common", kotlinVersion))
+            api ("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
-            implementation ("io.ktor:ktor-utils:$ktorVersion")
-            implementation ("io.ktor:ktor-io:$ktorVersion")
-            implementation ("io.ktor:ktor-network:$ktorVersion")
-            implementation ("io.ktor:ktor-websockets:$ktorVersion")
+            api ("io.ktor:ktor-utils:$ktorVersion")
+            api ("io.ktor:ktor-io:$ktorVersion")
+            api ("io.ktor:ktor-network:$ktorVersion")
+            api ("io.ktor:ktor-websockets:$ktorVersion")
 
-            implementation ("com.soywiz.korlibs.klock:klock:$KorlibsKlockVersion")
-            implementation ("com.soywiz.korlibs.korim:korim:$KorlibsKorimVersion")
+            api ("com.soywiz.korlibs.klock:klock:$KorlibsKlockVersion")
+            api ("com.soywiz.korlibs.korim:korim:$KorlibsKorimVersion")
 
-            implementation ("suparnatural-kotlin-multiplatform:cache-metadata:$cachingVersion")
-            implementation ("suparnatural-kotlin-multiplatform:fs-metadata:$fsVersion")
+            api ("suparnatural-kotlin-multiplatform:cache-metadata:$cachingVersion")
+            api ("suparnatural-kotlin-multiplatform:fs-metadata:$fsVersion")
 
-            implementation ("com.badoo.reaktive:reaktive:$reactiveVersion")
-            implementation ("com.badoo.reaktive:reaktive-annotations:$reactiveVersion")
-            implementation ("com.badoo.reaktive:utils:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-annotations:$reactiveVersion")
+            api ("com.badoo.reaktive:utils:$reactiveVersion")
 
         }
     }
@@ -302,8 +306,8 @@ sourceSets {
         resources.srcDir("src/commonTest/resources")
         dependsOn(getByName("commonMain"))
         dependencies {
-            implementation ( kotlin("test-common", kotlinVersion))
-            implementation ( kotlin("test-annotations-common", kotlinVersion))
+            api ( kotlin("test-common", kotlinVersion))
+            api ( kotlin("test-annotations-common", kotlinVersion))
         }
     }
     val jvmMain by getting {
@@ -311,22 +315,22 @@ sourceSets {
         resources.srcDir("src/jwmMain/resources")
         //dependsOn(getByName("commonMain"))
         dependencies {
-            implementation ( kotlin("stdlib-jdk8", kotlinVersion))
-            implementation ("io.ktor:ktor-utils-jvm:$ktorVersion")
-            implementation ("io.ktor:ktor-io-jvm:$ktorVersion")
-            //implementation ("io.ktor:ktor-network-jwm:$ktorVersion")
-            //implementation ("io.ktor:ktor-websockets-jwm:$ktorVersion")
+            api ( kotlin("stdlib-jdk8", kotlinVersion))
+            api ("io.ktor:ktor-utils-jvm:$ktorVersion")
+            api ("io.ktor:ktor-io-jvm:$ktorVersion")
+            //api ("io.ktor:ktor-network-jwm:$ktorVersion")
+            //api ("io.ktor:ktor-websockets-jwm:$ktorVersion")
 
-            implementation ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
+            api ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
 
-            implementation ("com.badoo.reaktive:reaktive-jvm:$reactiveVersion")
-            implementation ("com.badoo.reaktive:reaktive-annotations-jvm:$reactiveVersion")
-            implementation ("com.badoo.reaktive:utils-jvm:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-jvm:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-annotations-jvm:$reactiveVersion")
+            api ("com.badoo.reaktive:utils-jvm:$reactiveVersion")
 
-            implementation ("com.soywiz.korlibs.klock:klock-jvm:$KorlibsKlockVersion")
-            implementation ("com.soywiz.korlibs.korim:korim-jvm:$KorlibsKorimVersion")
+            api ("com.soywiz.korlibs.klock:klock-jvm:$KorlibsKlockVersion")
+            api ("com.soywiz.korlibs.korim:korim-jvm:$KorlibsKorimVersion")
 
-            implementation(fileTree(mapOf("dir" to "E:/MyNetBeans/Librery/MY_OSHI", "include" to listOf("*.jar"))))
+            api(fileTree(mapOf("dir" to "E:/MyNetBeans/Librery/MY_OSHI", "include" to listOf("*.jar"))))
         }
     }
     val jvmTest by getting {
@@ -334,8 +338,8 @@ sourceSets {
         resources.srcDir("src/jwmTest/resources")
         dependsOn(getByName("jvmMain"))
         dependencies {
-            implementation(kotlin("test"))
-            implementation(kotlin("test-junit"))
+            api(kotlin("test"))
+            api(kotlin("test-junit"))
         }
     }
     val jsMain by getting {
@@ -343,25 +347,25 @@ sourceSets {
         resources.srcDir("src/jsMain/resources")
         //dependsOn(getByName("commonMain"))
         dependencies {
-            implementation ( kotlin("stdlib-js", kotlinVersion))
-            implementation ("io.ktor:ktor-utils-js:$ktorVersion")
-            implementation ("io.ktor:ktor-io-js:$ktorVersion")
-            //implementation ("io.ktor:ktor-network-js:$ktorVersion")
-            //implementation ("io.ktor:ktor-websockets-js:$ktorVersion")
+            api ( kotlin("stdlib-js", kotlinVersion))
+            api ("io.ktor:ktor-utils-js:$ktorVersion")
+            api ("io.ktor:ktor-io-js:$ktorVersion")
+            //api ("io.ktor:ktor-network-js:$ktorVersion")
+            //api ("io.ktor:ktor-websockets-js:$ktorVersion")
 
-            //implementation ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
+            //api ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
 
-            implementation ("com.badoo.reaktive:reaktive-js:$reactiveVersion")
-            implementation ("com.badoo.reaktive:reaktive-annotations-js:$reactiveVersion")
-            implementation ("com.badoo.reaktive:utils-js:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-js:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-annotations-js:$reactiveVersion")
+            api ("com.badoo.reaktive:utils-js:$reactiveVersion")
 
-            implementation ("com.soywiz.korlibs.klock:klock-js:$KorlibsKlockVersion")
-            implementation ("com.soywiz.korlibs.korim:korim-js:$KorlibsKorimVersion")
+            api ("com.soywiz.korlibs.klock:klock-js:$KorlibsKlockVersion")
+            api ("com.soywiz.korlibs.korim:korim-js:$KorlibsKorimVersion")
 
-            //implementation(npm("fingerprintjs2", "2.1.0"))
+            //api(npm("fingerprintjs2", "2.1.0"))
 
-            //implementation ("org.webjars.npm:macaddress:0.2.9"
-            //implementation(npm("macaddress", "0.2.9"))
+            //api ("org.webjars.npm:macaddress:0.2.9"
+            //api(npm("macaddress", "0.2.9"))
         }
     }
     val jsTest by getting {
@@ -369,7 +373,7 @@ sourceSets {
         resources.srcDir("src/jsTest/resources")
         dependsOn(getByName("jsMain"))
         dependencies {
-            implementation ( kotlin("test-js", kotlinVersion))
+            api ( kotlin("test-js", kotlinVersion))
         }
     }
 
@@ -378,20 +382,20 @@ sourceSets {
         resources.srcDir("src/iosX64Main/resources")
         //dependsOn(getByName("commonMain"))
         dependencies {
-            implementation ("io.ktor:ktor-utils-iosx64:$ktorVersion")
-            implementation ("io.ktor:ktor-io-iosx64:$ktorVersion")
-            //implementation ("io.ktor:ktor-network-iosx64:$ktorVersion")
-            //implementation ("io.ktor:ktor-websockets-iosx64:$ktorVersion")
+            api ("io.ktor:ktor-utils-iosx64:$ktorVersion")
+            api ("io.ktor:ktor-io-iosx64:$ktorVersion")
+            //api ("io.ktor:ktor-network-iosx64:$ktorVersion")
+            //api ("io.ktor:ktor-websockets-iosx64:$ktorVersion")
 
-            implementation ("suparnatural-kotlin-multiplatform:cache-iosx64:$cachingVersion")
-            implementation ("suparnatural-kotlin-multiplatform:fs-iosx64:$fsVersion")
+            api ("suparnatural-kotlin-multiplatform:cache-iosx64:$cachingVersion")
+            api ("suparnatural-kotlin-multiplatform:fs-iosx64:$fsVersion")
 
-            //implementation ("com.badoo.reaktive:reaktive-iosx64:$reactiveVersion")
-            //implementation ("com.badoo.reaktive:reaktive-annotations-iosx64:$reactiveVersion")
-            //implementation ("com.badoo.reaktive:utils-iosx64:$reactiveVersion")
+            //api ("com.badoo.reaktive:reaktive-iosx64:$reactiveVersion")
+            //api ("com.badoo.reaktive:reaktive-annotations-iosx64:$reactiveVersion")
+            //api ("com.badoo.reaktive:utils-iosx64:$reactiveVersion")
 
-            implementation ("com.soywiz.korlibs.klock:klock-iosx64:$KorlibsKlockVersion")
-            implementation ("com.soywiz.korlibs.korim:korim-iosx64:$KorlibsKorimVersion")
+            api ("com.soywiz.korlibs.klock:klock-iosx64:$KorlibsKlockVersion")
+            api ("com.soywiz.korlibs.korim:korim-iosx64:$KorlibsKorimVersion")
 
 
         }
@@ -407,18 +411,18 @@ sourceSets {
         resources.srcDir("src/androidMain/resources")
         //dependsOn(getByName("commonMain"))
         dependencies {
-            implementation ("io.ktor:ktor-utils-jvm:$ktorVersion")
-            implementation ("io.ktor:ktor-io-jvm:$ktorVersion")
+            api ("io.ktor:ktor-utils-jvm:$ktorVersion")
+            api ("io.ktor:ktor-io-jvm:$ktorVersion")
 
-            implementation ("suparnatural-kotlin-multiplatform:cache-android:$cachingVersion")
-            implementation ("suparnatural-kotlin-multiplatform:fs-android:$fsVersion")
+            api ("suparnatural-kotlin-multiplatform:cache-android:$cachingVersion")
+            api ("suparnatural-kotlin-multiplatform:fs-android:$fsVersion")
 
-            implementation ("com.badoo.reaktive:reaktive-android:$reactiveVersion")
-            implementation ("com.badoo.reaktive:reaktive-annotations-android:$reactiveVersion")
-            implementation ("com.badoo.reaktive:utils-android:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-android:$reactiveVersion")
+            api ("com.badoo.reaktive:reaktive-annotations-android:$reactiveVersion")
+            api ("com.badoo.reaktive:utils-android:$reactiveVersion")
 
-            implementation ("com.soywiz.korlibs.klock:klock-jvm:$KorlibsKlockVersion")
-            implementation ("com.soywiz.korlibs.korim:korim-jvm:$KorlibsKorimVersion")
+            api ("com.soywiz.korlibs.klock:klock-jvm:$KorlibsKlockVersion")
+            api ("com.soywiz.korlibs.korim:korim-jvm:$KorlibsKorimVersion")
 
         }
     }

@@ -806,18 +806,18 @@ open class JSOCKET() {
 
 
     @JsName("serialize")
-    suspend fun serialize(verify_fields: Boolean): ByteArray {
+    fun serialize(verify_fields: Boolean): ByteArray {
 
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
 
-            connection_id = myConnectionsCoocki
+            connection_id = myConnectionsID
             connection_coocki = myConnectionsCoocki
             device_id = myDeviceId
             lang = myLang
             last_messege_update = globalLastChatsSelect.value
             last_metadata_update = meta_data_last_update.value
-            db_massage = ""
+            //db_massage = ""
             just_do_it_successfull = "0"
             connection_context = myConnectionContext
             just_do_it_label = nowNano()
@@ -881,7 +881,7 @@ open class JSOCKET() {
                         l_additional_text = "connection_id is null"
                     )
                 }
-                if (connection_id.equals(0L)) {
+                if (connection_coocki.equals(0L)) {
                     throw my_user_exceptions_class(
                         l_class_name = "JSOCKET",
                         l_function_name = "serialize",
@@ -1743,6 +1743,12 @@ open class JSOCKET() {
             request_size = lbb.remaining
             bb = lbb
             start_position = 0
+
+           // for debug
+            bb!!.readBytes(17)
+
+            request_size = lbb.readInt().toLong()
+
             if (ip) {
                 ip_port = bb!!.readInt()
                 ip_address = bb!!.readBytes(23).decodeToString()
@@ -1754,7 +1760,7 @@ open class JSOCKET() {
                 is_new_reg_data = true
             }
 
-            if (connection_id != 0L && myConnectionsID == connection_id) {
+            if (connection_id != 0L && myConnectionsID != connection_id) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
@@ -1860,7 +1866,8 @@ open class JSOCKET() {
             }
             ////////////////////////////////////////////////////////////////////////////////
             //val nameFields = this::class.members.asSequence().associateBy { it.name }
-            loopDeSerr@ while (bb!!.isNotEmpty) {
+            //loopDeSerr@ while (bb!!.isNotEmpty) {
+            loopDeSerr@ while (bb!!.remaining > 8L) {  // for debug;
                 nameField_length = 0
                 nameField_number = 0
                 nameField_number = bb!!.readInt()

@@ -405,7 +405,6 @@ class HASH {
     @JsName("getMD5String")
     fun getMD5String(input_string: String): String {
         return input_string.encodeToByteArray().md5().hexUpper
-
     }
 
     @JsName("getReverseMD5String")
