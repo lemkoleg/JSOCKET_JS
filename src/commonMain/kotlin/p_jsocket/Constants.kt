@@ -28,7 +28,7 @@ object Constants {
     val isInterrupted = AtomicBoolean(false)
 
     @JsName("dbLocalName")
-    const val dbLocalName = "AUF"
+    const val dbLocalName = "AUFDB"
 
     @JsName("CLIENT_TIMEOUT")
     var CLIENT_TIMEOUT = 5000L

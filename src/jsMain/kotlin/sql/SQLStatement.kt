@@ -98,268 +98,281 @@ actual class SQLStatement actual constructor() {
     ///////////////////////////////////big avatars///////////////////////////
 
     actual suspend fun TABLE_BIG_AVATARS() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_BIG_AVATARS_LAST_USE() { // for clear old last use in trigger
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String): KBigAvatar? {
-        TODO()
+        // TODO()
+        return null
     }
 
     actual suspend fun SELECT_BIGAVATARS_ALL_ID(): ArrayList<String> {  //for save in memory
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun SELECT_BIGAVATARS_ALL(): ArrayList<KBigAvatar> {  //for save in memory
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun DELETE_BIG_AVATAR(OBJECTS_ID: String) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun CLEAR_BIG_AVATARS() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID: String, LAST_USE: Long) {
-        TODO()
+        // TODO()
     }
 
 ///////////// commands ///////////////////////////
 
     actual suspend fun TABLE_COMMANDS() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_COMMAND(kCommand: KCommands) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_COMMANDS_ALL(): ArrayList<KCommands> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun CLEAR_COMMANDS() {
-        TODO()
+        // TODO()
     }
 
 /////////////exceptions///////////////////////////
 
     actual suspend fun TABLE_EXCEPTION() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_EXCEPTION(kException: KExceptions.KException) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_EXCEPTION_ALL(): ArrayList<KExceptions.KException> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun CLEAR_EXCEPTION() {
-        TODO()
+        // TODO()
     }
 
 /////////////meta data///////////////////////////
 
     actual suspend fun TABLE_METADATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_METADATA(kMetaData: KMetaData) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun CLEAR_METADATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_ALL_METADATA(): ArrayList<KMetaData> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
 /////////////reg data///////////////////////////
 
     actual suspend fun TABLE_REGDATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_REGDATA_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_REGDATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun CLEAR_REGDATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_REGDATA_ALL() {
-        TODO()
+        // TODO()
     }
 
 /////////////save media///////////////////////////
 
     actual suspend fun TABLE_SAVEMEDIA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_SAVEMEDIA_LASTUSED() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_SAVEMEDIA_ISTEMP() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_SAVEMEDIA_AVATAR_ID() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_SAVEMEDIA_ALL(conn_id: Long): ArrayList<KSaveMedia> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun DELETE_SAVEMEDIA(v: String) {
-        TODO()
+        // TODO()
     }
 
 /////////////last update///////////////////////////
 
     actual suspend fun TABLE_CASHLASTUPDATE() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_CASHLASTUPDATE_LAST_USE() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_EMPTY_BLOCKS_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_LINKS_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_CASHLASTUPDATE(kCashLastUpdate: KCashLastUpdate) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_CASHLASTUPDATE_ALL(): ArrayList<KCashLastUpdate> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun CLEAR_LASTUPDATE() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun DELETE_LASTUPDATE(cash_sum: String) {
-        TODO()
+        // TODO()
     }
 
 /////////////cash data///////////////////////////
 
     actual suspend fun TABLE_CASHDATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_CASHDATA_NUMBER_POSITION_ASC() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INDEX_CASHDATA_CASH_SUM() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHDATA_AFTER_INSERT() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun TRIGGER_CASHDATA_AFTER_UPDATE() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun INSERT_CASHDATA(cash_sum: String, lANSWER_TYPE: ANSWER_TYPE) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun SELECT_CASHDATA_ALL(): ArrayDeque<ANSWER_TYPE> {
-        TODO()
+        // TODO()
+        return ArrayDeque()
     }
 
     actual suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: String): ArrayDeque<ANSWER_TYPE> {
-        TODO()
+        // TODO()
+        return ArrayDeque()
     }
 
     actual suspend fun SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
         CASH_SUM: String,
         record_id_from: String
     ): ArrayDeque<ANSWER_TYPE> {
-        TODO()
+        // TODO()
+        return ArrayDeque()
     }
 
     actual suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ANSWER_TYPE? {
-        TODO()
+        // TODO()
+        return null
     }
 
     actual suspend fun SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM(CASH_SUM: String): ArrayList<String> {
-        TODO()
+        // TODO()
+        return ArrayList()
     }
 
     actual suspend fun CLEAR_CASHDATA() {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM: String) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(CASH_SUM: String) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun UPDATE_CASHDATA_NEW_LAST_SELECT(
@@ -368,15 +381,15 @@ actual class SQLStatement actual constructor() {
         record_table_id_from: String,
         limit: Int
     ) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun DELETE_CASHDATA(cash_sum: String) {
-        TODO()
+        // TODO()
     }
 
     actual suspend fun DELETE_CASHDATA_RECORD(cash_sum: String, record_id: String) {
-        TODO()
+        // TODO()
     }
 
 

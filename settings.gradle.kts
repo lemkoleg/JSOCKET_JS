@@ -1,7 +1,6 @@
 rootProject.name = "JSOCKET"
 
 
-
 pluginManagement {
     repositories {
         mavenLocal()

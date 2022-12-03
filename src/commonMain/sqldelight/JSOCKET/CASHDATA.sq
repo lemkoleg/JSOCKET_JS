@@ -446,7 +446,7 @@ VALUES
           FROM MetaData
           WHERE VALUE_NAME = 'LIMIT_FOR_SELECT')
    OFFSET 0 + ifnull((SELECT tab1.INTEGER_19 FROM (SELECT row_number() OVER (
-                                                          ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
+                                                              ORDER BY c1.INTEGER_20 ASC, c1.INTEGER_20_LEVEL ASC
                                                            ) AS INTEGER_19,
                                                          c1.RECORD_TABLE_ID AS record_id
                                                    FROM CashData AS c1

@@ -10,7 +10,7 @@ package p_client
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.slash
-import JSOCKETDB.AvaClubDB
+import JSOCKET.AUFDB
 import Tables.myDeviceId
 import atomic.AtomicBoolean
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -77,7 +77,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                     }
                     PrintInformation.PRINT_INFO("end myDeviceId")
                     if (sqlDriver != null) {
-                        db = AvaClubDB(sqlDriver!!)
+                        db = AUFDB(sqlDriver!!)
                     }
                     initDirectories(FileDir)
                     PrintInformation.PRINT_INFO("end initDirectories")

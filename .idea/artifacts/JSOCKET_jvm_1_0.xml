@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="JSOCKET-jvm">
+  <artifact type="jar" name="JSOCKET-jvm-1.0">
     <output-path>$PROJECT_DIR$/build/libs</output-path>
-    <root id="archive" name="JSOCKET-jvm.jar">
+    <root id="archive" name="JSOCKET-jvm-1.0.jar">
       <element id="module-output" name="JSOCKET.jvmMain" />
     </root>
   </artifact>

@@ -78,7 +78,7 @@ class my_user_exceptions_class : exception_names, Exception {
             )
         }
 
-        exception_text = if(l_additional_text != null && l_additional_text.isNotEmpty()){
+        exception_text = if(!l_additional_text.isNullOrEmpty()){
             kException.TEXT_OF_ECXEPTION + " - " +l_additional_text
         }else{
             kException.TEXT_OF_ECXEPTION
@@ -87,6 +87,11 @@ class my_user_exceptions_class : exception_names, Exception {
         date_of_exception = DateTime.now().format(DateFormat.FORMAT1)
         exception_full_text =
             "class_name: $class_name ; function_name: $function_name ; exception_text: $exception_text"
+
+        if (Constants.FIX_INTO_SCREEN_ERRORS == 1){
+            println(exception_full_text)
+        }
+
     }
 
     fun ExceptionHand(jsocket: JSOCKET?) {

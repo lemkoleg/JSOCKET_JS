@@ -24,7 +24,7 @@ class SampleTestsJVM {
     fun testMe()  = run < Unit > {
 
         CoroutineScope(Dispatchers.Default).launch {
-            val tt = DateTime.nowUnixLong()
+            var tt = DateTime.nowUnixLong()
         val l = JSOCKET()
         val t = JSOCKET()
             myDeviceId = "AAAAAAAAAAAAAAAA"
@@ -65,6 +65,8 @@ class SampleTestsJVM {
         val bch = ByteReadPacket(l.serialize(false))
         println("bch1 = ${bch.remaining}")
             println("just_do_it_label = ${t.just_do_it_label}")
+            println("Time of execute 1 part: " + (DateTime.nowUnixLong() - tt))
+            tt = DateTime.nowUnixLong()
         t.deserialize(bch, l.connection_coocki, false)
         println("bch1 = ${bch.remaining}")
         println("connection_id = ${t.connection_id}")
