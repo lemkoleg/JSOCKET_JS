@@ -1,8 +1,5 @@
 package p_jsocket
 
-import Tables.myConnectionsCoocki
-import Tables.myConnectionsID
-import Tables.myDeviceId
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -27,9 +24,9 @@ class SampleTestsJVM {
             var tt = DateTime.nowUnixLong()
         val l = JSOCKET()
         val t = JSOCKET()
-            myDeviceId = "AAAAAAAAAAAAAAAA"
-            myConnectionsID = 102000111220000003L
-            myConnectionsCoocki = 102000111225633533L
+            Constants.myDeviceId = "AAAAAAAAAAAAAAAA"
+            Constants.myConnectionsID = 102000111220000003L
+            Constants.myConnectionsCoocki = 102000111225633533L
         val h = HASH()
         val b = byteArrayOf(
             'r'.code.toByte(), 't'.code.toByte(), 'y'.code.toByte(), 'u'.code.toByte(),

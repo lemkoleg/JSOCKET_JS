@@ -366,7 +366,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         }
                                         "N" -> {  // NOTICES;
                                             cash_sum = GetCashSum(
-                                                L_OBJECT_ID = Account_Id,
+                                                L_OBJECT_ID = Constants.Account_Id,
                                                 L_RECORD_TYPE = it.RECORD_TYPE,
                                                 L_COURSE = "0"
                                             )
@@ -406,7 +406,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                 }
                                                 "N" -> {  // NOTICES;
                                                     alien_cash_last_update = KCashLastUpdate(
-                                                        L_OBJECT_ID = Account_Id,
+                                                        L_OBJECT_ID = Constants.Account_Id,
                                                         L_RECORD_TYPE = it.RECORD_TYPE,
                                                         L_COURSE = "0"
                                                     )
@@ -628,7 +628,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                         if (CashLastUpdate.RECORD_TYPE == "N" && object_recod_id_from.isEmpty()) {
                             val notices_last_update = GetCashSum(
-                                L_OBJECT_ID = Account_Id,
+                                L_OBJECT_ID = Constants.Account_Id,
                                 L_RECORD_TYPE = "R",
                                 L_COURSE = "0"
                             )

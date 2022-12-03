@@ -3,7 +3,6 @@
 package Tables
 
 import CrossPlatforms.PrintInformation
-import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -21,114 +20,7 @@ import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myConnectionsID")
-var myConnectionsID = 0L
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myConnectionsCoocki")
-var myConnectionsCoocki = 0L
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myConnectionContext")
-val myConnectionContext = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myLang")
-var myLang = "ENG"
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myDeviceId")
-var myDeviceId = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myRequestProfile")
-var myRequestProfile = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("myAccountProfile")
-var myAccountProfile = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("isPRO")
-var isPRO = false
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("mailConfirm")
-var mailConfirm = false
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-private val KRegDataLock = Mutex()
-
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var Account_Id = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var Account_Name = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var Account_Access = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var Avatar_Id = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var ORIGINAL_AVATAR_SIZE = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var AVATAR_SERVER = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var AVATAR_LINK = ""
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var BALANCE_OF_CHATS = 0
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-var LAST_UPDATE = 0L
-
-var AVATAR_1: ByteArray? = null
-var AVATAR_2: ByteArray? = null
-var AVATAR_3: ByteArray? = null
 
 
 @KorioExperimentalApi
@@ -139,9 +31,7 @@ class KRegData {
 
     companion object {
 
-        init {
-            ensureNeverFrozen()
-        }
+        private val KRegDataLock = Mutex()
 
         val SelfAnswerType: ANSWER_TYPE = ANSWER_TYPE()
 
@@ -156,9 +46,9 @@ class KRegData {
                                 if(v.request_profile.isNotEmpty()
                                     && v.request_profile.length == 30
                                     && !v.request_profile.equals("------------------------------") ){
-                                    myRequestProfile = v.request_profile
-                                    isPRO = myRequestProfile.substring(0, 1) == "1"
-                                    mailConfirm = myRequestProfile.substring(2, 3) == "1"
+                                    Constants.myRequestProfile = v.request_profile
+                                    Constants.isPRO = Constants.myRequestProfile.substring(0, 1) == "1"
+                                    Constants.mailConfirm = Constants.myRequestProfile.substring(2, 3) == "1"
 
                                 }
                             }
@@ -220,40 +110,40 @@ class KRegData {
                                 }
                                 SelfAnswerType.merge(it)
                                 if (it.STRING_5 != null && it.STRING_5!!.isNotEmpty()) {
-                                    myAccountProfile = it.STRING_5!!
+                                    Constants.myAccountProfile = it.STRING_5!!
                                 }
 
                                 if (it.IDENTIFICATOR_1 != null && it.IDENTIFICATOR_1!!.isNotEmpty()) {
-                                    Account_Id = it.IDENTIFICATOR_1!!
+                                    Constants.Account_Id = it.IDENTIFICATOR_1!!
                                 }
 
                                 if (it.IDENTIFICATOR_2 != null && it.IDENTIFICATOR_2!!.isNotEmpty()) {
-                                    Avatar_Id = it.IDENTIFICATOR_2!!
+                                    Constants.Avatar_Id = it.IDENTIFICATOR_2!!
                                 }
 
                                 if (it.STRING_1 != null && it.STRING_1!!.isNotEmpty()) {
-                                    Account_Name = it.STRING_1!!
+                                    Constants.Account_Name = it.STRING_1!!
                                 }
 
                                 if (it.STRING_2 != null && it.STRING_2!!.isNotEmpty()) {
-                                    Account_Access = it.STRING_2!!
+                                    Constants.Account_Access = it.STRING_2!!
                                 }
 
-                                if (it.LONG_1 != null && it.LONG_1!! > LAST_UPDATE) {
-                                    LAST_UPDATE = it.LONG_1!!
-                                    meta_data_last_update.setGreaterValue(LAST_UPDATE)
+                                if (it.LONG_1 != null && it.LONG_1!! > Constants.LAST_UPDATE) {
+                                    Constants.LAST_UPDATE = it.LONG_1!!
+                                    meta_data_last_update.setGreaterValue(Constants.LAST_UPDATE)
                                 }
 
-                                BALANCE_OF_CHATS = it.INTEGER_1 ?: 0
+                                Constants.BALANCE_OF_CHATS = it.INTEGER_1 ?: 0
 
                                 if (it.answerTypeValues.getIS_UPDATE_BLOB() == "1") {
-                                    ORIGINAL_AVATAR_SIZE =
+                                    Constants.ORIGINAL_AVATAR_SIZE =
                                         it.answerTypeValues.GetAvatarOriginalSize().toString()
-                                    AVATAR_SERVER = it.answerTypeValues.GetAvatarServer()
-                                    AVATAR_LINK = it.answerTypeValues.GetAvatarLink()
-                                    AVATAR_1 = it.BLOB_1
-                                    AVATAR_2 = it.BLOB_2
-                                    AVATAR_3 = it.BLOB_3
+                                    Constants.AVATAR_SERVER = it.answerTypeValues.GetAvatarServer()
+                                    Constants.AVATAR_LINK = it.answerTypeValues.GetAvatarLink()
+                                    Constants.AVATAR_1 = it.BLOB_1
+                                    Constants.AVATAR_2 = it.BLOB_2
+                                    Constants.AVATAR_3 = it.BLOB_3
                                 }
 
                             }

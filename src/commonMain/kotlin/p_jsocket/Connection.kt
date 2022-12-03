@@ -318,7 +318,7 @@ object Connection : CoroutineScope {
                             jsocketRet = Jsocket()
                         }
                         var jsocket: Jsocket?
-                        jsocketRet.deserialize(b, myConnectionsCoocki, true, newConnectionCoocki.value)
+                        jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
 
                         if (jsocketRet.just_do_it != 0) {
 
@@ -340,8 +340,8 @@ object Connection : CoroutineScope {
                                         jsocket.send_request()
                                     }
                                     1011000069 -> {
-                                        myConnectionsID = 0L
-                                        myConnectionsCoocki = 0L
+                                        Constants.myConnectionsID = 0L
+                                        Constants.myConnectionsCoocki = 0L
                                         Sqlite_service.ClearRegData()
                                         throw my_user_exceptions_class(
                                             l_class_name = "DecoderRequest",
@@ -434,9 +434,7 @@ object Connection : CoroutineScope {
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                     PrintInformation.PRINT_INFO("Start Connection.removeOldAll()")
                 }
-                if (LastTimeCleanOutJSOCKETs == 0L) {
-                    LastTimeCleanOutJSOCKETs = nowNano()
-                }
+                LastTimeCleanOutJSOCKETs = nowNano() + Constants.TIME_OUT_FOR_CLIENT_JSOCKETS
 
                 CurentTime = DateTime.nowUnixLong()
                 if (CurentTime > NextTimeCleanOUT_JSOCKETs) {

@@ -425,7 +425,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetChatsBalance = { getINTEGER_6() }
 
                 if (GetObjectType() == "0") {  // CHAT_IS_CHAT;
-                    if (GetMainAccountId() == Account_Id) {
+                    if (GetMainAccountId() == Constants.Account_Id) {
                         GetObjectName = {
                             CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(getSTRING_5())?.answerTypeValues?.getSTRING_1()
                                 ?: getEMPTY_STRING()
@@ -463,7 +463,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
                 GetChatsCountNotReadedMess = {
                     GetChatsMessegeCount() - (CASH_DATAS[(getIDENTIFICATOR_5() + "800")]?.CASH_DATA_RECORDS?.get(
-                        Account_Id
+                        Constants.Account_Id
                     )?.answerTypeValues?.GetChatsLikesLastReadedMessegeId?.let { it() }
                         ?: getEMPTY_LONG())
                 }

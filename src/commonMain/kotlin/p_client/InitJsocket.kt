@@ -10,8 +10,7 @@ package p_client
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import CrossPlatforms.slash
-import JSOCKET.AUFDB
-import Tables.myDeviceId
+import JSOCKETDB.AUFDB
 import atomic.AtomicBoolean
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.lang.substr
@@ -20,6 +19,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
+import p_jsocket.Constants
 import p_jsocket.initDirectories
 import sql.Sqlite_service
 import sql.db
@@ -60,7 +60,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
 
     init {
 
-        if (DeviceId.isNotEmpty()) myDeviceId = (DeviceId.replace(":", "").replace(";", "")
+        if (DeviceId.isNotEmpty()) Constants.myDeviceId = (DeviceId.replace(":", "").replace(";", "")
             .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
 
         if (SqlDriver != null) {
@@ -69,9 +69,9 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
         InitJsocketJob = InitJsocketScope.launch {
             try {
                 try {
-                    if (myDeviceId.isEmpty()) {
+                    if (Constants.myDeviceId.isEmpty()) {
                         launch {
-                            myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
+                            Constants.myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
                                 .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()
                     }

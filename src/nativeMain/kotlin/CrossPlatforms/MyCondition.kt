@@ -1,4 +1,4 @@
-/*package CrossPlatforms
+package CrossPlatforms/*package CrossPlatforms
 
 import com.badoo.reaktive.utils.lock.Condition
 import com.badoo.reaktive.utils.lock.Lock

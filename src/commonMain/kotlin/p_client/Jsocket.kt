@@ -53,7 +53,7 @@ private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
+class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
@@ -72,7 +72,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
     val lock = Mutex()
 
-    constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : super() {
+    constructor(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null) : this() {
         startLoading = l_startLoading ?: {}
         finishLoading = l_finishLoading ?: {}
         ensureNeverFrozen()
@@ -117,7 +117,7 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
 
                     if ((command.commands_access != "2"
                                 && command.commands_access != "9")
-                        && myConnectionsCoocki == 0L
+                        && Constants.myConnectionsCoocki == 0L
                     ) {
                         throw my_user_exceptions_class(
                             l_class_name = "Jsocket",
@@ -126,14 +126,14 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                             l_additional_text = "coocki equel null"
                         )
                     }
-                    if (command.isForPRO && !isPRO) {
+                    if (command.isForPRO && !Constants.isPRO) {
                         throw my_user_exceptions_class(
                             l_class_name = "Jsocket",
                             l_function_name = "execute",
                             name_of_exception = "EXC_THIS_COMMAND_ONLY_FOR_PRO",
                         )
                     }
-                    if (command.isForAcceptedMAIL && !mailConfirm) {
+                    if (command.isForAcceptedMAIL && !Constants.mailConfirm) {
                         throw my_user_exceptions_class(
                             l_class_name = "Jsocket",
                             l_function_name = "execute",
@@ -270,8 +270,8 @@ class Jsocket : JSOCKET, OnRequestListener, CoroutineScope {
                     try {
                         try {
                             JsocketLock.lock()
-                            if (!lLang.equals(myLang)) {
-                                myLang = lLang
+                            if (!lLang.equals(Constants.myLang)) {
+                                Constants.myLang = lLang
                                 KRegData.setNEW_REG_DATA()
                             }
                         } catch (e: my_user_exceptions_class){

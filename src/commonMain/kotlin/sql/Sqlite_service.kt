@@ -495,14 +495,14 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.lock()
                     statREG_DATA.SELECT_REGDATA_ALL()
-                    isPRO = if(myRequestProfile.isNotEmpty()){
-                        myRequestProfile.substring(0, 1) == "1"
+                    Constants.isPRO = if(Constants.myRequestProfile.isNotEmpty()){
+                        Constants.myRequestProfile.substring(0, 1) == "1"
                     }else{
                         false
                     }
 
-                    mailConfirm = if(myRequestProfile.length > 3){
-                        myRequestProfile.substring(2, 3) == "1"
+                    Constants.mailConfirm = if(Constants.myRequestProfile.length > 3){
+                        Constants.myRequestProfile.substring(2, 3) == "1"
                     }else{
                         false
                     }
@@ -601,7 +601,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.lock()
-                    val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL(myConnectionsID)
+                    val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL(Constants.myConnectionsID)
                     KSaveMedia.LOAD_SAVE_MEDIA(arr)
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

@@ -6,7 +6,6 @@ import CrossPlatforms.PrintInformation
 import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KExceptions
 import Tables.USERS_EXCEPTIONS
-import Tables.myLang
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -65,9 +64,9 @@ class my_user_exceptions_class : exception_names, Exception {
         function_name = l_function_name
         exception_name = name_of_exception
         var kException: KExceptions.KException? =
-            USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get(myLang)
+            USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get(Constants.myLang)
 
-        if(kException == null && myLang != "ENG"){
+        if(kException == null && Constants.myLang != "ENG"){
             USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get("ENG")
         }
 

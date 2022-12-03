@@ -10,8 +10,12 @@ package p_client
 import CrossPlatforms.CrossPlatformFile
 import Tables.*
 import com.soywiz.korio.async.await
+import com.soywiz.korio.async.launch
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import sql.Sqlite_service
@@ -229,7 +233,7 @@ class ClientExecutor {
                     }
                     when (jsocket.just_do_it) {
                         1011000010, 1011000026, 1011000027 -> {
-                            myConnectionsCoocki = l1
+                            Constants.myConnectionsCoocki = l1
                         }
                         else -> {
                         }
@@ -337,11 +341,11 @@ class ClientExecutor {
     ////////////////////////////////////////////////////////////////////////////////
 
     private suspend fun quit_account() {
-        jsocket.send_request()
         if (jsocket.just_do_it_successfull == "0") {
             Sqlite_service.ClearRegData()
-            myConnectionsCoocki = 0L
-            myConnectionsID = 0L
+            Constants.myConnectionsCoocki = 0L
+            Constants.myConnectionsID = 0L
         }
+        jsocket.send_request()
     } ////////////////////////////////////////////////////////////////////////////////
 }

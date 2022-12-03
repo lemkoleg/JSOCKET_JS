@@ -235,23 +235,23 @@ actual class SQLStatement actual constructor() {
 
     actual suspend fun INSERT_REGDATA() {
         regData.insert_RegData(
-            myConnectionsID,
-            myConnectionsCoocki,
-            Account_Id,
-            Account_Name,
-            Account_Access,
-            myAccountProfile,
-            myRequestProfile,
-            myLang,
-            Avatar_Id,
-            ORIGINAL_AVATAR_SIZE,
-            AVATAR_SERVER,
-            AVATAR_LINK,
-            BALANCE_OF_CHATS.toLong(),
-            LAST_UPDATE,
-            AVATAR_1,
-            AVATAR_2,
-            AVATAR_3
+            Constants.myConnectionsID,
+            Constants.myConnectionsCoocki,
+            Constants.Account_Id,
+            Constants.Account_Name,
+            Constants.Account_Access,
+            Constants.myAccountProfile,
+            Constants.myRequestProfile,
+            Constants.myLang,
+            Constants.Avatar_Id,
+            Constants.ORIGINAL_AVATAR_SIZE,
+            Constants.AVATAR_SERVER,
+            Constants.AVATAR_LINK,
+            Constants.BALANCE_OF_CHATS.toLong(),
+            Constants.LAST_UPDATE,
+            Constants.AVATAR_1,
+            Constants.AVATAR_2,
+            Constants.AVATAR_3
         )
     }
 
@@ -262,23 +262,23 @@ actual class SQLStatement actual constructor() {
     actual suspend fun SELECT_REGDATA_ALL() {
         val res = regData.select_RegData_all().execute()
         if (res.next()) {
-            myConnectionsID = res.getLong(1) ?: 0L
-            myConnectionsCoocki = res.getLong(2) ?: 0L
-            Account_Id = res.getString(3) ?: ""
-            Account_Name = res.getString(4) ?: ""
-            Account_Access = res.getString(5) ?: ""
-            myAccountProfile = res.getString(6) ?: ""
-            myRequestProfile = res.getString(7) ?: ""
-            myLang = res.getString(8) ?: ""
-            Avatar_Id = res.getString(9) ?: ""
-            ORIGINAL_AVATAR_SIZE = res.getString(10) ?: ""
-            AVATAR_SERVER = res.getString(11) ?: ""
-            AVATAR_LINK = res.getString(12) ?: ""
-            BALANCE_OF_CHATS = res.getLong(13)?.toInt() ?: 0
-            LAST_UPDATE = res.getLong(14) ?: 0L
-            AVATAR_1 = res.getBytes(15)
-            AVATAR_2 = res.getBytes(16)
-            AVATAR_3 = res.getBytes(17)
+            Constants.myConnectionsID = res.getLong(1) ?: 0L
+            Constants.myConnectionsCoocki = res.getLong(2) ?: 0L
+            Constants.Account_Id = res.getString(3) ?: ""
+            Constants.Account_Name = res.getString(4) ?: ""
+            Constants.Account_Access = res.getString(5) ?: ""
+            Constants.myAccountProfile = res.getString(6) ?: ""
+            Constants.myRequestProfile = res.getString(7) ?: ""
+            Constants.myLang = res.getString(8) ?: ""
+            Constants.Avatar_Id = res.getString(9) ?: ""
+            Constants.ORIGINAL_AVATAR_SIZE = res.getString(10) ?: ""
+            Constants.AVATAR_SERVER = res.getString(11) ?: ""
+            Constants.AVATAR_LINK = res.getString(12) ?: ""
+            Constants.BALANCE_OF_CHATS = res.getLong(13)?.toInt() ?: 0
+            Constants.LAST_UPDATE = res.getLong(14) ?: 0L
+            Constants.AVATAR_1 = res.getBytes(15)
+            Constants.AVATAR_2 = res.getBytes(16)
+            Constants.AVATAR_3 = res.getBytes(17)
         }
     }
 

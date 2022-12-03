@@ -592,8 +592,7 @@ open class JSOCKET() {
     private var nameField_number = 0
 
     private var bbCONTENT_SIZE: BytePacketBuilder? = null
-    private var currentPosition = 0
-    private var currentLimit = 0
+
     private var crypt = false
     private var currentCommand: Command? = null
 
@@ -810,15 +809,15 @@ open class JSOCKET() {
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
 
-            connection_id = myConnectionsID
-            connection_coocki = myConnectionsCoocki
-            device_id = myDeviceId
-            lang = myLang
+            connection_id = Constants.myConnectionsID
+            connection_coocki = Constants.myConnectionsCoocki
+            device_id = Constants.myDeviceId
+            lang = Constants.myLang
             last_messege_update = globalLastChatsSelect.value
             last_metadata_update = meta_data_last_update.value
             //db_massage = ""
             just_do_it_successfull = "0"
-            connection_context = myConnectionContext
+            connection_context = Constants.myConnectionContext
             just_do_it_label = nowNano()
 
 
@@ -855,8 +854,7 @@ open class JSOCKET() {
                     l_additional_text = "just_do_it not found $just_do_it"
                 )
             }
-            currentPosition = 0
-            currentLimit = 0
+
 
             /*
             var lcraete_check_sum: Boolean
@@ -1537,7 +1535,7 @@ open class JSOCKET() {
                         }
                     }else{    // delete chat;
                         if(answer_type.RECORD_TYPE == "8" &&
-                            answer_type.answerTypeValues.GetMainAccountId() == Account_Id &&
+                            answer_type.answerTypeValues.GetMainAccountId() == Constants.Account_Id &&
                             answer_type.answerTypeValues.GetDateDelete() > 0
                         ){  // if deleted chat
                              KChat.DELETE_CHATS(answer_type.answerTypeValues.GetChatId())
@@ -1744,7 +1742,7 @@ open class JSOCKET() {
             start_position = 0
 
            // for debug
-            bb!!.readBytes(17)
+           //bb!!.readBytes(17)
 
             request_size = lbb.readInt().toLong()
 
@@ -1755,16 +1753,16 @@ open class JSOCKET() {
             jserver_connection_id = bb!!.readLong()
             connection_id = bb!!.readLong()
 
-            if (connection_id != 0L && myConnectionsID == 0L) {
+            if (connection_id != 0L && Constants.myConnectionsID == 0L) {
                 is_new_reg_data = true
             }
 
-            if (connection_id != 0L && myConnectionsID != connection_id) {
+            if (connection_id != 0L && Constants.myConnectionsID != connection_id) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "(connection_id = $connection_id) not equal (myConnectionsID = $myConnectionsID ;)  "
+                    l_additional_text = "(connection_id = $connection_id) not equal (myConnectionsID = ${Constants.myConnectionsID} ;)  "
                 )
             }
 
@@ -1838,7 +1836,7 @@ open class JSOCKET() {
                         reverseMD5LongArray = h!!.getReverseMD5longArray(reverseMD5String)
 
                         if (connection_coocki == h!!.getNewCoockiLong(md5String)) {
-                            myConnectionsCoocki = p_new_connection_coocki
+                            Constants.myConnectionsCoocki = p_new_connection_coocki
                             is_new_reg_data = true
                             connection_coocki = p_new_connection_coocki
                         } else {
@@ -1865,8 +1863,8 @@ open class JSOCKET() {
             }
             ////////////////////////////////////////////////////////////////////////////////
             //val nameFields = this::class.members.asSequence().associateBy { it.name }
-            //loopDeSerr@ while (bb!!.isNotEmpty) {
-            loopDeSerr@ while (bb!!.remaining > 8L) {  // for debug;
+            loopDeSerr@ while (bb!!.isNotEmpty) {
+            //loopDeSerr@ while (bb!!.remaining > 8L) {  // for debug;
                 nameField_length = 0
                 nameField_number = 0
                 nameField_number = bb!!.readInt()
@@ -1915,7 +1913,7 @@ open class JSOCKET() {
         } finally {
             try {
                 bbCONTENT_SIZE?.close()
-                if (!connection_context.equals(myConnectionContext)) {
+                if (!connection_context.equals(Constants.myConnectionContext)) {
                     is_new_reg_data = true
                 }
             } catch (e: Exception) {

@@ -220,7 +220,7 @@ object KChat {
                         KChatsGlobalLock.lock()
                         if (CHATS == null) {
                             CHATS = KCashData.GET_CASH_DATA(
-                                L_OBJECT_ID = Account_Id,
+                                L_OBJECT_ID = Constants.Account_Id,
                                 L_RECORD_TYPE = "3",
                                 l_updatedCashData = l_updatedCashData,
                                 l_request_updates = true,

@@ -69,6 +69,9 @@ object Constants {
     @JsName("TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES")
     var TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES = 20000L
 
+    @JsName("TIME_OUT_FOR_CLIENT_JSOCKETS")
+    var TIME_OUT_FOR_CLIENT_JSOCKETS = TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES * 1000000
+
     @JsName("MAX_TIME_FOR_WAIT_CLIENT_LISTENER_OUTPUT")
     var MAX_TIME_FOR_WAIT_CLIENT_LISTENER_OUTPUT = 200L
 
@@ -171,6 +174,70 @@ object Constants {
     @JsName("MAX_COUNT_OF_CASHDATA_SAVE_OBJECT_INFO")
     var MAX_COUNT_OF_CASHDATA_SAVE_OBJECT_INFO: Int = 10000
 
+    /////////////////////// reg data //////////////////////
+    @JsName("myConnectionsID")
+    var myConnectionsID = 0L
+
+    @JsName("myConnectionsCoocki")
+    var myConnectionsCoocki = 0L
+
+    @JsName("myConnectionContext")
+    val myConnectionContext = ""
+
+    @JsName("myLang")
+    var myLang = "ENG"
+
+    @JsName("myDeviceId")
+    var myDeviceId = ""
+
+    @JsName("myRequestProfile")
+    var myRequestProfile = ""
+
+    @JsName("myAccountProfile")
+    var myAccountProfile = ""
+
+    @JsName("isPRO")
+    var isPRO = false
+
+    @JsName("mailConfirm")
+    var mailConfirm = false
+
+    @JsName("Account_Id")
+    var Account_Id = ""
+
+    @JsName("Account_Name")
+    var Account_Name = ""
+
+    @JsName("Account_Access")
+    var Account_Access = ""
+
+    @JsName("Avatar_Id")
+    var Avatar_Id = ""
+
+    @JsName("ORIGINAL_AVATAR_SIZE")
+    var ORIGINAL_AVATAR_SIZE = ""
+
+    @JsName("AVATAR_SERVER")
+    var AVATAR_SERVER = ""
+
+    @JsName("AVATAR_LINK")
+    var AVATAR_LINK = ""
+
+    @JsName("BALANCE_OF_CHATS")
+    var BALANCE_OF_CHATS = 0
+
+    @JsName("LAST_UPDATE")
+    var LAST_UPDATE = 0L
+
+    @JsName("AVATAR_1")
+    var AVATAR_1: ByteArray? = null
+
+    @JsName("AVATAR_2")
+    var AVATAR_2: ByteArray? = null
+
+    @JsName("AVATAR_3")
+    var AVATAR_3: ByteArray? = null
+
 
 
     
@@ -201,6 +268,8 @@ object Constants {
         MAX_BIG_AVATAR_SIZE_B = META_DATA["MAX_BIG_AVATAR_SIZE_B"]?.toInt()?:MAX_BIG_AVATAR_SIZE_B
         
         TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES = META_DATA["TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES "]?:TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+
+        TIME_OUT_FOR_CLIENT_JSOCKETS = TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES * 1000000
 
         MAX_TIME_FOR_WAIT_CLIENT_LISTENER_OUTPUT = META_DATA["MAX_TIME_FOR_WAIT_CLIENT_LISTENER_OUTPUT"]?:MAX_TIME_FOR_WAIT_CLIENT_LISTENER_OUTPUT
         

@@ -271,7 +271,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                             GlobalLock.lock()
                             if (SAVE_OBJECT_INFO == null) {
                                 SAVE_OBJECT_INFO = KCashData.GET_CASH_DATA(
-                                    L_OBJECT_ID = Account_Id,
+                                    L_OBJECT_ID = Constants.Account_Id,
                                     L_RECORD_TYPE = "O",
                                     l_updatedCashData = l_updatedCashData,
                                     l_request_updates = false,
@@ -347,7 +347,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
         @JsName("RE_LOAD_SAVE_OBJECT_INFO_IDS")
         fun RE_LOAD_SAVE_OBJECT_INFO_IDS(): Job {
-            return Sqlite_service.LoadCashDataAllObjectsIdOnCasSum(GetCashSum(Account_Id, "O"))
+            return Sqlite_service.LoadCashDataAllObjectsIdOnCasSum(GetCashSum(Constants.Account_Id, "O"))
         }
 
         private fun GetCashSum(

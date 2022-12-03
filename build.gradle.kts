@@ -102,7 +102,7 @@ kotlin {
     sqldelight {
         database("AUFDB") {
             dialect = SQLDelightDialect
-            packageName = "JSOCKET"
+            packageName = "JSOCKETDB"
             //sourceFolders = listOf("sqldelight")
             schemaOutputDirectory = file("sqldelight/databases")
         }
