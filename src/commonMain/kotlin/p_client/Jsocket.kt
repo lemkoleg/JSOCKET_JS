@@ -19,6 +19,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import kotlin.coroutines.CoroutineContext
@@ -91,7 +92,6 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @KorioExperimentalApi
     @JsName("execute")
     fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any?> =
         JSOCKETScope.async {
@@ -147,6 +147,7 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
                             finishLoading = {}
                             return@async f
                         }
+
                         else -> clientExecutor.execute(this@Jsocket)
                     }
 
@@ -179,7 +180,7 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
         this.serialize(verify_fields).let { Connection.sendData(it, this) }
         if (!command.isDont_answer || await_answer) {
             if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                if(command.commands_access != "B"){
+                if (command.commands_access != "B") {
                     throw my_user_exceptions_class(
                         l_class_name = "Jsocket",
                         l_function_name = "send_request",
@@ -227,32 +228,33 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
                 CoroutineScope(NonCancellable).launch {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         try {
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("Jsocet's fill pool is run...")
-                            }
-                            try {
-                                fillPOOL_IS_RUNNING.value = true
-                                JsocketLock.lock()
-                                while (CLIENT_JSOCKET_POOL.size < Constants.CLIENT_JSOCKET_POOL_SIZE && !Constants.isInterrupted.value) {
-                                    CLIENT_JSOCKET_POOL.addLast(Jsocket())
+                            JsocketLock.withLock {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("Jsocet's fill pool is run...")
                                 }
-                            } catch (e: my_user_exceptions_class){
-                                throw e
-                            } catch (ex: Exception) {
-                                throw my_user_exceptions_class(
-                                    l_class_name = "Jsocket",
-                                    l_function_name = "fill",
-                                    name_of_exception = "EXC_SYSTEM_ERROR",
-                                    ex.message
-                                )
-                            } finally {
-                                fillPOOL_IS_RUNNING.value = false
-                                JsocketLock.unlock()
+                                try {
+                                    fillPOOL_IS_RUNNING.value = true
+
+                                    while (CLIENT_JSOCKET_POOL.size < Constants.CLIENT_JSOCKET_POOL_SIZE && !Constants.isInterrupted.value) {
+                                        CLIENT_JSOCKET_POOL.addLast(Jsocket())
+                                    }
+                                } catch (e: my_user_exceptions_class) {
+                                    throw e
+                                } catch (ex: Exception) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "Jsocket",
+                                        l_function_name = "fill",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        ex.message
+                                    )
+                                } finally {
+                                    fillPOOL_IS_RUNNING.value = false
+                                }
                             }
                         } catch (e: my_user_exceptions_class) {
                             e.ExceptionHand(null)
                         }
-                    }?:throw my_user_exceptions_class(
+                    } ?: throw my_user_exceptions_class(
                         l_class_name = "Jsocket",
                         l_function_name = "fill",
                         name_of_exception = "EXC_SYSTEM_ERROR",
@@ -269,12 +271,13 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            JsocketLock.lock()
-                            if (!lLang.equals(Constants.myLang)) {
-                                Constants.myLang = lLang
-                                KRegData.setNEW_REG_DATA()
+                            JsocketLock.withLock {
+                                if (!lLang.equals(Constants.myLang)) {
+                                    Constants.myLang = lLang
+                                    KRegData.setNEW_REG_DATA()
+                                }
                             }
-                        } catch (e: my_user_exceptions_class){
+                        } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -283,13 +286,11 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 ex.message
                             )
-                        } finally {
-                            JsocketLock.unlock()
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                }?:throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "Jsocket",
                     l_function_name = "setLang",
                     name_of_exception = "EXC_SYSTEM_ERROR",

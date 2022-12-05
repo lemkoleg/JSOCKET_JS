@@ -75,8 +75,7 @@ object Connection : CoroutineScope {
     private var isClosed: Boolean = false
 
     private var countOfCleaner = 0
-    private var CurentTime = DateTime.nowUnixLong()
-    private var NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
+
     private var LastTimeCleanOutJSOCKETs = 0L
 
 
@@ -124,7 +123,7 @@ object Connection : CoroutineScope {
                         isConnect = true
                         isClosed = false
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("connect")
+                            PrintInformation.PRINT_INFO("WebSocket connect")
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
@@ -138,13 +137,13 @@ object Connection : CoroutineScope {
                         isConnect = false
                         isClosed = true
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("disconnect")
+                            PrintInformation.PRINT_INFO("WebSocket disconnect")
                         }
                     }
                     signalonError = MyWebSocketChannel!!.onError
                     signalonError?.add { v ->
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("error on connection: $v\n")
+                            PrintInformation.PRINT_INFO("WebSocket error on connection: $v\n")
                         }
                         //val e = v.printStackTrace()
                         isConnect = false
@@ -179,46 +178,44 @@ object Connection : CoroutineScope {
     @InternalAPI
     public fun sendData(b: ByteArray, j: Jsocket) {
         ConnectionScope.launch {
-            if (withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    ConnectionLock.withLock {
-                        BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
-                        /*if (!MyConnection.isCompleted) {
+            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                ConnectionLock.withLock {
+                    BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
+                    /*if (!MyConnection.isCompleted) {
+                        MyConnection.join()
+                    }*/
+                    while (!isConnected()) {
+                        if(MyConnection.isActive){
                             MyConnection.join()
-                        }*/
-                        while (!isConnected()) {
-                            if (isClosed) {
-                                setConn()
-                            }
-                            delay(Constants.TIME_SPAN_FOR_LOOP)
                         }
+                        if (isClosed) {
+                            setConn()
+                        }
+                        delay(Constants.TIME_SPAN_FOR_LOOP)
+                    }
 
+                    try {
+                        MyWebSocketChannel!!.send(b)
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("send size: ${b.size}")
+                        }
+                    } catch (ex1: Exception) {
+                        setConn()
                         try {
                             MyWebSocketChannel!!.send(b)
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("send size: ${b.size}")
+                                PrintInformation.PRINT_INFO("send size2: ${b.size}")
                             }
                         } catch (ex1: Exception) {
-                            setConn()
-                            try {
-                                MyWebSocketChannel!!.send(b)
-                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("send size2: ${b.size}")
-                                }
-                            } catch (ex1: Exception) {
-                                throw my_user_exceptions_class(
-                                    "Connection",
-                                    "sendData",
-                                    "EXC_SOCKET_NOT_ALLOWED",
-                                    ex1.message
-                                )
-                            }
+                            throw my_user_exceptions_class(
+                                "Connection",
+                                "sendData",
+                                "EXC_SOCKET_NOT_ALLOWED",
+                                ex1.message
+                            )
                         }
                     }
-                } == null) {
-                throw my_user_exceptions_class(
-                    "Connection",
-                    "sendData",
-                    "EXC_SOCKET_NOT_ALLOWED")
+                }
             }
         }
     }
@@ -336,9 +333,11 @@ object Connection : CoroutineScope {
                                     1011000086 -> {  // new messeges, notices;
                                         KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                     }
+
                                     1011000058 -> {
                                         jsocket.send_request()
                                     }
+
                                     1011000069 -> {
                                         Constants.myConnectionsID = 0L
                                         Constants.myConnectionsCoocki = 0L
@@ -349,23 +348,21 @@ object Connection : CoroutineScope {
                                             name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
                                         )
                                     }
+
                                     else -> {
 
-                                        if(jsocketRet.last_messege_update > jsocket.last_messege_update){
+                                        if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
                                             KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                         }
 
                                         if (c.commands_access == "B") {
                                             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                                 val l = jsocket!!.lock
-                                                try {
-                                                    l.lock()
+                                                l.withLock {
                                                     jsocketRet.contrMerge(jsocket!!)
                                                     jsocket = jsocketRet
-                                                } finally {
-                                                    l.unlock()
                                                 }
-                                            }?: throw my_user_exceptions_class(
+                                            } ?: throw my_user_exceptions_class(
                                                 l_class_name = "Connection",
                                                 l_function_name = "decode",
                                                 name_of_exception = "EXC_SYSTEM_ERROR",
@@ -392,7 +389,7 @@ object Connection : CoroutineScope {
                                         name_of_exception = "EXC_SYSTEM_ERROR",
                                         l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                     )
-                                } else{
+                                } else {
                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                 }
 
@@ -400,9 +397,9 @@ object Connection : CoroutineScope {
                         }
                     }
                 }
-            } catch (e: my_user_exceptions_class){
+            } catch (e: my_user_exceptions_class) {
                 throw e
-            }  catch (ex: Exception) {
+            } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Connection",
                     l_function_name = "DecoderRequest",
@@ -431,32 +428,29 @@ object Connection : CoroutineScope {
     suspend fun removeOldAll() {
         try {
             try {
+
+                LastTimeCleanOutJSOCKETs = nowNano() - Constants.TIME_OUT_FOR_CLIENT_JSOCKETS
+
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("Start Connection.removeOldAll()")
+                    val d: DateTime = DateTime.now()
+                    PrintInformation.PRINT_INFO("Start Connection.removeOldAll(): (hh: ${d.hours};mm: ${d.minutes};ss: ${d.seconds}));")
                 }
-                LastTimeCleanOutJSOCKETs = nowNano() + Constants.TIME_OUT_FOR_CLIENT_JSOCKETS
 
-                CurentTime = DateTime.nowUnixLong()
-                if (CurentTime > NextTimeCleanOUT_JSOCKETs) {
-                    NextTimeCleanOUT_JSOCKETs = CurentTime + Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
-
-                    countOfCleaner = 0
-                    BetweenJSOCKETs.filterKeys { k -> k < LastTimeCleanOutJSOCKETs }.forEach {
-                        countOfCleaner++
-                        it.value.condition.cSignal()
-                        BetweenJSOCKETs.lockedRemove(it.key)
-                    }
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        if (countOfCleaner > 0) {
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
-                            }
+                countOfCleaner = 0
+                BetweenJSOCKETs.filterKeys { k -> (k < LastTimeCleanOutJSOCKETs) }.forEach {
+                    countOfCleaner++
+                    BetweenJSOCKETs.lockedRemove(it.key)
+                }
+                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                    if (countOfCleaner > 0) {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("$countOfCleaner removed from Conection.BetweenJSOCKETs.")
                         }
                     }
-
-                    LastTimeCleanOutJSOCKETs = nowNano()
                 }
-            } catch (e: my_user_exceptions_class){
+
+
+            } catch (e: my_user_exceptions_class) {
                 throw e
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(

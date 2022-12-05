@@ -10,6 +10,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
@@ -69,59 +70,60 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            LocalLock.lock()
-                            if (answerTypeConstants.IsDBObject) {
-                                if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
-                                    if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
-                                        if (answerType.BLOB_4 == null) {
-                                            if (!KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(answerType.answerTypeValues.GetMainAvatarId())) {
-                                                SendRequestForUpdate("1")
+                            LocalLock.withLock {
+                                if (answerTypeConstants.IsDBObject) {
+                                    if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
+                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                            if (answerType.BLOB_4 == null) {
+                                                if (!KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(answerType.answerTypeValues.GetMainAvatarId())) {
+                                                    SendRequestForUpdate("1")
+                                                } else {
+                                                    answerType.BLOB_4 =
+                                                        KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()
+                                                            ?.getAVATAR()
+                                                    updateObjectInfo(null)
+                                                    if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                                        SendRequestForUpdate("0")
+                                                    }
+                                                }
                                             } else {
-                                                answerType.BLOB_4 =
-                                                    KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()
-                                                        ?.getAVATAR()
-                                                updateObjectInfo(null)
                                                 if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
                                                     SendRequestForUpdate("0")
                                                 }
                                             }
-                                        } else {
-                                            if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
-                                                SendRequestForUpdate("0")
-                                            }
-                                        }
 
-                                    } else {
-                                        if (answerType.BLOB_2 == null) {
-                                            SendRequestForUpdate("2")
                                         } else {
-                                            if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
-                                                SendRequestForUpdate("0")
+                                            if (answerType.BLOB_2 == null) {
+                                                SendRequestForUpdate("2")
+                                            } else {
+                                                if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                                    SendRequestForUpdate("0")
+                                                }
                                             }
                                         }
+                                    } else {
+                                        if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                            SendRequestForUpdate("0")
+                                        }
                                     }
-                                } else {
-                                    if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
-                                        SendRequestForUpdate("0")
-                                    }
-                                }
-                            } else if (answerTypeConstants.IsMessege) {
-                                if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
-                                    if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
-                                        if (answerType.BLOB_4 == null) {
+                                } else if (answerTypeConstants.IsMessege) {
+                                    if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
+                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                            if (answerType.BLOB_4 == null) {
+                                                answerType.BLOB_4 =
+                                                    RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
+                                            }
+                                        } else if (answerType.BLOB_2 == null) {
                                             answerType.BLOB_4 =
                                                 RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
                                         }
-                                    } else if (answerType.BLOB_2 == null) {
-                                        answerType.BLOB_4 =
-                                            RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
                                     }
+                                    updateObjectInfo(null)
                                 }
-                                updateObjectInfo(null)
+
+                                promiseDowloadFile = localFileSevice?.open_file_channel()
+
                             }
-
-                            promiseDowloadFile = localFileSevice?.open_file_channel()
-
                         } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
@@ -131,8 +133,6 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = ex.message
                             )
-                        } finally {
-                            LocalLock.unlock()
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
@@ -153,25 +153,25 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
             try {
                 try {
                     VerifyUpdatesJob!!.join()
-                    LocalLock.lock()
-                    if (answerType.RECORD_TYPE != "O") {
-                        if (answerTypeConstants.IsMusic || answerTypeConstants.IsVideo) {
-                            promiseDowloadFile!!.await()
-                            if (!localFileSevice!!.IsDownloaded()) {
-                                throw my_user_exceptions_class(
-                                    l_class_name = "KObjectInfo",
-                                    l_function_name = "SaveOffLine",
-                                    name_of_exception = "EXC_ERROR_LOAD_FILE"
-                                )
+                    LocalLock.withLock {
+                        if (answerType.RECORD_TYPE != "O") {
+                            if (answerTypeConstants.IsMusic || answerTypeConstants.IsVideo) {
+                                promiseDowloadFile!!.await()
+                                if (!localFileSevice!!.IsDownloaded()) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "KObjectInfo",
+                                        l_function_name = "SaveOffLine",
+                                        name_of_exception = "EXC_ERROR_LOAD_FILE"
+                                    )
+                                }
+                                answerType.answerTypeValues.setRECORD_TYPE("O")
+                                answerType.INTEGER_20 = 1
+                                val d = ArrayDeque<ANSWER_TYPE>()
+                                d.add(answerType)
+                                SAVE_OBJECT_INFO!!.SET_RECORDS(d)
+                                localFileSevice.save_media!!.setIsPerminent()
                             }
-                            answerType.answerTypeValues.setRECORD_TYPE("O")
-                            answerType.INTEGER_20 = 1
-                            val d = ArrayDeque<ANSWER_TYPE>()
-                            d.add(answerType)
-                            SAVE_OBJECT_INFO!!.SET_RECORDS(d)
-                            localFileSevice.save_media!!.setIsPerminent()
                         }
-
                     }
                 } catch (e: my_user_exceptions_class) {
                     throw e
@@ -182,8 +182,6 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    LocalLock.unlock()
                 }
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
@@ -201,12 +199,13 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {
-                    VerifyUpdatesJob!!.join()
-                    LocalLock.lock()
-                    if (answerType.RECORD_TYPE == "O") {
-                        SAVE_MEDIA[answerType.answerTypeValues.GetObjectLink()]?.setIsNotPerminent()
-                        SAVE_OBJECT_INFO_IDS.remove(answerType.answerTypeValues.GetObjectLink())
-                        SAVE_OBJECT_INFO!!.DELETE(answerType.answerTypeValues.GetObjectLink())
+                    LocalLock.withLock {
+                        VerifyUpdatesJob!!.join()
+                        if (answerType.RECORD_TYPE == "O") {
+                            SAVE_MEDIA[answerType.answerTypeValues.GetObjectLink()]?.setIsNotPerminent()
+                            SAVE_OBJECT_INFO_IDS.remove(answerType.answerTypeValues.GetObjectLink())
+                            SAVE_OBJECT_INFO!!.DELETE(answerType.answerTypeValues.GetObjectLink())
+                        }
                     }
                 } catch (e: my_user_exceptions_class) {
                     throw e
@@ -217,8 +216,6 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    LocalLock.unlock()
                 }
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
@@ -268,23 +265,23 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            GlobalLock.lock()
-                            if (SAVE_OBJECT_INFO == null) {
-                                SAVE_OBJECT_INFO = KCashData.GET_CASH_DATA(
-                                    L_OBJECT_ID = Constants.Account_Id,
-                                    L_RECORD_TYPE = "O",
-                                    l_updatedCashData = l_updatedCashData,
-                                    l_request_updates = false,
-                                    l_select_all_records = false,
-                                    l_is_SetLastBlock = true,
-                                    l_reset_cash_data = false,
-                                    l_ignore_timeout = false
-                                ).await()
-                                return@withTimeoutOrNull SAVE_OBJECT_INFO!!.currentViewCashData
-                            } else {
-                                return@withTimeoutOrNull SAVE_OBJECT_INFO!!
+                            GlobalLock.withLock {
+                                if (SAVE_OBJECT_INFO == null) {
+                                    SAVE_OBJECT_INFO = KCashData.GET_CASH_DATA(
+                                        L_OBJECT_ID = Constants.Account_Id,
+                                        L_RECORD_TYPE = "O",
+                                        l_updatedCashData = l_updatedCashData,
+                                        l_request_updates = false,
+                                        l_select_all_records = false,
+                                        l_is_SetLastBlock = true,
+                                        l_reset_cash_data = false,
+                                        l_ignore_timeout = false
+                                    ).await()
+                                    return@withTimeoutOrNull SAVE_OBJECT_INFO!!.currentViewCashData
+                                } else {
+                                    return@withTimeoutOrNull SAVE_OBJECT_INFO!!
+                                }
                             }
-
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KObjectInfo",
@@ -292,8 +289,6 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = ex.message
                             )
-                        } finally {
-                            GlobalLock.unlock()
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
@@ -319,10 +314,12 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
             try {
                 try {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                        GlobalLock.lock()
-                        ids.forEach {
-                            SAVE_OBJECT_INFO_IDS[it] = it
+                        GlobalLock.withLock {
+                            ids.forEach {
+                                SAVE_OBJECT_INFO_IDS[it] = it
+                            }
                         }
+
                     } ?: throw my_user_exceptions_class(
                         l_class_name = "KObjectInfo",
                         l_function_name = "LOAD_SAVE_OBJECT_INFO_IDS",
@@ -336,10 +333,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    GlobalLock.unlock()
                 }
-
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
             }

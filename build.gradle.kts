@@ -1,7 +1,7 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 val kotlinVersion = "1.7.22"
-val ktorVersion = "2.0.1"
+val ktorVersion = "2.1.3"
 val reactiveVersion = "1.2.2"
 val KlockVersion = "2.4.13"
 val KorimVersion = "2.2.2"

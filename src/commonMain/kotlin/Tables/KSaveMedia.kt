@@ -21,8 +21,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
-import p_jsocket.pathTemp
-import p_jsocket.rootPath
+import p_jsocket.JSOCKET_Instance
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
@@ -49,14 +48,16 @@ private val KSaveMediaLock = Mutex()
 @ExperimentalTime
 @InternalAPI
 @JsName("KSaveMedia")
-class KSaveMedia(val L_OBJECT_LINK: String,
-                 val L_OBJECT_SIZE: Long,
-                 val L_OBJECT_LENGTH_SECONDS: Int,
-                 val L_OBJECT_EXTENSION: String,
-                 L_AVATAR_ID: String?,
-                 var L_IS_TEMP: Int = 0,
-                 var L_LAST_USED: Long = 0L,
-                 var IS_DOWNLOAD: Int = 0) {
+class KSaveMedia(
+    val L_OBJECT_LINK: String,
+    val L_OBJECT_SIZE: Long,
+    val L_OBJECT_LENGTH_SECONDS: Int,
+    val L_OBJECT_EXTENSION: String,
+    L_AVATAR_ID: String?,
+    var L_IS_TEMP: Int = 0,
+    var L_LAST_USED: Long = 0L,
+    var IS_DOWNLOAD: Int = 0
+) {
 
     var FILE_FULL_NAME: String = ""
 
@@ -74,11 +75,11 @@ class KSaveMedia(val L_OBJECT_LINK: String,
 
 
     fun createFullFileName(LFileName: String, LFileExtencion: String): String {
-        return rootPath.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+        return JSOCKET_Instance.RootPath.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
     }
 
     private fun createTempFullFileName(LFileName: String, LFileExtencion: String): String {
-        return pathTemp.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+        return JSOCKET_Instance.pathTemp.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
     }
 
     fun ReturnDownloadedFullFileName(): String {
@@ -150,7 +151,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                                 return@withTimeoutOrNull true
                             }
 
-                        } catch (e: my_user_exceptions_class){
+                        } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -164,7 +165,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KSaveMedia",
                     l_function_name = "AddNewSaveMedia",
                     name_of_exception = "EXC_SYSTEM_ERROR",
@@ -177,20 +178,21 @@ class KSaveMedia(val L_OBJECT_LINK: String,
         suspend fun LOAD_SAVE_MEDIA(irr: ArrayList<KSaveMedia>) {
             try {
                 try {
-                    KSaveMediaLock.lock()
-                    irr.forEach {
+                    KSaveMediaLock.withLock {
+                        irr.forEach {
 
-                        if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
-                            if (it.verifysDownLoaded()) {
-                                SAVE_MEDIA[it.L_OBJECT_LINK] = it
+                            if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
+                                if (it.verifysDownLoaded()) {
+                                    SAVE_MEDIA[it.L_OBJECT_LINK] = it
+                                } else {
+                                    it.deleteFile()
+                                }
                             } else {
-                                it.deleteFile()
+                                SAVE_MEDIA[it.L_OBJECT_LINK] = it
                             }
-                        } else {
-                            SAVE_MEDIA[it.L_OBJECT_LINK] = it
                         }
                     }
-                } catch (e: my_user_exceptions_class){
+                } catch (e: my_user_exceptions_class) {
                     throw e
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
@@ -199,10 +201,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    KSaveMediaLock.unlock()
                 }
-
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
             }
@@ -224,8 +223,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                                 }
                                 return@withTimeoutOrNull true
                             }
-
-                        } catch (e: my_user_exceptions_class){
+                        } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -239,7 +237,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KSaveMedia",
                     l_function_name = "DeleteSaveMedia",
                     name_of_exception = "EXC_SYSTEM_ERROR",
@@ -263,7 +261,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                                 return@withTimeoutOrNull true
                             }
 
-                        } catch (e: my_user_exceptions_class){
+                        } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
@@ -277,7 +275,7 @@ class KSaveMedia(val L_OBJECT_LINK: String,
                         e.ExceptionHand(null)
                         return@withTimeoutOrNull false
                     }
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KSaveMedia",
                     l_function_name = "ClearSaveMedia",
                     name_of_exception = "EXC_SYSTEM_ERROR",

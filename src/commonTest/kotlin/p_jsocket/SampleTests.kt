@@ -3,7 +3,6 @@
 package p_jsocket
 
 import CrossPlatforms.PrintInformation
-import Tables.myLang
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
@@ -61,7 +60,7 @@ class SampleTests {
         //    val MyWebSocketChannel = WebSocketClient("ws://mini:22237", null, null, "", false)
        // }
 
-        val i = InitJsocket("", "")
+        //val i = InitJsocket("", "")
         val l = Jsocket()
         //Thread_sleep(2000)
         //c.close()
@@ -76,7 +75,7 @@ class SampleTests {
                 }
             }*/
 
-            myLang = "RUS"
+            Constants.myLang = "RUS"
                 l.connection_id = 0L
                 l.connection_coocki = 0L
                 //l.device_id = "39D91B1549BD5635"

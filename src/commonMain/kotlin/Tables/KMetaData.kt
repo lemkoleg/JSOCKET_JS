@@ -9,6 +9,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
@@ -105,25 +106,34 @@ class KMetaData {
         @JsName("LOAD_META_DATA")
         suspend fun LOAD_META_DATA(kMetaDatas: ArrayList<KMetaData>) {
             try {
-                try {
-                    KMetaDataLock.lock()
-                    kMetaDatas.forEach {
-                        META_DATA[it.getVALUE_NAME()] = it.getVALUE_VALUE()
-                        meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                KMetaDataLock.withLock {
+                    try {
+
+                        kMetaDatas.forEach {
+                            META_DATA[it.getVALUE_NAME()] = it.getVALUE_VALUE()
+                            meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                        }
+
+                    } catch (e: my_user_exceptions_class) {
+                        throw e
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KMetaData",
+                            l_function_name = "LOAD_META_DATA",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
+                    } finally {
+                        Constants.initialise()
                     }
-                } catch (e: my_user_exceptions_class){
-                    throw e
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "KMetaData",
-                        l_function_name = "LOAD_META_DATA",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
-                    )
-                } finally {
-                    Constants.initialise()
-                    KMetaDataLock.unlock()
                 }
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "KMetaData",
+                    l_function_name = "LOAD_META_DATA",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.message
+                )
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
             }
@@ -136,50 +146,58 @@ class KMetaData {
             CoroutineScope(Dispatchers.Default).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
-                        val met: ArrayList<KMetaData> = ArrayList()
-                        try {
-                            KMetaDataLock.lock()
+                        KMetaDataLock.withLock {
+                            val met: ArrayList<KMetaData> = ArrayList()
+                            try {
 
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("ADD_NEW_META_DATA is running")
-                            }
 
-                            arr.forEach {
-                                if (it.RECORD_TYPE.equals("2")) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "KMetaData",
-                                        l_function_name = "ADD_NEW_META_DATA",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Record is not meta_data"
-                                    )
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ADD_NEW_META_DATA is running")
                                 }
-                                val k = KMetaData(it)
-                                meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
-                                META_DATA[k.VALUE_NAME] = k.VALUE_VALUE
-                                met.add(k)
+
+                                arr.forEach {
+                                    if (it.RECORD_TYPE.equals("2")) {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "KMetaData",
+                                            l_function_name = "ADD_NEW_META_DATA",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "Record is not meta_data"
+                                        )
+                                    }
+                                    val k = KMetaData(it)
+                                    meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
+                                    META_DATA[k.VALUE_NAME] = k.VALUE_VALUE
+                                    met.add(k)
+                                }
+                                return@withTimeoutOrNull true
+                            } catch (e: my_user_exceptions_class) {
+                                throw e
+                            } catch (ex: Exception) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "KMetaData",
+                                    l_function_name = "ADD_NEW_META_DATA",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = ex.message
+                                )
+                            } finally {
+                                if (!arr.isEmpty()) {
+                                    Sqlite_service.InsertMetaData(met)
+                                }
+                                Constants.initialise()
                             }
-                            return@withTimeoutOrNull true
-                        } catch (e: my_user_exceptions_class){
-                            throw e
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KMetaData",
-                                l_function_name = "ADD_NEW_META_DATA",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
-                            )
-                        } finally {
-                            if (!arr.isEmpty()) {
-                                Sqlite_service.InsertMetaData(met)
-                            }
-                            Constants.initialise()
-                            KMetaDataLock.unlock()
                         }
+                    } catch (ex: Exception) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "KMetaData",
+                            l_function_name = "ADD_NEW_META_DATA",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = ex.message
+                        )
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
                     return@withTimeoutOrNull false
-                }?: throw my_user_exceptions_class(
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "KMetaData",
                     l_function_name = "ADD_NEW_META_DATA",
                     name_of_exception = "EXC_SYSTEM_ERROR",

@@ -11,13 +11,13 @@ import p_jsocket.ANSWER_TYPE
 import Tables.KCommands
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import p_jsocket.Constants
-import p_jsocket.rootPath
+import p_jsocket.JSOCKET_Instance
 import kotlin.time.ExperimentalTime
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${rootPath}${slash}${Constants.dbLocalName}.db""")
+actual var sqlDriver: SqlDriver? = JdbcSqliteDriver("""jdbc:sqlite:${JSOCKET_Instance.RootPath}${Constants.dbLocalName}.db""")
 
 
 @KorioExperimentalApi
@@ -38,7 +38,6 @@ actual class SQLStatement actual constructor() {
 
     /////////////////////////////////////////////////////////////////////////
     actual suspend fun connect() {
-
     }
 
     actual suspend fun clear_parameters() {

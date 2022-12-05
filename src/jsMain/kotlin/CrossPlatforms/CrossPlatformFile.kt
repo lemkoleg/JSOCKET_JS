@@ -10,11 +10,25 @@ import com.soywiz.korio.file.std.resourcesVfs
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
     val file: VfsFile = resourcesVfs[fullName]
+    val mod = mode
+    actual var isInit = false
 
     actual suspend fun create(size: Long){
-        file.open(VfsOpenMode.CREATE)
-        val b = ByteArray(1)
-        file.writeChunk(b, (size - 1))
+        val is_exist = file.exists() && file.isFile()
+        file.open(when(mod){
+            1 -> VfsOpenMode.READ
+            2, 3 -> {VfsOpenMode.CREATE_OR_TRUNCATE
+            }
+            4 -> if(is_exist) VfsOpenMode.CREATE else VfsOpenMode.APPEND
+            else -> VfsOpenMode.CREATE
+        })
+        when(mod){
+            2, 3 -> {
+                val b = ByteArray(1)
+                file.writeChunk(b, (size - 1))
+            }
+        }
+        isInit = true
     }
 
     actual suspend fun size():Long {
@@ -65,5 +79,8 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
         return file.extension
     }
 
+    actual suspend fun writeLines(s: String) {
+        file.writeString(s)
+    }
 
 }

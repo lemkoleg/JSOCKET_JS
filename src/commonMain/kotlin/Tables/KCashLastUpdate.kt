@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
@@ -110,12 +111,13 @@ class KCashLastUpdate(
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
-                        KCashLastUpdate_Companion_Lock.lock()
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("LOAD_CASH_LAST_UPDATE is running")
-                        }
-                        arr.forEach {
-                            CASH_LAST_UPDATE[it.CASH_SUM] = it
+                        KCashLastUpdate_Companion_Lock.withLock {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                PrintInformation.PRINT_INFO("LOAD_CASH_LAST_UPDATE is running")
+                            }
+                            arr.forEach {
+                                CASH_LAST_UPDATE[it.CASH_SUM] = it
+                            }
                         }
                     } catch (e: my_user_exceptions_class) {
                         throw e
@@ -126,10 +128,7 @@ class KCashLastUpdate(
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
-                    } finally {
-                        KCashLastUpdate_Companion_Lock.unlock()
                     }
-
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
                 }

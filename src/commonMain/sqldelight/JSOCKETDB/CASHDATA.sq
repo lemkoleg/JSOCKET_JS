@@ -99,6 +99,71 @@ CREATE TABLE IF NOT EXISTS CashData
  CREATE INDEX IF NOT EXISTS CashData_CashSum ON CashData(CASH_SUM);
 
  trigger_CashData_After_Insert:
+ CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
+   AFTER INSERT ON CashData
+   FOR EACH ROW
+   WHEN SUBSTR(new.CASH_SUM, 19, 1) NOT IN ('J', 'K', 'L') -- not for objects info;
+   AND EXISTS (SELECT c.RECORD_TABLE_ID
+                FROM   CashData AS c
+                WHERE  c.CONNECTION_ID = new.CONNECTION_ID
+                AND    c.CASH_SUM = new.CASH_SUM
+                ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC
+                LIMIT 1 OFFSET new.INTEGER_20 - 1)
+   AND new.RECORD_TABLE_ID != (SELECT c.RECORD_TABLE_ID
+                               FROM   CashData AS c
+                               WHERE  c.CONNECTION_ID = new.CONNECTION_ID
+                               AND    c.CASH_SUM = new.CASH_SUM
+                               ORDER BY c.CASH_SUM, c.INTEGER_20 ASC, c.INTEGER_20_LEVEL ASC
+                               LIMIT 1 OFFSET new.INTEGER_20 - 1)
+   BEGIN
+        UPDATE CashData
+        SET    NEXT_RECORD_TABLE_ID = (SELECT c1.RECORD_TABLE_ID AS record_id_1
+                                       FROM CashData AS c1
+                                       WHERE c1.CONNECTION_ID = new.CONNECTION_ID
+                                       AND   c1.CASH_SUM = new.CASH_SUM
+                                       ORDER BY c1.CASH_SUM,
+                                       c1.INTEGER_20 ASC,
+                                       c1.INTEGER_20_LEVEL ASC
+                                       LIMIT 1 OFFSET new.INTEGER_20 - 1),
+               INTEGER_20 = (SELECT c2.INTEGER_20 AS integer_20_1
+                             FROM CashData AS c2
+                             WHERE c2.CONNECTION_ID = new.CONNECTION_ID
+                             AND   c2.CASH_SUM = new.CASH_SUM
+                             ORDER BY c2.CASH_SUM,
+                                      c2.INTEGER_20 ASC,
+                                      c2.INTEGER_20_LEVEL ASC
+                             LIMIT 1 OFFSET new.INTEGER_20 - 1),
+               INTEGER_20_LEVEL = (SELECT c3.INTEGER_20_LEVEL AS integer_20_level_1
+                                   FROM CashData AS c3
+                                   WHERE c3.CONNECTION_ID = new.CONNECTION_ID
+                                   AND   c3.CASH_SUM = new.CASH_SUM
+                                   ORDER BY c3.CASH_SUM,
+                                            c3.INTEGER_20 ASC,
+                                            c3.INTEGER_20_LEVEL ASC
+                                   LIMIT 1 OFFSET new.INTEGER_20 - 1)
+
+        WHERE  CONNECTION_ID = new.CONNECTION_ID
+        AND    CASH_SUM = new.CASH_SUM
+        AND    RECORD_TABLE_ID = new.RECORD_TABLE_ID;
+
+
+        UPDATE CashData
+        SET    INTEGER_20_LEVEL = ifnull((SELECT c4.INTEGER_20_LEVEL AS integer_20_level_2
+                                          FROM   CashData AS c4
+                                          WHERE  c4.CONNECTION_ID = new.CONNECTION_ID
+                                          AND    c4.CASH_SUM = new.CASH_SUM
+                                          AND    c4.RECORD_TABLE_ID = new.RECORD_TABLE_ID), 0) + 1
+        WHERE  CONNECTION_ID = new.CONNECTION_ID
+        AND    CASH_SUM = new.CASH_SUM
+        AND    RECORD_TABLE_ID = (SELECT c5.NEXT_RECORD_TABLE_ID AS next_record_id_2
+                                  FROM   CashData AS c5
+                                  WHERE  c5.CONNECTION_ID = new.CONNECTION_ID
+                                  AND    c5.CASH_SUM = new.CASH_SUM
+                                  AND    c5.RECORD_TABLE_ID = new.RECORD_TABLE_ID);
+
+       END;
+ /**  not working
+ trigger_CashData_After_Insert:
   CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
   AFTER INSERT ON CashData
   FOR EACH ROW
@@ -152,7 +217,7 @@ CREATE TABLE IF NOT EXISTS CashData
 
   END;
 
-  /**   alternative version 3.33
+     alternative ( 3.33)
      CREATE TRIGGER IF NOT EXISTS TCashDataAfterInsert
        AFTER INSERT ON CashData
        FOR EACH ROW

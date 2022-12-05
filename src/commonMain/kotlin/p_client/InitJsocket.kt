@@ -20,7 +20,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
-import p_jsocket.initDirectories
+import p_jsocket.JSOCKET_Instance
 import sql.Sqlite_service
 import sql.db
 import sql.sqlDriver
@@ -53,7 +53,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
 
     private val InitJsocketScope = CoroutineScope(coroutineContext)
 
-    private val FileDir = _lFileDir.trim() + slash
+    private val FileDir = _lFileDir.trim()
     private val DeviceId = _lDeviceId?.trim() ?: ""
     private val SqlDriver = _sqlDriver
 
@@ -69,20 +69,20 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
         InitJsocketJob = InitJsocketScope.launch {
             try {
                 try {
+                    JSOCKET_Instance.initDirectories(FileDir)
                     if (Constants.myDeviceId.isEmpty()) {
                         launch {
                             Constants.myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
                                 .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()
                     }
-                    PrintInformation.PRINT_INFO("end myDeviceId")
                     if (sqlDriver != null) {
                         db = AUFDB(sqlDriver!!)
                     }
-                    initDirectories(FileDir)
-                    PrintInformation.PRINT_INFO("end initDirectories")
                     Sqlite_service.Connect().join()
-                    PrintInformation.PRINT_INFO("end Connect")
+                    if (Constants.FIX_INTO_SCREEN_ERRORS == 1){
+                        PrintInformation.PRINT_INFO("Local DB finish connecting")
+                    }
                     //Sqlite_service.InitializeCommands().join()
                     //Sqlite_service.removeSyncJsocket().join()
                     isInitialised.setNewValue(true)

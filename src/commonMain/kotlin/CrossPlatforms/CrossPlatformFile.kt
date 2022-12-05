@@ -10,8 +10,9 @@ expect val slash:String
 // 1-read, 2-re-write 3-random write, 4 - write-append
 
 @JsName("MyFile")
-expect class CrossPlatformFile(fullName: String = "", mode : Int = 0) {
+expect class CrossPlatformFile(fullName: String = "", mode : Int = 2) {
 
+    var isInit: Boolean
     @JsName("craete")
     suspend fun create(size: Long)
 
@@ -50,5 +51,10 @@ expect class CrossPlatformFile(fullName: String = "", mode : Int = 0) {
 
     @JsName("getFileExtension")
     fun getFileExtension(): String
+
+    @JsName("writeLines")
+    suspend fun writeLines(s: String)
+
+
 
 }

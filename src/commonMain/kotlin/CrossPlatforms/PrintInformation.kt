@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
@@ -30,8 +31,9 @@ object PrintInformation {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
-                        PrintInformationLock.lock()
-                        println("Information: $text")
+                        PrintInformationLock.withLock {
+                            println("Information: $text")
+                        }
                     } catch (e: my_user_exceptions_class) {
                         throw e
                     } catch (ex: Exception) {
@@ -41,8 +43,6 @@ object PrintInformation {
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
-                    } finally {
-                        PrintInformationLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)
@@ -63,8 +63,9 @@ object PrintInformation {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
-                        PrintExceptionnLock.lock()
-                        println("Information: $text")
+                        PrintExceptionnLock.withLock {
+                            println("Information: $text")
+                        }
                     } catch (e: my_user_exceptions_class) {
                         throw e
                     } catch (ex: Exception) {
@@ -74,8 +75,6 @@ object PrintInformation {
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
-                    } finally {
-                        PrintExceptionnLock.unlock()
                     }
                 } catch (e: my_user_exceptions_class) {
                     e.ExceptionHand(null)

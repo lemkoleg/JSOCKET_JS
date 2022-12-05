@@ -10,6 +10,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
@@ -299,34 +300,48 @@ class KExceptions {
     companion object {
 
         @JsName("ADD_NEW_EXCEPTIONS")
-        fun ADD_NEW_EXCEPTIONS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                try {
-                    val exc: ArrayList<KException> = ArrayList()
+        fun ADD_NEW_EXCEPTIONS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
-                        KExceptionsLock.lock()
+                        KExceptionsLock.withLock {
+                            val exc: ArrayList<KException> = ArrayList()
+                            try {
 
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("ADD_NEW_EXCEPTIONS is running")
-                        }
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ADD_NEW_EXCEPTIONS is running")
+                                }
 
-                        arr.forEach {
-                            if (it.RECORD_TYPE.equals("5")) {
+                                arr.forEach {
+                                    if (it.RECORD_TYPE.equals("5")) {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "KException",
+                                            l_function_name = "ADD_NEW_EXCEPTIONS",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "Record is not Exception"
+                                        )
+                                    }
+                                    val e = KException(it)
+                                    meta_data_last_update.setGreaterValue(e.LAST_UPDATE)
+                                    INSERT_EXCEPTION(e)
+                                    exc.add(e)
+                                }
+                                return@withTimeoutOrNull true
+                            } catch (e: my_user_exceptions_class) {
+                                throw e
+                            } catch (ex: Exception) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "KException",
                                     l_function_name = "ADD_NEW_EXCEPTIONS",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "Record is not Exception"
+                                    l_additional_text = ex.message
                                 )
+                            } finally {
+                                if (!exc.isEmpty()) {
+                                    Sqlite_service.InsertExceptions(exc)
+                                }
                             }
-                            val e = KException(it)
-                            meta_data_last_update.setGreaterValue(e.LAST_UPDATE)
-                            INSERT_EXCEPTION(e)
-                            exc.add(e)
                         }
-                        return@withTimeoutOrNull true
-                    } catch (e: my_user_exceptions_class){
-                        throw e
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KException",
@@ -334,23 +349,17 @@ class KExceptions {
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
-                    } finally {
-                        if (!exc.isEmpty()) {
-                            Sqlite_service.InsertExceptions(exc)
-                        }
-                        KExceptionsLock.unlock()
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
                     }
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
-                }
-                return@withTimeoutOrNull false
-            }?: throw my_user_exceptions_class(
-                l_class_name = "KExceptions",
-                l_function_name = "ADD_NEW_EXCEPTIONS",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Time out is up"
-            )
-        }.toPromise(EmptyCoroutineContext)
+                    return@withTimeoutOrNull false
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "KExceptions",
+                    l_function_name = "ADD_NEW_EXCEPTIONS",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            }.toPromise(EmptyCoroutineContext)
 
 
         private suspend fun INSERT_EXCEPTION(kException: KException) {
@@ -371,12 +380,13 @@ class KExceptions {
         suspend fun LOAD_EXCEPTIONS(arr: ArrayList<KException>) {
             try {
                 try {
-                    KExceptionsLock.lock()
-                    arr.forEach {
-                        INSERT_EXCEPTION(it)
-                        meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                    KExceptionsLock.withLock {
+                        arr.forEach {
+                            INSERT_EXCEPTION(it)
+                            meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                        }
                     }
-                } catch (e: my_user_exceptions_class){
+                } catch (e: my_user_exceptions_class) {
                     throw e
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
@@ -385,8 +395,6 @@ class KExceptions {
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    KExceptionsLock.unlock()
                 }
             } catch (ex: my_user_exceptions_class) {
                 ex.ExceptionHand(null)

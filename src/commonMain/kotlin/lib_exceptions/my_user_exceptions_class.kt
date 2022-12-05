@@ -2,8 +2,8 @@
 
 package lib_exceptions
 
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.PrintInformation
-import CrossPlatforms.WriteExceptionIntoFile
 import Tables.KExceptions
 import Tables.USERS_EXCEPTIONS
 import com.soywiz.klock.DateFormat
@@ -18,10 +18,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import p_jsocket.Constants
 import p_jsocket.JSOCKET
+import p_jsocket.JSOCKET_Instance
 import kotlin.time.ExperimentalTime
 
-@InternalAPI
-private val ExceptionClasslock = Mutex()
 
 @InternalAPI
 @ExperimentalTime
@@ -66,20 +65,20 @@ class my_user_exceptions_class : exception_names, Exception {
         var kException: KExceptions.KException? =
             USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get(Constants.myLang)
 
-        if(kException == null && Constants.myLang != "ENG"){
+        if (kException == null && Constants.myLang != "ENG") {
             USERS_EXCEPTIONS[name_of_exception]?.EXCEPTIONS_CLASSES?.get("ENG")
         }
 
-        if(kException == null){
+        if (kException == null) {
             kException = KExceptions.KException(
                 "Unexpected Exception", "ENG",
                 "Unexpected exception encountered: $exception_name", "2", 0
             )
         }
 
-        exception_text = if(!l_additional_text.isNullOrEmpty()){
-            kException.TEXT_OF_ECXEPTION + " - " +l_additional_text
-        }else{
+        exception_text = if (!l_additional_text.isNullOrEmpty()) {
+            kException.TEXT_OF_ECXEPTION + " - " + l_additional_text
+        } else {
             kException.TEXT_OF_ECXEPTION
         }
         exception_status = kException.EXCEPTIONS_STATUS
@@ -87,8 +86,8 @@ class my_user_exceptions_class : exception_names, Exception {
         exception_full_text =
             "class_name: $class_name ; function_name: $function_name ; exception_text: $exception_text"
 
-        if (Constants.FIX_INTO_SCREEN_ERRORS == 1){
-            println(exception_full_text)
+        if (Constants.FIX_INTO_SCREEN_ERRORS == 1) {
+            PrintInformation.PRINT_EXCEPTION(exception_full_text)
         }
 
     }
@@ -100,34 +99,38 @@ class my_user_exceptions_class : exception_names, Exception {
         }
         when (exception_status) {
             "0", "1" -> return
-            "2", "4" -> CoroutineScope(Dispatchers.Default).launch {
-                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                    ExceptionClasslock.withLock {
-                        val file_name: String =
-                            if (Constants.USE_SINGLE_FILE_FOR_FIX_ERRORS == 1) "Errors.log" else (date_of_exception + "_" + class_name)
-                        WriteExceptionIntoFile(date_of_exception + "_" + exception_full_text, file_name)
+            "2", "4" -> WriteExceptionIntoFile(date_of_exception , exception_full_text)
 
-                    }
-                }
-            }
             "3" -> if (jsocket != null) {
-                jsocket.just_do_it_successfull = "9"; jsocket.db_massage =
-                    if (Constants.FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME == 1) exception_full_text else exception_text ?: "null"
+                jsocket.just_do_it_successfull = "9";
+                jsocket.db_massage =
+                    if (Constants.FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME == 1) exception_full_text else exception_text
+                        ?: "null"
             }
-            "4" -> {
-                CoroutineScope(Dispatchers.Default).launch {
-                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                        ExceptionClasslock.withLock {
-                            val file_name: String =
-                                if (Constants.USE_SINGLE_FILE_FOR_FIX_ERRORS == 1) "Errors.log" else (date_of_exception + "_" + class_name)
-                            WriteExceptionIntoFile(date_of_exception + "_" + exception_full_text, file_name)
 
-                        }
-                    }
-                }
+            "4" -> {
+                WriteExceptionIntoFile(date_of_exception , exception_full_text)
                 if (jsocket != null) {
                     jsocket.just_do_it_successfull = "9"; jsocket.db_massage =
-                        if (Constants.FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME == 1) exception_full_text else exception_text ?: "null"
+                        if (Constants.FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME == 1) exception_full_text else exception_text
+                            ?: "null"
+                }
+            }
+        }
+    }
+
+    companion object {
+        private val WriteExceptionIntoFileLock = Mutex()
+        private val file: CrossPlatformFile by lazy { CrossPlatformFile(fullName = "${JSOCKET_Instance.pathErrors}Errors.log", mode = 4) }
+        fun WriteExceptionIntoFile(date_of_exception: String, exception: String) {
+            CoroutineScope(Dispatchers.Default).launch {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    WriteExceptionIntoFileLock.withLock {
+                        if(!file.isInit){
+                            file.create(1L)
+                        }
+                        file.writeLines("$date_of_exception: $exception")
+                    }
                 }
             }
         }

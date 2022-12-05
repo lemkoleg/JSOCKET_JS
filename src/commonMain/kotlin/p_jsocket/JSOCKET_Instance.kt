@@ -15,76 +15,91 @@ import kotlin.js.JsName
  *
  * @author Oleg
  */
-private lateinit var RootPath: String
 
-@JsName("rootPath")
-var rootPath: String = ""
-@JsName("pathErrors")
-var pathErrors: String = ""
-    private set
-@JsName("pathLogs")
-var pathLogs: String = ""
-    private set
-@JsName("pathTemp")
-var pathTemp: String = ""
-    private set
-@JsName("pathMusic14")
-var pathMusic14: String = ""
-    private set
-@JsName("pathMusic15")
-var pathMusic15: String = ""
-    private set
-@JsName("pathVideo16")
-var pathVideo16: String = ""
-    private set
-@JsName("pathVideo17")
-var pathVideo17: String = ""
-    private set
-@JsName("pathPicture18")
-var pathPicture18: String = ""
-    private set
-@JsName("pathPicture19")
-var pathPicture19: String = ""
-    private set
-@JsName("pathTempMusic14")
-var pathTempMusic14: String = ""
-    private set
-@JsName("pathTempMusic15")
-var pathTempMusic15: String = ""
-    private set
-@JsName("pathTempVideo16")
-var pathTempVideo16: String = ""
-    private set
-@JsName("pathTempVideo17")
-var pathTempVideo17: String = ""
-    private set
-@JsName("pathTempPicture18")
-var pathTempPicture18: String = ""
-    private set
-@JsName("pathTempPicture19")
-var pathTempPicture19: String = ""
-    private set
-private const val time_wait = 10000L
+object JSOCKET_Instance {
+    lateinit var RootPath: String
+
+    @JsName("pathErrors")
+    var pathErrors: String = ""
+        private set
+
+    @JsName("pathLogs")
+    var pathLogs: String = ""
+        private set
+
+    @JsName("pathTemp")
+    var pathTemp: String = ""
+        private set
+
+    @JsName("pathMusic14")
+    var pathMusic14: String = ""
+        private set
+
+    @JsName("pathMusic15")
+    var pathMusic15: String = ""
+        private set
+
+    @JsName("pathVideo16")
+    var pathVideo16: String = ""
+        private set
+
+    @JsName("pathVideo17")
+    var pathVideo17: String = ""
+        private set
+
+    @JsName("pathPicture18")
+    var pathPicture18: String = ""
+        private set
+
+    @JsName("pathPicture19")
+    var pathPicture19: String = ""
+        private set
+
+    @JsName("pathTempMusic14")
+    var pathTempMusic14: String = ""
+        private set
+
+    @JsName("pathTempMusic15")
+    var pathTempMusic15: String = ""
+        private set
+
+    @JsName("pathTempVideo16")
+    var pathTempVideo16: String = ""
+        private set
+
+    @JsName("pathTempVideo17")
+    var pathTempVideo17: String = ""
+        private set
+
+    @JsName("pathTempPicture18")
+    var pathTempPicture18: String = ""
+        private set
+
+    @JsName("pathTempPicture19")
+    var pathTempPicture19: String = ""
+        private set
+    private const val time_wait = 10000L
 
 
-
-@JsName("initDirectories")
-fun initDirectories(
+    @JsName("initDirectories")
+    fun initDirectories(
         L_RootPath: String
     ) {
-        RootPath = L_RootPath.trim()
-        pathErrors = rootPath.plus("Errors")
-        pathLogs = rootPath.plus("Logs")
-        pathTemp = rootPath.plus("Temp")
-        pathMusic14 = rootPath.plus("14")
-        pathMusic15 = rootPath.plus("15")
-        pathVideo16 = rootPath.plus("16")
-        pathVideo17 = rootPath.plus("17")
-        pathPicture18 = rootPath.plus("18")
-        pathPicture19 = rootPath.plus("19")
+        RootPath = L_RootPath.trim().plus(slash)
+        println("RootPath: " + RootPath)
+        pathErrors = RootPath.plus("Errors").plus(slash)
+        println("pathErrors: " + pathErrors)
+        pathLogs = RootPath.plus("Logs").plus(slash)
+        pathTemp = RootPath.plus("Temp").plus(slash)
+        pathMusic14 = RootPath.plus("14").plus(slash)
+        pathMusic15 = RootPath.plus("15").plus(slash)
+        pathVideo16 = RootPath.plus("16").plus(slash)
+        pathVideo17 = RootPath.plus("17").plus(slash)
+        pathPicture18 = RootPath.plus("18").plus(slash)
+        pathPicture19 = RootPath.plus("19").plus(slash)
 
-    /*
-        var file = CrossPlatformFile(rootPath)
+        /*
+        var file = CrossPlatformFile(RootPath)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
         }
@@ -112,19 +127,19 @@ fun initDirectories(
         pathTemp =
             pathTemp.plus(slash)
         pathTempMusic14 =
-            pathTemp.plus("14")
+            pathTemp.plus("14").plus(slash)
         pathTempMusic15 =
-            pathTemp.plus("15")
+            pathTemp.plus("15").plus(slash)
         pathTempVideo16 =
-            pathTemp.plus("16")
+            pathTemp.plus("16").plus(slash)
         pathTempVideo17 =
-            pathTemp.plus("17")
+            pathTemp.plus("17").plus(slash)
         pathTempPicture18 =
-            pathTemp.plus("18")
+            pathTemp.plus("18").plus(slash)
         pathTempPicture19 =
-            pathTemp.plus("19")
+            pathTemp.plus("19").plus(slash)
 
-    /*
+        /*
         file = CrossPlatformFile(pathMusic14)
         if (!file.isExists() || !file.isPath()) {
             file.createPath()
@@ -211,3 +226,4 @@ fun initDirectories(
         pathTempPicture19 =
             pathTempPicture19.plus(slash)
     }
+}

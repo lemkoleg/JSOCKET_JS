@@ -11,6 +11,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Command
@@ -168,34 +169,48 @@ class KCommands {
     companion object {
 
         @JsName("ADD_NEW_COMMANDS")
-        fun ADD_NEW_COMMANDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                try {
-                    val com: ArrayList<KCommands> = ArrayList()
+        fun ADD_NEW_COMMANDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
+            CoroutineScope(Dispatchers.Default).async {
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
-                        KCommandsLock.lock()
+                        KCommandsLock.withLock {
+                            val com: ArrayList<KCommands> = ArrayList()
+                            try {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ADD_NEW_COMMANDS is running")
+                                }
+                                arr.forEach {
+                                    if (it.RECORD_TYPE.equals("1")) {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "KCommands",
+                                            l_function_name = "ADD_NEW_COMMANDS",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "Record is not Command"
+                                        )
+                                    }
+                                    val k = KCommands(it)
+                                    val c = Command(k)
+                                    meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
+                                    COMMANDS[c.commands_id] = c
+                                    com.add(k)
+                                }
+                                return@withTimeoutOrNull true
 
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("ADD_NEW_COMMANDS is running")
-                        }
-                        arr.forEach {
-                            if (it.RECORD_TYPE.equals("1")) {
+                            } catch (e: my_user_exceptions_class) {
+                                throw e
+                            } catch (ex: Exception) {
                                 throw my_user_exceptions_class(
                                     l_class_name = "KCommands",
                                     l_function_name = "ADD_NEW_COMMANDS",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "Record is not Command"
+                                    l_additional_text = ex.message
                                 )
+                            } finally {
+                                if (!arr.isEmpty()) {
+                                    Sqlite_service.InsertCommands(com)
+                                }
                             }
-                            val k = KCommands(it)
-                            val c = Command(k)
-                            meta_data_last_update.setGreaterValue(k.LAST_UPDATE)
-                            COMMANDS[c.commands_id] = c
-                            com.add(k)
                         }
-                        return@withTimeoutOrNull true
-                    } catch (e: my_user_exceptions_class){
-                        throw e
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KCommands",
@@ -203,35 +218,30 @@ class KCommands {
                             name_of_exception = "EXC_SYSTEM_ERROR",
                             l_additional_text = ex.message
                         )
-                    } finally {
-                        if (!arr.isEmpty()) {
-                            Sqlite_service.InsertCommands(com)
-                        }
-                        KCommandsLock.unlock()
+                    } catch (e: my_user_exceptions_class) {
+                        e.ExceptionHand(null)
                     }
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
-                }
-                return@withTimeoutOrNull false
-            }?: throw my_user_exceptions_class(
-                l_class_name = "KCommands",
-                l_function_name = "ADD_NEW_COMMANDS",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Time out is up"
-            )
-        }.toPromise(EmptyCoroutineContext)
+                    return@withTimeoutOrNull false
+                } ?: throw my_user_exceptions_class(
+                    l_class_name = "KCommands",
+                    l_function_name = "ADD_NEW_COMMANDS",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
+                )
+            }.toPromise(EmptyCoroutineContext)
 
         @JsName("LOAD_COMMANDS")
         suspend fun LOAD_COMMANDS(ids: ArrayList<KCommands>) {
             try {
                 try {
-                    KCommandsLock.lock()
-                    ids.forEach {
-                        val c = Command(it)
-                        COMMANDS[c.commands_id] = c
-                        meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                    KCommandsLock.withLock {
+                        ids.forEach {
+                            val c = Command(it)
+                            COMMANDS[c.commands_id] = c
+                            meta_data_last_update.setGreaterValue(it.LAST_UPDATE)
+                        }
                     }
-                } catch (e: my_user_exceptions_class){
+                } catch (e: my_user_exceptions_class) {
                     throw e
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
@@ -240,17 +250,14 @@ class KCommands {
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
-                } finally {
-                    KCommandsLock.unlock()
                 }
-
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
             }
         }
 
         @JsName("RE_LOAD_COMMANDS")
-        fun RE_LOAD_COMMANDS():Job {
+        fun RE_LOAD_COMMANDS(): Job {
             return Sqlite_service.LoadCommands()
         }
     }
