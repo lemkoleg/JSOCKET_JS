@@ -74,7 +74,7 @@ class KBigAvatar {
 
     constructor(
         L_AVATAR_ID: String,
-        L_LAST_USE: Long = DateTime.nowUnixLong(),
+        L_LAST_USE: Long = DateTime.nowUnixMillisLong(),
         L_AVATAR: ByteArray
     ) {
         AVATAR_ID = L_AVATAR_ID
@@ -95,7 +95,7 @@ class KBigAvatar {
             )
         }
         AVATAR_ID = jsocket.value_id3
-        LAST_USE = DateTime.nowUnixLong()
+        LAST_USE = DateTime.nowUnixMillisLong()
         AVATAR = jsocket.content
         IS_HAVE = true
         IS_INIT = true
@@ -112,7 +112,7 @@ class KBigAvatar {
             )
         }
         AVATAR_ID = answerType.IDENTIFICATOR_2!!
-        LAST_USE = DateTime.nowUnixLong()
+        LAST_USE = DateTime.nowUnixMillisLong()
         AVATAR = answerType.BLOB_4!!
         IS_HAVE = true
         IS_INIT = true

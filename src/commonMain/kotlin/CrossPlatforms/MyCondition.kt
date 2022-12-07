@@ -11,7 +11,8 @@ import com.badoo.reaktive.utils.lock.synchronized
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.delay
 import com.soywiz.korio.experimental.KorioExperimentalApi
-import com.soywiz.korio.util.OS
+import com.soywiz.kmem.Platform
+import com.soywiz.kmem.isJs
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import p_jsocket.Constants
@@ -51,12 +52,12 @@ class MyCondition {
     private var time = 0L
 
 
-    val lock: Lock? = if (!OS.isJs) {
+    val lock: Lock? = if (!Platform.isJs) {
         Lock()
     } else null
 
 
-    val cond: Condition? = if (!OS.isJs) {
+    val cond: Condition? = if (!Platform.isJs) {
         lock?.newCondition()
     } else null
 
@@ -64,9 +65,9 @@ class MyCondition {
     @JsName("cAwait")
     suspend fun cAwait(t: Long): Boolean{
         isAwaited.value = false
-        if(OS.isJs) {
-            time = t + DateTime.nowUnixLong()
-            while (!isAwaited.value && time > DateTime.nowUnixLong()) {
+        if(Platform.isJs) {
+            time = t + DateTime.nowUnixMillisLong()
+            while (!isAwaited.value && time > DateTime.nowUnixMillisLong()) {
                 delay(Constants.TIME_SPAN_FOR_LOOP)
             }
         }
@@ -80,15 +81,16 @@ class MyCondition {
     @JsName("cSignal")
     fun cSignal(){
         isAwaited.value = true
-        if(!OS.isJs){
+        if(!Platform.isJs){
+
             lock!!.synchronized {cond!!.signal() }
         }
     }
 
     @JsName("cDestroy")
     fun cDestroy(){
-        if(OS.isJs){
-            time = DateTime.nowUnixLong()
+        if(Platform.isJs){
+            time = DateTime.nowUnixMillisLong()
             }
         else{
             lock!!.synchronized { cond!!.destroy() }

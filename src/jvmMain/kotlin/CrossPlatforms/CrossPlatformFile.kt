@@ -1,20 +1,24 @@
 package CrossPlatforms
 
+
 import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.resourcesVfs
+import com.soywiz.korio.file.std.localVfs
+import com.soywiz.korio.stream.AsyncStream
+import com.soywiz.korio.stream.writeString
 
 // 1-read, 2-re-write 3-random write, 4 - write-append
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
-    val file: VfsFile = resourcesVfs[fullName]
+    val file: VfsFile = localVfs(fullName)
+    var chnnel: AsyncStream? = null
     val mod = mode
     actual var isInit = false
     actual suspend fun create(size: Long){
-        file.open(when(mod){
+        chnnel = file.open(when(mod){
             1 -> VfsOpenMode.READ
             2, 3 -> {VfsOpenMode.CREATE_NEW
             }
-            4 -> VfsOpenMode.APPEND
+            4 -> VfsOpenMode.CREATE_OR_TRUNCATE
             else -> VfsOpenMode.CREATE
         })
         when(mod){
@@ -76,6 +80,7 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
     }
 
     actual suspend fun writeLines(s: String) {
-        file.writeString(s)
+        chnnel!!.setPosition(file.size())
+        chnnel!!.writeString(s + lineSeparator)
     }
 }

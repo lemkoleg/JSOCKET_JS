@@ -1042,7 +1042,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 }
 
                                 else -> {
-                                    if (minLastSelect.plus(Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < (DateTime.nowUnixLong())) {
+                                    if (minLastSelect.plus(Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < (DateTime.nowUnixMillisLong())) {
                                         Get(
                                             l_record_table_id_from = currentViewCashDataRecord?.RECORD_TABLE_ID
                                                 ?: ""
@@ -1364,7 +1364,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                     ?: ""
                                             )
                                         } else {
-                                            if (minLastSelect.plus(Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < (DateTime.nowUnixLong())) {
+                                            if (minLastSelect.plus(Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < (DateTime.nowUnixMillisLong())) {
                                                 k.Get(
                                                     l_record_table_id_from = k.currentViewCashDataRecord?.RECORD_TABLE_ID
                                                         ?: ""

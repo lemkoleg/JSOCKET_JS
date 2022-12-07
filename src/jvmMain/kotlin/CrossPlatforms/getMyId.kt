@@ -219,3 +219,5 @@ actual suspend fun getMyDeviceId(): String {
             ""
         }
     }
+
+actual val lineSeparator: String = " \n"

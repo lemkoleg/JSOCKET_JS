@@ -82,12 +82,12 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                                         KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()
                                                             ?.getAVATAR()
                                                     updateObjectInfo(null)
-                                                    if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                                    if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixMillisLong()) {
                                                         SendRequestForUpdate("0")
                                                     }
                                                 }
                                             } else {
-                                                if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                                if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixMillisLong()) {
                                                     SendRequestForUpdate("0")
                                                 }
                                             }
@@ -96,13 +96,13 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                             if (answerType.BLOB_2 == null) {
                                                 SendRequestForUpdate("2")
                                             } else {
-                                                if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                                if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixMillisLong()) {
                                                     SendRequestForUpdate("0")
                                                 }
                                             }
                                         }
                                     } else {
-                                        if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixLong()) {
+                                        if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixMillisLong()) {
                                             SendRequestForUpdate("0")
                                         }
                                     }

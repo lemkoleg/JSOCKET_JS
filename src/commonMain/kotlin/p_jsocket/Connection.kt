@@ -17,6 +17,7 @@ import com.soywiz.korio.async.Signal
 import com.soywiz.korio.async.addSuspend
 import com.soywiz.korio.async.delay
 import com.soywiz.korio.experimental.KorioExperimentalApi
+import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.InternalAPI
 import io.ktor.utils.io.core.*
@@ -71,8 +72,8 @@ object Connection : CoroutineScope {
     private var signalonError: Signal<Throwable>? = null
     private var signalonOpen: Signal<Unit>? = null
     private val url = "ws://".plus(connectionDNSName).plus(":").plus(ServerConnPort.toString())
-    private var isConnect: Boolean = true
-    private var isClosed: Boolean = false
+    private var isConnect: Boolean = false
+    private var isClosed: Boolean = true
 
     private var countOfCleaner = 0
 
@@ -111,13 +112,12 @@ object Connection : CoroutineScope {
     private fun setConn() {
         MyConnection = ConnectionScope.launch {
 
-
             var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
 
             while (count_of_try > 0 && !isConnect) {
                 count_of_try--
                 try {
-                    MyWebSocketChannel = WebSocketClient(url, null, null, "", false)
+                    MyWebSocketChannel = WebSocketClient(url = url, protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
                     signalonOpen = MyWebSocketChannel!!.onOpen
                     signalonOpen?.add {
                         isConnect = true
@@ -128,7 +128,7 @@ object Connection : CoroutineScope {
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
                     signalonBinaryMessage?.addSuspend { v ->
-                        Connection.ConnectionScope.launch { decode(v) }
+                        decode(v)
                     }
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
                     signalonStringMessage = MyWebSocketChannel!!.onStringMessage
@@ -159,7 +159,9 @@ object Connection : CoroutineScope {
                         }
                         addressByteArray = returnConnAddress().readBytes()
                     }
+                    delay(Constants.TIME_SPAN_FOR_LOOP * 10)
                 } catch (e: Exception) {
+
                     isConnect = false
                     isClosed = true
                     if (count_of_try < 1) {
@@ -181,11 +183,10 @@ object Connection : CoroutineScope {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 ConnectionLock.withLock {
                     BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
-                    /*if (!MyConnection.isCompleted) {
-                        MyConnection.join()
-                    }*/
-                    while (!isConnected()) {
-                        if(MyConnection.isActive){
+
+                    while (!isConnect) {
+
+                        if (MyConnection.isActive) {
                             MyConnection.join()
                         }
                         if (isClosed) {
@@ -220,14 +221,6 @@ object Connection : CoroutineScope {
         }
     }
 
-    private fun isConnected(): Boolean {
-        if (MyWebSocketChannel == null) {
-            return false
-        } else {
-            return isConnect
-        }
-    }
-
     @InternalAPI
     @JsName("close")
     fun close() {
@@ -245,172 +238,171 @@ object Connection : CoroutineScope {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-    suspend fun decode(buffer: ByteArray) {
-        try {
+    fun decode(buffer: ByteArray) =
+        ConnectionScope.launch {
             try {
+                try {
+                    val buf: ByteReadPacket = ByteReadPacket(buffer)
+                    var Request_size: Int
+                    var x = 0
+                    var b: ByteReadPacket?
 
-                val buf: ByteReadPacket = ByteReadPacket(buffer)
-                var Request_size: Int
-                var x = 0
-                var b: ByteReadPacket?
-
-
-                if (!buf.isEmpty) {
-                    if (buf.remaining < MIN_SIZE_OF_REQUEST) {
-                        return
-                    }
-                    FirstLoop@
-                    while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
-                        if (buf.readByte() == 0.toByte()) {
-                            x++
-                            if (x == COUNT_OF_0_BYTES) {
-                                x = if (buf.readLong() == 9223372036854775807L) {
-                                    break@FirstLoop
-                                } else {
-                                    0
+                    if (!buf.isEmpty) {
+                        if (buf.remaining < MIN_SIZE_OF_REQUEST) {
+                            return@launch
+                        }
+                        FirstLoop@
+                        while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
+                            if (buf.readByte() == 0.toByte()) {
+                                x++
+                                if (x == COUNT_OF_0_BYTES) {
+                                    x = if (buf.readLong() == 9223372036854775807L) {
+                                        break@FirstLoop
+                                    } else {
+                                        0
+                                    }
                                 }
-                            }
-                        } else {
-                            x = 0
-                        }
-                    }
-                    if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
-                        return
-                    }
-                    Request_size = buf.readInt()
-                    if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "DecoderRequest",
-                            l_function_name = "decode",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "Request size is to big: ${Request_size.toString()}"
-                        )
-                    }
-
-                    if (buf.remaining < Request_size + 8) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "DecoderRequest",
-                            l_function_name = "decode",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "Request size is to big: ${Request_size.toString()}"
-                        )
-                    }
-
-                    b = ByteReadPacket(Connection.addressByteArray!!.plus(buf.readBytes(Request_size)))
-
-                    if (buf.readLong() != 7085774586302733229L) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "DecoderRequest",
-                            l_function_name = "decode",
-                            name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "Final code is wrong!"
-                        )
-                    } else {
-                        var jsocketRet: Jsocket? = Jsocket.GetJsocket()
-                        if (jsocketRet == null) {
-                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emptty")
-                            }
-                            Jsocket.fill()
-                            jsocketRet = Jsocket()
-                        }
-                        var jsocket: Jsocket?
-                        jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
-
-                        if (jsocketRet.just_do_it != 0) {
-
-                            val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
-
-                            if (c.commands_access != "B") {
-                                jsocket = BetweenJSOCKETs.lockedRemove(jsocketRet.just_do_it_label)
                             } else {
-                                jsocket = BetweenJSOCKETs.lockedGet(jsocketRet.just_do_it_label)
+                                x = 0
                             }
+                        }
+                        if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
+                            return@launch
+                        }
+                        Request_size = buf.readInt()
+                        if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "DecoderRequest",
+                                l_function_name = "decode",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                            )
+                        }
 
-                            if (jsocket != null) {
-                                when (jsocketRet.just_do_it) {
+                        if (buf.remaining < Request_size + 8) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "DecoderRequest",
+                                l_function_name = "decode",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                            )
+                        }
 
-                                    1011000086 -> {  // new messeges, notices;
-                                        KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
-                                    }
+                        b = ByteReadPacket(Connection.addressByteArray!!.plus(buf.readBytes(Request_size)))
 
-                                    1011000058 -> {
-                                        jsocket.send_request()
-                                    }
+                        if (buf.readLong() != 7085774586302733229L) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "DecoderRequest",
+                                l_function_name = "decode",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "Final code is wrong!"
+                            )
+                        } else {
+                            var jsocketRet: Jsocket? = Jsocket.GetJsocket()
+                            if (jsocketRet == null) {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emptty")
+                                }
+                                Jsocket.fill()
+                                jsocketRet = Jsocket()
+                            }
+                            var jsocket: Jsocket?
+                            jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
 
-                                    1011000069 -> {
-                                        Constants.myConnectionsID = 0L
-                                        Constants.myConnectionsCoocki = 0L
-                                        Sqlite_service.ClearRegData()
-                                        throw my_user_exceptions_class(
-                                            l_class_name = "DecoderRequest",
-                                            l_function_name = "decode",
-                                            name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
-                                        )
-                                    }
+                            if (jsocketRet.just_do_it != 0) {
 
-                                    else -> {
+                                val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
 
-                                        if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
+                                if (c.commands_access != "B") {
+                                    jsocket = BetweenJSOCKETs.lockedRemove(jsocketRet.just_do_it_label)
+                                } else {
+                                    jsocket = BetweenJSOCKETs.lockedGet(jsocketRet.just_do_it_label)
+                                }
+
+                                if (jsocket != null) {
+                                    when (jsocketRet.just_do_it) {
+
+                                        1011000086 -> {  // new messeges, notices;
                                             KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                         }
 
-                                        if (c.commands_access == "B") {
-                                            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                                                val l = jsocket!!.lock
-                                                l.withLock {
-                                                    jsocketRet.contrMerge(jsocket!!)
-                                                    jsocket = jsocketRet
-                                                }
-                                            } ?: throw my_user_exceptions_class(
-                                                l_class_name = "Connection",
-                                                l_function_name = "decode",
-                                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                                l_additional_text = "Time out is up"
-                                            )
-                                        } else {
-                                            jsocket!!.merge(jsocketRet)
+                                        1011000058 -> {
+                                            jsocket.send_request()
                                         }
-                                        jsocket!!.is_new_reg_data = false
-                                        if (c.whichBlobDataReturned == "4") {
-                                            jsocket!!.deserialize_ANSWERS_TYPES()
-                                        }
-                                        if (jsocket!!.is_new_reg_data) {
-                                            KRegData.setNEW_REG_DATA(jsocket)
-                                        }
-                                        jsocket!!.condition.cSignal()
-                                    }
-                                }
-                            } else {
-                                if (jsocketRet.just_do_it != 1011000086) { // new messeges, notices;
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "DecoderRequest",
-                                        l_function_name = "decode",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
-                                    )
-                                } else {
-                                    KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
-                                }
 
+                                        1011000069 -> {
+                                            Constants.myConnectionsID = 0L
+                                            Constants.myConnectionsCoocki = 0L
+                                            Sqlite_service.ClearRegData()
+                                            throw my_user_exceptions_class(
+                                                l_class_name = "DecoderRequest",
+                                                l_function_name = "decode",
+                                                name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
+                                            )
+                                        }
+
+                                        else -> {
+
+                                            if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
+                                                KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                            }
+
+                                            if (c.commands_access == "B") {
+                                                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                                                    val l = jsocket!!.lock
+                                                    l.withLock {
+                                                        jsocketRet.contrMerge(jsocket!!)
+                                                        jsocket = jsocketRet
+                                                    }
+                                                } ?: throw my_user_exceptions_class(
+                                                    l_class_name = "Connection",
+                                                    l_function_name = "decode",
+                                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                                    l_additional_text = "Time out is up"
+                                                )
+                                            } else {
+                                                jsocket!!.merge(jsocketRet)
+                                            }
+                                            jsocket!!.is_new_reg_data = false
+                                            if (c.whichBlobDataReturned == "4") {
+                                                jsocket!!.deserialize_ANSWERS_TYPES()
+                                            }
+                                            if (jsocket!!.is_new_reg_data) {
+                                                KRegData.setNEW_REG_DATA(jsocket)
+                                            }
+                                            jsocket!!.condition.cSignal()
+                                        }
+                                    }
+                                } else {
+                                    if (jsocketRet.just_do_it != 1011000086) { // new messeges, notices;
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "DecoderRequest",
+                                            l_function_name = "decode",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
+                                        )
+                                    } else {
+                                        KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                    }
+
+                                }
                             }
                         }
                     }
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                } catch (ex: Exception) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "Connection",
+                        l_function_name = "DecoderRequest",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = ex.message
+                    )
                 }
             } catch (e: my_user_exceptions_class) {
-                throw e
-            } catch (ex: Exception) {
-                throw my_user_exceptions_class(
-                    l_class_name = "Connection",
-                    l_function_name = "DecoderRequest",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
-                )
+                e.ExceptionHand(null)
             }
-        } catch (e: my_user_exceptions_class) {
-            e.ExceptionHand(null)
         }
-    }
 
 
     private val Cleaner = KorosTimerTask.start(

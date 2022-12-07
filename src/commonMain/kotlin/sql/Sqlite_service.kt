@@ -82,7 +82,7 @@ object Sqlite_service : CoroutineScope {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
                         if (IS_UPDATE_LAST_USE) {
-                            statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                            statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixMillisLong())
                         }
                         return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
                     }
@@ -175,7 +175,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
-                        statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixLong())
+                        statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixMillisLong())
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1033,7 +1033,7 @@ object Sqlite_service : CoroutineScope {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private const val TIMEOUTCLEANERSECONDS = 20
     private const val VERIFYTABLES: Long = 60000L //60 seconds
-    private var NextTimeVerifyTables: Long = DateTime.nowUnixLong() + VERIFYTABLES
+    private var NextTimeVerifyTables: Long = DateTime.nowUnixMillisLong() + VERIFYTABLES
 
 
     ////////////////////////////////////////////////////////////////////////////////

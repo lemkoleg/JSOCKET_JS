@@ -29,3 +29,4 @@ actual fun getMyOS(): String {
 }
 
 actual val slash: String = "/"
+actual val lineSeparator: String = " \n"

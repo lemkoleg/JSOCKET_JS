@@ -91,7 +91,7 @@ class KSaveMedia(
         if (L_IS_TEMP == 1) {
             L_IS_TEMP = 0
         }
-        L_LAST_USED = DateTime.nowUnixLong()
+        L_LAST_USED = DateTime.nowUnixMillisLong()
         AddNewSaveMedia(this)
     }
 
@@ -139,7 +139,7 @@ class KSaveMedia(
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
-                            kSaveMedia.L_LAST_USED = DateTime.nowUnixLong()
+                            kSaveMedia.L_LAST_USED = DateTime.nowUnixMillisLong()
                             KSaveMediaLock.withLock {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                     PrintInformation.PRINT_INFO("AddNewSaveMedia is running")

@@ -14,6 +14,6 @@ class KCashDataUpdateParameters(
     val limit: Int,
     var count_of_all_records: Int
 ) {
-    val time_out = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+    val time_out = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
     var start_record_id = ""
 }

@@ -1,11 +1,14 @@
 package p_jsocket
 
+import CrossPlatforms.MyCondition
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Signal
+import com.soywiz.korio.async.addSuspend
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
+import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
@@ -28,35 +31,16 @@ class SampleTestsJVM {
     @Test
     fun testMe() = run<Unit> {
 
-
+        println(DEFAULT_WSKEY)
         val initJsocket = InitJsocket("D:${slash}DebugAUF", null, null)
 
         val lock = Mutex()
 
         CoroutineScope(Dispatchers.Default).launch {
 
-            val myWebSocketChannel = WebSocketClient("ws://MINI:22237", null, null, "", false)
-            var signalonOpen: Signal<Unit>? = myWebSocketChannel.onOpen
-            signalonOpen?.add {
-                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("connect 111")
-                }
-            }
 
-            val signalonClose = myWebSocketChannel.onClose
-            signalonClose.add {
-                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("disconnect 111")
-                }
-            }
-            var time = DateTime.nowUnixLong()
-            val signalonError = myWebSocketChannel.onError
-            signalonError.add { v ->
-                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("WebSocket 111 error on connection: $v\n" + "Time 111: " + (System.currentTimeMillis() - time))
-                }
-                myWebSocketChannel.close()
-            }
+
+            var time = DateTime.nowUnixMillisLong()
 
 
             println("time: " + time)
@@ -76,10 +60,8 @@ class SampleTestsJVM {
             l.value_par7 = "lemkoleg82@gmail.com"
             val b = l.serialize(false)
             System.out.println("b.size: " + b.size)
-            myWebSocketChannel.send(b)
-            myWebSocketChannel.close()
+            sleep(5000)
             l.execute(null, null).await()
-
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 

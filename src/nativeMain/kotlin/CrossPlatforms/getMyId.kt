@@ -77,5 +77,15 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
         return file.extension
     }
 
+    actual var isInit: Boolean
+        get() = TODO("Not yet implemented")
+        set(value) {}
+
+
+    actual suspend fun writeLines(s: String) {
+    }
+
 
 }
+
+actual val lineSeparator: String = " \n"

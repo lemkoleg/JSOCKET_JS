@@ -94,7 +94,7 @@ object KChat {
                     try {
                         KChatsSelectAllDataOnChatLock.withLock {
                             if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
-                                if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixLong()) {
+                                if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixMillisLong()) {
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                         PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                     }
@@ -102,13 +102,13 @@ object KChat {
 
                                 } else {
                                     sendedlSelectAllDataOfChat[cats_id] =
-                                        DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+                                        DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                         PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                     }
                                 }
                             } else {
-                                sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+                                sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
 
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                     PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
@@ -160,13 +160,13 @@ object KChat {
                                 }
 
                                 (sendedVerifyUpdates == new_updates) -> {
-                                    if (TimeOutendedVerifyUpdates > DateTime.nowUnixLong()) {
+                                    if (TimeOutendedVerifyUpdates > DateTime.nowUnixMillisLong()) {
                                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                             PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Time out of sended updates is not ended;")
                                         }
                                         return@withTimeoutOrNull
                                     } else {
-                                        TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+                                        TimeOutendedVerifyUpdates = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                             PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Time out of sended updates is ended; Set new timeout;")
                                         }
@@ -175,7 +175,7 @@ object KChat {
 
                                 (sendedVerifyUpdates < new_updates) -> {
                                     sendedVerifyUpdates = new_updates
-                                    TimeOutendedVerifyUpdates = DateTime.nowUnixLong() + Constants.CLIENT_TIMEOUT
+                                    TimeOutendedVerifyUpdates = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                         PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Set new update;")
                                     }

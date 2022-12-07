@@ -19,7 +19,7 @@ import kotlin.time.TimeSource.Monotonic
  * @author User
  *
  */
-private val time_now = DateTime.nowUnixLong() * 1_000_000
+private val time_now = DateTime.nowUnixMillisLong() * 1_000_000
 
 @ExperimentalTime
 private val clock : TimeMark = Monotonic.markNow()

@@ -73,7 +73,7 @@ class KCashLastUpdate(
         ensureNeverFrozen()
     }
 
-    var LAST_USE: Long = DateTime.nowUnixLong()
+    var LAST_USE: Long = DateTime.nowUnixMillisLong()
 
     //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
@@ -83,7 +83,7 @@ class KCashLastUpdate(
         CoroutineScope(Dispatchers.Default).async {
             try {
                 try {
-                    value.LAST_USE = DateTime.nowUnixLong()
+                    value.LAST_USE = DateTime.nowUnixMillisLong()
                     Sqlite_service.InsertCashLastUpdate(value)
 
                 } catch (ex: Exception) {

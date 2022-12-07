@@ -5,6 +5,7 @@ package CrossPlatforms
 import kotlin.js.JsName
 
 expect val slash:String
+expect val lineSeparator:String
 
 //expect fun createPath(fullName: String):Boolean
 // 1-read, 2-re-write 3-random write, 4 - write-append
