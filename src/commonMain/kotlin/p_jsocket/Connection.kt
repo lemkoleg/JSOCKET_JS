@@ -58,7 +58,7 @@ object Connection : CoroutineScope {
 
     private val ServerConnPort = 22237
 
-    private lateinit var MyConnection: Job
+    private lateinit var SetConnJob: Job
 
     @JsName("MyWebSocketChannel")
     private var MyWebSocketChannel: WebSocketClient? = null
@@ -74,6 +74,7 @@ object Connection : CoroutineScope {
     private val url = "ws://".plus(connectionDNSName).plus(":").plus(ServerConnPort.toString())
     private var isConnect: Boolean = false
     private var isClosed: Boolean = true
+    private var isRun: Boolean = false
 
     private var countOfCleaner = 0
 
@@ -110,12 +111,15 @@ object Connection : CoroutineScope {
     @ExperimentalTime
     @JsName("setConn")
     private fun setConn() {
-        MyConnection = ConnectionScope.launch {
+        SetConnJob = ConnectionScope.launch {
+
+            isRun = true
 
             var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
 
             while (count_of_try > 0 && !isConnect) {
                 count_of_try--
+
                 try {
                     MyWebSocketChannel = WebSocketClient(url = url, protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
                     signalonOpen = MyWebSocketChannel!!.onOpen
@@ -148,6 +152,7 @@ object Connection : CoroutineScope {
                         //val e = v.printStackTrace()
                         isConnect = false
                         isClosed = true
+                        isRun = false
                         MyWebSocketChannel?.close()
                     }
                     connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
@@ -164,6 +169,7 @@ object Connection : CoroutineScope {
 
                     isConnect = false
                     isClosed = true
+                    isRun = false
                     if (count_of_try < 1) {
                         throw my_user_exceptions_class(
                             "Connection",
@@ -179,17 +185,13 @@ object Connection : CoroutineScope {
 
     @InternalAPI
     public fun sendData(b: ByteArray, j: Jsocket) {
-        ConnectionScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 ConnectionLock.withLock {
                     BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
 
                     while (!isConnect) {
-
-                        if (MyConnection.isActive) {
-                            MyConnection.join()
-                        }
-                        if (isClosed) {
+                        if (!isRun) {
                             setConn()
                         }
                         delay(Constants.TIME_SPAN_FOR_LOOP)

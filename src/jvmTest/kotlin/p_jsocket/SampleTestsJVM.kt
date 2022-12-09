@@ -4,21 +4,21 @@ import CrossPlatforms.MyCondition
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.addSuspend
-import com.soywiz.korio.async.await
+import com.soywiz.korio.async.*
+import com.soywiz.korio.async.async
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import p_client.InitJsocket
 import p_client.Jsocket
 import java.lang.Thread.sleep
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.time.ExperimentalTime
 
@@ -36,11 +36,35 @@ class SampleTestsJVM {
 
         val lock = Mutex()
 
+
         CoroutineScope(Dispatchers.Default).launch {
 
-
-
             var time = DateTime.nowUnixMillisLong()
+            var myWebSocketChannel: WebSocketClient? = null
+            var signalonOpen: Signal<Unit>?
+            /*
+                        CoroutineScope(Dispatchers.Default).async {
+                            withContext(EmptyCoroutineContext){
+                            myWebSocketChannel = WebSocketClient(url = "ws://mini:22237", protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
+
+                            signalonOpen = myWebSocketChannel!!.onOpen
+                            signalonOpen!!.add {
+                                PrintInformation.PRINT_INFO("WebSocket connect 1111")
+                            }
+
+                            PrintInformation.PRINT_INFO("end connect 1111")}.toDeferred()
+
+                        }.toPromise(EmptyCoroutineContext).await()
+
+
+                        System.out.println("time wait join: " + (System.currentTimeMillis() - time))
+
+
+
+
+                         */
+
+
 
 
             println("time: " + time)
@@ -60,13 +84,12 @@ class SampleTestsJVM {
             l.value_par7 = "lemkoleg82@gmail.com"
             val b = l.serialize(false)
             System.out.println("b.size: " + b.size)
-            sleep(5000)
             l.execute(null, null).await()
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 
             println("Db_massage: " + l.db_massage)
         }
-        sleep(10000)
+        sleep(20000)
     }
 }

@@ -31,7 +31,7 @@ object Constants {
     const val dbLocalName = "AUFDB"
 
     @JsName("CLIENT_TIMEOUT")
-    var CLIENT_TIMEOUT = 5000L
+    var CLIENT_TIMEOUT = 10000L
 
     @JsName("TIME_SPAN_FOR_LOOP")
     var TIME_SPAN_FOR_LOOP = TimeSpan(10.0)
