@@ -14,21 +14,21 @@ val <K> ArrayDeque<K>.lock: Mutex
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-suspend fun <K> ArrayDeque<K>.lockedRemoveFirstOrNull(): Any? {
-    this.lock.withLock {
+suspend fun <K> ArrayDeque<K>.lockedRemoveFirstOrNull(): K? {
+    return this.lock.withLock {
         return@withLock this.removeFirstOrNull()
     }
-    return null
 }
 
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-fun <K> ArrayDeque<K>.lockedTryRemoveFirstOrNull(): Any? {
-    this.lock.tryLock{
-        return@tryLock this.removeFirstOrNull()
+fun <K> ArrayDeque<K>.lockedTryRemoveFirstOrNull(): K? {
+    var l: K? = null
+    lock.tryLock{
+        l = this.removeFirstOrNull()
     }
-    return null
+    return l
 }
 
 @InternalAPI

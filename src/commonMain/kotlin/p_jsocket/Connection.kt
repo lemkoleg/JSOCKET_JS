@@ -127,7 +127,7 @@ object Connection : CoroutineScope {
                         isConnect = true
                         isClosed = false
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("WebSocket connect")
+                            PrintInformation.PRINT_INFO("WebSocket connect. Port: ${MyWebSocketChannel!!.url.toString()}")
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage

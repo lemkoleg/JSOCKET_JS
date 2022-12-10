@@ -1743,8 +1743,7 @@ open class JSOCKET() {
 
            // for debug
            //bb!!.readBytes(17)
-
-            request_size = lbb.readInt().toLong()
+            // request_size = lbb.readInt().toLong()
 
             if (ip) {
                 ip_port = bb!!.readInt()
