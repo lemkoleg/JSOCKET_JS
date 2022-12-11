@@ -42,14 +42,14 @@ suspend fun <K, V>MutableMap<K, V>.lockedPutAll(v: MutableMap<K, V>) {
 @InternalAPI
 suspend fun <K, V>MutableMap<K, V>.lockedGet(k:K):V? {
     return  lock.withLock {
-        return@withLock this[k]
+         this[k]
     }
 }
 
 @InternalAPI
 suspend fun <K, V>MutableMap<K, V>.lockedRemove(k:K):V? {
     return lock.withLock {
-        return@withLock this.remove(k)
+         this.remove(k)
     }
 }
 
@@ -57,6 +57,6 @@ suspend fun <K, V>MutableMap<K, V>.lockedRemove(k:K):V? {
 @InternalAPI
 suspend fun <K, V>MutableMap<K, V>.lockedContains(k:K):Boolean {
     return lock.withLock {
-        return@withLock this.contains(k)
+        this.contains(k)
     }
 }

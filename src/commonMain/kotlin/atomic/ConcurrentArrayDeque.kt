@@ -15,8 +15,8 @@ val <K> ArrayDeque<K>.lock: Mutex
 @ExperimentalTime
 @KorioExperimentalApi
 suspend fun <K> ArrayDeque<K>.lockedRemoveFirstOrNull(): K? {
-    return this.lock.withLock {
-        return@withLock this.removeFirstOrNull()
+    return lock.withLock {
+         this.removeFirstOrNull()
     }
 }
 
