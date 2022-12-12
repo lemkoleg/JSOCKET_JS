@@ -80,6 +80,8 @@ class SampleTestsJVM {
             //l.setConnection_id(100000987605445435l);
             //l.setConnection_id(100000987605445435l);
             l.just_do_it = 1011000026
+            l.lang = "UKR"
+            System.out.println("l.lang: " + l.lang)
             l.value_par5 = "Debug 1"
             l.value_par6 = "Debug 1"
             l.value_par7 = "lemkoleg82@gmail.com"
