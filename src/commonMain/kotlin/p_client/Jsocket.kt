@@ -93,8 +93,8 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
     ////////////////////////////////////////////////////////////////////////////////
 
     @JsName("execute")
-    fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any?> =
-        JSOCKETScope.async {
+    fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any> =
+        JSOCKETScope.async{
 
             if (!InitJsocketJob.isCompleted) {
                 InitJsocketJob.join()

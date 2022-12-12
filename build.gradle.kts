@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 val kotlinVersion = "1.7.22"
+val kotlinCorotinesVersion = "1.6.4"
 val ktorVersion = "2.1.3"
 val reactiveVersion = "1.2.2"
 val KlockVersion = "3.4.0"
@@ -131,6 +132,7 @@ kotlin {
         //implementation ( kotlin("stdlib-jdk8", kotlinVersion))
         //implementation ( kotlin("stdlib-common", kotlinVersion))
         //implementation ("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCorotinesVersion")
 
         implementation ("io.ktor:ktor-utils:$ktorVersion")
         implementation ("io.ktor:ktor-io:$ktorVersion")
@@ -177,6 +179,8 @@ kotlin {
         //implementation ("io.ktor:ktor-client-websockets-jvm:$ktorVersion")
         //implementation ("io.ktor:ktor-network-jwm:$ktorVersion")
         //implementation ("io.ktor:ktor-websockets-jwm:$ktorVersion")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinCorotinesVersion")
+
 
         //implementation ("suparnatural-kotlin-multiplatform:fs-jvm:$fsVersion")
 
@@ -187,6 +191,7 @@ kotlin {
         implementation ("com.soywiz.korlibs.klock:klock-jvm:$KlockVersion")
         implementation ("com.soywiz.korlibs.korim:korim-jvm:$KorimVersion")
         implementation ("com.soywiz.korlibs.krypto:krypto-jvm:$KryptoVersion")
+        implementation ("com.soywiz.korlibs.korio:korio-jvm:$KorioVersion")
 
         implementation ("com.squareup.sqldelight:sqlite-driver:$SQLDelightVersion")
         //implementation ("com.squareup.sqldelight:native-driver:$SQLDelightVersion")
