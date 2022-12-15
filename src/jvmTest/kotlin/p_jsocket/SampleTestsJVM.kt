@@ -12,7 +12,7 @@ import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.launchImmediately
 import kotlinx.coroutines.sync.Mutex
 import p_client.InitJsocket
 import p_client.Jsocket
@@ -37,7 +37,7 @@ class SampleTestsJVM {
         val lock = Mutex()
 
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
 
 
             var time = DateTime.nowUnixMillisLong()

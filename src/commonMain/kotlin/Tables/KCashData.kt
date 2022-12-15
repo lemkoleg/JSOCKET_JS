@@ -5,6 +5,7 @@ import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -786,7 +787,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         if (currentJobForGet != null && currentJobForGet!!.isActive) {
             currentJobForGet!!.join()
         }
-        currentJobForGet = CoroutineScope(Dispatchers.Default).launch {
+        currentJobForGet = CoroutineScope(Dispatchers.Default).launchImmediately {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
@@ -1256,7 +1257,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                     if (k.CashLastUpdate.RECORD_TYPE == "4") { // MASSEGES;
                                         if (CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "3" + "0")]?.answerTypeValues!!.GetChatsCountNotReadedMess() > 0L) {
-                                            CoroutineScope(Dispatchers.Default).launch {
+                                            CoroutineScope(Dispatchers.Default).launchImmediately {
                                                 val w =
                                                     CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "3" + "0")]?.GetJsocket()
                                                 if (w != null) {
@@ -1304,7 +1305,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                 if (k.CashLastUpdate.RECORD_TYPE == "4") { // MASSEGES;
                                     if (CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "300")]?.answerTypeValues!!.GetChatsCountNotReadedMess() > 0L) {
-                                        CoroutineScope(Dispatchers.Default).launch {
+                                        CoroutineScope(Dispatchers.Default).launchImmediately {
                                             val w = CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "300")]?.GetJsocket()
                                             if (w != null) {
                                                 w.value_par1 =

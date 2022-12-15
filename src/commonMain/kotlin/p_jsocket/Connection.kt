@@ -13,9 +13,7 @@ import atomic.lockedGet
 import atomic.lockedPut
 import atomic.lockedRemove
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.addSuspend
-import com.soywiz.korio.async.delay
+import com.soywiz.korio.async.*
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
@@ -48,11 +46,8 @@ private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 @ExperimentalTime
 @KorioExperimentalApi
 @JsName("Connection")
-object Connection : CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
-
-    val ConnectionScope = CoroutineScope(coroutineContext)
+object Connection {
+    var time = DateTime.nowUnixMillisLong()
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
 
@@ -111,7 +106,7 @@ object Connection : CoroutineScope {
     @ExperimentalTime
     @JsName("setConn")
     private fun setConn() {
-        SetConnJob = ConnectionScope.launch {
+        SetConnJob = CoroutineScope(Dispatchers.Default).launchImmediately {
 
             isRun = true
 
@@ -131,7 +126,7 @@ object Connection : CoroutineScope {
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                    signalonBinaryMessage?.addSuspend { v ->
+                    signalonBinaryMessage?.add { v ->
                         decode(v)
                     }
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
@@ -149,7 +144,6 @@ object Connection : CoroutineScope {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                             PrintInformation.PRINT_INFO("WebSocket error on connection: $v\n")
                         }
-                        //val e = v.printStackTrace()
                         isConnect = false
                         isClosed = true
                         isRun = false
@@ -185,7 +179,7 @@ object Connection : CoroutineScope {
 
     @InternalAPI
     public fun sendData(b: ByteArray, j: Jsocket) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 ConnectionLock.withLock {
                     BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
@@ -217,6 +211,8 @@ object Connection : CoroutineScope {
                                 ex1.message
                             )
                         }
+                    } finally {
+                        time = DateTime.nowUnixMillisLong()
                     }
                 }
             }
@@ -241,8 +237,9 @@ object Connection : CoroutineScope {
 
 
     fun decode(buffer: ByteArray) =
-        ConnectionScope.launch {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
             try {
+                println("execute time sendData: " + (DateTime.nowUnixMillisLong() - time))
                 try {
                     val buf: ByteReadPacket = ByteReadPacket(buffer)
                     var Request_size: Int
@@ -251,7 +248,7 @@ object Connection : CoroutineScope {
 
                     if (!buf.isEmpty) {
                         if (buf.remaining < MIN_SIZE_OF_REQUEST) {
-                            return@launch
+                            return@launchImmediately
                         }
                         FirstLoop@
                         while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
@@ -269,7 +266,7 @@ object Connection : CoroutineScope {
                             }
                         }
                         if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
-                            return@launch
+                            return@launchImmediately
                         }
                         Request_size = buf.readInt()
                         if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
@@ -457,7 +454,7 @@ object Connection : CoroutineScope {
         } catch (e: my_user_exceptions_class) {
             e.ExceptionHand(null)
         } finally {
-            CoroutineScope(NonCancellable).launch { GC.collect() }
+            CoroutineScope(NonCancellable).launchImmediately { GC.collect() }
         }
 
     }

@@ -3,6 +3,7 @@
 package p_client
 
 import atomic.AtomicBoolean
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
@@ -50,7 +51,7 @@ class KorosTimerTask(
 
 
     fun start() {
-        job = KorosTimerTask.launch {
+        job = KorosTimerTask.launchImmediately {
             delay(delay)
             if (repeat > 0L) {
                 while (keepRunning.value) {
@@ -76,7 +77,7 @@ class KorosTimerTask(
      */
 
     fun shutdown() {
-        KorosTimerTask.launch {
+        KorosTimerTask.launchImmediately {
             keepRunning.setNewValue(true)
         }
     }

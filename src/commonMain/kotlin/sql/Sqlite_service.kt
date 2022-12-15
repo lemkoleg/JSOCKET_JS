@@ -9,6 +9,7 @@ package sql
 
 import Tables.*
 import com.soywiz.klock.DateTime
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
@@ -46,7 +47,7 @@ object Sqlite_service : CoroutineScope {
     private val lockBIG_AVATARS = Mutex()
 
     @JsName("InsertBigAvatars")
-    fun InsertBigAvatars(kBigAvatars: ArrayList<KBigAvatar>) = Sqlite_serviceScope.launch {
+    fun InsertBigAvatars(kBigAvatars: ArrayList<KBigAvatar>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -110,7 +111,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("LoadBigAvatarsIds")
-    fun LoadBigAvatarsIds() = Sqlite_serviceScope.launch {
+    fun LoadBigAvatarsIds() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -140,7 +141,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadBigAvatars")
-    fun LoadBigAvatars() = Sqlite_serviceScope.launch {
+    fun LoadBigAvatars() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -170,7 +171,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("UpdateBigAvatarsLastUse")
-    fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) = Sqlite_serviceScope.launch {
+    fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -199,7 +200,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("DeleteBigAvatars")
-    fun DeleteBigAvatars(OBJECTS_ID: String) = Sqlite_serviceScope.launch {
+    fun DeleteBigAvatars(OBJECTS_ID: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -228,7 +229,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("ClearBigAvatars")
-    fun ClearBigAvatars() = Sqlite_serviceScope.launch {
+    fun ClearBigAvatars() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -262,7 +263,7 @@ object Sqlite_service : CoroutineScope {
     private val lockCOMMANDS = Mutex()
 
     @JsName("InsertCommands")
-    fun InsertCommands(arr: ArrayList<KCommands>) = Sqlite_serviceScope.launch {
+    fun InsertCommands(arr: ArrayList<KCommands>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -291,7 +292,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadCommands")
-    fun LoadCommands() = Sqlite_serviceScope.launch {
+    fun LoadCommands() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -327,7 +328,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("InsertExceptions")
-    fun InsertExceptions(ans: ArrayList<KExceptions.KException>) = Sqlite_serviceScope.launch {
+    fun InsertExceptions(ans: ArrayList<KExceptions.KException>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -359,7 +360,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadExceptions")
-    fun LoadExceptions() = Sqlite_serviceScope.launch {
+    fun LoadExceptions() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -395,7 +396,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("InsertMetaData")
-    fun InsertMetaData(ans: ArrayList<KMetaData>) = Sqlite_serviceScope.launch {
+    fun InsertMetaData(ans: ArrayList<KMetaData>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -426,7 +427,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadMetaData")
-    fun LoadMetaData() = Sqlite_serviceScope.launch {
+    fun LoadMetaData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -462,7 +463,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("InsertRegData")
-    fun InsertRegData() = Sqlite_serviceScope.launch {
+    fun InsertRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -491,7 +492,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadRegData")
-    fun LoadRegData() = Sqlite_serviceScope.launch {
+    fun LoadRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -531,7 +532,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("ClearRegData")
-    fun ClearRegData() = Sqlite_serviceScope.launch {
+    fun ClearRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -566,7 +567,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("InsertSaveMedia")
-    fun InsertSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launch {
+    fun InsertSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -597,7 +598,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadSaveMedia")
-    fun LoadSaveMedia() = Sqlite_serviceScope.launch {
+    fun LoadSaveMedia() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -627,7 +628,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("DeleteSaveMedia")
-    fun DeleteSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launch {
+    fun DeleteSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -664,7 +665,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("InsertCashLastUpdate")
-    fun InsertCashLastUpdate(cash: KCashLastUpdate) = Sqlite_serviceScope.launch {
+    fun InsertCashLastUpdate(cash: KCashLastUpdate) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -693,7 +694,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadCashLastUpdate")
-    fun LoadCashLastUpdate() = Sqlite_serviceScope.launch {
+    fun LoadCashLastUpdate() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -726,7 +727,7 @@ object Sqlite_service : CoroutineScope {
     /////////////cash data///////////////////////////
 
     @JsName("InsertCashData")
-    fun InsertCashData(cash_sum: String, arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launch {
+    fun InsertCashData(cash_sum: String, arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -859,7 +860,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadCashData")
-    fun LoadCashData() = Sqlite_serviceScope.launch {
+    fun LoadCashData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -893,7 +894,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("LoadCashDataAllObjectsIdOnCasSum")
-    fun LoadCashDataAllObjectsIdOnCasSum(cash: String) = Sqlite_serviceScope.launch {
+    fun LoadCashDataAllObjectsIdOnCasSum(cash: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -924,7 +925,7 @@ object Sqlite_service : CoroutineScope {
 
 
     @JsName("OrederCashData")
-    private fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launch {
+    private fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -959,7 +960,7 @@ object Sqlite_service : CoroutineScope {
         cash_sum: String,
         record_table_id_from: String,
         limit: Int
-    ) = Sqlite_serviceScope.launch {
+    ) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -996,7 +997,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     @JsName("DeleteCash")
-    fun DeleteCash(cash_sum: String, object_id: String? = null) = Sqlite_serviceScope.launch {
+    fun DeleteCash(cash_sum: String, object_id: String? = null) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
@@ -1039,7 +1040,7 @@ object Sqlite_service : CoroutineScope {
     ////////////////////////////////////////////////////////////////////////////////
 
     @JsName("Connect")
-    internal fun Connect() = Sqlite_serviceScope.launch {
+    internal fun Connect() = Sqlite_serviceScope.launchImmediately {
         /*Connection = if (InitJsocket.connection == null) {
             org.sqlite.JDBC.createConnection(CON_STR, properties)
         } else {

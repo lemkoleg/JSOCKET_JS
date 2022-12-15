@@ -12,6 +12,7 @@ import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -23,7 +24,6 @@ import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -187,12 +187,7 @@ class KBigAvatar {
         )
     }.toPromise(EmptyCoroutineContext)
 
-    companion object : CoroutineScope {
-
-        override val coroutineContext: CoroutineContext = Dispatchers.Default
-
-        private val KBigAvatar_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
-
+    companion object {
 
         @JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
@@ -236,7 +231,7 @@ class KBigAvatar {
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             P_ANSWER_TYPE: ANSWER_TYPE
-        ): Promise<KBigAvatar?> = KBigAvatar_serviceScope.async {
+        ): Promise<KBigAvatar?> = CoroutineScope(Dispatchers.Default).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -393,7 +388,7 @@ class KBigAvatar {
 
         @JsName("INSERT_BIG_AVATAR_INTO_MAP")
         fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
-            KBigAvatar_serviceScope.launch {
+            CoroutineScope(Dispatchers.Default).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

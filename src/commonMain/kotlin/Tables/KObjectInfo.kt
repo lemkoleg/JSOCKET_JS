@@ -5,6 +5,7 @@ import Tables.KBigAvatar.Companion.RETURN_PROMISE_SELECT_BIG_AVATAR
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -66,7 +67,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
     fun VerifyUpdates() {
         if (VerifyUpdatesJob == null || VerifyUpdatesJob!!.isActive) {
-            VerifyUpdatesJob = CoroutineScope(Dispatchers.Default).launch {
+            VerifyUpdatesJob = CoroutineScope(Dispatchers.Default).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -148,7 +149,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         }
     }
 
-    fun SaveOffLine() = CoroutineScope(Dispatchers.Default).launch {
+    fun SaveOffLine() = CoroutineScope(Dispatchers.Default).launchImmediately {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {
@@ -195,7 +196,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         )
     }
 
-    fun DeleteOffLine() = CoroutineScope(Dispatchers.Default).launch {
+    fun DeleteOffLine() = CoroutineScope(Dispatchers.Default).launchImmediately {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {

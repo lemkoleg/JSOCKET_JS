@@ -9,9 +9,9 @@ package p_client
 
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
-import CrossPlatforms.slash
 import JSOCKETDB.AUFDB
 import atomic.AtomicBoolean
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.lang.substr
 import com.soywiz.krypto.md5
@@ -66,12 +66,12 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
         if (SqlDriver != null) {
             sqlDriver = SqlDriver
         }
-        InitJsocketJob = InitJsocketScope.launch {
+        InitJsocketJob = InitJsocketScope.launchImmediately {
             try {
                 try {
                     JSOCKET_Instance.initDirectories(FileDir)
                     if (Constants.myDeviceId.isEmpty()) {
-                        launch {
+                        launchImmediately {
                             Constants.myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
                                 .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()

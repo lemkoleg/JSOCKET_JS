@@ -10,7 +10,7 @@ import com.soywiz.korio.lang.Thread_sleep
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.launchImmediately
 import p_client.InitJsocket
 import p_client.Jsocket
 import kotlin.time.ExperimentalTime
@@ -34,7 +34,7 @@ class SampleTests {
         PrintInformation.PRINT_INFO(g.toString())
 
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
 
             val fileName = "ppppp"
             val k = FileService.getImmageAvatarFromFileName("F:\\Foto\\$fileName.JPG").await()
@@ -56,7 +56,7 @@ class SampleTests {
 
         val res1: String = h1.cryptPass(res, mailCode, false)
         PrintInformation.PRINT_INFO(res1)*/
-        //GlobalScope.launch {
+        //GlobalScope.launchImmediately {
         //    val MyWebSocketChannel = WebSocketClient("ws://mini:22237", null, null, "", false)
        // }
 
@@ -64,7 +64,7 @@ class SampleTests {
         val l = Jsocket()
         //Thread_sleep(2000)
         //c.close()
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
           /*  Thread_sleep(4000)
 
             CHATS.forEach { v ->

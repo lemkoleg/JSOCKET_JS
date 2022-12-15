@@ -14,6 +14,7 @@ import atomic.AtomicLong
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -140,16 +141,8 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
                             name_of_exception = "EXC_WRSOCKETTYPE_MAIL_NOT_CONFIRM",
                         )
                     }
-                    when (just_do_it) {
-                        1011000024 -> { //PLAY MEDIA;
-                            val f = FileService(this@Jsocket)
-                            f.open_file_channel()
-                            finishLoading = {}
-                            return@async f
-                        }
 
-                        else -> clientExecutor.execute(this@Jsocket)
-                    }
+                    clientExecutor.execute(this@Jsocket)
 
                 } catch (ex: my_user_exceptions_class) {
                     throw ex
@@ -178,6 +171,8 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
         this.serialize(verify_fields).let { Connection.sendData(it, this) }
+
+
         if (!command.isDont_answer || await_answer) {
             if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
                 if (command.commands_access != "B") {
@@ -225,7 +220,7 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
 
         fun fill() {
             if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
-                CoroutineScope(NonCancellable).launch {
+                CoroutineScope(NonCancellable).launchImmediately {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         try {
                             JsocketLock.withLock {

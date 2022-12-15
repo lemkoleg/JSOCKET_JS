@@ -10,12 +10,8 @@ package p_client
 import CrossPlatforms.CrossPlatformFile
 import Tables.*
 import com.soywiz.korio.async.await
-import com.soywiz.korio.async.launch
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import sql.Sqlite_service

@@ -22,6 +22,7 @@ import com.soywiz.korim.format.encode
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.stream.asVfsFile
@@ -483,7 +484,7 @@ class FileService(
 
                                         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                             FileServiceLock.withLock {
-                                                CoroutineScope(Dispatchers.Default).launch {
+                                                CoroutineScope(Dispatchers.Default).launchImmediately {
                                                     SELF_Jsocket.value_par2 = "B"
                                                     SELF_Jsocket.send_request()
                                                 }
@@ -851,7 +852,7 @@ class FileService(
                 image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
             }
             image32 = image16.toBMP32()
-            FileServiceScope.launch {
+            FileServiceScope.launchImmediately {
                 var im_width = image32.width
                 var im_heigth = image32.height
                 var koef: Float
