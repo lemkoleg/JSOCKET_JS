@@ -23,7 +23,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -55,11 +54,7 @@ private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
-
-    val JSOCKETScope = CoroutineScope(coroutineContext)
+class Jsocket() : JSOCKET(), OnRequestListener{
 
     //val InstanceRef:AtomicReference<Jsocket> = AtomicReference(this)
 
@@ -95,7 +90,7 @@ class Jsocket() : JSOCKET(), OnRequestListener, CoroutineScope {
 
     @JsName("execute")
     fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any> =
-        JSOCKETScope.async{
+        CoroutineScope(Dispatchers.Default).async{
 
             if (!InitJsocketJob.isCompleted) {
                 InitJsocketJob.join()

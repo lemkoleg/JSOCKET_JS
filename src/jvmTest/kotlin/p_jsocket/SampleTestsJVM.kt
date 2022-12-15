@@ -1,24 +1,20 @@
 package p_jsocket
 
-import CrossPlatforms.MyCondition
-import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.*
-import com.soywiz.korio.async.async
+import com.soywiz.korio.async.Signal
+import com.soywiz.korio.async.await
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
-import io.ktor.utils.io.core.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.launchImmediately
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import p_client.InitJsocket
 import p_client.Jsocket
 import java.lang.Thread.sleep
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.time.ExperimentalTime
 
