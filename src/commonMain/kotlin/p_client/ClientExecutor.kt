@@ -172,6 +172,9 @@ class ClientExecutor {
 
     private suspend fun update_account() {
         try {
+
+            jsocket.just_do_it_label = nowNano()
+
             if (jsocket.value_par7.trim().isEmpty()) {
                 if (!curCommand!!.isCrypt) {
                     throw my_user_exceptions_class(
@@ -189,6 +192,13 @@ class ClientExecutor {
                 jsocket.value_par8 = h.getMD5String(jsocket.value_par8.trim())
                 p = jsocket.value_par8
             }
+
+            if (jsocket.value_par9.trim().isNotEmpty()) {
+                jsocket.value_par9 = jsocket.value_par9.trim().uppercase()
+                jsocket.value_par9 = h.getMD5String(jsocket.value_par9)
+
+            }
+
             if (jsocket.just_do_it == 1011000010  // RESTORE_PASSWORD
                 || jsocket.just_do_it == 1011000026 // INSERT_ACCOUNT
             ) {
@@ -206,7 +216,6 @@ class ClientExecutor {
                 }
             }
             if (jsocket.value_par9.trim().isNotEmpty()) {
-                jsocket.value_par9 = h.getMD5String(jsocket.value_par9.trim())
                 if (jsocket.just_do_it == 1011000046) {
                     if (jsocket.value_par7.trim().isEmpty()) {
                         throw my_user_exceptions_class(
@@ -240,7 +249,7 @@ class ClientExecutor {
                     jsocket.value_par9 = h.getMD5String(l2.toString())
                 }
             }
-            jsocket.send_request()
+            jsocket.send_request(update_just_do_it_label = false)
 
             /*
             if (jsocket.connection_id == 0L) {

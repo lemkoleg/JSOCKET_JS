@@ -804,7 +804,7 @@ open class JSOCKET() {
 
 
     @JsName("serialize")
-    fun serialize(verify_fields: Boolean): ByteArray {
+    fun serialize(verify_fields: Boolean, update_just_do_it_label: Boolean = true): ByteArray {
 
         try {
             bbCONTENT_SIZE = BytePacketBuilder(ChunkBuffer.Pool)
@@ -818,7 +818,10 @@ open class JSOCKET() {
             //db_massage = ""
             just_do_it_successfull = "0"
             connection_context = Constants.myConnectionContext
-            just_do_it_label = nowNano()
+            if(update_just_do_it_label){
+                just_do_it_label = nowNano()
+            }
+
 
 
             if (h == null) h = HASH()

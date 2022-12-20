@@ -162,13 +162,15 @@ class Jsocket() : JSOCKET(), OnRequestListener{
     ////////////////////////////////////////////////////////////////////////////////
 
 
-    suspend fun send_request(verify_fields: Boolean = true, await_answer: Boolean = true) {
+    suspend fun send_request(verify_fields: Boolean = true,
+                             await_answer: Boolean = true,
+                             update_just_do_it_label: Boolean = true) {
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
-        this.serialize(verify_fields).let { Connection.sendData(it, this) }
+        this.serialize(verify_fields, update_just_do_it_label).let { Connection.sendData(it, this) }
 
 
-        if (!command.isDont_answer || await_answer) {
+        if (!command.isDont_answer && await_answer) {
             if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
                 if (command.commands_access != "B") {
                     throw my_user_exceptions_class(

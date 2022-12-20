@@ -47,7 +47,6 @@ private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 @KorioExperimentalApi
 @JsName("Connection")
 object Connection {
-    var time = DateTime.nowUnixMillisLong()
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
 
@@ -126,7 +125,7 @@ object Connection {
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                    signalonBinaryMessage?.add { v ->
+                    signalonBinaryMessage?.invoke{ v ->
                         decode(v)
                     }
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
@@ -211,8 +210,8 @@ object Connection {
                                 ex1.message
                             )
                         }
-                    } finally {
-                        time = DateTime.nowUnixMillisLong()
+                    }finally {
+                        //println(DateTime.nowUnixMillisLong())
                     }
                 }
             }
@@ -239,7 +238,6 @@ object Connection {
     fun decode(buffer: ByteArray) =
         CoroutineScope(Dispatchers.Default).launchImmediately {
             try {
-                println("execute time sendData: " + (DateTime.nowUnixMillisLong() - time))
                 try {
                     val buf: ByteReadPacket = ByteReadPacket(buffer)
                     var Request_size: Int
