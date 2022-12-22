@@ -1,7 +1,10 @@
 package CrossPlatforms
 
 
-import com.soywiz.korio.file.*
+import com.soywiz.korio.file.VfsFile
+import com.soywiz.korio.file.VfsOpenMode
+import com.soywiz.korio.file.extension
+import com.soywiz.korio.file.fullName
 import com.soywiz.korio.file.std.localVfs
 import com.soywiz.korio.stream.AsyncStream
 import com.soywiz.korio.stream.writeString
@@ -18,7 +21,7 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
             1 -> VfsOpenMode.READ
             2, 3 -> {VfsOpenMode.CREATE_NEW
             }
-            4 -> VfsOpenMode.CREATE_OR_TRUNCATE
+            4 -> VfsOpenMode.WRITE
             else -> VfsOpenMode.CREATE
         })
         when(mod){

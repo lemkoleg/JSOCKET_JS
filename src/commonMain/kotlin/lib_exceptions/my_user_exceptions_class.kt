@@ -86,10 +86,6 @@ class my_user_exceptions_class : exception_names, Exception {
         exception_full_text =
             "class_name: $class_name ; function_name: $function_name ; exception_text: $exception_text"
 
-        if (Constants.FIX_INTO_SCREEN_ERRORS == 1) {
-            PrintInformation.PRINT_EXCEPTION(exception_full_text)
-        }
-
     }
 
     fun ExceptionHand(jsocket: JSOCKET?) {

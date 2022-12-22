@@ -928,7 +928,7 @@ class ANSWER_TYPE {
                     val l: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOL is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOL is empty")
                         }
                         fillPOOL()
                         return null
@@ -947,7 +947,7 @@ class ANSWER_TYPE {
                     val l: ArrayDeque<ANSWER_TYPE>? = CLIENT_ANSWER_TYPE_POOLS.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOLS is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOLS is empty")
                         }
                         fillPOOLS()
                         return null

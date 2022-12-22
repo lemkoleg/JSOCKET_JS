@@ -75,20 +75,20 @@ class SampleTestsJVM {
             val l = Jsocket()
             //l.setConnection_id(100000987605445435l);
             //l.setConnection_id(100000987605445435l);
-            l.just_do_it = 1011000026
+            l.just_do_it = 1011000027
             l.lang = "UKR"
-            System.out.println("l.lang: " + l.lang)
             l.value_par5 = "Debug 1"
             l.value_par6 = "Debug 1"
             l.value_par7 = "lemkoleg82@gmail.com"
-            val b = l.serialize(false)
-            System.out.println("b.size: " + b.size)
+            l.value_par8 = "80951113395"
+            //val b = l.serialize(false)
+            //System.out.println("b.size: " + b.size)
             l.execute(null, null).await()
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 
             println("Db_massage: " + l.db_massage)
         }
-        sleep(20000)
+        sleep(200000)
     }
 }

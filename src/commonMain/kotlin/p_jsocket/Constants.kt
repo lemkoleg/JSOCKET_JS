@@ -103,7 +103,7 @@ object Constants {
     var USE_SINGLE_FILE_FOR_FIX_ERRORS = 1
 
     @JsName("PRINT_INTO_SCREEN_DEBUG_INFORMATION")
-    var PRINT_INTO_SCREEN_DEBUG_INFORMATION = 0
+    var PRINT_INTO_SCREEN_DEBUG_INFORMATION = 1
 
     @JsName("MAX_FILES_SIZE_B")
     var MAX_FILES_SIZE_B = 52428800
@@ -182,7 +182,7 @@ object Constants {
     var myConnectionsCoocki = 0L
 
     @JsName("myConnectionContext")
-    val myConnectionContext = ""
+    var myConnectionContext = ""
 
     @JsName("myLang")
     var myLang = "ENG"

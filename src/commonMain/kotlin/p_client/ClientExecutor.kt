@@ -116,7 +116,7 @@ class ClientExecutor {
                     if (!file.exists() || file.isDirectory()) {
                         throw my_user_exceptions_class(
                             l_class_name = "ClientExecutor",
-                            l_function_name = "executer",
+                            l_function_name = "execute",
                             name_of_exception = "EXC_FILE_IS_NOT_EXISTS"
                         )
                     }

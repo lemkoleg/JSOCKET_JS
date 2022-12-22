@@ -1368,11 +1368,15 @@ open class JSOCKET() {
 
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
+                    if(subJSOCKET == null){
+                       println("subJSOCKET == null: nameField_number =  $nameField_number")
+                    }
                     nameField_length = record.readInt()
                     if ((subJSOCKET!!.fields_size_is_perminent && nameField_length != subJSOCKET.fields_size)
                         || (nameField_length > subJSOCKET.fields_size)
                     ) {
                         record.discardExact(nameField_length)
+                        println("discard: nameField_number =  $nameField_number ; nameField_length =  $nameField_length")
                         continue@loopChSum2
                     }
                     when (subJSOCKET.fields_type) {
@@ -1498,6 +1502,7 @@ open class JSOCKET() {
 
 
                         } else {
+                            println("set records")
                             when (record_type) {
                                 "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                                 "2" -> KMetaData.ADD_NEW_META_DATA(arr)
@@ -1672,6 +1677,9 @@ open class JSOCKET() {
                 }
             }
 
+            if(promise == null){
+                println("promise == null")
+            }
             promise?.await()
 
         } catch (e: my_user_exceptions_class) {
@@ -1681,7 +1689,7 @@ open class JSOCKET() {
                 l_class_name = "JSOCKET",
                 l_function_name = "deserialize_ANSWERS_TYPES",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = n.message
+                l_additional_text = n.toString()
             )
         } finally {
             if (currentCommand!!.commands_access == "B") {
@@ -1759,7 +1767,7 @@ open class JSOCKET() {
                 is_new_reg_data = true
             }
 
-            if (connection_id != 0L && Constants.myConnectionsID != connection_id) {
+            if (Constants.myConnectionsID != 0L && Constants.myConnectionsID != connection_id) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
                     l_function_name = "deserialize",
@@ -1915,7 +1923,7 @@ open class JSOCKET() {
         } finally {
             try {
                 bbCONTENT_SIZE?.close()
-                if (!connection_context.equals(Constants.myConnectionContext)) {
+                if (!request_profile.equals(Constants.myRequestProfile)) {
                     is_new_reg_data = true
                 }
             } catch (e: Exception) {

@@ -7,8 +7,12 @@
 
 package p_jsocket
 
+import CrossPlatforms.getMyOS
 import CrossPlatforms.slash
+import com.soywiz.korio.experimental.KorioExperimentalApi
+import io.ktor.util.*
 import kotlin.js.JsName
+import kotlin.time.ExperimentalTime
 
 
 /**
@@ -16,6 +20,9 @@ import kotlin.js.JsName
  * @author Oleg
  */
 
+@KorioExperimentalApi
+@ExperimentalTime
+@InternalAPI
 object JSOCKET_Instance {
     lateinit var RootPath: String
 
@@ -225,5 +232,7 @@ object JSOCKET_Instance {
             pathTempPicture18.plus(slash)
         pathTempPicture19 =
             pathTempPicture19.plus(slash)
+
+        Constants.myConnectionContext = getMyOS()
     }
 }

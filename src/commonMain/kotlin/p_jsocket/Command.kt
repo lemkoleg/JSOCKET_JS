@@ -151,6 +151,7 @@ class Command {
         allowFileByLink = commnd.allowFileByLink
         cryptMediaContent = commnd.cryptMediaContent
         saveOrirginalAvatar = commnd.saveOrirginalAvatar
+        InitializeBlobSize()
     }
 
     constructor(
@@ -204,16 +205,16 @@ class Command {
 
         when (whichBlobDataReturned) {
             "0" -> {
-                this.SendBlobSize = 0
+                this.ReturnBlobSize = 0
             }
             "4" -> { // ANSWER_TYPE
-                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
+                this.ReturnBlobSize = Constants.MAX_REQUEST_SIZE_B
             }//Avatar
             "5" -> { // AVATAR
-                this.SendBlobSize = Constants.AVATARSIZE
+                this.ReturnBlobSize = Constants.AVATARSIZE
             }
             "6" -> {
-                this.SendBlobSize = Constants.MAX_REQUEST_SIZE_B
+                this.ReturnBlobSize = Constants.MAX_REQUEST_SIZE_B
             }// BINARY
         }
     }

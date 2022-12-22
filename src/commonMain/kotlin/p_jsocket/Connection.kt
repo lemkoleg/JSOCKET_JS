@@ -115,7 +115,13 @@ object Connection {
                 count_of_try--
 
                 try {
-                    MyWebSocketChannel = WebSocketClient(url = url, protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
+                    MyWebSocketChannel = WebSocketClient(
+                        url = url,
+                        protocols = null,
+                        origin = null,
+                        wskey = DEFAULT_WSKEY,
+                        debug = false
+                    )
                     signalonOpen = MyWebSocketChannel!!.onOpen
                     signalonOpen?.add {
                         isConnect = true
@@ -125,7 +131,7 @@ object Connection {
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                    signalonBinaryMessage?.invoke{ v ->
+                    signalonBinaryMessage?.invoke { v ->
                         decode(v)
                     }
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
@@ -210,7 +216,7 @@ object Connection {
                                 ex1.message
                             )
                         }
-                    }finally {
+                    } finally {
                         //println(DateTime.nowUnixMillisLong())
                     }
                 }
@@ -269,7 +275,7 @@ object Connection {
                         Request_size = buf.readInt()
                         if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
                             throw my_user_exceptions_class(
-                                l_class_name = "DecoderRequest",
+                                l_class_name = "Connection",
                                 l_function_name = "decode",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = "Request size is to big: ${Request_size.toString()}"
@@ -278,7 +284,7 @@ object Connection {
 
                         if (buf.remaining < Request_size + 8) {
                             throw my_user_exceptions_class(
-                                l_class_name = "DecoderRequest",
+                                l_class_name = "Connection",
                                 l_function_name = "decode",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = "Request size is to big: ${Request_size.toString()}"
@@ -289,7 +295,7 @@ object Connection {
 
                         if (buf.readLong() != 7085774586302733229L) {
                             throw my_user_exceptions_class(
-                                l_class_name = "DecoderRequest",
+                                l_class_name = "Connection",
                                 l_function_name = "decode",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
                                 l_additional_text = "Final code is wrong!"
@@ -298,14 +304,13 @@ object Connection {
                             var jsocketRet: Jsocket? = Jsocket.GetJsocket()
                             if (jsocketRet == null) {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emptty")
+                                    PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
                                 }
                                 Jsocket.fill()
                                 jsocketRet = Jsocket()
                             }
                             var jsocket: Jsocket?
                             jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
-
                             if (jsocketRet.just_do_it != 0) {
 
                                 val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
@@ -317,6 +322,7 @@ object Connection {
                                 }
 
                                 if (jsocket != null) {
+
                                     when (jsocketRet.just_do_it) {
 
                                         1011000086 -> {  // new messeges, notices;
@@ -332,7 +338,7 @@ object Connection {
                                             Constants.myConnectionsCoocki = 0L
                                             Sqlite_service.ClearRegData()
                                             throw my_user_exceptions_class(
-                                                l_class_name = "DecoderRequest",
+                                                l_class_name = "Connection",
                                                 l_function_name = "decode",
                                                 name_of_exception = "EXC_WRSOCKETTYPE_CONN_ID_OR_COOCKI_NOT_VALID"
                                             )
@@ -340,40 +346,45 @@ object Connection {
 
                                         else -> {
 
-                                            if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
-                                                KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
-                                            }
+                                            try {
 
-                                            if (c.commands_access == "B") {
-                                                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                                                    val l = jsocket!!.lock
-                                                    l.withLock {
-                                                        jsocketRet.contrMerge(jsocket!!)
-                                                        jsocket = jsocketRet
-                                                    }
-                                                } ?: throw my_user_exceptions_class(
-                                                    l_class_name = "Connection",
-                                                    l_function_name = "decode",
-                                                    name_of_exception = "EXC_SYSTEM_ERROR",
-                                                    l_additional_text = "Time out is up"
-                                                )
-                                            } else {
-                                                jsocket!!.merge(jsocketRet)
+                                                if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
+                                                    KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                                }
+
+                                                if (c.commands_access == "B") {
+                                                    withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                                                        val l = jsocket!!.lock
+                                                        l.withLock {
+                                                            jsocketRet.contrMerge(jsocket!!)
+                                                            jsocket = jsocketRet
+                                                        }
+                                                    } ?: throw my_user_exceptions_class(
+                                                        l_class_name = "Connection",
+                                                        l_function_name = "decode",
+                                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                                        l_additional_text = "Time out is up"
+                                                    )
+                                                } else {
+                                                    jsocket!!.merge(jsocketRet)
+                                                }
+                                                jsocket!!.is_new_reg_data = false
+                                                if (c.whichBlobDataReturned == "4") {
+                                                    jsocket!!.deserialize_ANSWERS_TYPES()
+                                                }
+                                                if (jsocket!!.is_new_reg_data) {
+                                                    KRegData.setNEW_REG_DATA(jsocket)
+                                                }
+
+                                            } finally {
+                                                jsocket!!.condition.cSignal()
                                             }
-                                            jsocket!!.is_new_reg_data = false
-                                            if (c.whichBlobDataReturned == "4") {
-                                                jsocket!!.deserialize_ANSWERS_TYPES()
-                                            }
-                                            if (jsocket!!.is_new_reg_data) {
-                                                KRegData.setNEW_REG_DATA(jsocket)
-                                            }
-                                            jsocket!!.condition.cSignal()
                                         }
                                     }
                                 } else {
                                     if (jsocketRet.just_do_it != 1011000086) { // new messeges, notices;
                                         throw my_user_exceptions_class(
-                                            l_class_name = "DecoderRequest",
+                                            l_class_name = "Connection",
                                             l_function_name = "decode",
                                             name_of_exception = "EXC_SYSTEM_ERROR",
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
@@ -391,7 +402,7 @@ object Connection {
                 } catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "Connection",
-                        l_function_name = "DecoderRequest",
+                        l_function_name = "decode",
                         name_of_exception = "EXC_SYSTEM_ERROR",
                         l_additional_text = ex.message
                     )
