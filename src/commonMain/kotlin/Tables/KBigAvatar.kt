@@ -135,7 +135,7 @@ class KBigAvatar {
     }
 
     @JsName("PROMISE_SELECT_BIG_AVATAR")
-    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE) = CoroutineScope(Dispatchers.Default).async {
+    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE) = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             KBigAvatarLock.withLock {
                 if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
@@ -191,7 +191,7 @@ class KBigAvatar {
 
         @JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -231,7 +231,7 @@ class KBigAvatar {
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             P_ANSWER_TYPE: ANSWER_TYPE
-        ): Promise<KBigAvatar?> = CoroutineScope(Dispatchers.Default).async {
+        ): Promise<KBigAvatar?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -388,7 +388,7 @@ class KBigAvatar {
 
         @JsName("INSERT_BIG_AVATAR_INTO_MAP")
         fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
-            CoroutineScope(Dispatchers.Default).launchImmediately {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

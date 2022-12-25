@@ -8,12 +8,9 @@ import com.soywiz.korio.async.async
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import sql.Sqlite_service
@@ -80,7 +77,7 @@ class KCashLastUpdate(
 
     @JsName("INSERT_CASH_LASTUPDATE")
     fun INSERT_CASH_LASTUPDATE(value: KCashLastUpdate = this): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             try {
                 try {
                     value.LAST_USE = DateTime.nowUnixMillisLong()

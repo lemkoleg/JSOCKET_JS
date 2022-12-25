@@ -1368,15 +1368,11 @@ open class JSOCKET() {
 
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
-                    if(subJSOCKET == null){
-                       println("subJSOCKET == null: nameField_number =  $nameField_number")
-                    }
                     nameField_length = record.readInt()
                     if ((subJSOCKET!!.fields_size_is_perminent && nameField_length != subJSOCKET.fields_size)
                         || (nameField_length > subJSOCKET.fields_size)
                     ) {
                         record.discardExact(nameField_length)
-                        println("discard: nameField_number =  $nameField_number ; nameField_length =  $nameField_length")
                         continue@loopChSum2
                     }
                     when (subJSOCKET.fields_type) {
@@ -1436,8 +1432,6 @@ open class JSOCKET() {
                         l_additional_text = "answer_type.RECORD_TYPE is empty"
                     )
                 }
-
-
 
                 if (record_type == "0") {
                     record_type = answer_type.RECORD_TYPE
@@ -1502,7 +1496,6 @@ open class JSOCKET() {
 
 
                         } else {
-                            println("set records")
                             when (record_type) {
                                 "1" -> KCommands.ADD_NEW_COMMANDS(arr)
                                 "2" -> KMetaData.ADD_NEW_META_DATA(arr)
@@ -1795,7 +1788,8 @@ open class JSOCKET() {
                     l_additional_text = "just_do_it not found $just_do_it"
                 )
             }
-            crypt = currentCommand!!.isCrypt
+            //crypt = currentCommand!!.isCrypt
+            crypt = (connection_coocki != 0L || currentCommand!!.isCrypt)
             if (just_do_it_label == 0L) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",

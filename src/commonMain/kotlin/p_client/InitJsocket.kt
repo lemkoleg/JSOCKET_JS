@@ -49,7 +49,7 @@ val isInitialised: AtomicBoolean = AtomicBoolean(false)
 @JsName("InitJsocket")
 class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver? = null) : CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob() + SupervisorJob()
 
     private val InitJsocketScope = CoroutineScope(coroutineContext)
 

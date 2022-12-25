@@ -13,6 +13,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -119,7 +120,7 @@ class my_user_exceptions_class : exception_names, Exception {
         private val WriteExceptionIntoFileLock = Mutex()
         private val file: CrossPlatformFile by lazy { CrossPlatformFile(fullName = "${JSOCKET_Instance.pathErrors}Errors.log", mode = 4) }
         fun WriteExceptionIntoFile(date_of_exception: String, exception: String) {
-            CoroutineScope(Dispatchers.Default).launchImmediately {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     WriteExceptionIntoFileLock.withLock {
                         if(!file.isInit){

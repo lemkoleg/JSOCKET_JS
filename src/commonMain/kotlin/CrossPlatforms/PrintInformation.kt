@@ -4,12 +4,9 @@ import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
@@ -27,7 +24,7 @@ object PrintInformation {
 
     @JsName("PRINT_INFO")
     fun PRINT_INFO(text: String): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -59,7 +56,7 @@ object PrintInformation {
 
     @JsName("PRINT_EXCEPTION")
     fun PRINT_EXCEPTION(text: String): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {

@@ -10,6 +10,7 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
 import kotlin.coroutines.EmptyCoroutineContext
@@ -1004,7 +1005,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     }
 
     suspend fun getACCOUNT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
@@ -1144,7 +1145,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     }
 
     suspend fun getALBUM_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
@@ -1333,7 +1334,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     }
 
     fun getOBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
             if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
                 throw my_user_exceptions_class(

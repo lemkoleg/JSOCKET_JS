@@ -125,7 +125,7 @@ class KSaveMedia(
 
     @JsName("deleteFile")
     private fun deleteFile() {
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             val f = CrossPlatformFile(FILE_FULL_NAME)
             f.delete()
         }
@@ -135,7 +135,7 @@ class KSaveMedia(
     companion object {
 
         fun AddNewSaveMedia(kSaveMedia: KSaveMedia): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
@@ -210,7 +210,7 @@ class KSaveMedia(
 
 
         fun DeleteSaveMedia(object_link: String): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -247,7 +247,7 @@ class KSaveMedia(
             }.toPromise(EmptyCoroutineContext)
 
         fun ClearSaveMedia(): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

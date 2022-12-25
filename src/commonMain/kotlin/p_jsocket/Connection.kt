@@ -105,7 +105,7 @@ object Connection {
     @ExperimentalTime
     @JsName("setConn")
     private fun setConn() {
-        SetConnJob = CoroutineScope(Dispatchers.Default).launchImmediately {
+        SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
 
             isRun = true
 
@@ -184,7 +184,7 @@ object Connection {
 
     @InternalAPI
     public fun sendData(b: ByteArray, j: Jsocket) {
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 ConnectionLock.withLock {
                     BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
@@ -242,7 +242,7 @@ object Connection {
 
 
     fun decode(buffer: ByteArray) =
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             try {
                 try {
                     val buf: ByteReadPacket = ByteReadPacket(buffer)

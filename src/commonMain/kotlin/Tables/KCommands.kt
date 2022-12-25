@@ -33,15 +33,15 @@ private val KCommandsLock = Mutex()
 val COMMANDS: MutableMap<Int, Command> = mutableMapOf(
     1011000010 to Command(
         1011000010, "9", "1111000000001001000001100000000000000000",
-        "002000111220000022200012222200122000000000000000000000000000"
+        "222000111220000022200012222200122000000000000000000000000000"
     ), // RESTORE_PASSWORD
     1011000026 to Command(
         1011000026, "9", "1111460015101001000001120000000000000000",
-        "002000111220000022222212222200122200000000000000000000000000"
+        "222000111220000022222212222200122200000000000000000000000000"
     ), // INSERT_ACCOUNT
     1011000027 to Command(
         1011000027, "2", "1111400010101001000001100000000000000000",
-        "002000111220000000000011022200122200000000000000000000000000"
+        "222000111220000000000011022200122200000000000000000000000000"
     ),// CONNECT_ACCOUNT
     /*
     1011000049 to Command(
@@ -172,7 +172,7 @@ class KCommands {
 
         @JsName("ADD_NEW_COMMANDS")
         fun ADD_NEW_COMMANDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         KCommandsLock.withLock {
@@ -182,7 +182,7 @@ class KCommands {
                                     PrintInformation.PRINT_INFO("ADD_NEW_COMMANDS is running")
                                 }
                                 arr.forEach {
-                                    if (it.RECORD_TYPE.equals("1")) {
+                                    if (!it.RECORD_TYPE.equals("1")) {
                                         throw my_user_exceptions_class(
                                             l_class_name = "KCommands",
                                             l_function_name = "ADD_NEW_COMMANDS",

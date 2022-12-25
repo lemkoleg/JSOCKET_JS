@@ -331,6 +331,7 @@ class HASH {
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
         var newStringMD5 = ""
         val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
+        println("md5Hex = $md5Hex")
 ////diapazone for 18 digits UnsignedLong: 16345785d8a0001 - de0b6b3a763ffff (15 chars)//////////////////
         val stringMD5String1: Long = md5Hex.substring(0, 15).toLong(16)
         val stringMD5String2: Long = md5Hex.substring(15, 30).toLong(16)
@@ -480,7 +481,7 @@ class HASH {
                 l_class_name = "HASH",
                 l_function_name = "cryptPass",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = ex.message
+                l_additional_text = ex.stackTraceToString()
             )
             return ""
         }

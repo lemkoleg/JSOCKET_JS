@@ -143,7 +143,7 @@ class KMetaData {
         @KorioExperimentalApi
         @JsName("ADD_NEW_META_DATA")
         fun ADD_NEW_META_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         KMetaDataLock.withLock {
@@ -156,7 +156,7 @@ class KMetaData {
                                 }
 
                                 arr.forEach {
-                                    if (it.RECORD_TYPE.equals("2")) {
+                                    if (!it.RECORD_TYPE.equals("2")) {
                                         throw my_user_exceptions_class(
                                             l_class_name = "KMetaData",
                                             l_function_name = "ADD_NEW_META_DATA",

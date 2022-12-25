@@ -67,7 +67,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
     fun VerifyUpdates() {
         if (VerifyUpdatesJob == null || VerifyUpdatesJob!!.isActive) {
-            VerifyUpdatesJob = CoroutineScope(Dispatchers.Default).launchImmediately {
+            VerifyUpdatesJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -149,7 +149,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         }
     }
 
-    fun SaveOffLine() = CoroutineScope(Dispatchers.Default).launchImmediately {
+    fun SaveOffLine() = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {
@@ -196,7 +196,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         )
     }
 
-    fun DeleteOffLine() = CoroutineScope(Dispatchers.Default).launchImmediately {
+    fun DeleteOffLine() = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
                 try {
@@ -262,7 +262,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
         @JsName("GET_SAVE_OBJECT_INFO")
         fun GET_SAVE_OBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

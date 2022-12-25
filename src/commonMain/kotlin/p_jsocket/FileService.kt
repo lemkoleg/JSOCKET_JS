@@ -293,7 +293,7 @@ class FileService(
 /////////////////////////////////////////////////////////////////////////////////////
 
     @JsName("send_file")
-    fun send_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
+    fun send_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         try {
 
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
@@ -391,7 +391,7 @@ class FileService(
 ////////////////////////////////////////////////////////////////////////////////
 
     @JsName("receive_file")
-    fun receive_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default).async {
+    fun receive_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         try {
 
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
@@ -484,7 +484,7 @@ class FileService(
 
                                         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                             FileServiceLock.withLock {
-                                                CoroutineScope(Dispatchers.Default).launchImmediately {
+                                                CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                                                     SELF_Jsocket.value_par2 = "B"
                                                     SELF_Jsocket.send_request()
                                                 }
@@ -515,7 +515,7 @@ class FileService(
         offset: Long,
         startLoading: (() -> Any?)? = null,
         finishLoading: ((v: Any?) -> Any?)? = null
-    ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default).async {
+    ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             if (IsInterrupted.get() == 1 && !IsDownloaded) {
                 throw my_user_exceptions_class(
@@ -626,7 +626,7 @@ class FileService(
 
         @JsName("getImmageAvatarFromFileName")
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -691,7 +691,7 @@ class FileService(
 
         @JsName("getImmageAvatarFromByteArray")
         suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): Promise<ByteArray?> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

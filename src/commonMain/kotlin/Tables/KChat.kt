@@ -88,7 +88,7 @@ object KChat {
 
     @JsName("SELECT_ALL_DATA_ON_CHAT")
     fun SELECT_ALL_DATA_ON_CHAT(cats_id: String): Promise<Unit?> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -146,7 +146,7 @@ object KChat {
 
     @JsName("VERIFY_UPDATES")
     fun VERIFY_UPDATES(new_updates: Long): Promise<Unit?> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -215,7 +215,7 @@ object KChat {
 
     @JsName("GET_CHATS")
     fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {

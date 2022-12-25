@@ -76,7 +76,7 @@ class KRegData {
 
         @JsName("ADD_NEW_REG_DATA")
         fun ADD_NEW_REG_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -95,7 +95,7 @@ class KRegData {
                                 }
 
                                 arr.forEach {
-                                    if (it.RECORD_TYPE.equals("7")) {
+                                    if (!it.RECORD_TYPE.equals("7")) {
                                         throw my_user_exceptions_class(
                                             l_class_name = "KRegData",
                                             l_function_name = "ADD_NEW_REG_DATA",

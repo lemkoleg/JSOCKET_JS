@@ -28,7 +28,7 @@ class KorosTimerTask(
     _repeat: Long = 0,
     action: suspend () -> Unit
 ) : CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob() + SupervisorJob()
 
     val KorosTimerTask = CoroutineScope(coroutineContext)
 

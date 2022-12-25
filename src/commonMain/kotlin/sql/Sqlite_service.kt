@@ -34,7 +34,7 @@ import kotlin.time.ExperimentalTime
 @JsName("Sqlite_service")
 object Sqlite_service : CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
 
     val Sqlite_serviceScope = CoroutineScope(coroutineContext) + SupervisorJob()
 

@@ -23,7 +23,7 @@ val alaSQL = require("alasql")
 val arg = require("Arguments")
 val request = require("JsSQLStatement")
 var mydb: dynamic = null
-val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+val scope = CoroutineScope(Dispatchers.Default + SupervisorJob() + SupervisorJob())
 //val sql = require("MyAlaSQL")
 //js("debugger;")
 

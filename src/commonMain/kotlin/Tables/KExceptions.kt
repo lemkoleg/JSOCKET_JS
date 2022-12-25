@@ -301,7 +301,7 @@ class KExceptions {
 
         @JsName("ADD_NEW_EXCEPTIONS")
         fun ADD_NEW_EXCEPTIONS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         KExceptionsLock.withLock {
@@ -313,7 +313,7 @@ class KExceptions {
                                 }
 
                                 arr.forEach {
-                                    if (it.RECORD_TYPE.equals("5")) {
+                                    if (!it.RECORD_TYPE.equals("5")) {
                                         throw my_user_exceptions_class(
                                             l_class_name = "KException",
                                             l_function_name = "ADD_NEW_EXCEPTIONS",
@@ -334,7 +334,7 @@ class KExceptions {
                                     l_class_name = "KException",
                                     l_function_name = "ADD_NEW_EXCEPTIONS",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = ex.message
+                                    l_additional_text = ex.stackTraceToString()
                                 )
                             } finally {
                                 if (!exc.isEmpty()) {
@@ -347,7 +347,7 @@ class KExceptions {
                             l_class_name = "KException",
                             l_function_name = "ADD_NEW_EXCEPTIONS",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)

@@ -234,7 +234,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     @JsName("SET_RECORDS")
     fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     KCashDataLock.withLock {
@@ -335,7 +335,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         l_object_id_from: String = "",
         l_mess_id_from: String = ""
     ): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     KCashDataLock.withLock {
@@ -588,7 +588,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         object_recod_id_from: String,
         udpdate_all: Boolean = false
     ): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -782,12 +782,12 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     private fun Get(
         l_record_table_id_from: String
-    ): Promise<Unit?> = CoroutineScope(Dispatchers.Default).async {
+    ): Promise<Unit?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
         if (currentJobForGet != null && currentJobForGet!!.isActive) {
             currentJobForGet!!.join()
         }
-        currentJobForGet = CoroutineScope(Dispatchers.Default).launchImmediately {
+        currentJobForGet = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
@@ -977,7 +977,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
 
     fun GetNext(): Promise<ArrayDeque<ANSWER_TYPE>> =
-        CoroutineScope(Dispatchers.Default).async {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -1193,7 +1193,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             l_reset_cash_data: Boolean,
             l_ignore_timeout: Boolean
         ): Promise<KCashData> =
-            CoroutineScope(Dispatchers.Default).async {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         KCashDatasLock.withLock {
@@ -1257,7 +1257,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                     if (k.CashLastUpdate.RECORD_TYPE == "4") { // MASSEGES;
                                         if (CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "3" + "0")]?.answerTypeValues!!.GetChatsCountNotReadedMess() > 0L) {
-                                            CoroutineScope(Dispatchers.Default).launchImmediately {
+                                            CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                                                 val w =
                                                     CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "3" + "0")]?.GetJsocket()
                                                 if (w != null) {
@@ -1305,7 +1305,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                 if (k.CashLastUpdate.RECORD_TYPE == "4") { // MASSEGES;
                                     if (CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "300")]?.answerTypeValues!!.GetChatsCountNotReadedMess() > 0L) {
-                                        CoroutineScope(Dispatchers.Default).launchImmediately {
+                                        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                                             val w = CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "300")]?.GetJsocket()
                                             if (w != null) {
                                                 w.value_par1 =

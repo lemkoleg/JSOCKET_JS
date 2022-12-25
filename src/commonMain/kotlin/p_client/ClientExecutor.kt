@@ -173,6 +173,7 @@ class ClientExecutor {
     private suspend fun update_account() {
         try {
 
+
             jsocket.just_do_it_label = nowNano()
 
             if (jsocket.value_par7.trim().isEmpty()) {
@@ -229,6 +230,7 @@ class ClientExecutor {
                     )
                 }
             }
+            println("update_account()")
             if (!curCommand!!.isCrypt) {
                 //Sqlite_service.ClearRegData()
                 if (jsocket.value_par8.trim().isNotEmpty()) {
@@ -249,6 +251,7 @@ class ClientExecutor {
                     jsocket.value_par9 = h.getMD5String(l2.toString())
                 }
             }
+
             jsocket.send_request(update_just_do_it_label = false)
 
             /*

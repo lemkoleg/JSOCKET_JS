@@ -33,14 +33,14 @@ class SampleTestsJVM {
         val lock = Mutex()
 
 
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
 
 
             var time = DateTime.nowUnixMillisLong()
             var myWebSocketChannel: WebSocketClient? = null
             var signalonOpen: Signal<Unit>?
             /*
-                        CoroutineScope(Dispatchers.Default).async {
+                        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                             withContext(EmptyCoroutineContext){
                             myWebSocketChannel = WebSocketClient(url = "ws://mini:22237", protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
 
