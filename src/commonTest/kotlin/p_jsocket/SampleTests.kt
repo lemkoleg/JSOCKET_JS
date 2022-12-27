@@ -33,7 +33,7 @@ class SampleTests {
         PrintInformation.PRINT_INFO(g.toString())
 
 
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
 
             val fileName = "ppppp"
             val k = FileService.getImmageAvatarFromFileName("F:\\Foto\\$fileName.JPG").await()
@@ -63,7 +63,7 @@ class SampleTests {
         val l = Jsocket()
         //Thread_sleep(2000)
         //c.close()
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
           /*  Thread_sleep(4000)
 
             CHATS.forEach { v ->

@@ -122,6 +122,7 @@ class ClientExecutor {
                     }
                 }
                 jsocket.content = FileService.getImmageAvatarFromFileName(jsocket.AvatarFullPathForSend).await()
+                println("jsocket.content = ${jsocket.content?.size}")
                 jsocket.AvatarFullPathForSend = ""
             }
 
@@ -157,7 +158,7 @@ class ClientExecutor {
                 l_class_name = "ClientExecutor",
                 l_function_name = "execute",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = ex.message
+                l_additional_text = ex.stackTraceToString()
             )
         }
     }
@@ -230,7 +231,6 @@ class ClientExecutor {
                     )
                 }
             }
-            println("update_account()")
             if (!curCommand!!.isCrypt) {
                 //Sqlite_service.ClearRegData()
                 if (jsocket.value_par8.trim().isNotEmpty()) {

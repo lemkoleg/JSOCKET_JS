@@ -121,7 +121,7 @@ class KMetaData {
                             l_class_name = "KMetaData",
                             l_function_name = "LOAD_META_DATA",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     } finally {
                         Constants.initialise()
@@ -132,7 +132,7 @@ class KMetaData {
                     l_class_name = "KMetaData",
                     l_function_name = "LOAD_META_DATA",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } catch (e: my_user_exceptions_class) {
                 e.ExceptionHand(null)
@@ -177,7 +177,7 @@ class KMetaData {
                                     l_class_name = "KMetaData",
                                     l_function_name = "ADD_NEW_META_DATA",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = ex.message
+                                    l_additional_text = ex.stackTraceToString()
                                 )
                             } finally {
                                 if (!arr.isEmpty()) {
@@ -191,7 +191,7 @@ class KMetaData {
                             l_class_name = "KMetaData",
                             l_function_name = "ADD_NEW_META_DATA",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)

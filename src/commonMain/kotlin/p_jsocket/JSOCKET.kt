@@ -815,7 +815,7 @@ open class JSOCKET() {
             lang = Constants.myLang
             last_messege_update = globalLastChatsSelect.value
             last_metadata_update = meta_data_last_update.value
-            //db_massage = ""
+            db_massage = ""
             just_do_it_successfull = "0"
             connection_context = Constants.myConnectionContext
             if(update_just_do_it_label){
@@ -1093,7 +1093,7 @@ open class JSOCKET() {
                 l_class_name = "JSOCKET",
                 l_function_name = "serialize",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = e.message
+                l_additional_text = e.stackTraceToString()
             )
         } finally {
             connection_coocki = nature_connection_coocki
@@ -1756,10 +1756,6 @@ open class JSOCKET() {
             jserver_connection_id = bb!!.readLong()
             connection_id = bb!!.readLong()
 
-            if (connection_id != 0L && Constants.myConnectionsID == 0L) {
-                is_new_reg_data = true
-            }
-
             if (Constants.myConnectionsID != 0L && Constants.myConnectionsID != connection_id) {
                 throw my_user_exceptions_class(
                     l_class_name = "JSOCKET",
@@ -1767,6 +1763,11 @@ open class JSOCKET() {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "(connection_id = $connection_id) not equal (myConnectionsID = ${Constants.myConnectionsID} ;)  "
                 )
+            }
+
+            if (connection_id != 0L && Constants.myConnectionsID == 0L) {
+                Constants.myConnectionsID = connection_id
+                is_new_reg_data = true
             }
 
             connection_coocki = bb!!.readLong()
@@ -1820,7 +1821,7 @@ open class JSOCKET() {
                         l_class_name = "JSOCKET",
                         l_function_name = "deserialize",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                        l_additional_text = "exc_user_coocki_not_equal_db_coocki3: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                     )
                 }
                 if (md5String.isEmpty()) {
@@ -1848,7 +1849,7 @@ open class JSOCKET() {
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                                l_additional_text = "exc_user_coocki_not_equal_db_coocki1: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                             )
                         }
                     } else {
@@ -1856,7 +1857,7 @@ open class JSOCKET() {
                             l_class_name = "JSOCKET",
                             l_function_name = "deserialize",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "exc_user_coocki_not_equal_db_coocki: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                            l_additional_text = "exc_user_coocki_not_equal_db_coocki2: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
                         )
                     }
                 }

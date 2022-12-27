@@ -205,7 +205,7 @@ class KCommands {
                                     l_class_name = "KCommands",
                                     l_function_name = "ADD_NEW_COMMANDS",
                                     name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = ex.message
+                                    l_additional_text = ex.stackTraceToString()
                                 )
                             } finally {
                                 if (!arr.isEmpty()) {
@@ -218,7 +218,7 @@ class KCommands {
                             l_class_name = "KCommands",
                             l_function_name = "ADD_NEW_COMMANDS",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
@@ -250,7 +250,7 @@ class KCommands {
                         l_class_name = "KCommands",
                         l_function_name = "LOAD_COMMANDS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {

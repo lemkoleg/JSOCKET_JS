@@ -146,7 +146,7 @@ class Jsocket() : JSOCKET(), OnRequestListener{
                         l_class_name = "Jsocket",
                         l_function_name = "execute",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = e.message
+                        l_additional_text = e.stackTraceToString()
                     )
 
                 }
@@ -237,7 +237,7 @@ class Jsocket() : JSOCKET(), OnRequestListener{
                                         l_class_name = "Jsocket",
                                         l_function_name = "fill",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        ex.message
+                                        ex.stackTraceToString()
                                     )
                                 } finally {
                                     fillPOOL_IS_RUNNING.value = false
@@ -276,7 +276,7 @@ class Jsocket() : JSOCKET(), OnRequestListener{
                                 l_class_name = "Jsocket",
                                 l_function_name = "fill",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                ex.message
+                                ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {

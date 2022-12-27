@@ -393,7 +393,7 @@ class KExceptions {
                         l_class_name = "KExceptions",
                         l_function_name = "INSERT_EXCEPTIONS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (ex: my_user_exceptions_class) {

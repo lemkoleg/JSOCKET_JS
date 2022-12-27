@@ -231,6 +231,7 @@ actual class SQLStatement actual constructor() {
     }
 
     actual suspend fun INSERT_REGDATA() {
+
         regData.insert_RegData(
             Constants.myConnectionsID,
             Constants.myConnectionsCoocki,

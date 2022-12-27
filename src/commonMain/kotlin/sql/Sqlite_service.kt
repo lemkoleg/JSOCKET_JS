@@ -7,6 +7,7 @@
 
 package sql
 
+import CrossPlatforms.PrintInformation
 import Tables.*
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.launchImmediately
@@ -65,7 +66,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertBigAvatars",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -80,12 +81,14 @@ object Sqlite_service : CoroutineScope {
     suspend fun SelectBigAvatar(OBJECTS_ID: String, IS_UPDATE_LAST_USE: Boolean): KBigAvatar? {
         try {
             try {
+                var res: KBigAvatar? = null
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
                         if (IS_UPDATE_LAST_USE) {
                             statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixMillisLong())
                         }
-                        return@withTimeoutOrNull statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
+                        res = statBIG_AVATARS.SELECT_BIG_AVATAR(OBJECTS_ID)
+                        return@withTimeoutOrNull res
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -93,12 +96,13 @@ object Sqlite_service : CoroutineScope {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
+                return res
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "SelectBigAvatar",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -130,7 +134,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadBigAvatarsIds",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -160,7 +164,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadBigAvatars",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -189,7 +193,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "UpdateBigAvatarsLastUse",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -218,7 +222,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "DeleteBigAvatars",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -247,7 +251,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "ClearBigAvatars",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statBIG_AVATARS.clear_parameters()
@@ -281,7 +285,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertCommands",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCOMMANDS.clear_parameters()
@@ -311,7 +315,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadCommands",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCOMMANDS.clear_parameters()
@@ -349,7 +353,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertExceptions",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statEXCEPTIONS.clear_parameters()
@@ -379,7 +383,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadExceptions",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statEXCEPTIONS.clear_parameters()
@@ -416,7 +420,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertMetaData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statMETA_DATA.clear_parameters()
@@ -446,7 +450,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadMetaData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statMETA_DATA.clear_parameters()
@@ -481,7 +485,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertRegData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statREG_DATA.clear_parameters()
@@ -497,6 +501,9 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.withLock {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("LOAD REG_DATA...")
+                        }
                         statREG_DATA.SELECT_REGDATA_ALL()
                         Constants.isPRO = if (Constants.myRequestProfile.isNotEmpty()) {
                             Constants.myRequestProfile.substring(0, 1) == "1"
@@ -521,7 +528,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadRegData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statREG_DATA.clear_parameters()
@@ -550,7 +557,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "ClearRegData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statREG_DATA.clear_parameters()
@@ -587,7 +594,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertMetaData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statSAVE_MEDIA.clear_parameters()
@@ -617,7 +624,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadSaveMedia",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statSAVE_MEDIA.clear_parameters()
@@ -648,7 +655,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "DeleteSaveMedia",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statSAVE_MEDIA.clear_parameters()
@@ -683,7 +690,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertCashLastUpdate",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -713,7 +720,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadCashLastUpdate",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -756,7 +763,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "InsertCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -770,9 +777,11 @@ object Sqlite_service : CoroutineScope {
     suspend fun SelectCashDataAllOnCashSum(cash: String): ArrayDeque<ANSWER_TYPE> {
         try {
             try {
+                var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
-                        return@withTimeoutOrNull statCASHLASTUPDATE.SELECT_CASHDATA_ALL_ON_CASH_SUM(cash)
+                        arr = statCASHLASTUPDATE.SELECT_CASHDATA_ALL_ON_CASH_SUM(cash)
+                        return@withTimeoutOrNull arr
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -780,12 +789,13 @@ object Sqlite_service : CoroutineScope {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
+                return arr
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "SelectCashDataAllOnCashSum",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -800,12 +810,14 @@ object Sqlite_service : CoroutineScope {
     suspend fun SelectCashDataChunkOnCashSum(cash: String, record_id_from: String = ""): ArrayDeque<ANSWER_TYPE> {
         try {
             try {
+                var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
-                        return@withTimeoutOrNull statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
+                        arr = statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
                             cash,
                             record_id_from
                         )
+                        return@withTimeoutOrNull arr
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -813,12 +825,13 @@ object Sqlite_service : CoroutineScope {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
+                return arr
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "SelectCashDataAllOnCashSum",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -833,9 +846,11 @@ object Sqlite_service : CoroutineScope {
     suspend fun SelectCashData(cash: String, record_id: String): ANSWER_TYPE? {
         try {
             try {
+                var res: ANSWER_TYPE? = null
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
-                        return@withTimeoutOrNull statCASHLASTUPDATE.SELECT_CASHDATA(cash, record_id)
+                        res = statCASHLASTUPDATE.SELECT_CASHDATA(cash, record_id)
+                        return@withTimeoutOrNull res
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -843,12 +858,13 @@ object Sqlite_service : CoroutineScope {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
+                return res
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
                     l_function_name = "SelectCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -883,7 +899,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -913,7 +929,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "LoadCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -944,7 +960,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "OrederCashData",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -986,7 +1002,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "UpdateCashDataNewLastSelect",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -1020,7 +1036,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "DeleteCash",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             } finally {
                 statCASHLASTUPDATE.clear_parameters()
@@ -1055,7 +1071,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.connect",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1071,7 +1087,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.BIG_AVATARS",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1085,7 +1101,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.COMMANDS",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1099,7 +1115,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.EXCEPTIONS",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1113,7 +1129,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.META_DATA",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1128,7 +1144,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.REG_DATA",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1147,7 +1163,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.SAVE_MEDIA",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1167,7 +1183,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.CASH_LAST_UPDATE",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 
@@ -1186,7 +1202,7 @@ object Sqlite_service : CoroutineScope {
                     l_class_name = "Sqlite_service",
                     l_function_name = "Connect.CASH_DATA",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.message
+                    l_additional_text = e.stackTraceToString()
                 )
             }
 

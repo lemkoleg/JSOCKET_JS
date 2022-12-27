@@ -329,14 +329,14 @@ class HASH {
     @InternalAPI
     @JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
-        var newStringMD5 = ""
+        var newStringMD5: String
         val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
-        println("md5Hex = $md5Hex")
 ////diapazone for 18 digits UnsignedLong: 16345785d8a0001 - de0b6b3a763ffff (15 chars)//////////////////
         val stringMD5String1: Long = md5Hex.substring(0, 15).toLong(16)
         val stringMD5String2: Long = md5Hex.substring(15, 30).toLong(16)
         var TokenLong: Long = stringMD5String1 xor stringMD5String2
         if (TokenLong > 999999999999999999L) {
+            newStringMD5 = TokenLong.toString(16)
             newStringMD5 = "ddf".plus(
                 newStringMD5.substring(3)
             )

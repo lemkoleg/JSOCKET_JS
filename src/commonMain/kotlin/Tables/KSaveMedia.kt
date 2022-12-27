@@ -159,7 +159,7 @@ class KSaveMedia(
                                 l_class_name = "KSaveMedia",
                                 l_function_name = "AddNewSaveMedia",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
@@ -200,7 +200,7 @@ class KSaveMedia(
                         l_class_name = "KSaveMedia",
                         l_function_name = "LOAD_SAVE_MEDIA",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -231,7 +231,7 @@ class KSaveMedia(
                                 l_class_name = "KSaveMedia",
                                 l_function_name = "DeleteSaveMedia",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
@@ -269,7 +269,7 @@ class KSaveMedia(
                                 l_class_name = "KSaveMedia",
                                 l_function_name = "ClearSaveMedia",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {

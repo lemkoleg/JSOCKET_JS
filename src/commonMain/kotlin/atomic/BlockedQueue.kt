@@ -159,7 +159,7 @@ suspend fun <T> ArrayDeque<T>.lockedEnqueue(v: T, size: Int = Constants.STANDART
         throw my_user_exceptions_class(
             l_class_name = "BlockedQueue",
             l_function_name = "concurentEnqueue",
-            name_of_exception = e.message ?: "EXC_SYSTEM_ERROR",
+            name_of_exception = e.stackTraceToString(),
             whatQueue
         )
     }

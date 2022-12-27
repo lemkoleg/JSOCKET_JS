@@ -132,6 +132,9 @@ object Connection {
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
                     signalonBinaryMessage?.invoke { v ->
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("Get paccket: ${v.size}")
+                        }
                         decode(v)
                     }
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
@@ -174,7 +177,7 @@ object Connection {
                             "Connection",
                             "setConn",
                             "EXC_SOCKET_NOT_ALLOWED",
-                            e.message
+                            e.stackTraceToString()
                         )
                     }
                 }
@@ -213,7 +216,7 @@ object Connection {
                                 "Connection",
                                 "sendData",
                                 "EXC_SOCKET_NOT_ALLOWED",
-                                ex1.message
+                                ex1.stackTraceToString()
                             )
                         }
                     } finally {
@@ -404,7 +407,7 @@ object Connection {
                         l_class_name = "Connection",
                         l_function_name = "decode",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -457,7 +460,7 @@ object Connection {
                     l_class_name = "Connection",
                     l_function_name = "removeOldAll",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = ex.message
+                    l_additional_text = ex.stackTraceToString()
                 )
             }
         } catch (e: my_user_exceptions_class) {

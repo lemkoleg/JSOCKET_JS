@@ -182,7 +182,7 @@ class FileService(
                 l_class_name = "FileService",
                 l_function_name = "createFileExtensionFromFullFIleName",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = ex.message
+                l_additional_text = ex.stackTraceToString()
             )
         }
     }
@@ -195,7 +195,7 @@ class FileService(
                 l_class_name = "FileService",
                 l_function_name = "createFileNameFromName",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = ex.message
+                l_additional_text = ex.stackTraceToString()
             )
         }
     }
@@ -516,6 +516,7 @@ class FileService(
         startLoading: (() -> Any?)? = null,
         finishLoading: ((v: Any?) -> Any?)? = null
     ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+        var arr: ByteArray? = null
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             if (IsInterrupted.get() == 1 && !IsDownloaded) {
                 throw my_user_exceptions_class(
@@ -525,10 +526,10 @@ class FileService(
                     l_additional_text = "File not downloaded but allready closed."
                 )
             }
-            var b = ByteArray(0)
             try {
                 if (IsDownloaded) {
-                    return@withTimeoutOrNull file!!.read(offset, CURRENT_CHUNK_SIZE)
+                    arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                    return@withTimeoutOrNull arr
                 } else {
                     if (startLoading != null) {
                         startLoading()
@@ -537,13 +538,13 @@ class FileService(
 
                     val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
                     if (is_download) {
-                        b = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                        arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
                     } else {
 
                         FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
 
                         if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                            b = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                            arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
                         } else {
                             throw my_user_exceptions_class(
                                 l_class_name = "FileService",
@@ -558,18 +559,18 @@ class FileService(
                 e.ExceptionHand(null)
             } finally {
                 if (finishLoading != null) {
-                    finishLoading(b)
+                    finishLoading(arr)
                 }
-                return@withTimeoutOrNull b
+                return@withTimeoutOrNull arr
             }
-            return@withTimeoutOrNull null
+            return@withTimeoutOrNull arr
         } ?: throw my_user_exceptions_class(
             l_class_name = "FileService",
             l_function_name = "get_file_chunk",
             name_of_exception = "EXC_SYSTEM_ERROR",
             l_additional_text = "Time out is up"
         )
-
+        return@async arr
     }.toPromise(EmptyCoroutineContext)
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -627,6 +628,7 @@ class FileService(
         @JsName("getImmageAvatarFromFileName")
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+                var arr: ByteArray? = null
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -658,12 +660,14 @@ class FileService(
                                 }
 
                                 val l = fileName.readAll()
-                                if (l.size <= Constants.SEND_AVATAR_SIZE) {
-                                    return@withTimeoutOrNull l
+                                if (l.size >= Constants.SEND_AVATAR_SIZE) {
+                                    arr = l
+                                    return@withLock arr
                                 }
                                 val file = l.openAsync().asVfsFile()
                                 val image32 = file.readBitmap().toBMP32()
-                                return@withTimeoutOrNull getImmageAvatarFromBitmap32(image32)
+                                arr = getImmageAvatarFromBitmap32(image32)
+                                return@withLock arr
 
                             }
                         } catch (e: my_user_exceptions_class) {
@@ -673,25 +677,26 @@ class FileService(
                                 l_class_name = "FileService",
                                 l_function_name = "getImmageAvatarFromFileName",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeoutOrNull false
+
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "FileService",
                     l_function_name = "getImmageAvatarFromFileName",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
-                return@async null
+                return@async arr
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("getImmageAvatarFromByteArray")
         suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+                var arr: ByteArray? = null
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -704,11 +709,13 @@ class FileService(
                                     )
                                 }
                                 if (imageData.size <= Constants.SEND_AVATAR_SIZE) {
-                                    return@withTimeoutOrNull imageData
+                                    arr = imageData
+                                    return@withTimeoutOrNull arr
                                 }
                                 val fileName = imageData.openAsync().asVfsFile()
                                 val image32 = fileName.readBitmap().toBMP32()
-                                return@withTimeoutOrNull getImmageAvatarFromBitmap32(image32)
+                                arr = getImmageAvatarFromBitmap32(image32)
+                                return@withTimeoutOrNull arr
                             }
                         } catch (e: my_user_exceptions_class) {
                             throw e
@@ -717,20 +724,19 @@ class FileService(
                                 l_class_name = "FileService",
                                 l_function_name = "getImmageAvatarFromByteArray",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
                         e.ExceptionHand(null)
                     }
-                    return@withTimeoutOrNull false
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "FileService",
                     l_function_name = "getImmageAvatarFromByteArray",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
-                return@async null
+                return@async arr
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("getImmageAvatarFromByteArrayWithKoord")

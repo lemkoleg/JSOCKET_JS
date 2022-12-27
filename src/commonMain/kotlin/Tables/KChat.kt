@@ -130,7 +130,7 @@ object KChat {
                             l_class_name = "KChats",
                             l_function_name = "SELECT_ALL_DATA_ON_CHAT",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -199,7 +199,7 @@ object KChat {
                             l_class_name = "KChats",
                             l_function_name = "VERIFY_UPDATES",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -216,6 +216,7 @@ object KChat {
     @JsName("GET_CHATS")
     fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+            var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
@@ -231,17 +232,28 @@ object KChat {
                                     l_reset_cash_data = false,
                                     l_ignore_timeout = true
                                 ).await()
-                                return@withTimeoutOrNull CHATS!!.currentViewCashData
-                            } else {
-                                return@withTimeoutOrNull CHATS!!
+
+                            } else{
+                                CHATS = KCashData.GET_CASH_DATA(
+                                    L_OBJECT_ID = Constants.Account_Id,
+                                    L_RECORD_TYPE = "3",
+                                    l_updatedCashData = l_updatedCashData,
+                                    l_request_updates = true,
+                                    l_select_all_records = false,
+                                    l_is_SetLastBlock = true,
+                                    l_reset_cash_data = true,
+                                    l_ignore_timeout = true
+                                ).await()
                             }
+                            arr = CHATS!!.currentViewCashData
+                            return@withTimeoutOrNull arr
                         }
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(
                             l_class_name = "KChats",
                             l_function_name = "GET_CHATS",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -253,13 +265,7 @@ object KChat {
                 name_of_exception = "EXC_SYSTEM_ERROR",
                 l_additional_text = "Time out is up"
             )
-
-            throw my_user_exceptions_class(
-                l_class_name = "KChats",
-                l_function_name = "GET_CHATS",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Time out is up"
-            )
+            return@async arr
         }.toPromise(EmptyCoroutineContext)
 
     @JsName("DELETE_CHATS")
@@ -276,7 +282,7 @@ object KChat {
                         l_class_name = "KChats",
                         l_function_name = "GET_CHATS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {

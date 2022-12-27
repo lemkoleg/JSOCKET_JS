@@ -88,7 +88,7 @@ class KCashLastUpdate(
                         l_class_name = "KCashLastUpdate",
                         l_function_name = "UPDATE_LAST_USE",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -123,7 +123,7 @@ class KCashLastUpdate(
                             l_class_name = "KCashLastUpdate",
                             l_function_name = "LOAD_CASH_LAST_UPDATE",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {

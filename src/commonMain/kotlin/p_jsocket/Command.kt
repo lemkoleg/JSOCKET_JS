@@ -106,24 +106,24 @@ class Command {
         commands_profile = v.getCOMMANDS_PROFILE()
         commands_necessarily_fields = v.getCOMMANDS_NECESSARILY_FIELDS()
 
-        isForAcceptedMAIL = commands_profile.substring(1, 2) != "1"
-        isForPRO = commands_profile.substring(2, 3) != "1"
+        isForAcceptedMAIL = !commands_profile.substring(1, 2).equals("1")
+        isForPRO = !commands_profile.substring(2, 3).equals("1")
         canEdit = commands_profile.substring(3, 4)
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
         isDont_answer = commands_profile.substring(6, 7) != "0"
         whichBlobDataSended = commands_profile.substring(9, 10)
-        canChangeCoocki = commands_profile.substring(10, 11) != "0"
-        isCrypt = commands_profile.substring(11, 12) != "0"
-        cryptContent = commands_profile.substring(12, 13) == "1"
-        isUpdateMesseges = commands_profile.substring(14, 15) == "1"
-        isDontWaitTimeOut = commands_profile.substring(16, 17) == "1"
-        isSeparateThread = commands_profile.substring(17, 18) == "1"
-        isSDontSaveONServerConnections = commands_profile.substring(18, 19) == "1"
-        saveOnClientRequestsQueue = commands_profile.substring(20, 21) == "1"
-        allowFileByLink = commands_profile.substring(21, 22) == "1"
-        cryptMediaContent = commands_profile.substring(22, 23) == "1"
-        saveOrirginalAvatar = commands_profile.substring(23, 24) == "1"
+        canChangeCoocki = !commands_profile.substring(10, 11).equals("0")
+        isCrypt = !commands_profile.substring(11, 12).equals("0")
+        cryptContent = commands_profile.substring(12, 13).equals("1")
+        isUpdateMesseges = commands_profile.substring(14, 15).equals("1")
+        isDontWaitTimeOut = commands_profile.substring(16, 17).equals("1")
+        isSeparateThread = commands_profile.substring(17, 18).equals("1")
+        isSDontSaveONServerConnections = commands_profile.substring(18, 19).equals("1")
+        saveOnClientRequestsQueue = commands_profile.substring(20, 21).equals("1")
+        allowFileByLink = commands_profile.substring(21, 22).equals("1")
+        cryptMediaContent = commands_profile.substring(22, 23).equals("1")
+        saveOrirginalAvatar = commands_profile.substring(23, 24).equals("1")
         InitializeBlobSize()
     }
 
@@ -165,24 +165,24 @@ class Command {
         commands_profile = p_commands_profile.trim()
         commands_necessarily_fields = p_commands_necessarily_fields.trim()
 
-        isForAcceptedMAIL = commands_profile.substring(1, 2) != "1"
-        isForPRO = commands_profile.substring(2, 3) != "1"
+        isForAcceptedMAIL = !commands_profile.substring(1, 2).equals("1")
+        isForPRO = !commands_profile.substring(2, 3).equals("1")
         canEdit = commands_profile.substring(3, 4)
         whichBlobDataReturned = commands_profile.substring(4, 5)
         whichSmallAvatarCreate = commands_profile.substring(5, 6)
-        isDont_answer = commands_profile.substring(6, 7) != "0"
+        isDont_answer = !commands_profile.substring(6, 7).equals("0")
         whichBlobDataSended = commands_profile.substring(9, 10)
-        canChangeCoocki = commands_profile.substring(10, 11) != "0"
-        isCrypt = commands_profile.substring(11, 12) != "0"
-        cryptContent = commands_profile.substring(12, 13) == "1"
-        isUpdateMesseges = commands_profile.substring(14, 15) == "1"
-        isDontWaitTimeOut = commands_profile.substring(16, 17) == "1"
-        isSeparateThread = commands_profile.substring(17, 18) == "1"
-        isSDontSaveONServerConnections = commands_profile.substring(18, 19) == "1"
-        saveOnClientRequestsQueue = commands_profile.substring(20, 21) == "1"
-        allowFileByLink = commands_profile.substring(21, 22) == "1"
-        cryptMediaContent = commands_profile.substring(22, 23) == "1"
-        saveOrirginalAvatar = commands_profile.substring(23, 24) == "1"
+        canChangeCoocki = !commands_profile.substring(10, 11).equals("0")
+        isCrypt = !commands_profile.substring(11, 12).equals("0")
+        cryptContent = commands_profile.substring(12, 13).equals("1")
+        isUpdateMesseges = commands_profile.substring(14, 15).equals("1")
+        isDontWaitTimeOut = commands_profile.substring(16, 17).equals("1")
+        isSeparateThread = commands_profile.substring(17, 18).equals("1")
+        isSDontSaveONServerConnections = commands_profile.substring(18, 19).equals("1")
+        saveOnClientRequestsQueue = commands_profile.substring(20, 21).equals("1")
+        allowFileByLink = commands_profile.substring(21, 22).equals("1")
+        cryptMediaContent = commands_profile.substring(22, 23).equals("1")
+        saveOrirginalAvatar = commands_profile.substring(23, 24).equals("1")
         InitializeBlobSize()
 
     }

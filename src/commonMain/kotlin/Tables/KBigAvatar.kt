@@ -213,7 +213,7 @@ class KBigAvatar {
                                 l_class_name = "KBigAvatar",
                                 l_function_name = "ADD_NEW_BIG_AVATAR",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
@@ -263,7 +263,7 @@ class KBigAvatar {
                             l_class_name = "KBigAvatar",
                             l_function_name = "RETURN_PROMISE_SELECT_BIG_AVATAR",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -315,7 +315,7 @@ class KBigAvatar {
                             l_class_name = "KBigAvatar",
                             l_function_name = "IS_HAVE_LOCAL_AVATAR_AND_RESERVE",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -352,7 +352,7 @@ class KBigAvatar {
                         l_class_name = "KBigAvatar",
                         l_function_name = "LOAD_BIG_AVATAR_ADS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
 
@@ -377,7 +377,7 @@ class KBigAvatar {
                         l_class_name = "KBigAvatar",
                         l_function_name = "LOAD_BIG_AVATARS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -401,7 +401,7 @@ class KBigAvatar {
                                 l_class_name = "KBigAvatar",
                                 l_function_name = "INSERT_BIG_AVATAR_INTO_MAP",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {

@@ -93,7 +93,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                         l_class_name = "InitJsocket",
                         l_function_name = "Init",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {

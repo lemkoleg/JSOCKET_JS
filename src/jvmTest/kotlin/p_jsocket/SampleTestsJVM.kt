@@ -33,7 +33,7 @@ class SampleTestsJVM {
         val lock = Mutex()
 
 
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launchImmediately {
 
 
             var time = DateTime.nowUnixMillisLong()

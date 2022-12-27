@@ -132,7 +132,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                 l_class_name = "KObjectInfo",
                                 l_function_name = "VerifyUpdates",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
@@ -181,7 +181,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         l_class_name = "KObjectInfo",
                         l_function_name = "SaveOffLine",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -215,7 +215,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         l_class_name = "KObjectInfo",
                         l_function_name = "DeleteOffLine",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {
@@ -263,6 +263,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         @JsName("GET_SAVE_OBJECT_INFO")
         fun GET_SAVE_OBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+                var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -278,17 +279,15 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                         l_reset_cash_data = false,
                                         l_ignore_timeout = false
                                     ).await()
-                                    return@withTimeoutOrNull SAVE_OBJECT_INFO!!.currentViewCashData
-                                } else {
-                                    return@withTimeoutOrNull SAVE_OBJECT_INFO!!
                                 }
+                                arr = SAVE_OBJECT_INFO!!.currentViewCashData
                             }
                         } catch (ex: Exception) {
                             throw my_user_exceptions_class(
                                 l_class_name = "KObjectInfo",
                                 l_function_name = "SAVE_OBJECT_INFO",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {
@@ -300,13 +299,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
-
-                throw my_user_exceptions_class(
-                    l_class_name = "KObjectInfo",
-                    l_function_name = "SAVE_OBJECT_INFO",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "Time out is up"
-                )
+                return@async arr
             }.toPromise(EmptyCoroutineContext)
 
 
@@ -332,7 +325,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                         l_class_name = "KObjectInfo",
                         l_function_name = "LOAD_SAVE_OBJECT_INFO_IDS",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.message
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
             } catch (e: my_user_exceptions_class) {

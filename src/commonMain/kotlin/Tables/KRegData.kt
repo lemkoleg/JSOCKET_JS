@@ -45,8 +45,8 @@ class KRegData {
                                     && !v.request_profile.equals("------------------------------")
                                 ) {
                                     Constants.myRequestProfile = v.request_profile
-                                    Constants.isPRO = Constants.myRequestProfile.substring(0, 1) == "1"
-                                    Constants.mailConfirm = Constants.myRequestProfile.substring(2, 3) == "1"
+                                    Constants.isPRO = Constants.myRequestProfile.substring(0, 1).equals("1")
+                                    Constants.mailConfirm = Constants.myRequestProfile.substring(2, 3).equals("1")
 
                                 }
                             }
@@ -60,7 +60,7 @@ class KRegData {
                             l_class_name = "KRegData",
                             l_function_name = "ADD_NEW_REG_DATA",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -150,7 +150,7 @@ class KRegData {
                                 l_class_name = "KRegData",
                                 l_function_name = "ADD_NEW_REG_DATA",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.message
+                                l_additional_text = ex.stackTraceToString()
                             )
                         }
                     } catch (e: my_user_exceptions_class) {

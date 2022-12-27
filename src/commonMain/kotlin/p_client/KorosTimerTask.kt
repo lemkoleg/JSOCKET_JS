@@ -42,7 +42,7 @@ class KorosTimerTask(
                 l_class_name = "KorosTimerTask",
                 l_function_name = "constructor",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = e.message
+                l_additional_text = e.stackTraceToString()
             )
         }
     }

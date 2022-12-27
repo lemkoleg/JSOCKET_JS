@@ -38,7 +38,7 @@ object PrintInformation {
                             l_class_name = "PrintInformation",
                             l_function_name = "PRINT_INFO",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
@@ -70,7 +70,7 @@ object PrintInformation {
                             l_class_name = "PrintInformation",
                             l_function_name = "PRINT_INFO",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = ex.message
+                            l_additional_text = ex.stackTraceToString()
                         )
                     }
                 } catch (e: my_user_exceptions_class) {
