@@ -217,6 +217,16 @@ fun init(): Boolean {
         )
     )
 
+    USERS_EXCEPTIONS["EXC_ERROR_CUTE_IMAGE"] = KExceptions(
+        KExceptions.KException(
+            "EXC_ERROR_CUTE_IMAGE",
+            "ENG",
+            "Failed to crop image.",
+            "4",
+            0
+        )
+    )
+
     return true
 }
 

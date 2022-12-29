@@ -16,10 +16,7 @@ import co.touchlab.stately.concurrency.AtomicInt
 import co.touchlab.stately.concurrency.value
 import com.soywiz.korim.bitmap.Bitmap32
 import com.soywiz.korim.color.RGB_555
-import com.soywiz.korim.format.ImageEncodingProps
-import com.soywiz.korim.format.PNG
-import com.soywiz.korim.format.encode
-import com.soywiz.korim.format.readBitmap
+import com.soywiz.korim.format.*
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
 import com.soywiz.korio.async.launchImmediately
@@ -212,7 +209,7 @@ class FileService(
 
         if (answerType != null) { // SAVE SAVE_MEDIA (DOWNLOAD FILE); PLAY MEDIA;
 
-            if(!file!!.exists() || file!!.isFile()){
+            if (!file!!.exists() || file!!.isFile()) {
                 IsDownloaded = false
                 save_media!!.IS_DOWNLOAD = 0
             }
@@ -660,7 +657,7 @@ class FileService(
                                 }
 
                                 val l = fileName.readAll()
-                                if (l.size >= Constants.SEND_AVATAR_SIZE) {
+                                if (l.size <= Constants.SEND_AVATAR_SIZE) {
                                     arr = l
                                     return@withLock arr
                                 }
@@ -746,162 +743,119 @@ class FileService(
             y: Int,
             w: Int,
             h: Int
-        ): ByteArray? {
-            if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
-                throw my_user_exceptions_class(
+        ): Promise<ByteArray?> =
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+                var arr: ByteArray? = null
+                withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+                    if (imageData.size > Constants.AVATAR_MAX_SIZE_FOR_LOADING) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "getImmageAvatarFromByteArrayWithKoord",
+                            name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                        )
+                    }
+                    val fileName = imageData.openAsync().asVfsFile()
+                    var image32 = fileName.readBitmap().toBMP32()
+                    image32 = image32.copySliceWithSize(x = x, y = y, width = w, height = h)
+                    arr = image32.encode(JPEG.JPEG)
+                    if (arr == null || arr!!.size <= Constants.SEND_AVATAR_SIZE) return@withTimeoutOrNull arr
+                    arr = getImmageAvatarFromBitmap32(image32)
+                    return@withTimeoutOrNull arr
+                } ?: throw my_user_exceptions_class(
                     l_class_name = "FileService",
-                    l_function_name = "getImmageAvatarFromByteArrayWithKoord",
-                    name_of_exception = "EXC_TOO_MANY_SIZE_OF_OBJECT"
+                    l_function_name = "getImmageAvatarFromByteArray",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Time out is up"
                 )
-            }
-            val fileName = imageData.openAsync().asVfsFile()
-            var image32 = fileName.readBitmap().toBMP32()
-            image32 = image32.copySliceWithSize(x = x, y = y, width = w, height = h)
-            return getImmageAvatarFromBitmap32(image32)
-        }
+                return@async arr
+            }.toPromise(EmptyCoroutineContext)
 
         @JsName("getImmageAvatarFormBitmap32")
         private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
             var bb: ByteArray? = null
             var image32 = imageData
-            val ex = ImageEncodingProps("", 1.0)
+            var x = 0
+            while (x < 1000) {
+                x += 1
+                image32 = image32.mipmap(1)
+                bb = image32.encode(JPEG.JPEG)
+                if (bb.size <= Constants.SEND_AVATAR_SIZE) break
+            }
+            if(bb == null || bb.size > Constants.SEND_AVATAR_SIZE){
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "getImmageAvatarFromBitmap32",
+                    name_of_exception = "EXC_ERROR_CUTE_IMAGE"
+                )
+                return null
+            }
+            return bb
+        }
+
+        /*
+        @JsName("getImmageAvatarFormBitmap32")
+        private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
+            var bb: ByteArray? = null
+            var image32 = imageData
             val sliceSIze = Constants.SEND_AVATAR_SIZE * 1.4
+            val extractedSIze = Constants.SEND_AVATAR_SIZE * 2
             //bb = image32.encode(PNG, ex)
-            bb = image32.encode(PNG)
+            var time = DateTime.nowUnixMillisLong()
+            println("image32.size = ${image32.size}")
+            bb = image32.extractBytes()
+            println("extractBytes(); time - ${DateTime.nowUnixMillisLong() - time}; size = ${bb.size}")
+            time = DateTime.nowUnixMillisLong()
+            //bb = JPEGInfo.encode(bb.openAsync().asVfsFile().readImageData(props = dec))
+            image32.mipmapWithKoef(0.8f)
+            bb = image32.encode(JPEG.JPEG)
+            return bb
+            println("encode; time - ${DateTime.nowUnixMillisLong() - time}; size = ${bb.size}")
             if (bb.size <= Constants.SEND_AVATAR_SIZE) return bb
             else bb = null
             var x = 0
             while (x < 1000) {
                 x += 1
                 image32 = image32.mipmap(1)
-                bb = image32.encode(PNG)
+                println("image32.size = ${image32.size}")
+                //bb = image32.extractBytes()
+                //bb = JPEGInfo.encode(bb.openAsync().asVfsFile().readImageData(props = dec))
+                time = DateTime.nowUnixMillisLong()
+                bb = image32.encode(JPEG.JPEG)
+                println("encode; time - ${DateTime.nowUnixMillisLong() - time}; size = ${bb.size}")
                 if (bb.size <= sliceSIze) break
             }
-            if (bb != null) {
-                if (bb.size <= Constants.SEND_AVATAR_SIZE) return bb
+            if (bb == null) return bb
+            if (bb.size <= Constants.SEND_AVATAR_SIZE) return bb
 
-                val koef = 0.98F
-                val avatar = Constants.SEND_AVATAR_SIZE.toFloat()
-                var im_width = (image32.width * koef).toInt()
-                var im_heigth = (image32.height * koef).toInt()
-                x = 0
-                while (x < 1000) {
-                    x += 1
-                    image32 = image32.copySliceWithSize(
-                        (image32.width - im_width) / 2,
-                        (image32.height - im_heigth) / 2,
-                        im_width,
-                        im_heigth
-                    )
-                    bb = image32.encode(PNG)
-                    if (bb.size <= Constants.SEND_AVATAR_SIZE) break
-                    im_width = (image32.width * koef).toInt()
-                    im_heigth = (image32.height * koef).toInt()
-                }
+            val koef = 0.98F
+            val avatar = Constants.SEND_AVATAR_SIZE.toFloat()
+            var im_width = (image32.width * koef).toInt()
+            var im_heigth = (image32.height * koef).toInt()
+            x = 0
+            while (x < 1000) {
+                x += 1
+                image32 = image32.copySliceWithSize(
+                    (image32.width - im_width) / 2,
+                    (image32.height - im_heigth) / 2,
+                    im_width,
+                    im_heigth
+                )
+                //bb = image32.extractBytes()
+                //bb = JPEGInfo.encode(bb.openAsync().asVfsFile().readImageData(props = dec))
+                time = DateTime.nowUnixMillisLong()
+                bb = image32.encode(JPEG.JPEG)
+                println("encode; time - ${DateTime.nowUnixMillisLong() - time}; size = ${bb.size}")
+                if (bb.size <= Constants.SEND_AVATAR_SIZE) break
+                im_width = (image32.width * koef).toInt()
+                im_heigth = (image32.height * koef).toInt()
+            }
+
+            if (bb != null) {
+                println("bb3.size = ${bb.size}")
             }
             return bb
         }
-
-        /*@JsName("getImmageAvatarFormBitmap32")
-        private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
-            var bb: ByteArray? = null
-            var image32: Bitmap32 = imageData
-            val ex = ImageEncodingProps("",1.0)
-            //bb = image32.encode(PNG, ex)
-            bb = image32.encode(PNG)
-            if (bb.size <= SEND_AVATAR_SIZE) return bb
-            else bb = null
-            var x = 0
-            while (x < 1000 ) {
-                x += 1
-                image32 = image32.mipmap(1)
-                bb = image32.encode(PNG)
-                PrintInformation.PRINT_INFO("bb.size ${bb.size}")
-                if (bb.size <= (SEND_AVATAR_SIZE * 2)) break
-            }
-            if (bb != null) {
-                if (bb.size <= SEND_AVATAR_SIZE) return bb
-
-                val koef = 0.95F
-                val avatar = SEND_AVATAR_SIZE.toFloat()
-                var percent = (bb.size / avatar)
-                var im_width = (image32.width * koef).toInt()
-                var im_heigth = (image32.height * koef).toInt()
-                x = 0
-                while (x < 1000 ) {
-                    x += 1
-                    image32 = image32.copySliceWithSize(
-                        (image32.width - im_width) / 2,
-                        (image32.height - im_heigth) / 2,
-                        im_width,
-                        im_heigth
-                    )
-                    bb = image32.encode(PNG)
-                    PrintInformation.PRINT_INFO("bb.size2 ${bb.size}")
-                    if (bb.size <= SEND_AVATAR_SIZE) break
-                    im_width = (image32.width * koef).toInt()
-                    im_heigth = (image32.height * koef).toInt()
-                }
-            }
-            return bb
-        }*/
-
-        /*@JsName("getImmageAvatarFormBitmap32")
-        private suspend fun getImmageAvatarFormBitmap32(imageData: Bitmap32): ByteArray? {
-            var bb: ByteArray? = null
-            var image32: Bitmap32 = imageData
-            val ex = ImageEncodingProps("",1.0)
-            bb = image32.encode(PNG, ex)
-            if (bb.size <= AVATAR_SIZE) return bb
-            var image16 = Bitmap16(width = image32.width, height = image32.height, format = colorFormat, premultiplied = false)
-            image32.forEach { _, x, y ->
-                image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
-            }
-            image32 = image16.toBMP32()
-            FileServiceScope.launchImmediately {
-                var im_width = image32.width
-                var im_heigth = image32.height
-                var koef: Float
-                val avatar = AVATAR_SIZE.toFloat()
-                var percent = (bb!!.size / avatar)
-                while (true) {
-                    if (bb!!.size <= AVATAR_SIZE) break
-                    percent = (bb!!.size / avatar)
-                    koef = if (percent > 2F) {
-                        1F
-                    } else {
-                        0.99F
-                    }
-                    if (koef == 1F) {
-                        image32 = image32.mipmap(1)
-
-                    } else {
-                        im_width = (im_width * koef).toInt()
-                        im_heigth = (im_heigth * koef).toInt()
-                        image32 = image32.copySliceWithSize(
-                            (image32.width - im_width) / 2,
-                            (image32.height - im_heigth) / 2,
-                            im_width,
-                            im_heigth
-                        )
-
-                    }
-                    im_width = image32.width
-                    im_heigth = image32.height
-                    image16 =
-                        Bitmap16(width = im_width, height = im_heigth, format = colorFormat, premultiplied = false)
-                    image32.forEach { _, x, y ->
-                        image16.setRgba(x = x, y = y, v = image32.getRgba(x = x, y = y))
-                    }
-                    image32 = image16.toBMP32()
-                    bb = image32.encode(PNG, ex)
-                    break
-
-                }
-
-            }.join()
-            return bb
-        }*/
+         */
 
         private fun createFileExtensionFromFullFIleName(LFileFullName: String): String {
 

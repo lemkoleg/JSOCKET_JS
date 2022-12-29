@@ -6,6 +6,7 @@ import com.soywiz.korio.async.Signal
 import com.soywiz.korio.async.await
 import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
+import com.soywiz.korio.file.std.localVfs
 import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
@@ -35,8 +36,17 @@ class SampleTestsJVM {
 
         CoroutineScope(Dispatchers.Default).launchImmediately {
 
-
             var time = DateTime.nowUnixMillisLong()
+
+            var bb = FileService.getImmageAvatarFromFileName("F:\\FotoDebug\\001 (1).jpg").await()
+            var file = localVfs("F:\\FotoDebug\\001_kotlin.jpg")
+            if(bb != null){
+                    file.write(bb)
+                }
+
+
+
+
             var myWebSocketChannel: WebSocketClient? = null
             var signalonOpen: Signal<Unit>?
             /*
@@ -83,7 +93,7 @@ class SampleTestsJVM {
             l.value_par8 = "80951113395"
             //val b = l.serialize(false)
             //System.out.println("b.size: " + b.size)
-            l.execute(null, null).await()
+            //l.execute(null, null).await()
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 
