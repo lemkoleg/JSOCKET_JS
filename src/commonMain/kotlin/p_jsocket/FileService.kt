@@ -626,6 +626,7 @@ class FileService(
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ByteArray? = null
+                println("Constants.SEND_AVATAR_SIZE = ${Constants.SEND_AVATAR_SIZE}")
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {
@@ -779,6 +780,7 @@ class FileService(
                 x += 1
                 image32 = image32.mipmap(1)
                 bb = image32.encode(JPEG.JPEG)
+                println("bb.size = ${bb.size}")
                 if (bb.size <= Constants.SEND_AVATAR_SIZE) break
             }
             if(bb == null || bb.size > Constants.SEND_AVATAR_SIZE){

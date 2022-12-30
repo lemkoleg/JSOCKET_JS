@@ -1081,7 +1081,7 @@ object Sqlite_service : CoroutineScope {
                 statement.TABLE_BIG_AVATARS()
                 statement.INDEX_BIG_AVATARS_LAST_USE()
                 statement.TRIGGER_BIG_AVATARS_CONTROL_COUNT()
-                KBigAvatar.RE_LOAD_BIG_AVATAR_IDS()
+                KBigAvatar.RE_LOAD_BIG_AVATAR_IDS().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1095,7 +1095,7 @@ object Sqlite_service : CoroutineScope {
 
             try {
                 statement.TABLE_COMMANDS()
-                KCommands.RE_LOAD_COMMANDS()
+                KCommands.RE_LOAD_COMMANDS().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1109,7 +1109,7 @@ object Sqlite_service : CoroutineScope {
 
             try {
                 statement.TABLE_EXCEPTION()
-                KExceptions.RE_LOAD_EXCEPTIONS()
+                KExceptions.RE_LOAD_EXCEPTIONS().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1123,7 +1123,7 @@ object Sqlite_service : CoroutineScope {
 
             try {
                 statement.TABLE_METADATA()
-                KMetaData.RE_LOAD_META_DATA()
+                KMetaData.RE_LOAD_META_DATA().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1138,7 +1138,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 statement.TABLE_REGDATA()
                 statement.TRIGGER_REGDATA_INSERT()
-                KRegData.RE_LOAD_REG_DATA()
+                KRegData.RE_LOAD_REG_DATA().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1157,7 +1157,7 @@ object Sqlite_service : CoroutineScope {
                 statement.INDEX_SAVEMEDIA_AVATAR_ID()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_TEMP_COUNT()
                 statement.TRIGGER_SAVEMEDIA_CONTROL_COUNT()
-                KSaveMedia.RE_LOAD_SAVE_MEDIA()
+                KSaveMedia.RE_LOAD_SAVE_MEDIA().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1177,7 +1177,7 @@ object Sqlite_service : CoroutineScope {
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_OBJECTS_INFO_INSERT()
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_CHATS_INSERT()
                 statement.TRIGGER_CASHLASTUPDATE_CONTROL_COUNT_MESS_INSERT()
-                KCashLastUpdate.RE_LOAD_CASH_LAST_UPDATE()
+                KCashLastUpdate.RE_LOAD_CASH_LAST_UPDATE().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
@@ -1196,7 +1196,7 @@ object Sqlite_service : CoroutineScope {
                 statement.TRIGGER_CASHDATA_AFTER_INSERT_OBJECTS_INFO()
                 statement.TRIGGER_CASHDATA_AFTER_UPDATE()
                 KCashData.RE_LOAD_CASH_DATA()
-                KObjectInfo.RE_LOAD_SAVE_OBJECT_INFO_IDS()
+                KObjectInfo.RE_LOAD_SAVE_OBJECT_INFO_IDS().join()
             } catch (e: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",

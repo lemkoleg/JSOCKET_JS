@@ -10,6 +10,7 @@ package p_client
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import JSOCKETDB.AUFDB
+import Tables.KChat.GET_CHATS
 import atomic.AtomicBoolean
 import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -20,6 +21,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
+import p_jsocket.Constants.myConnectionsID
 import p_jsocket.JSOCKET_Instance
 import sql.Sqlite_service
 import sql.db
@@ -85,6 +87,12 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                     }
                     //Sqlite_service.InitializeCommands().join()
                     //Sqlite_service.removeSyncJsocket().join()
+                    GET_CHATS(null)
+                    if(myConnectionsID > 0L){
+                        val j = Jsocket()
+                        j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
+                        j.send_request()
+                    }
                     isInitialised.setNewValue(true)
                 } catch (e: my_user_exceptions_class) {
                     throw e

@@ -214,7 +214,7 @@ object KChat {
         }.toPromise(EmptyCoroutineContext)
 
     @JsName("GET_CHATS")
-    fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
+    fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)?): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
