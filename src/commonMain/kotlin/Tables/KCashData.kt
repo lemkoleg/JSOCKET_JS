@@ -257,6 +257,10 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     )
                                 }
 
+                                if(it.RECORD_TYPE.equals("")){
+                                    globalLastChatsSelect
+                                }
+
                                 if (it.INTEGER_20 <= ORDERED_CASH_DATA.size.plus(1)) {
                                     if (CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
                                         val index = ORDERED_CASH_DATA.indexOf(it).plus(1)

@@ -626,7 +626,6 @@ class FileService(
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ByteArray? = null
-                println("Constants.SEND_AVATAR_SIZE = ${Constants.SEND_AVATAR_SIZE}")
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

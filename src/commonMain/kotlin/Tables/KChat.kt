@@ -184,13 +184,14 @@ object KChat {
                             }
 
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates;")
+                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates;")
                             }
 
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                             socket.just_do_it = 1011000053 // SELECTOR.SELECT_CHATS;
                             socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
                             socket.send_request()
+                            sendedVerifyUpdates = globalLastChatsSelect.value
                         }
                     } catch (e: my_user_exceptions_class) {
                         throw e

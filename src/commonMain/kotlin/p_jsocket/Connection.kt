@@ -100,6 +100,8 @@ object Connection {
     @InternalAPI
     private val ConnectionLock = Mutex()
 
+    private var time: Long = 0L
+
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @ExperimentalTime
@@ -200,16 +202,17 @@ object Connection {
                     }
 
                     try {
+                        time = DateTime.nowUnixMillisLong()
                         MyWebSocketChannel!!.send(b)
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("send size: ${b.size}")
+                            PrintInformation.PRINT_INFO("send size: ${b.size}; command: ${j.just_do_it}")
                         }
                     } catch (ex1: Exception) {
                         setConn()
                         try {
                             MyWebSocketChannel!!.send(b)
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("send size2: ${b.size}")
+                                PrintInformation.PRINT_INFO("send size: ${b.size}; command: ${j.just_do_it}")
                             }
                         } catch (ex1: Exception) {
                             throw my_user_exceptions_class(
@@ -247,6 +250,7 @@ object Connection {
     fun decode(buffer: ByteArray) =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             try {
+                println("time execute request: ${DateTime.nowUnixMillisLong() - time}")
                 try {
                     val buf: ByteReadPacket = ByteReadPacket(buffer)
                     var Request_size: Int
