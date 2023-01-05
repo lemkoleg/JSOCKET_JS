@@ -813,6 +813,7 @@ object Sqlite_service : CoroutineScope {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                        println("cash = $cash , record_id_from = $record_id_from")
                         arr = statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
                             cash,
                             record_id_from
@@ -821,7 +822,7 @@ object Sqlite_service : CoroutineScope {
                     }
                 } ?: throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "SelectCashDataAllOnCashSum",
+                    l_function_name = "SelectCashDataChunkOnCashSum",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = "Time out is up"
                 )
@@ -829,7 +830,7 @@ object Sqlite_service : CoroutineScope {
             } catch (ex: Exception) {
                 throw my_user_exceptions_class(
                     l_class_name = "Sqlite_service",
-                    l_function_name = "SelectCashDataAllOnCashSum",
+                    l_function_name = "SelectCashDataChunkOnCashSum",
                     name_of_exception = "EXC_SYSTEM_ERROR",
                     l_additional_text = ex.stackTraceToString()
                 )
@@ -987,7 +988,11 @@ object Sqlite_service : CoroutineScope {
                             record_table_id_from,
                             limit
                         )
+
                         val c = CASH_LAST_UPDATE[cash_sum]
+                        if(c == null){
+                            println("UpdateCashDataNewLastSelect.cash_sum = $cash_sum")
+                        }
                         c!!.LAST_USE = last_select
                         statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(c)
                     }

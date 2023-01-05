@@ -534,6 +534,7 @@ actual class SQLStatement actual constructor() {
     actual suspend fun SELECT_CASHDATA_ALL(): ArrayDeque<ANSWER_TYPE> {
         val res = cashData.select_CashData_All().execute()
         var arr: ArrayDeque<ANSWER_TYPE> = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
+        val arr_res: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
         while (res.next()) {
             if (arr.isEmpty()) {
                 arr = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
@@ -622,14 +623,15 @@ actual class SQLStatement actual constructor() {
             answer_type.BLOB_1 = res.getBytes(83)
             answer_type.BLOB_2 = res.getBytes(84)
             answer_type.BLOB_3 = res.getBytes(85)
-            arr.add(answer_type)
+            arr_res.addLast(answer_type)
         }
-        return arr
+        return arr_res
     }
 
     actual suspend fun SELECT_CASHDATA_ALL_ON_CASH_SUM(CASH_SUM: String): ArrayDeque<ANSWER_TYPE> {
         val res = cashData.select_CashData_All_ON_CASH_SUM(CASH_SUM).execute()
         var arr: ArrayDeque<ANSWER_TYPE> = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
+        val arr_res: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
         while (res.next()) {
             if (arr.isEmpty()) {
                 arr = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
@@ -718,9 +720,9 @@ actual class SQLStatement actual constructor() {
             answer_type.BLOB_1 = res.getBytes(83)
             answer_type.BLOB_2 = res.getBytes(84)
             answer_type.BLOB_3 = res.getBytes(85)
-            arr.add(answer_type)
+            arr_res.addLast(answer_type)
         }
-        return arr
+        return arr_res
     }
 
     actual suspend fun SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
@@ -729,6 +731,7 @@ actual class SQLStatement actual constructor() {
     ): ArrayDeque<ANSWER_TYPE> {
         val res = cashData.select_CashData_CHUNK_ON_CASH_SUM(CASH_SUM, CASH_SUM, record_id_from).execute()
         var arr: ArrayDeque<ANSWER_TYPE> = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
+        val arr_res: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
         while (res.next()) {
             if (arr.isEmpty()) {
                 arr = ANSWER_TYPE.GetAnswerTypes() ?: ArrayDeque()
@@ -817,9 +820,9 @@ actual class SQLStatement actual constructor() {
             answer_type.BLOB_1 = res.getBytes(84)
             answer_type.BLOB_2 = res.getBytes(85)
             answer_type.BLOB_3 = res.getBytes(86)
-            arr.add(answer_type)
+            arr_res.addLast(answer_type)
         }
-        return arr
+        return arr_res
     }
 
     actual suspend fun SELECT_CASHDATA(CASH_SUM: String, RECORD_TABLE_ID: String): ANSWER_TYPE? {

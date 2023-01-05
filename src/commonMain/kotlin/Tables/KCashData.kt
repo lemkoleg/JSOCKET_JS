@@ -239,6 +239,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     KCashDataLock.withLock {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS")
+                        }
                         val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                         try {
                             arr.forEach {
@@ -255,10 +258,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                             )
                                         }"
                                     )
-                                }
-
-                                if(it.RECORD_TYPE.equals("")){
-                                    globalLastChatsSelect
                                 }
 
                                 if (it.INTEGER_20 <= ORDERED_CASH_DATA.size.plus(1)) {
@@ -345,6 +344,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 try {
                     KCashDataLock.withLock {
 
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("Start KCashData.ADD_NEW_CASH_DATA")
+                        }
 
                         var kCashDataUpdateParameters: KCashDataUpdateParameters? = null
                         val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
@@ -424,7 +426,14 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                             }
                                         }
 
-                                        if (alien_cash_last_update == null) {
+                                        if (alien_cash_last_update == null || alien_cash_last_update!!.CASH_SUM != cash_sum) {
+                                            if (alien_cash_last_update != null) {
+                                                var cc = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
+                                                if (cc == null) {
+                                                    cc = KCashData(alien_cash_last_update!!)
+                                                }
+                                                cc.SET_RECORDS(alien_records!!)
+                                            }
                                             alien_cash_last_update = CASH_LAST_UPDATE[cash_sum]
                                             if (alien_cash_last_update == null) {
                                                 when (it.RECORD_TYPE) {
@@ -452,20 +461,12 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                         )
                                                     }
                                                 }
-                                                CASH_LAST_UPDATE[cash_sum] = alien_cash_last_update!!
                                             }
+                                            CASH_LAST_UPDATE[cash_sum] = alien_cash_last_update!!
                                             alien_records = ArrayDeque()
                                         }
 
-                                        if (alien_cash_last_update!!.CASH_SUM != cash_sum) {
-                                            var cc = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
-                                            if (cc == null) {
-                                                cc = KCashData(alien_cash_last_update!!)
-                                            }
-                                            cc.SET_RECORDS(alien_records!!)
-                                            alien_records = ArrayDeque()
-                                        }
-
+                                        alien_records!!.addLast(it)
                                         kCashDataUpdateParameters.count_of_all_records--
 
                                         return@lit
@@ -560,6 +561,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             if (kCashDataUpdateParameters != null && kCashDataUpdateParameters.count_of_all_records == 0) {
                                 Connection.removeRequest(l_just_do_it_label)
                                 REQUESTS.remove(l_just_do_it_label)
+                                println("ADD NEW CASH start UPDATE_LAST_SELECT")
                                 UPDATE_LAST_SELECT(
                                     lastSelect = kCashDataUpdateParameters.last_update,
                                     object_recod_id_from = kCashDataUpdateParameters.start_record_id
@@ -599,7 +601,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     try {
                         KCashDataLock.withLock {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("Start KCashData.UPDATE_LAST_SELECT")
+                                PrintInformation.PRINT_INFO("Start KCashData.UPDATE_LAST_SELECT, lastSelect = $lastSelect ; object_recod_id_from = $object_recod_id_from ; udpdate_all = $udpdate_all")
                             }
 
                             var index =
@@ -643,6 +645,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                         L_RECORD_TYPE = "8"
                                     )
+                                    println("UPDATE_LAST_SELECT1 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[chats_likes_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -655,6 +658,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_RECORD_TYPE = "9",
                                         L_COURSE = "0"
                                     )
+                                    println("UPDATE_LAST_SELECT2 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[chats_cost_types_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -666,6 +670,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_RECORD_TYPE = "4",
                                         L_COURSE = "1"
                                     )
+                                    println("UPDATE_LAST_SELECT3 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[messeges_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -680,6 +685,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     L_RECORD_TYPE = "R",
                                     L_COURSE = "0"
                                 )
+                                println("UPDATE_LAST_SELECT4 start UPDATE_LAST_SELECT")
                                 CASH_DATAS[notices_last_update]?.UPDATE_LAST_SELECT(
                                     lastSelect = lastSelect,
                                     object_recod_id_from = "",

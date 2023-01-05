@@ -184,7 +184,7 @@ object KChat {
                             }
 
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates;")
+                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates; globalLastChatsSelect.value = ${globalLastChatsSelect.value}")
                             }
 
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
