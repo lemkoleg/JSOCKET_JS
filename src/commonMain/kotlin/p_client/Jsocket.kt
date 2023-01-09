@@ -139,14 +139,14 @@ class Jsocket() : JSOCKET(), OnRequestListener{
 
                     clientExecutor.execute(this@Jsocket)
 
-                } catch (ex: my_user_exceptions_class) {
-                    throw ex
-                } catch (e: Exception) {
+                } catch (e: my_user_exceptions_class) {
+                    throw e
+                } catch (ex: Exception) {
                     throw my_user_exceptions_class(
                         l_class_name = "Jsocket",
                         l_function_name = "execute",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = e.stackTraceToString()
+                        l_additional_text = ex.stackTraceToString()
                     )
 
                 }

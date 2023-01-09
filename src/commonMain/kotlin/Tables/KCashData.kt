@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 package Tables
 
 
@@ -17,6 +19,7 @@ import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Connection
 import p_jsocket.Constants
+import p_jsocket.Constants.Account_Id
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
@@ -153,6 +156,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 )
             }
         }
+        if (!CASH_DATAS.containsKey(CashLastUpdate.CASH_SUM)) {
+            CASH_DATAS[CashLastUpdate.CASH_SUM] = this
+        }
     }
 
     constructor(
@@ -248,7 +254,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                 if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
                                     throw my_user_exceptions_class(
-                                        l_class_name = "KMetaData",
+                                        l_class_name = "KCashData",
                                         l_function_name = "SET_RECORDS",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
                                         l_additional_text = "CashLastUpdate.RECORD_TYPE ${CashLastUpdate.RECORD_TYPE} is not equal adding reord type ${
@@ -260,6 +266,12 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     )
                                 }
 
+                                if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
+                                    if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
+                                        globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                                    }
+                                }
+
                                 if (it.INTEGER_20 <= ORDERED_CASH_DATA.size.plus(1)) {
                                     if (CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
                                         val index = ORDERED_CASH_DATA.indexOf(it).plus(1)
@@ -268,7 +280,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                 l_class_name = "KMetaData",
                                                 l_function_name = "SET_RECORDS",
                                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                                l_additional_text = "ORDERED_CASH_DATA item ${it.INTEGER_20.minus(1)} is null"
+                                                l_additional_text = "ORDERED_CASH_DATA1 item ${it.INTEGER_20.minus(1)} is null"
                                             )
                                         }
 
@@ -413,7 +425,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                             else -> {
                                                 throw my_user_exceptions_class(
-                                                    l_class_name = "KMetaData",
+                                                    l_class_name = "KCashData",
                                                     l_function_name = "ADD_NEW_META_DATA",
                                                     name_of_exception = "EXC_SYSTEM_ERROR",
                                                     l_additional_text = "CashLastUpdate.RECORD_TYPE ${CashLastUpdate.RECORD_TYPE} is not equal adding reord type ${
@@ -473,7 +485,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                     } else {
                                         throw my_user_exceptions_class(
-                                            l_class_name = "KMetaData",
+                                            l_class_name = "KCashData",
                                             l_function_name = "ADD_NEW_META_DATA",
                                             name_of_exception = "EXC_SYSTEM_ERROR",
                                             l_additional_text = "CashLastUpdate.RECORD_TYPE ${CashLastUpdate.RECORD_TYPE} is not equal adding reord type ${
@@ -486,6 +498,12 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     }
                                 }
 
+                                if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
+                                    if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
+                                        globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
+                                    }
+                                }
+
                                 var l = CASH_DATA_RECORDS[it.RECORD_TABLE_ID]
 
                                 if (l != null) {
@@ -493,10 +511,10 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     val index = ORDERED_CASH_DATA.indexOf(l).plus(1)
                                     if (index == 0) {
                                         throw my_user_exceptions_class(
-                                            l_class_name = "KMetaData",
+                                            l_class_name = "KCashData",
                                             l_function_name = "ADD_NEW_META_DATA",
                                             name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "ORDERED_CASH_DATA item ${l.INTEGER_20.minus(1)} is null"
+                                            l_additional_text = "ORDERED_CASH_DATA2 item ${l.INTEGER_20.minus(1)} is null"
                                         )
                                     }
 
@@ -510,15 +528,15 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     }
 
                                 } else {
-                                    if (CashLastUpdate.RECORD_TYPE == "3") {
-                                        SELECT_ALL_DATA_OF_CHAT(it.answerTypeValues.GetChatId())
-                                    }
                                     l = it
                                     CASH_DATA_RECORDS[l.RECORD_TABLE_ID] = l
                                     if (ORDERED_CASH_DATA.size < l.INTEGER_20.minus(1)) {
                                         l.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
                                     }
                                     ORDERED_CASH_DATA.add(l.INTEGER_20.minus(1), l)
+                                    if (CashLastUpdate.RECORD_TYPE == "3") {
+                                        SELECT_ALL_DATA_OF_CHAT(it.answerTypeValues.GetChatId())
+                                    }
                                 }
 
                                 if (l.INTEGER_20 <= count_of_cashing_records) {
@@ -723,7 +741,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 try {
                     KCashDataLock.withLock {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("KCashData.DELETE")
+                            PrintInformation.PRINT_INFO("KCashData.DELETE is run")
                         }
 
                         val cash = CASH_DATA_RECORDS.remove(object_id)
@@ -787,7 +805,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
 
-    fun FetifyFirsBlock() {
+    fun VerifyFirsBlock() {
         Get(l_record_table_id_from = "")
     }
 
@@ -994,6 +1012,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 try {
                     try {
                         KCashDataLock.withLock {
+                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                PrintInformation.PRINT_INFO("KCashData.GetNext is run")
+                            }
                             if (currentJobForGet != null && currentJobForGet!!.isActive) {
                                 currentJobForGet!!.join()
                             }
@@ -1091,79 +1112,102 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     suspend fun SELECT_ALL_DATA_OF_CHAT(chat_id: String) {
 
-        var chats_likes_last_update = KCashLastUpdate(
+        val chats_cash_sum = GetCashSum(
+            L_OBJECT_ID = Account_Id,
+            L_RECORD_TYPE = "3")
+
+        val chats_likes_last_update_sum = GetCashSum(
             L_OBJECT_ID = chat_id,
             L_RECORD_TYPE = "8"
         )
 
-        if (CASH_LAST_UPDATE.containsKey(chats_likes_last_update.CASH_SUM)) {
-            chats_likes_last_update =
-                CASH_LAST_UPDATE[chats_likes_last_update.CASH_SUM]!!
-        }
-
-        val arr_chats_likes: ArrayDeque<ANSWER_TYPE> =
-            Sqlite_service.SelectCashDataAllOnCashSum(chats_likes_last_update.CASH_SUM)
-
-
-        val chats_likes_KCashData = KCashData(
-            L_CashLastUpdate = chats_likes_last_update,
-            arr = arr_chats_likes
+        val chats_likes_last_update = CASH_LAST_UPDATE[chats_likes_last_update_sum] ?: KCashLastUpdate(
+            L_OBJECT_ID = chat_id,
+            L_RECORD_TYPE = "8"
         )
 
-        CASH_DATAS[chats_likes_last_update.CASH_SUM] = chats_likes_KCashData
+        var chats_likes_KCashData = CASH_DATAS[chats_likes_last_update.CASH_SUM]
+        val arr_chats_likes: ArrayDeque<ANSWER_TYPE> =
+            chats_likes_KCashData?.ORDERED_CASH_DATA ?: Sqlite_service.SelectCashDataAllOnCashSum(
+                chats_likes_last_update.CASH_SUM
+            )
 
-        if (arr_chats_likes.isEmpty()) {
-            KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+        if (chats_likes_KCashData == null) {
+            chats_likes_KCashData = KCashData(
+                L_CashLastUpdate = chats_likes_last_update,
+                arr = arr_chats_likes
+            )
         }
 
-        var chats_cost_types_last_update = KCashLastUpdate(
+        if (arr_chats_likes.size != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfAllMembers()) {
+            println("chats_likes: ${arr_chats_likes.size} not equal count of chats likes ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfAllMembers()}")
+            KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+            return
+        }
+
+        globalLastChatsSelect.setGreaterValue(chats_likes_KCashData.CASH_DATA_RECORDS[Account_Id]!!.answerTypeValues.GetRecordLastUpdate())
+
+        val chats_cost_types_last_update_name = GetCashSum(
+            L_OBJECT_ID = chat_id,
+            L_RECORD_TYPE = "9"
+        )
+        val chats_cost_types_last_update = CASH_LAST_UPDATE[chats_cost_types_last_update_name] ?: KCashLastUpdate(
             L_OBJECT_ID = chat_id,
             L_RECORD_TYPE = "9"
         )
 
-        if (CASH_LAST_UPDATE.containsKey(chats_cost_types_last_update.CASH_SUM)) {
-            chats_cost_types_last_update =
-                CASH_LAST_UPDATE[chats_cost_types_last_update.CASH_SUM]!!
+        val chats_cost_types_KCashData = CASH_DATAS[chats_cost_types_last_update.CASH_SUM]
+
+        val arr_chats_cost_types: ArrayDeque<ANSWER_TYPE> =
+            chats_cost_types_KCashData?.ORDERED_CASH_DATA ?: Sqlite_service.SelectCashDataAllOnCashSum(
+                chats_cost_types_last_update.CASH_SUM
+            )
+
+        if (chats_cost_types_KCashData == null) {
+            KCashData(
+                L_CashLastUpdate = chats_cost_types_last_update,
+                arr = arr_chats_cost_types
+            )
         }
 
-        val arr_chats_cost_types_likes: ArrayDeque<ANSWER_TYPE> =
-            Sqlite_service.SelectCashDataAllOnCashSum(chats_cost_types_last_update.CASH_SUM)
-        val chats_cost_types_KCashData = KCashData(
-            L_CashLastUpdate = chats_cost_types_last_update,
-            arr = arr_chats_cost_types_likes
-        )
-
-        CASH_DATAS[chats_cost_types_last_update.CASH_SUM] =
-            chats_cost_types_KCashData
-
-        if (arr_chats_cost_types_likes.isEmpty()) {
+        if (arr_chats_cost_types.size != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfConstsType()) {
+            println("chats_cost_types: ${arr_chats_cost_types.size} not equal count of chats cost types ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfConstsType()}")
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+            return
         }
 
-        var messeges_last_update = KCashLastUpdate(
+        val messeges_last_update_name = GetCashSum(
+            L_OBJECT_ID = chat_id,
+            L_RECORD_TYPE = "4",
+            L_COURSE = "1"
+        )
+        val messeges_last_update = CASH_LAST_UPDATE[messeges_last_update_name] ?: KCashLastUpdate(
             L_OBJECT_ID = chat_id,
             L_RECORD_TYPE = "4",
             L_COURSE = "1"
         )
 
-        if (CASH_LAST_UPDATE.containsKey(messeges_last_update.CASH_SUM)) {
-            messeges_last_update =
-                CASH_LAST_UPDATE[messeges_last_update.CASH_SUM]!!
+        var messeges_KCashData = CASH_DATAS[messeges_last_update.CASH_SUM]
+
+        val arr_messeges: ArrayDeque<ANSWER_TYPE> = messeges_KCashData?.ORDERED_CASH_DATA?:
+            Sqlite_service.SelectCashDataChunkOnCashSum(messeges_last_update.CASH_SUM)
+        if(messeges_KCashData == null){
+            messeges_KCashData = KCashData(
+                L_CashLastUpdate = messeges_last_update,
+                arr = arr_messeges
+            )
         }
 
-        val arr_messeges: ArrayDeque<ANSWER_TYPE> =
-            Sqlite_service.SelectCashDataChunkOnCashSum(messeges_last_update.CASH_SUM)
-        val messeges_KCashData = KCashData(
-            L_CashLastUpdate = messeges_last_update,
-            arr = arr_messeges
-        )
-
-        CASH_DATAS[messeges_last_update.CASH_SUM] = messeges_KCashData
-
-        if (arr_messeges.isEmpty() && CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
-            KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
-        } else {
-            CASH_DATAS[messeges_last_update.CASH_SUM]!!.FetifyFirsBlock()
+        if(CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0){
+           if(arr_messeges.isEmpty()){
+               KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+               return
+           }
+            if(arr_messeges.first().answerTypeValues.GetMessegeId() != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()){
+                println("messegess: ${arr_messeges.size} not equal count of chats mess ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()}")
+                messeges_KCashData.VerifyFirsBlock()
+                return
+            }
         }
     }
 
@@ -1211,10 +1255,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         KCashDatasLock.withLock {
-                            var cash: KCashLastUpdate?
+                            val cash_name: String
+                            val cash: KCashLastUpdate?
                             var minLastSelect = 99999999999999L
                             try {
-                                cash = KCashLastUpdate(
+                                cash_name = GetCashSum(
                                     L_OBJECT_ID = L_OBJECT_ID,
                                     L_RECORD_TYPE = L_RECORD_TYPE,
                                     L_COURSE = L_COURSE,
@@ -1226,9 +1271,17 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     L_OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
                                 )
 
-                                if (CASH_LAST_UPDATE.containsKey(cash.CASH_SUM)) {
-                                    cash = CASH_LAST_UPDATE[cash.CASH_SUM]!!
-                                }
+                                cash = CASH_LAST_UPDATE[cash_name] ?: KCashLastUpdate(
+                                    L_OBJECT_ID = L_OBJECT_ID,
+                                    L_RECORD_TYPE = L_RECORD_TYPE,
+                                    L_COURSE = L_COURSE,
+                                    L_SORT = L_SORT,
+                                    L_LINK_OWNER = L_LINK_OWNER,
+                                    L_MESS_COUNT_FROM = L_MESS_COUNT_FROM,
+                                    L_OTHER_CONDITIONS_1 = L_OTHER_CONDITIONS_1,
+                                    L_OTHER_CONDITIONS_2 = L_OTHER_CONDITIONS_2,
+                                    L_OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
+                                )
 
                                 k = CASH_DATAS[cash.CASH_SUM]
                                 if (k != null) {
@@ -1284,13 +1337,14 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 }
 
                                 k = KCashData(cash)
-                                CASH_DATAS[k!!.CashLastUpdate.CASH_SUM] = k!!
 
                                 val arr: ArrayDeque<ANSWER_TYPE> = if (l_select_all_records) {
                                     Sqlite_service.SelectCashDataAllOnCashSum(k!!.CashLastUpdate.CASH_SUM)
                                 } else {
                                     Sqlite_service.SelectCashDataChunkOnCashSum(k!!.CashLastUpdate.CASH_SUM)
                                 }
+
+
 
                                 if (arr.isNotEmpty()) {
                                     arr.forEach {
@@ -1303,16 +1357,23 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                 l_additional_text = "RECORD_TYPE of CASH_DATA ${it.RECORD_TYPE} not equals RECORD_TYPE by select $L_RECORD_TYPE "
                                             )
                                         }
+
+                                        k!!.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
+
                                         if (it.RECORD_TYPE == "3") { // CHATS;
                                             k!!.SELECT_ALL_DATA_OF_CHAT(it.answerTypeValues.GetChatId())
-                                            if (it.INTEGER_20 == 1) {
-                                                globalLastChatsSelect.setGreaterValue(it.LONG_20)
+                                        }
+
+                                        if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
+                                            if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
+                                                globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                                             }
                                         }
-                                        k!!.CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
                                     }
                                     k!!.ORDERED_CASH_DATA.addAll(arr)
                                 }
+
+
 
                                 if (k!!.CashLastUpdate.RECORD_TYPE == "4") { // MASSEGES;
                                     if (CHATS!!.CASH_DATA_RECORDS[(L_OBJECT_ID + "300")]?.answerTypeValues!!.GetChatsCountNotReadedMess() > 0L) {
@@ -1407,6 +1468,22 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 return@async k!!
             }.toPromise(EmptyCoroutineContext)
 
+        private fun GetCashSum(
+            L_OBJECT_ID: String,
+            L_RECORD_TYPE: String,
+            L_COURSE: String = "0",
+            L_SORT: String = "0",
+            L_LINK_OWNER: String = "",
+            L_MESS_COUNT_FROM: String = "",
+            L_OTHER_CONDITIONS_1: String = "",
+            L_OTHER_CONDITIONS_2: String = "",
+            L_OTHER_CONDITIONS_3: String = ""
+        ): String {
+            return (L_OBJECT_ID + L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
+                    L_MESS_COUNT_FROM + L_OTHER_CONDITIONS_1 + L_OTHER_CONDITIONS_2 + L_OTHER_CONDITIONS_3)
+
+        }
+
         @JsName("LOAD_CASH_DATA")
         suspend fun LOAD_CASH_DATA(arr: ArrayDeque<ANSWER_TYPE>) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -1420,9 +1497,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             }
                             arr.forEach {
                                 if (v == null || v!!.CashLastUpdate.CASH_SUM != it.CASH_SUM) {
+                                    /*
                                     if (v != null) {
                                         CASH_DATAS[v!!.CashLastUpdate.CASH_SUM] = v!!
                                     }
+                                     */
                                     val k = CASH_LAST_UPDATE[it.CASH_SUM]
                                     v = KCashData(k!!)
                                 }
@@ -1435,9 +1514,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 }
                             }
 
+                            /*
                             if (v != null) {
                                 CASH_DATAS[v!!.CashLastUpdate.CASH_SUM] = v!!
                             }
+                             */
                         }
                     } catch (e: my_user_exceptions_class) {
                         throw e

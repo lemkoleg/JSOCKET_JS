@@ -12,6 +12,7 @@ import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
 import atomic.lockedRemove
+import atomic.AtomicLong
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.*
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -40,6 +41,11 @@ private const val MIN_SIZE_OF_REQUEST: Int = 17
 @KorioExperimentalApi
 @JsName("BetweenJSOCKETs")
 private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
+
+@InternalAPI
+@ExperimentalTime
+@KorioExperimentalApi
+private val LastReSendRequestProfile: AtomicLong = AtomicLong(DateTime.nowUnixMillisLong())
 
 
 @InternalAPI
@@ -201,8 +207,13 @@ object Connection {
                         delay(Constants.TIME_SPAN_FOR_LOOP)
                     }
 
+                    if(j.just_do_it == 1011000068  // RE_SEND_REQUEST_PROFILE;
+                        || j.just_do_it == 1011000053 // SELECTOR.SELECT_CHATS;
+                        ){
+                        LastReSendRequestProfile.setGreaterValue(DateTime.nowUnixMillisLong())
+                    }
+
                     try {
-                        time = DateTime.nowUnixMillisLong()
                         MyWebSocketChannel!!.send(b)
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                             PrintInformation.PRINT_INFO("send size: ${b.size}; command: ${j.just_do_it}")
@@ -250,7 +261,6 @@ object Connection {
     fun decode(buffer: ByteArray) =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             try {
-                println("time execute request: ${DateTime.nowUnixMillisLong() - time}")
                 try {
                     val buf: ByteReadPacket = ByteReadPacket(buffer)
                     var Request_size: Int
@@ -435,6 +445,14 @@ object Connection {
     suspend fun removeOldAll() {
         try {
             try {
+
+                if(Constants.RE_SEND_REQUEST_PROFILE_BY_TIMEOUT == 1){
+                    if(LastReSendRequestProfile.value < (DateTime.nowUnixMillisLong() - Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES)){
+                        val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
+                        socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
+                        socket.send_request(await_answer = false)
+                    }
+                }
 
                 LastTimeCleanOutJSOCKETs = nowNano() - Constants.TIME_OUT_FOR_CLIENT_JSOCKETS
 

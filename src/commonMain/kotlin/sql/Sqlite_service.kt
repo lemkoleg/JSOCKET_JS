@@ -813,7 +813,6 @@ object Sqlite_service : CoroutineScope {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
-                        println("cash = $cash , record_id_from = $record_id_from")
                         arr = statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
                             cash,
                             record_id_from
@@ -992,8 +991,9 @@ object Sqlite_service : CoroutineScope {
                         val c = CASH_LAST_UPDATE[cash_sum]
                         if(c == null){
                             println("UpdateCashDataNewLastSelect.cash_sum = $cash_sum")
+                            return@withTimeoutOrNull
                         }
-                        c!!.LAST_USE = last_select
+                        c.LAST_USE = last_select
                         statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(c)
                     }
                 } ?: throw my_user_exceptions_class(

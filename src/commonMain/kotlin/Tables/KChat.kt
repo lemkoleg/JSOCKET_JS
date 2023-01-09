@@ -96,7 +96,7 @@ object KChat {
                             if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
                                 if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixMillisLong()) {
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat ID: $cats_id; Chat name: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                     }
                                     return@withTimeoutOrNull
 
@@ -104,18 +104,18 @@ object KChat {
                                     sendedlSelectAllDataOfChat[cats_id] =
                                         DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat ID: $cats_id; Chat name: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                     }
                                 }
                             } else {
                                 sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
 
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                    PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat ID: $cats_id; Chat name: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                                 }
                             }
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Start new request; Chat: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Start new request; Chat ID: $cats_id; Chat name: ${CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues?.GetObjectName?.let { it() }}")
                             }
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                             socket.value_id5 = cats_id
@@ -303,4 +303,5 @@ object KChat {
             l_additional_text = "Time out is up"
         )
     }
+
 }

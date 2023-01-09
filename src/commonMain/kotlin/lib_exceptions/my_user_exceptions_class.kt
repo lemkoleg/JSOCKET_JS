@@ -38,7 +38,7 @@ class my_user_exceptions_class : exception_names, Exception {
 
     override val exception_status: String
 
-    val exception_full_text: String
+    var exception_full_text: String = ""
 
     val date_of_exception: String
 
@@ -59,7 +59,7 @@ class my_user_exceptions_class : exception_names, Exception {
         l_function_name: String,
         name_of_exception: String,
         l_additional_text: String? = ""
-    ) : super() {
+    ) : super("l_class_name: $l_class_name; l_function_name: $l_function_name; name_of_exception: $name_of_exception; l_additional_text: $l_additional_text;") {
         class_name = l_class_name
         function_name = l_function_name
         exception_name = name_of_exception
@@ -89,6 +89,26 @@ class my_user_exceptions_class : exception_names, Exception {
 
     }
 
+    constructor (
+        ex: my_user_exceptions_class
+    ) : super() {
+        class_name = ex.class_name
+
+        function_name = ex.function_name
+
+        exception_name = ex.exception_name
+
+        exception_text = ex.exception_text
+
+        exception_status = ex.exception_status
+
+        exception_full_text = ex.exception_full_text
+
+        date_of_exception = ex.date_of_exception
+
+    }
+
+
     fun ExceptionHand(jsocket: JSOCKET?) {
 
         if (Constants.FIX_INTO_SCREEN_ERRORS == 1 || Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
@@ -99,7 +119,7 @@ class my_user_exceptions_class : exception_names, Exception {
             "2", "4" -> WriteExceptionIntoFile(date_of_exception , exception_full_text)
 
             "3" -> if (jsocket != null) {
-                jsocket.just_do_it_successfull = "9";
+                jsocket.just_do_it_successfull = "9"
                 jsocket.db_massage =
                     if (Constants.FIX_INTO_DB_MESSEGE_FULL_ERRORS_NAME == 1) exception_full_text else exception_text
                         ?: "null"

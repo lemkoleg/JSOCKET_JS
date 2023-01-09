@@ -345,8 +345,14 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetChatsCountOfMembers")
     var GetChatsCountOfMembers: () -> Int = { getEMPTY_INTEGER() }
 
+    @JsName("GetChatsCountOfAllMembers")
+    var GetChatsCountOfAllMembers: () -> Int = { getEMPTY_INTEGER() }
+
+    @JsName("GetChatsCountOfConstsTypes")
+    var GetChatsCountOfConstsType: () -> Int = { getEMPTY_INTEGER() }
+
     @JsName("GetChatsBalance")
-    var GetChatsBalance: () -> Int = { getEMPTY_INTEGER() }
+    var GetChatsBalance: () -> Long = { getEMPTY_LONG() }
 
     @JsName("GetFirstMessegeStartText")
     var GetFirstMessegeStartText: () -> String = { getEMPTY_STRING() }
@@ -423,7 +429,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetRecordLastUpdate = { getLONG_7() }
                 GetChatsLastMessegeAdding = { getLONG_8() }
                 GetChatsCountOfMembers = { getINTEGER_5() }
-                GetChatsBalance = { getINTEGER_6() }
+                GetChatsCountOfAllMembers = { getINTEGER_6() }
+                GetChatsCountOfConstsType = { getINTEGER_7() }
+                GetChatsBalance = { getLONG_9() }
 
                 if (GetObjectType() == "0") {  // CHAT_IS_CHAT;
                     if (GetMainAccountId() == Constants.Account_Id) {
@@ -998,7 +1006,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "initValues",
                     name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "Record not defined"
+                    l_additional_text = "Record not defined: ${answerType.RECORD_TYPE}"
                 )
             }
         }

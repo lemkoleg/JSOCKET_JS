@@ -1448,7 +1448,7 @@ open class JSOCKET() {
                                         L_COURSE = "1"
                                     )
                                 }
-                                "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
+                                "8", "9", "N" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
                                     cash_sum = GetCashSum(
                                         L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
                                         L_RECORD_TYPE = answer_type.RECORD_TYPE,
@@ -1485,9 +1485,9 @@ open class JSOCKET() {
                                             )
                                         }
                                     }
-                                    CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
+                                    //CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
                                 }
-                                cc = KCashData(kc)
+                                cc = KCashData(kc!!)
                             }
                             cc.SET_RECORDS(arr)
 
@@ -1626,9 +1626,9 @@ open class JSOCKET() {
                                     )
                                 }
                             }
-                            CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
+                            //CASH_LAST_UPDATE[kc!!.CASH_SUM] = kc
                         }
-                        cc = KCashData(kc)
+                        cc = KCashData(kc!!)
                     }
                     promise = cc.SET_RECORDS(arr)
                 } else {
@@ -1686,7 +1686,7 @@ open class JSOCKET() {
             )
         } finally {
             if (currentCommand!!.commands_access == "B") {
-                if (currentCashData == null) {
+                if (currentCashData == null && just_do_it_successfull.equals("0")) {
                     if (currentCommand!!.commands_id != 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
                         currentCashData = CASH_DATAS[this.check_sum]
 

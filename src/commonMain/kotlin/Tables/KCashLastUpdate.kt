@@ -64,6 +64,9 @@ class KCashLastUpdate(
         OTHER_CONDITIONS_2 = L_OTHER_CONDITIONS_2,
         OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
     ) {
+        if(!CASH_LAST_UPDATE.containsKey(CASH_SUM)){
+            CASH_LAST_UPDATE[CASH_SUM] = this
+        }
     }
 
     init {
@@ -112,9 +115,11 @@ class KCashLastUpdate(
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                 PrintInformation.PRINT_INFO("LOAD_CASH_LAST_UPDATE is running")
                             }
+                            /*
                             arr.forEach {
                                 CASH_LAST_UPDATE[it.CASH_SUM] = it
                             }
+                             */
                         }
                     } catch (e: my_user_exceptions_class) {
                         throw e
