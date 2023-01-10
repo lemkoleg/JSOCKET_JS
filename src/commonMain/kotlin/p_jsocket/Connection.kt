@@ -343,7 +343,9 @@ object Connection {
                                     when (jsocketRet.just_do_it) {
 
                                         1011000086 -> {  // new messeges, notices;
-                                            KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                            if(jsocketRet.last_messege_update > globalLastChatsSelect.value){
+                                                KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                            }
                                         }
 
                                         1011000058 -> {
@@ -365,7 +367,7 @@ object Connection {
 
                                             try {
 
-                                                if (jsocketRet.last_messege_update > jsocket.last_messege_update) {
+                                                if (jsocketRet.last_messege_update > globalLastChatsSelect.value) {
                                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                                 }
 
@@ -407,7 +409,9 @@ object Connection {
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                         )
                                     } else {
-                                        KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                        if(jsocketRet.last_messege_update > globalLastChatsSelect.value){
+                                            KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                        }
                                     }
 
                                 }

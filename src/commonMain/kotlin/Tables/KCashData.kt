@@ -246,13 +246,14 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                 try {
                     KCashDataLock.withLock {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS")
+                            PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS; arr.size = ${arr.size}")
                         }
                         val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                         try {
                             arr.forEach {
 
                                 if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
+                                    println("it.RECORD_TYPE = ${it.RECORD_TYPE} ; CashLastUpdate.RECORD_TYPE = ${CashLastUpdate.RECORD_TYPE}")
                                     throw my_user_exceptions_class(
                                         l_class_name = "KCashData",
                                         l_function_name = "SET_RECORDS",
@@ -266,35 +267,42 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     )
                                 }
 
+
                                 if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
                                     if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
                                         globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                                     }
                                 }
 
-                                if (it.INTEGER_20 <= ORDERED_CASH_DATA.size.plus(1)) {
-                                    if (CASH_DATA_RECORDS.containsKey(it.RECORD_TABLE_ID)) {
-                                        val index = ORDERED_CASH_DATA.indexOf(it).plus(1)
-                                        if (index == 0) {
-                                            throw my_user_exceptions_class(
-                                                l_class_name = "KMetaData",
-                                                l_function_name = "SET_RECORDS",
-                                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                                l_additional_text = "ORDERED_CASH_DATA1 item ${it.INTEGER_20.minus(1)} is null"
-                                            )
-                                        }
+                                var t = CASH_DATA_RECORDS[it.RECORD_TABLE_ID]
 
-                                        if (index != it.INTEGER_20) {
-                                            ORDERED_CASH_DATA.remove(it)
-                                            if (ORDERED_CASH_DATA.size < it.INTEGER_20.minus(1)) {
-                                                it.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
-                                            }
-                                            ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
-                                        }
-                                    } else {
-                                        CASH_DATA_RECORDS[it.RECORD_TABLE_ID] = it
-                                        ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
+                                if(t != null){
+                                    t.merge(it)
+                                    val index = ORDERED_CASH_DATA.indexOf(t).plus(1)
+                                    if (index == 0) {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "KMetaData",
+                                            l_function_name = "SET_RECORDS",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "ORDERED_CASH_DATA1 item ${it.INTEGER_20.minus(1)} is null"
+                                        )
                                     }
+
+                                    if (index != t.INTEGER_20) {
+                                        ORDERED_CASH_DATA.remove(t)
+                                        if (ORDERED_CASH_DATA.size < t.INTEGER_20.minus(1)) {
+                                            t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                                        }
+                                        ORDERED_CASH_DATA.add(t.INTEGER_20.minus(1), t)
+                                    }
+
+                                }else{
+                                    t = it
+                                    CASH_DATA_RECORDS[t.RECORD_TABLE_ID] = t
+                                    if (ORDERED_CASH_DATA.size.plus(1) < it.INTEGER_20) {
+                                        t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                                    }
+                                    ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
                                 }
 
                                 it.IS_UPDATED_BY_MERGE = true
@@ -302,9 +310,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 if (it.INTEGER_20 <= count_of_cashing_records) {
                                     chenged_records.addLast(it)
                                 }
-                                return@withTimeoutOrNull true
+                                println("chenged_records.size = ${chenged_records.size}; count_of_cashing_records = $count_of_cashing_records")
                             }
-
+                           return@withTimeoutOrNull true
                         } catch (e: my_user_exceptions_class) {
                             throw e
                         } catch (ex: Exception) {
