@@ -1440,18 +1440,18 @@ open class JSOCKET() {
 
                         if (currentCommand!!.commands_id == 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
                             var cash_sum: String
-                            when (answer_type.RECORD_TYPE) {
+                            when (record_type) {
                                 "4" -> {  // MESSEGES;
                                     cash_sum = GetCashSum(
                                         L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
-                                        L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                        L_RECORD_TYPE = record_type,
                                         L_COURSE = "1"
                                     )
                                 }
                                 "8", "9", "N" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
                                     cash_sum = GetCashSum(
                                         L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
-                                        L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                        L_RECORD_TYPE = record_type,
                                         L_COURSE = "0"
                                     )
                                 }
@@ -1460,7 +1460,7 @@ open class JSOCKET() {
                                         l_class_name = "JSOCKET",
                                         l_function_name = "deserialize_ANSWERS_TYPES",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "RECORD_TYPE ${answer_type.RECORD_TYPE} not defined"
+                                        l_additional_text = "RECORD_TYPE ${record_type} not defined"
                                     )
                                 }
                             }
@@ -1469,18 +1469,18 @@ open class JSOCKET() {
                             if (cc == null) {
                                 var kc: KCashLastUpdate? = CASH_LAST_UPDATE[cash_sum]
                                 if(kc == null){
-                                    when (answer_type.RECORD_TYPE) {
+                                    when (record_type) {
                                         "4" -> {  // MESSEGES;
                                             kc = KCashLastUpdate(
                                                 L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
-                                                L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                                L_RECORD_TYPE = record_type,
                                                 L_COURSE = "1"
                                             )
                                         }
                                         "8", "9" -> {  // CHATS_LIKES, CHATS_COST_TYPES, NOTICES;
                                             kc = KCashLastUpdate(
                                                 L_OBJECT_ID = answer_type.answerTypeValues.GetChatId(),
-                                                L_RECORD_TYPE = answer_type.RECORD_TYPE,
+                                                L_RECORD_TYPE = record_type,
                                                 L_COURSE = "0"
                                             )
                                         }
@@ -1489,6 +1489,7 @@ open class JSOCKET() {
                                 }
                                 cc = KCashData(kc!!)
                             }
+                            println("cc.CashLastUpdate.RECORD_TYPE = ${cc.CashLastUpdate.RECORD_TYPE}")
                             cc.SET_RECORDS(arr)
 
                             record_type = answer_type.RECORD_TYPE
@@ -1537,7 +1538,7 @@ open class JSOCKET() {
                     }else{    // delete chat;
                         if(answer_type.RECORD_TYPE == "8" &&
                             answer_type.answerTypeValues.GetMainAccountId() == Constants.Account_Id &&
-                            answer_type.answerTypeValues.GetDateDelete() > 0
+                            answer_type.answerTypeValues.GetChatsLikesLastMessegeAdding().equals(0L)
                         ){  // if deleted chat
                              KChat.DELETE_CHATS(answer_type.answerTypeValues.GetChatId())
                             continue
@@ -1630,7 +1631,7 @@ open class JSOCKET() {
                         }
                         cc = KCashData(kc!!)
                     }
-                    promise = cc.SET_RECORDS(arr)
+                    cc.SET_RECORDS(arr)
                 } else {
                     promise = when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
@@ -1668,10 +1669,6 @@ open class JSOCKET() {
                         }
                     }
                 }
-            }
-
-            if(promise == null){
-                println("promise == null")
             }
             promise?.await()
 

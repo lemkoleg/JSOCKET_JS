@@ -240,113 +240,93 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
     @JsName("SET_RECORDS")
-    fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
-            withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-                try {
-                    KCashDataLock.withLock {
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS; arr.size = ${arr.size}")
-                        }
-                        val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-                        try {
-                            arr.forEach {
+    suspend fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>) {
+        KCashDataLock.withLock {
+            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS; arr.size = ${arr.size}")
+            }
+            val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
+            try {
+                arr.forEach {
 
-                                if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
-                                    println("it.RECORD_TYPE = ${it.RECORD_TYPE} ; CashLastUpdate.RECORD_TYPE = ${CashLastUpdate.RECORD_TYPE}")
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "KCashData",
-                                        l_function_name = "SET_RECORDS",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "CashLastUpdate.RECORD_TYPE ${CashLastUpdate.RECORD_TYPE} is not equal adding reord type ${
-                                            it.STRING_20.substring(
-                                                7,
-                                                8
-                                            )
-                                        }"
-                                    )
-                                }
+                    if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
+                        println("it.RECORD_TYPE = ${it.RECORD_TYPE} ; CashLastUpdate.RECORD_TYPE = ${CashLastUpdate.RECORD_TYPE}")
+                        throw my_user_exceptions_class(
+                            l_class_name = "KCashData",
+                            l_function_name = "SET_RECORDS",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "CashLastUpdate.RECORD_TYPE ${CashLastUpdate.RECORD_TYPE} is not equal adding reord type ${
+                                it.STRING_20.substring(
+                                    7,
+                                    8
+                                )
+                            }"
+                        )
+                    }
 
 
-                                if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
-                                    if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
-                                        globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
-                                    }
-                                }
-
-                                var t = CASH_DATA_RECORDS[it.RECORD_TABLE_ID]
-
-                                if(t != null){
-                                    t.merge(it)
-                                    val index = ORDERED_CASH_DATA.indexOf(t).plus(1)
-                                    if (index == 0) {
-                                        throw my_user_exceptions_class(
-                                            l_class_name = "KMetaData",
-                                            l_function_name = "SET_RECORDS",
-                                            name_of_exception = "EXC_SYSTEM_ERROR",
-                                            l_additional_text = "ORDERED_CASH_DATA1 item ${it.INTEGER_20.minus(1)} is null"
-                                        )
-                                    }
-
-                                    if (index != t.INTEGER_20) {
-                                        ORDERED_CASH_DATA.remove(t)
-                                        if (ORDERED_CASH_DATA.size < t.INTEGER_20.minus(1)) {
-                                            t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
-                                        }
-                                        ORDERED_CASH_DATA.add(t.INTEGER_20.minus(1), t)
-                                    }
-
-                                }else{
-                                    t = it
-                                    CASH_DATA_RECORDS[t.RECORD_TABLE_ID] = t
-                                    if (ORDERED_CASH_DATA.size.plus(1) < it.INTEGER_20) {
-                                        t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
-                                    }
-                                    ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
-                                }
-
-                                it.IS_UPDATED_BY_MERGE = true
-
-                                if (it.INTEGER_20 <= count_of_cashing_records) {
-                                    chenged_records.addLast(it)
-                                }
-                                println("chenged_records.size = ${chenged_records.size}; count_of_cashing_records = $count_of_cashing_records")
-                            }
-                           return@withTimeoutOrNull true
-                        } catch (e: my_user_exceptions_class) {
-                            throw e
-                        } catch (ex: Exception) {
-                            throw my_user_exceptions_class(
-                                l_class_name = "KCashData",
-                                l_function_name = "SET_RECORDS",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = ex.stackTraceToString()
-                            )
-                        } finally {
-                            if (chenged_records.isNotEmpty()) {
-                                Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
-                                CashLastUpdate.INSERT_CASH_LASTUPDATE()
-                            }
+                    if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
+                        if (it.answerTypeValues.GetMainAccountId().equals(Account_Id)) {
+                            globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                         }
                     }
-                } catch (ex: Exception) {
-                    throw my_user_exceptions_class(
-                        l_class_name = "KCashData",
-                        l_function_name = "SET_RECORDS",
-                        name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = ex.stackTraceToString()
-                    )
-                } catch (e: my_user_exceptions_class) {
-                    e.ExceptionHand(null)
+
+                    var t = CASH_DATA_RECORDS[it.RECORD_TABLE_ID]
+
+                    if (t != null) {
+                        t.merge(it)
+                        val index = ORDERED_CASH_DATA.indexOf(t).plus(1)
+                        if (index == 0) {
+                            throw my_user_exceptions_class(
+                                l_class_name = "KMetaData",
+                                l_function_name = "SET_RECORDS",
+                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                l_additional_text = "ORDERED_CASH_DATA1 item ${it.INTEGER_20.minus(1)} is null"
+                            )
+                        }
+
+                        if (index != t.INTEGER_20) {
+                            ORDERED_CASH_DATA.remove(t)
+                            if (ORDERED_CASH_DATA.size < t.INTEGER_20.minus(1)) {
+                                t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                            }
+                            ORDERED_CASH_DATA.add(t.INTEGER_20.minus(1), t)
+                        }
+
+                    } else {
+                        t = it
+                        CASH_DATA_RECORDS[t.RECORD_TABLE_ID] = t
+                        if (ORDERED_CASH_DATA.size.plus(1) < it.INTEGER_20) {
+                            t.INTEGER_20 = ORDERED_CASH_DATA.size.plus(1)
+                        }
+                        ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
+                    }
+
+                    it.IS_UPDATED_BY_MERGE = true
+
+                    if (it.INTEGER_20 <= count_of_cashing_records) {
+                        chenged_records.addLast(it)
+                    }
+                    println("chenged_records.size = ${chenged_records.size}; count_of_cashing_records = $count_of_cashing_records")
+
+                    if (chenged_records.isNotEmpty()) {
+                        Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
+                        CashLastUpdate.INSERT_CASH_LASTUPDATE()
+                    }
                 }
-                return@withTimeoutOrNull false
-            } ?: throw my_user_exceptions_class(
-                l_class_name = "KCashData",
-                l_function_name = "SET_RECORDS",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "Time out is up"
-            )
-        }.toPromise(EmptyCoroutineContext)
+            } catch (e: my_user_exceptions_class) {
+                throw e
+            } catch (ex: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "KCashData",
+                    l_function_name = "SET_RECORDS",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = ex.stackTraceToString()
+                )
+            }
+        }
+    }
+
 
     @JsName("ADD_NEW_CASH_DATA")
     fun ADD_NEW_CASH_DATA(
@@ -507,7 +487,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 }
 
                                 if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
-                                    if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
+                                    if (it.answerTypeValues.GetMainAccountId().equals(Account_Id)) {
                                         globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                                     }
                                 }
@@ -557,8 +537,10 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             }
                             return@withTimeoutOrNull true
                         } catch (e: my_user_exceptions_class) {
+                            kCashDataUpdateParameters?.have_errors = true
                             throw e
                         } catch (ex: Exception) {
+                            kCashDataUpdateParameters?.have_errors = true
                             throw my_user_exceptions_class(
                                 l_class_name = "KCashData",
                                 l_function_name = "ADD_NEW_CASH_DATA",
@@ -587,11 +569,13 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             if (kCashDataUpdateParameters != null && kCashDataUpdateParameters.count_of_all_records == 0) {
                                 Connection.removeRequest(l_just_do_it_label)
                                 REQUESTS.remove(l_just_do_it_label)
-                                println("ADD NEW CASH start UPDATE_LAST_SELECT")
-                                UPDATE_LAST_SELECT(
-                                    lastSelect = kCashDataUpdateParameters.last_update,
-                                    object_recod_id_from = kCashDataUpdateParameters.start_record_id
-                                )
+                                if (!kCashDataUpdateParameters.have_errors) {
+                                    println("ADD NEW CASH start UPDATE_LAST_SELECT")
+                                    UPDATE_LAST_SELECT(
+                                        lastSelect = kCashDataUpdateParameters.last_update,
+                                        object_recod_id_from = kCashDataUpdateParameters.start_record_id
+                                    )
+                                }
                             }
                         }
                     }
@@ -1122,7 +1106,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         val chats_cash_sum = GetCashSum(
             L_OBJECT_ID = Account_Id,
-            L_RECORD_TYPE = "3")
+            L_RECORD_TYPE = "3"
+        )
 
         val chats_likes_last_update_sum = GetCashSum(
             L_OBJECT_ID = chat_id,
@@ -1197,21 +1182,21 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         var messeges_KCashData = CASH_DATAS[messeges_last_update.CASH_SUM]
 
-        val arr_messeges: ArrayDeque<ANSWER_TYPE> = messeges_KCashData?.ORDERED_CASH_DATA?:
-            Sqlite_service.SelectCashDataChunkOnCashSum(messeges_last_update.CASH_SUM)
-        if(messeges_KCashData == null){
+        val arr_messeges: ArrayDeque<ANSWER_TYPE> = messeges_KCashData?.ORDERED_CASH_DATA
+            ?: Sqlite_service.SelectCashDataChunkOnCashSum(messeges_last_update.CASH_SUM)
+        if (messeges_KCashData == null) {
             messeges_KCashData = KCashData(
                 L_CashLastUpdate = messeges_last_update,
                 arr = arr_messeges
             )
         }
 
-        if(CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0){
-           if(arr_messeges.isEmpty()){
-               KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
-               return
-           }
-            if(arr_messeges.first().answerTypeValues.GetMessegeId() != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()){
+        if (CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
+            if (arr_messeges.isEmpty()) {
+                KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
+                return
+            }
+            if (arr_messeges.first().answerTypeValues.GetMessegeId() != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()) {
                 println("messegess: ${arr_messeges.size} not equal count of chats mess ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()}")
                 messeges_KCashData.VerifyFirsBlock()
                 return
@@ -1373,7 +1358,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         }
 
                                         if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
-                                            if(it.answerTypeValues.GetMainAccountId().equals(Account_Id)){
+                                            if (it.answerTypeValues.GetMainAccountId().equals(Account_Id)) {
                                                 globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
                                             }
                                         }

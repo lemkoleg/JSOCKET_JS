@@ -16,4 +16,5 @@ class KCashDataUpdateParameters(
 ) {
     val time_out = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
     var start_record_id = ""
+    var have_errors = false
 }
