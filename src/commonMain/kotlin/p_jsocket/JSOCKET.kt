@@ -796,9 +796,6 @@ open class JSOCKET() {
         if (this.value_par9.isEmpty()) {
             this.value_par9 = myJsocketClass.value_par9
         }
-
-        this.request_profile = myJsocketClass.request_profile
-        this.last_date_of_update = myJsocketClass.last_date_of_update
         this.check_sum = myJsocketClass.check_sum
     }
 
@@ -1455,6 +1452,13 @@ open class JSOCKET() {
                                         L_COURSE = "0"
                                     )
                                 }
+                                "3" -> {  // CHATS;
+                                    cash_sum = GetCashSum(
+                                        L_OBJECT_ID = Constants.Account_Id,
+                                        L_RECORD_TYPE = record_type,
+                                        L_COURSE = "0"
+                                    )
+                                }
                                 else -> {
                                     throw my_user_exceptions_class(
                                         l_class_name = "JSOCKET",
@@ -1489,7 +1493,6 @@ open class JSOCKET() {
                                 }
                                 cc = KCashData(kc!!)
                             }
-                            println("cc.CashLastUpdate.RECORD_TYPE = ${cc.CashLastUpdate.RECORD_TYPE}")
                             cc.SET_RECORDS(arr)
 
                             record_type = answer_type.RECORD_TYPE
@@ -1597,6 +1600,13 @@ open class JSOCKET() {
                                 L_COURSE = "0"
                             )
                         }
+                        "3" -> {  // CHATS;
+                            cash_sum = GetCashSum(
+                                L_OBJECT_ID = Constants.Account_Id,
+                                L_RECORD_TYPE = arr.last().RECORD_TYPE,
+                                L_COURSE = "0"
+                            )
+                        }
                         else -> {
                             throw my_user_exceptions_class(
                                 l_class_name = "JSOCKET",
@@ -1683,7 +1693,9 @@ open class JSOCKET() {
             )
         } finally {
             if (currentCommand!!.commands_access == "B") {
-                if (currentCashData == null && just_do_it_successfull.equals("0")) {
+                if (currentCashData == null
+                    && just_do_it_successfull.equals("0")
+                    && value_par7.equals("1")) {  // number of block;
                     if (currentCommand!!.commands_id != 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
                         currentCashData = CASH_DATAS[this.check_sum]
 

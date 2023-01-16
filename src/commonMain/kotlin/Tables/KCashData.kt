@@ -242,15 +242,18 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     @JsName("SET_RECORDS")
     suspend fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>) {
         KCashDataLock.withLock {
+
+            if(arr.isEmpty()){
+                return@withLock
+            }
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS; arr.size = ${arr.size}")
+                PrintInformation.PRINT_INFO("Start KCashData.SET_RECORDS; ${CashLastUpdate.CASH_SUM}")
             }
             val chenged_records: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             try {
                 arr.forEach {
 
                     if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
-                        println("it.RECORD_TYPE = ${it.RECORD_TYPE} ; CashLastUpdate.RECORD_TYPE = ${CashLastUpdate.RECORD_TYPE}")
                         throw my_user_exceptions_class(
                             l_class_name = "KCashData",
                             l_function_name = "SET_RECORDS",
@@ -307,7 +310,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     if (it.INTEGER_20 <= count_of_cashing_records) {
                         chenged_records.addLast(it)
                     }
-                    println("chenged_records.size = ${chenged_records.size}; count_of_cashing_records = $count_of_cashing_records")
 
                     if (chenged_records.isNotEmpty()) {
                         Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
@@ -345,7 +347,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     KCashDataLock.withLock {
 
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("Start KCashData.ADD_NEW_CASH_DATA")
+                            PrintInformation.PRINT_INFO("Start KCashData.ADD_NEW_CASH_DATA; l_last_select = $l_last_select")
                         }
 
                         var kCashDataUpdateParameters: KCashDataUpdateParameters? = null
@@ -357,7 +359,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             kCashDataUpdateParameters = REQUESTS[l_just_do_it_label]
                             if (kCashDataUpdateParameters == null) {
                                 kCashDataUpdateParameters = KCashDataUpdateParameters(
-                                    last_update = l_last_select,
                                     limit = l_limit.toInt(),
                                     count_of_all_records = l_count_of_all_records.toInt()
                                 )
@@ -365,6 +366,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             }
 
                             if (l_number_of_block == "1") {
+                                kCashDataUpdateParameters.last_update = l_last_select
                                 when (CashLastUpdate.RECORD_TYPE) {
                                     "4", "M" //MESSEGES
                                     -> {
@@ -486,6 +488,15 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     }
                                 }
 
+                                if (alien_cash_last_update != null && alien_records != null && alien_records!!.isNotEmpty()) {
+                                    var cc2 = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
+                                    if (cc2 == null) {
+                                        cc2 = KCashData(alien_cash_last_update!!)
+                                    }
+                                    cc2.SET_RECORDS(alien_records!!)
+                                    alien_records = ArrayDeque()
+                                }
+
                                 if (it.RECORD_TYPE.equals("8")) {  // CHATS_LIKES;
                                     if (it.answerTypeValues.GetMainAccountId().equals(Account_Id)) {
                                         globalLastChatsSelect.setGreaterValue(it.answerTypeValues.GetRecordLastUpdate())
@@ -549,11 +560,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             )
                         } finally {
                             if (alien_cash_last_update != null && alien_records != null && alien_records!!.isNotEmpty()) {
-                                var cc2 = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
-                                if (cc2 == null) {
-                                    cc2 = KCashData(alien_cash_last_update!!)
+                                var cc3 = CASH_DATAS[alien_cash_last_update!!.CASH_SUM]
+                                if (cc3 == null) {
+                                    cc3 = KCashData(alien_cash_last_update!!)
                                 }
-                                cc2.SET_RECORDS(alien_records!!)
+                                cc3.SET_RECORDS(alien_records!!)
                             }
 
                             if (Constants.CALL_UPDATED_CASH_DATA_FOR_EACH_INCOMING_BLOCK == 1) {
@@ -569,8 +580,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                             if (kCashDataUpdateParameters != null && kCashDataUpdateParameters.count_of_all_records == 0) {
                                 Connection.removeRequest(l_just_do_it_label)
                                 REQUESTS.remove(l_just_do_it_label)
-                                if (!kCashDataUpdateParameters.have_errors) {
-                                    println("ADD NEW CASH start UPDATE_LAST_SELECT")
+                                if (!kCashDataUpdateParameters.have_errors && kCashDataUpdateParameters.last_update > 0) {
                                     UPDATE_LAST_SELECT(
                                         lastSelect = kCashDataUpdateParameters.last_update,
                                         object_recod_id_from = kCashDataUpdateParameters.start_record_id
@@ -611,7 +621,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     try {
                         KCashDataLock.withLock {
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("Start KCashData.UPDATE_LAST_SELECT, lastSelect = $lastSelect ; object_recod_id_from = $object_recod_id_from ; udpdate_all = $udpdate_all")
+                                PrintInformation.PRINT_INFO("Start KCashData.UPDATE_LAST_SELECT, cash_sum = ${CashLastUpdate.CASH_SUM}; ")
                             }
 
                             var index =
@@ -655,7 +665,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_OBJECT_ID = it.answerTypeValues.GetChatId(),
                                         L_RECORD_TYPE = "8"
                                     )
-                                    println("UPDATE_LAST_SELECT1 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[chats_likes_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -668,7 +677,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_RECORD_TYPE = "9",
                                         L_COURSE = "0"
                                     )
-                                    println("UPDATE_LAST_SELECT2 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[chats_cost_types_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -680,7 +688,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         L_RECORD_TYPE = "4",
                                         L_COURSE = "1"
                                     )
-                                    println("UPDATE_LAST_SELECT3 start UPDATE_LAST_SELECT")
                                     CASH_DATAS[messeges_last_update]?.UPDATE_LAST_SELECT(
                                         lastSelect = lastSelect,
                                         object_recod_id_from = "",
@@ -695,7 +702,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     L_RECORD_TYPE = "R",
                                     L_COURSE = "0"
                                 )
-                                println("UPDATE_LAST_SELECT4 start UPDATE_LAST_SELECT")
                                 CASH_DATAS[notices_last_update]?.UPDATE_LAST_SELECT(
                                     lastSelect = lastSelect,
                                     object_recod_id_from = "",
@@ -1191,15 +1197,21 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             )
         }
 
-        if (CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount() > 0) {
+        val chats_messeges_count = CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()
+
+        if (chats_messeges_count > 0) {
             if (arr_messeges.isEmpty()) {
+                println("Messeges is empty; chats_messeges_count = $chats_messeges_count")
                 KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
                 return
             }
-            if (arr_messeges.first().answerTypeValues.GetMessegeId() != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()) {
-                println("messegess: ${arr_messeges.size} not equal count of chats mess ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()}")
-                messeges_KCashData.VerifyFirsBlock()
-                return
+            if(chats_messeges_count > 1){
+                if (!arr_messeges.first().answerTypeValues.GetMessegeId().equals(chats_messeges_count)
+                    || !arr_messeges.last().answerTypeValues.GetMessegeId().equals(chats_messeges_count.minus(arr_messeges.size))) {
+                    println("messegess: ${arr_messeges.size} not equal count of chats mess $chats_messeges_count")
+                    messeges_KCashData.VerifyFirsBlock()
+                    return
+                }
             }
         }
     }

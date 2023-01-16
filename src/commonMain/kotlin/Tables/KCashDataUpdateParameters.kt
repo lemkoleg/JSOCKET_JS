@@ -10,11 +10,11 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 @KorioExperimentalApi
 class KCashDataUpdateParameters(
-    val last_update: Long,
     val limit: Int,
     var count_of_all_records: Int
 ) {
     val time_out = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
     var start_record_id = ""
     var have_errors = false
+    var last_update: Long = 0
 }

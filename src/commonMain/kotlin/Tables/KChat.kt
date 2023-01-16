@@ -120,6 +120,7 @@ object KChat {
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                             socket.value_id5 = cats_id
                             socket.just_do_it = 1011000052 //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
+                            socket.last_date_of_update = CHATS!!.CASH_DATA_RECORDS[cats_id]?.answerTypeValues!!.GetRecordLastUpdate()
                             socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
                             socket.send_request()
                         }
