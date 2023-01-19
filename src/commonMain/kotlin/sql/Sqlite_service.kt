@@ -739,17 +739,11 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
-                        var current_cas_sum = ""
                         arr.forEach {
-                            if (current_cas_sum.isNotEmpty() && current_cas_sum != it.CASH_SUM) {
-                                statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
-                                statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(current_cas_sum)
-                            }
-                            current_cas_sum = it.CASH_SUM
                             statCASHLASTUPDATE.INSERT_CASHDATA(cash_sum, it)
                         }
-                        statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(current_cas_sum)
-                        statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(current_cas_sum)
+                        statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(cash_sum)
+                        statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS_FINISH(cash_sum)
                     }
 
                 } ?: throw my_user_exceptions_class(

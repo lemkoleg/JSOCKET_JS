@@ -151,7 +151,7 @@ class ANSWER_TYPE {
             SELF_Jsockt =  Jsocket()
             Jsocket.fill()
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
             }
         }
          */
@@ -880,7 +880,7 @@ class ANSWER_TYPE {
             j = Jsocket()
             Jsocket.fill()
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
             }
         }
         j.object_size = answerTypeValues.GetObjectSize().toLong()

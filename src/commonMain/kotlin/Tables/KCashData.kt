@@ -69,11 +69,13 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             "8",  //CHATS_LIKES
             -> {
                 count_of_cashing_records = 1999999999
+                l_just_do_it = 1011000050
             }
 
             "9" //CHATS_COST_TYPES
             -> {
                 count_of_cashing_records = 1999999999
+                l_just_do_it = 1011000057
             }
 
             "A" //ALBUMS_COMMENTS
@@ -341,7 +343,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         l_count_of_all_records: String,
         l_number_of_block: String,
         l_object_id_from: String = "",
-        l_mess_id_from: String = ""
+        l_mess_id_from: String = "",
+        l_just_do_succefful: String
     ): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -385,6 +388,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         kCashDataUpdateParameters.start_record_id = l_object_id_from
                                     }
                                 }
+                            }
+                            if(!l_just_do_succefful.equals("0")){
+                                kCashDataUpdateParameters.have_errors = true
                             }
                             arr.forEach lit@{
                                 if (!it.RECORD_TYPE.equals(CashLastUpdate.RECORD_TYPE)) {
@@ -844,8 +850,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                     sub.forEach {
                         RecordIdLastSelect += it.answerTypeValues.setOBJECT_ID_LAST_SELECT()
                     }
-
-                    println("RecordIdLastSelect = $RecordIdLastSelect")
 
                     try {
                         socket.value_id4 = CashLastUpdate.OBJECT_ID

@@ -135,7 +135,7 @@ class KBigAvatar {
     }
 
     @JsName("PROMISE_SELECT_BIG_AVATAR")
-    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE) = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE): Promise<Unit>  = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             KBigAvatarLock.withLock {
                 if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
@@ -158,7 +158,7 @@ class KBigAvatar {
                     jsocket = Jsocket()
                     Jsocket.fill()
                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                        PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
                     }
                 }
 
@@ -191,7 +191,7 @@ class KBigAvatar {
 
         @JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
-            CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+                CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

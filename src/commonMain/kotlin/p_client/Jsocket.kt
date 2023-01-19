@@ -201,7 +201,7 @@ class Jsocket() : JSOCKET(), OnRequestListener{
                     val l: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
                     if (l == null) {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is emprty")
+                            PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
                         }
                         fill()
                         return null

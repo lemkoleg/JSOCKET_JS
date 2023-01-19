@@ -810,7 +810,6 @@ open class JSOCKET() {
             device_id = Constants.myDeviceId
             lang = Constants.myLang
             last_messege_update = globalChatsLastUpdatingDate.value
-            println("last_messege_update = $last_messege_update")
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1100,188 +1099,7 @@ open class JSOCKET() {
             }
         }
     }
-
-    /////////////////////////////////////////////////////////////////////////////////
-    /*
-    @JsName("create_check_sum")
-    @InternalAPI
-    @ExperimentalTime
-    fun create_check_sum(check_fields_lendth: Boolean) {
-        if (h == null) h = HASH()
-        var lcraete_check_sum: Boolean
-        check_sum = 0L
-        value_par7 = value_par7.trim().uppercase()
-        if (just_do_it_label == 0L) {
-            throw my_user_exceptions_class(
-                l_class_name = "JSOCKET",
-                l_function_name = "create_check_sum",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "just_do_it_label is null"
-            )
-        }
-        if (just_do_it == 0) {
-            throw my_user_exceptions_class(
-                l_class_name = "JSOCKET",
-                l_function_name = "create_check_sum",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "just_do_it is null"
-            )
-        }
-        currentCommand = if (!COMMANDS.containsKey(just_do_it)) {
-            throw my_user_exceptions_class(
-                l_class_name = "JSOCKET",
-                l_function_name = "create_check_sum",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "just_do_it not found: $just_do_it"
-            )
-        } else {
-            COMMANDS[just_do_it] ?: throw my_user_exceptions_class(
-                l_class_name = "JSOCKET",
-                l_function_name = "create_check_sum",
-                name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = "just_do_it not found: $just_do_it"
-            )
-        }
-
-        if (connection_id != 0L) {
-            check_sum = h!!.getCheckSumFromLong(connection_id, check_sum)
-        }
-        check_sum = h!!.getCheckSumFromLong(just_do_it.toLong(), check_sum)
-        ////////////////////////////////////////////////////////////////////////////////
-        val nes_fields: String = currentCommand!!.commands_necessarily_fields
-        var nes_fields_symbol: String
-        loopSerr@ for (x in 1..FIELDS_SUBSCRIBE.size) {
-            val subJSOCKET: JSOCKET_Subscribe =
-                FIELDS_SUBSCRIBE[x] ?: throw my_user_exceptions_class(
-                    l_class_name = "JSOCKET",
-                    l_function_name = "create_check_sum",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "wrong number of field: $x"
-                )
-            if (!subJSOCKET.check_suming) {
-                continue@loopSerr
-            }
-            nameField_length = 0
-            nes_fields_symbol = nes_fields.substring(x - 1, x)
-            if ("0" != nes_fields_symbol) {
-                lcraete_check_sum = subJSOCKET.check_suming && "1" == nes_fields_symbol
-                if (lcraete_check_sum) {
-                    when (subJSOCKET.fields_type) {
-                        0 -> {
-                            var bbb: ByteArray
-                            var s: String
-                            try {
-                                s = subJSOCKET.getJSOCKET_FieldsValue(this) as String
-                            } catch (e: Exception) {
-                                if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "JSOCKET",
-                                        l_function_name = "create_check_sum",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "field is empty: $x"
-                                    )
-                                } else {
-                                    continue@loopSerr
-                                }
-                            }
-                            if (s.length == 4 && s.equals("null", true)) {
-                                if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "JSOCKET",
-                                        l_function_name = "create_check_sum",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "field is empty: $x"
-                                    )
-                                } else {
-                                    continue@loopSerr
-                                }
-                            }
-
-                            if (subJSOCKET.fields_size_is_perminent && s.length != subJSOCKET.fields_size) {
-                                throw my_user_exceptions_class(
-                                    l_class_name = "JSOCKET",
-                                    l_function_name = "create_check_sum",
-                                    name_of_exception = "EXC_SYSTEM_ERROR",
-                                    l_additional_text = "field length is wrong: $x; ${s.length}"
-                                )
-                            }
-                            bbb = s.encodeToByteArray()
-                            nameField_length = bbb.size
-                            while (nameField_length > subJSOCKET.fields_size) {
-                                s = s.substring(0, s.length - 1)
-                                bbb = s.encodeToByteArray()
-                                nameField_length = bbb.size
-                            }
-                            check_sum = h!!.getCheckSumFromByteArray(bbb, check_sum)
-                        }
-                        1 -> {
-                            int_value = 0
-                            try {
-                                int_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Int
-                            } catch (e: Exception) {
-                                continue@loopSerr
-                            }
-                            if (int_value.equals(0)) {
-                                if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw  my_user_exceptions_class(
-                                        l_class_name = "JSOCKET",
-                                        l_function_name = "create_check_sum",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "field is empty: $x"
-                                    )
-                                } else {
-                                    continue@loopSerr
-                                }
-                            } else
-                                check_sum = h!!.getCheckSumFromLong(int_value.toLong(), check_sum)
-                        }
-                        2 -> {
-                            long_value = 0L
-                            try {
-                                long_value = subJSOCKET.getJSOCKET_FieldsValue(this) as Long
-                            } catch (e: Exception) {
-                                continue@loopSerr
-                            }
-                            if (long_value.equals(0L)) {
-                                if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw my_user_exceptions_class(
-                                        l_class_name = "JSOCKET",
-                                        l_function_name = "create_check_sum",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "field is empty: $x"
-                                    )
-                                } else {
-                                    continue@loopSerr
-                                }
-                            } else
-                                check_sum = h!!.getCheckSumFromLong(long_value, check_sum)
-                        }
-                        3 -> {
-                            continue@loopSerr
-                        }
-                        4 -> {
-                            if (content == null || content!!.isNotEmpty()) {
-                                if ("1" == nes_fields_symbol && check_fields_lendth) {
-                                    throw  my_user_exceptions_class(
-                                        l_class_name = "JSOCKET",
-                                        l_function_name = "create_check_sum",
-                                        name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "field is empty: $x"
-                                    )
-                                } else {
-                                    continue@loopSerr
-                                }
-                            } else {
-                                h!!.getCheckSumFromByteArray(content!!, check_sum)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-     */
-
+    
     /////////////////////////////////////////////////////////////////////////////////
 
     @KorioExperimentalApi
@@ -1322,46 +1140,48 @@ open class JSOCKET() {
                 }
                 loopChSum2@ while (record.remaining > 4) {
 
-                    /*PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_1 ${answer_type.IDENTIFICATOR_1}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_2 ${answer_type.IDENTIFICATOR_2}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_3 ${answer_type.IDENTIFICATOR_3}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_4 ${answer_type.IDENTIFICATOR_4}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_5 ${answer_type.IDENTIFICATOR_5}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_6 ${answer_type.IDENTIFICATOR_6}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_7 ${answer_type.IDENTIFICATOR_7}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_8 ${answer_type.IDENTIFICATOR_8}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_9 ${answer_type.IDENTIFICATOR_9}")
-                    PrintInformation.PRINT_INFO("nswer_type.IDENTIFICATOR_10 ${answer_type.IDENTIFICATOR_10}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_1 ${answer_type.INTEGER_1}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_2 ${answer_type.INTEGER_2}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_3 ${answer_type.INTEGER_3}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_4 ${answer_type.INTEGER_4}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_5 ${answer_type.INTEGER_5}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_6 ${answer_type.INTEGER_6}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_7 ${answer_type.INTEGER_7}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_8 ${answer_type.INTEGER_8}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_9 ${answer_type.INTEGER_9}")
-                    PrintInformation.PRINT_INFO("nswer_type.INTEGER_10 ${answer_type.INTEGER_10}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_1 ${answer_type.LONG_1}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_2 ${answer_type.LONG_2}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_3 ${answer_type.LONG_3}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_4 ${answer_type.LONG_4}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_5 ${answer_type.LONG_5}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_6 ${answer_type.LONG_6}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_7 ${answer_type.LONG_7}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_8 ${answer_type.LONG_8}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_9 ${answer_type.LONG_9}")
-                    PrintInformation.PRINT_INFO("nswer_type.LONG_10 ${answer_type.LONG_10}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_1 ${answer_type.STRING_1}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_2 ${answer_type.STRING_2}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_3 ${answer_type.STRING_3}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_4 ${answer_type.STRING_4}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_5 ${answer_type.STRING_5}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_6 ${answer_type.STRING_6}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_7 ${answer_type.STRING_7}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_8 ${answer_type.STRING_8}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_9 ${answer_type.STRING_9}")
-                    PrintInformation.PRINT_INFO("nswer_type.STRING_10 ${answer_type.STRING_10}")*/
+                    /*
+                    println("nswer_type.IDENTIFICATOR_1 ${answer_type.IDENTIFICATOR_1}")
+                    println("nswer_type.IDENTIFICATOR_2 ${answer_type.IDENTIFICATOR_2}")
+                    println("nswer_type.IDENTIFICATOR_3 ${answer_type.IDENTIFICATOR_3}")
+                    println("nswer_type.IDENTIFICATOR_4 ${answer_type.IDENTIFICATOR_4}")
+                    println("nswer_type.IDENTIFICATOR_5 ${answer_type.IDENTIFICATOR_5}")
+                    println("nswer_type.IDENTIFICATOR_6 ${answer_type.IDENTIFICATOR_6}")
+                    println("nswer_type.IDENTIFICATOR_7 ${answer_type.IDENTIFICATOR_7}")
+                    println("nswer_type.IDENTIFICATOR_8 ${answer_type.IDENTIFICATOR_8}")
+                    println("nswer_type.IDENTIFICATOR_9 ${answer_type.IDENTIFICATOR_9}")
+                    println("nswer_type.IDENTIFICATOR_10 ${answer_type.IDENTIFICATOR_10}")
+                    println("nswer_type.INTEGER_1 ${answer_type.INTEGER_1}")
+                    println("nswer_type.INTEGER_2 ${answer_type.INTEGER_2}")
+                    println("nswer_type.INTEGER_3 ${answer_type.INTEGER_3}")
+                    println("nswer_type.INTEGER_4 ${answer_type.INTEGER_4}")
+                    println("nswer_type.INTEGER_5 ${answer_type.INTEGER_5}")
+                    println("nswer_type.INTEGER_6 ${answer_type.INTEGER_6}")
+                    println("nswer_type.INTEGER_7 ${answer_type.INTEGER_7}")
+                    println("nswer_type.INTEGER_8 ${answer_type.INTEGER_8}")
+                    println("nswer_type.INTEGER_9 ${answer_type.INTEGER_9}")
+                    println("nswer_type.INTEGER_10 ${answer_type.INTEGER_10}")
+                    println("nswer_type.LONG_1 ${answer_type.LONG_1}")
+                    println("nswer_type.LONG_2 ${answer_type.LONG_2}")
+                    println("nswer_type.LONG_3 ${answer_type.LONG_3}")
+                    println("nswer_type.LONG_4 ${answer_type.LONG_4}")
+                    println("nswer_type.LONG_5 ${answer_type.LONG_5}")
+                    println("nswer_type.LONG_6 ${answer_type.LONG_6}")
+                    println("nswer_type.LONG_7 ${answer_type.LONG_7}")
+                    println("nswer_type.LONG_8 ${answer_type.LONG_8}")
+                    println("nswer_type.LONG_9 ${answer_type.LONG_9}")
+                    println("nswer_type.LONG_10 ${answer_type.LONG_10}")
+                    println("nswer_type.STRING_1 ${answer_type.STRING_1}")
+                    println("nswer_type.STRING_2 ${answer_type.STRING_2}")
+                    println("nswer_type.STRING_3 ${answer_type.STRING_3}")
+                    println("nswer_type.STRING_4 ${answer_type.STRING_4}")
+                    println("nswer_type.STRING_5 ${answer_type.STRING_5}")
+                    println("nswer_type.STRING_6 ${answer_type.STRING_6}")
+                    println("nswer_type.STRING_7 ${answer_type.STRING_7}")
+                    println("nswer_type.STRING_8 ${answer_type.STRING_8}")
+                    println("nswer_type.STRING_9 ${answer_type.STRING_9}")
+                    println("nswer_type.STRING_10 ${answer_type.STRING_10}")
+                     */
 
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
@@ -1374,8 +1194,6 @@ open class JSOCKET() {
                     }
                     when (subJSOCKET.fields_type) {
                         0 -> {
-                            //val l = bb!!.readBytes(nameField_length).decodeToString()
-                            //PrintInformation.PRINT_INFO("nameField_number = $nameField_number, l = $l")
                             subJSOCKET.setANSWER_TYPE_FieldsValue(
                                 answer_type,
                                 record.readBytes(nameField_length).decodeToString()
@@ -1464,7 +1282,7 @@ open class JSOCKET() {
                                         l_class_name = "JSOCKET",
                                         l_function_name = "deserialize_ANSWERS_TYPES",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "RECORD_TYPE ${record_type} not defined"
+                                        l_additional_text = "RECORD_TYPE $record_type not defined"
                                     )
                                 }
                             }

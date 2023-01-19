@@ -328,6 +328,15 @@ object Connection {
                             var jsocket: Jsocket?
                             jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
 
+                            if(!jsocketRet.just_do_it_successfull.equals("0")){
+                                throw my_user_exceptions_class(
+                                    l_class_name = "Connection",
+                                    l_function_name = "decode",
+                                    name_of_exception = "DB_ERROR",
+                                    l_additional_text = jsocketRet.db_massage
+                                )
+                            }
+
                             if (jsocketRet.just_do_it != 0) {
 
                                 val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
