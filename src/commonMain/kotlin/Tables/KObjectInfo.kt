@@ -59,9 +59,9 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         if (answerTypeConstants.IsMediaContent || answerTypeConstants.IsFile) FileService(answerType = answerType) else null
 
     var promiseDowloadFile: Promise<Boolean>? = null
-    private var updateObjectInfo: ((v: Any?) -> Any?) = {}
+    private var updateObjectInfo: (() -> Any?) = {}
 
-    fun SetCallBackUpdate(lupdateObjectInfo: ((v: Any?) -> Any?)? = null) {
+    fun SetCallBackUpdate(lupdateObjectInfo: (() -> Any?)? = null) {
         updateObjectInfo = lupdateObjectInfo ?: {}
     }
 
@@ -82,7 +82,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                                     answerType.BLOB_4 =
                                                         KBigAvatar.RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()
                                                             ?.getAVATAR()
-                                                    updateObjectInfo(null)
+                                                    updateObjectInfo()
                                                     if ((answerType.LONG_20 + Constants.TIME_OUT_OF_ACTUAL_DATA_FOR_SELECTOR) < DateTime.nowUnixMillisLong()) {
                                                         SendRequestForUpdate("0")
                                                     }
@@ -119,7 +119,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                                 RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
                                         }
                                     }
-                                    updateObjectInfo(null)
+                                    updateObjectInfo()
                                 }
 
                                 promiseDowloadFile = localFileSevice?.open_file_channel()
@@ -251,7 +251,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
     fun merge(v: ANSWER_TYPE) {
         answerType.merge(v)
-        updateObjectInfo(this)
+        updateObjectInfo()
         val arr = ArrayDeque<ANSWER_TYPE>()
         arr.addLast(answerType)
         Sqlite_service.InsertCashData(GetCashSum(v.RECORD_TABLE_ID, v.RECORD_TYPE, v.RECORD_TABLE_ID), arr)
@@ -261,7 +261,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
         private val GlobalLock = Mutex()
 
         @JsName("GET_SAVE_OBJECT_INFO")
-        fun GET_SAVE_OBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
+        fun GET_SAVE_OBJECT_INFO(l_updatedCashData: (() -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {

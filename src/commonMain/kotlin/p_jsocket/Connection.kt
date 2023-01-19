@@ -27,7 +27,6 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_client.*
 import sql.Sqlite_service
-import kotlin.coroutines.CoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -328,6 +327,7 @@ object Connection {
                             }
                             var jsocket: Jsocket?
                             jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
+
                             if (jsocketRet.just_do_it != 0) {
 
                                 val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
@@ -343,7 +343,7 @@ object Connection {
                                     when (jsocketRet.just_do_it) {
 
                                         1011000086 -> {  // new messeges, notices;
-                                            if(jsocketRet.last_messege_update > globalLastChatsSelect.value){
+                                            if(jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value){
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                             }
                                         }
@@ -367,7 +367,9 @@ object Connection {
 
                                             try {
 
-                                                if (jsocketRet.last_messege_update > globalLastChatsSelect.value) {
+                                                println("jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
+
+                                                if (jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value) {
                                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                                 }
 
@@ -409,7 +411,7 @@ object Connection {
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                         )
                                     } else {
-                                        if(jsocketRet.last_messege_update > globalLastChatsSelect.value){
+                                        if(jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value){
                                             KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                         }
                                     }

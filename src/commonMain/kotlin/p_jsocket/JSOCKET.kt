@@ -730,7 +730,6 @@ open class JSOCKET() {
         this.last_date_of_update = myJsocketClass.last_date_of_update
         this.db_massage = myJsocketClass.db_massage
         this.content = myJsocketClass.content
-        this.check_sum = myJsocketClass.check_sum
     }
 
     @JsName("contrMerge")
@@ -810,7 +809,8 @@ open class JSOCKET() {
             connection_coocki = Constants.myConnectionsCoocki
             device_id = Constants.myDeviceId
             lang = Constants.myLang
-            last_messege_update = globalLastChatsSelect.value
+            last_messege_update = globalChatsLastUpdatingDate.value
+            println("last_messege_update = $last_messege_update")
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"

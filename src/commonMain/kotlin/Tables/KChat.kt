@@ -64,8 +64,8 @@ private val KChatsVerifyUpdatesLock = Mutex()
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("globalLastUpdatingDate")
-val globalLastChatsSelect: AtomicLong = AtomicLong(0L)
+@JsName("globalChatsLastUpdatingDate")
+val globalChatsLastUpdatingDate: AtomicLong = AtomicLong(0L)
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -178,21 +178,25 @@ object KChat {
                                     sendedVerifyUpdates = new_updates
                                     TimeOutendedVerifyUpdates = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Set new update;")
+                                        PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Set new update; TimeOutendedVerifyUpdates = $TimeOutendedVerifyUpdates; sendedVerifyUpdates = $sendedVerifyUpdates")
                                     }
 
                                 }
                             }
 
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates; globalLastChatsSelect.value = ${globalLastChatsSelect.value}")
+                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates; globalLastChatsSelect.value = ${globalChatsLastUpdatingDate.value}")
                             }
 
+                            CHATS!!.VerifyFirsBlock()
+
+                            /*
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                             socket.just_do_it = 1011000053 // SELECTOR.SELECT_CHATS;
                             socket.check_sum = CHATS!!.CashLastUpdate.CASH_SUM
                             socket.send_request()
                             sendedVerifyUpdates = globalLastChatsSelect.value
+                             */
                         }
                     } catch (e: my_user_exceptions_class) {
                         throw e
@@ -215,8 +219,9 @@ object KChat {
             )
         }.toPromise(EmptyCoroutineContext)
 
+
     @JsName("GET_CHATS")
-    fun GET_CHATS(l_updatedCashData: ((v: Any?) -> Any?)?): Promise<ArrayDeque<ANSWER_TYPE>> =
+    fun GET_CHATS(l_updatedCashData: (() -> Any?)?= null): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -228,7 +233,7 @@ object KChat {
                                     L_OBJECT_ID = Constants.Account_Id,
                                     L_RECORD_TYPE = "3",
                                     l_updatedCashData = l_updatedCashData,
-                                    l_request_updates = true,
+                                    l_request_updates = false,
                                     l_select_all_records = false,
                                     l_is_SetLastBlock = true,
                                     l_reset_cash_data = false,
@@ -240,7 +245,7 @@ object KChat {
                                     L_OBJECT_ID = Constants.Account_Id,
                                     L_RECORD_TYPE = "3",
                                     l_updatedCashData = l_updatedCashData,
-                                    l_request_updates = true,
+                                    l_request_updates = false,
                                     l_select_all_records = false,
                                     l_is_SetLastBlock = true,
                                     l_reset_cash_data = true,

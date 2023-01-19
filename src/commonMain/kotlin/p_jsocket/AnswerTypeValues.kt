@@ -37,6 +37,8 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     val answerTypeConstants: AnswerTypeConstants by lazy { AnswerTypeConstants(answerType) }
 
+    val answerTypeCashDatas: AnswerTypeCashDatas by lazy { AnswerTypeCashDatas(answerType) }
+
 
     @JsName("DefineRECORD_TYPE")
     fun DefineRECORD_TYPE() {
@@ -1012,7 +1014,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
     }
 
-    suspend fun getACCOUNT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+    suspend fun getACCOUNT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
                 throw my_user_exceptions_class(
@@ -1152,7 +1154,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    suspend fun getALBUM_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+    suspend fun getALBUM_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
                 throw my_user_exceptions_class(
@@ -1341,7 +1343,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    fun getOBJECT_INFO(l_updatedCashData: ((v: Any?) -> Any?)? = null): Promise<KObjectInfo> =
+    fun getOBJECT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
             if (answerType.answerTypeValues.GetObjectId().isEmpty()) {

@@ -10,7 +10,7 @@ package p_client
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.getMyDeviceId
 import JSOCKETDB.AUFDB
-import Tables.KChat.GET_CHATS
+import Tables.KChat
 import atomic.AtomicBoolean
 import com.soywiz.korio.async.await
 import com.soywiz.korio.async.launchImmediately
@@ -88,12 +88,14 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                     }
                     //Sqlite_service.InitializeCommands().join()
                     //Sqlite_service.removeSyncJsocket().join()
-                    GET_CHATS(null).await()
+                    KChat.GET_CHATS(null).await()
+
                     if(myConnectionsID > 0L){
                         val j = Jsocket()
                         j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
                         j.send_request()
                     }
+
                     isInitialised.setNewValue(true)
                 } catch (e: my_user_exceptions_class) {
                     throw e
