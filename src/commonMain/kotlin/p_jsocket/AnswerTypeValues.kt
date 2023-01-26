@@ -189,10 +189,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     var GetLinkAddingDate: () -> Long = { getEMPTY_LONG() }
 
     @JsName("GetObjectLastUpdate")
-    var GetRecordLastUpdate: () -> Long = { getEMPTY_LONG() }
-
-    @JsName("GetLinkLastUpdate")
-    var GetLinkLastUpdate: () -> Long = { getEMPTY_LONG() }
+    var GetRecordLastUpdate: () -> Long = { getLONG_20() }
 
     @JsName("GetSmallAvatar")
     var GetSmallAvatar: () -> ByteArray? = { getBLOB_1() }
@@ -388,6 +385,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     @JsName("GetChatsLikesBalance")
     var GetChatsLikesBalance: () -> Int = { getEMPTY_INTEGER() }
 
+    @JsName("GetLastUpdatest")
+    var GetLastUpdatest: () -> Long = { getEMPTY_LONG() }
+
     ////////////////////////// chats_cost_types ////////////////////
 
     @JsName("GetChatsCostTypesStartText")
@@ -428,7 +428,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetAddingDate = { getLONG_4() }
                 GetChatsMessegeCount = { getLONG_5() }
                 GetChatsDateClosed = { getLONG_6() }
-                GetRecordLastUpdate = { getLONG_7() }
                 GetChatsLastMessegeAdding = { getLONG_8() }
                 GetChatsCountOfMembers = { getINTEGER_5() }
                 GetChatsCountOfAllMembers = { getINTEGER_6() }
@@ -500,7 +499,6 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetMessegePeriodFor = { getLONG_13() }
                 GetAnswerMessegeId = { getLONG_14() }
                 GetAnswerMessegeStartText = { getSTRING_13() }
-                GetRecordLastUpdate = { getLONG_15() }
                 GetMessegeCost = { getINTEGER_11() }
                 GetChatsCostTypeId = { getINTEGER_12() }
 
@@ -639,7 +637,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 GetChatsLikesLastDateDilivered = { getLONG_9() }
                 GetChatsLikesLastReadedMessegeId = { getLONG_10() }
                 GetChatsLikesLastMessegeAdding = { getLONG_11() }
-                GetRecordLastUpdate = { getLONG_12() }
+                GetLastUpdatest = { getLONG_12() }
                 GetDateDelete = { getLONG_13() }
                 GetChatsLikesBalance = { getINTEGER_5() }
 

@@ -328,14 +328,7 @@ object Connection {
                             var jsocket: Jsocket?
                             jsocketRet.deserialize(b, Constants.myConnectionsCoocki, true, newConnectionCoocki.value)
 
-                            if(!jsocketRet.just_do_it_successfull.equals("0")){
-                                throw my_user_exceptions_class(
-                                    l_class_name = "Connection",
-                                    l_function_name = "decode",
-                                    name_of_exception = "DB_ERROR",
-                                    l_additional_text = jsocketRet.db_massage
-                                )
-                            }
+
 
                             if (jsocketRet.just_do_it != 0) {
 
@@ -352,7 +345,7 @@ object Connection {
                                     when (jsocketRet.just_do_it) {
 
                                         1011000086 -> {  // new messeges, notices;
-                                            if(jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value){
+                                            if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                             }
                                         }
@@ -376,10 +369,21 @@ object Connection {
 
                                             try {
 
-                                                println("jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
+                                                println("get request: jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
 
-                                                if (jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value) {
+                                                if (jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()) {
                                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
+                                                }
+
+                                                if(!jsocketRet.just_do_it_successfull.equals("0")){
+                                                    jsocket.db_massage = jsocketRet.db_massage
+                                                    jsocket.just_do_it_successfull = jsocketRet.just_do_it_successfull
+                                                    throw my_user_exceptions_class(
+                                                        l_class_name = "Connection",
+                                                        l_function_name = "decode",
+                                                        name_of_exception = "DB_ERROR",
+                                                        l_additional_text = jsocketRet.db_massage
+                                                    )
                                                 }
 
                                                 if (c.commands_access == "B") {
@@ -420,7 +424,7 @@ object Connection {
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                         )
                                     } else {
-                                        if(jsocketRet.last_messege_update > globalChatsLastUpdatingDate.value){
+                                        if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
                                             KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                         }
                                     }

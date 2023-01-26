@@ -8,7 +8,6 @@
 package Tables
 
 import CrossPlatforms.PrintInformation
-import atomic.AtomicLong
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
@@ -61,11 +60,7 @@ private val KChatsGlobalLock = Mutex()
 private val KChatsSelectAllDataOnChatLock = Mutex()
 private val KChatsVerifyUpdatesLock = Mutex()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
-@JsName("globalChatsLastUpdatingDate")
-val globalChatsLastUpdatingDate: AtomicLong = AtomicLong(0L)
+
 
 @KorioExperimentalApi
 @ExperimentalTime
@@ -185,7 +180,7 @@ object KChat {
                             }
 
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates; globalLastChatsSelect.value = ${globalChatsLastUpdatingDate.value}")
+                                PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Sended new request for verify updates $sendedVerifyUpdates;")
                             }
 
                             CHATS!!.VerifyFirsBlock()

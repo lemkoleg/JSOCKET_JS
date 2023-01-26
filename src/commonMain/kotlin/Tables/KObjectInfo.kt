@@ -66,7 +66,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     }
 
     fun VerifyUpdates() {
-        if (VerifyUpdatesJob == null || VerifyUpdatesJob!!.isActive) {
+        if (VerifyUpdatesJob == null || !VerifyUpdatesJob!!.isActive) {
             VerifyUpdatesJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {

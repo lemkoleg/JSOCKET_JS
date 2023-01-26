@@ -3,9 +3,6 @@ package Tables
 import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.async
-import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
@@ -14,7 +11,6 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import sql.Sqlite_service
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -37,7 +33,9 @@ class KCashLastUpdate(
     val MESS_COUNT_FROM: String = "",
     val OTHER_CONDITIONS_1: String = "",
     val OTHER_CONDITIONS_2: String = "",
-    val OTHER_CONDITIONS_3: String = ""
+    val OTHER_CONDITIONS_3: String = "",
+    private var LAST_SELECT: Long = 0L,
+    private var LAST_USE: Long = DateTime.nowUnixMillisLong()
 ) {
 
 
@@ -66,6 +64,13 @@ class KCashLastUpdate(
     ) {
         if(!CASH_LAST_UPDATE.containsKey(CASH_SUM)){
             CASH_LAST_UPDATE[CASH_SUM] = this
+        } else{
+            throw my_user_exceptions_class(
+                l_class_name = "KCashLastUpdate",
+                l_function_name = "Constructor",
+                name_of_exception = "EXC_SYSTEM_ERROR",
+                l_additional_text = "Instant already exist"
+            )
         }
     }
 
@@ -73,11 +78,31 @@ class KCashLastUpdate(
         ensureNeverFrozen()
     }
 
-    var LAST_USE: Long = DateTime.nowUnixMillisLong()
-
     //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
+    fun GET_LAST_SELECT():Long{
+        return LAST_SELECT
+    }
 
+    fun SET_LAST_SELECT(v:Long){
+        if(v > LAST_SELECT){
+            LAST_SELECT = v
+            LAST_USE = DateTime.nowUnixMillisLong()
+            Sqlite_service.InsertCashLastUpdate(this)
+        }
+    }
+
+    fun GET_LAST_USE():Long{
+        return LAST_USE
+    }
+
+    fun SET_LAST_USE(){
+        LAST_USE = DateTime.nowUnixMillisLong()
+        Sqlite_service.InsertCashLastUpdate(this)
+    }
+
+
+    /*
     @JsName("INSERT_CASH_LASTUPDATE")
     fun INSERT_CASH_LASTUPDATE(value: KCashLastUpdate = this): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
@@ -99,6 +124,7 @@ class KCashLastUpdate(
             }
             return@async false
         }.toPromise(EmptyCoroutineContext)
+     */
 
 
 
@@ -107,7 +133,7 @@ class KCashLastUpdate(
         private val KCashLastUpdate_Companion_Lock = Mutex()
 
         @JsName("LOAD_CASH_LAST_UPDATE")
-        suspend fun LOAD_CASH_LAST_UPDATE(arr: ArrayList<KCashLastUpdate>) {
+        suspend fun LOAD_CASH_LAST_UPDATE(@Suppress("UNUSED_PARAMETER") arr: ArrayList<KCashLastUpdate>) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {

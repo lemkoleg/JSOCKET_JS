@@ -93,7 +93,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                     if(myConnectionsID > 0L){
                         val j = Jsocket()
                         j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
-                        j.send_request()
+                        j.send_request(await_answer = true)
                     }
 
                     isInitialised.setNewValue(true)

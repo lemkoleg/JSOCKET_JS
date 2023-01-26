@@ -964,6 +964,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
+    /*
     @JsName("UpdateCashDataNewLastSelect")
     fun UpdateCashDataNewLastSelect(
         last_select: Long,
@@ -1010,6 +1011,7 @@ object Sqlite_service : CoroutineScope {
             e.ExceptionHand(null)
         }
     }
+     */
 
     @JsName("DeleteCash")
     fun DeleteCash(cash_sum: String, object_id: String? = null) = Sqlite_serviceScope.launchImmediately {

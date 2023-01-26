@@ -809,7 +809,7 @@ open class JSOCKET() {
             connection_coocki = Constants.myConnectionsCoocki
             device_id = Constants.myDeviceId
             lang = Constants.myLang
-            last_messege_update = globalChatsLastUpdatingDate.value
+            last_messege_update = CHATS!!.CashLastUpdate.GET_LAST_SELECT()
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1140,6 +1140,7 @@ open class JSOCKET() {
                 }
                 loopChSum2@ while (record.remaining > 4) {
 
+
                     /*
                     println("nswer_type.IDENTIFICATOR_1 ${answer_type.IDENTIFICATOR_1}")
                     println("nswer_type.IDENTIFICATOR_2 ${answer_type.IDENTIFICATOR_2}")
@@ -1216,7 +1217,7 @@ open class JSOCKET() {
 
                 }
 
-                answer_type.LONG_20 = this.last_date_of_update
+                //answer_type.LONG_20 = this.last_date_of_update
 
                 if (nameField_number == 84) {  // big avatar;
                     if (object_info == null) {
@@ -1311,7 +1312,7 @@ open class JSOCKET() {
                                 }
                                 cc = KCashData(kc!!)
                             }
-                            cc.SET_RECORDS(arr)
+                            cc.SET_RECORDS(arr, this.last_date_of_update)
 
                             record_type = answer_type.RECORD_TYPE
                             arr = ArrayDeque()
@@ -1348,7 +1349,8 @@ open class JSOCKET() {
                                         l_count_of_all_records = this.value_par9,
                                         l_number_of_block = this.value_par7,
                                         l_object_id_from = this.value_id1,
-                                        l_mess_id_from = this.value_par4
+                                        l_mess_id_from = this.value_par4,
+                                        l_just_do_succefful = this.just_do_it_successfull
                                     )
                                 }
 
@@ -1459,7 +1461,7 @@ open class JSOCKET() {
                         }
                         cc = KCashData(kc!!)
                     }
-                    cc.SET_RECORDS(arr)
+                    cc.SET_RECORDS(arr, this.last_date_of_update)
                 } else {
                     promise = when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
@@ -1492,7 +1494,8 @@ open class JSOCKET() {
                                 l_count_of_all_records = this.value_par9,
                                 l_number_of_block = this.value_par7,
                                 l_object_id_from = this.value_id1,
-                                l_mess_id_from = this.value_par4
+                                l_mess_id_from = this.value_par4,
+                                l_just_do_succefful = this.just_do_it_successfull
                             )
                         }
                     }
@@ -1510,6 +1513,7 @@ open class JSOCKET() {
                 l_additional_text = n.toString()
             )
         } finally {
+            /*
             if (currentCommand!!.commands_access == "B") {
                 if (currentCashData == null
                     && just_do_it_successfull.equals("0")
@@ -1541,6 +1545,8 @@ open class JSOCKET() {
                     }
                 }
             }
+             */
+
             if (currentCommand!!.commands_access == "C") {
                 if (object_info != null) {
                     OBJECTS_INFO[object_info.RECORD_TABLE_ID]!!.merge(object_info)

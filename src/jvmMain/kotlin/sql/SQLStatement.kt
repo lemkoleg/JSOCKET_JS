@@ -382,7 +382,8 @@ actual class SQLStatement actual constructor() {
             OTHER_CONDITIONS_1 = kCashLastUpdate.OTHER_CONDITIONS_1,
             OTHER_CONDITIONS_2 = kCashLastUpdate.OTHER_CONDITIONS_2,
             OTHER_CONDITIONS_3 = kCashLastUpdate.OTHER_CONDITIONS_3,
-            LAST_USE = kCashLastUpdate.LAST_USE
+            LAST_SELECT = kCashLastUpdate.GET_LAST_SELECT(),
+            LAST_USE = kCashLastUpdate.GET_LAST_USE()
         )
     }
 
@@ -400,7 +401,9 @@ actual class SQLStatement actual constructor() {
                 MESS_COUNT_FROM = res.getString(7)!!,
                 OTHER_CONDITIONS_1 = res.getString(8)!!,
                 OTHER_CONDITIONS_2 = res.getString(9)!!,
-                OTHER_CONDITIONS_3 = res.getString(10)!!
+                OTHER_CONDITIONS_3 = res.getString(10)!!,
+                LAST_SELECT = res.getLong(11)!!,
+                LAST_USE= res.getLong(12)!!
             )
             arr.add(kCashLastUpdate)
         }
