@@ -50,7 +50,7 @@ class KCashLastUpdate(
         L_OTHER_CONDITIONS_2: String = "",
         L_OTHER_CONDITIONS_3: String = ""
     ) : this(
-        CASH_SUM = (L_OBJECT_ID +  L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
+        CASH_SUM = (L_OBJECT_ID + L_RECORD_TYPE + L_COURSE + L_SORT + L_LINK_OWNER +
                 L_MESS_COUNT_FROM + L_OTHER_CONDITIONS_1 + L_OTHER_CONDITIONS_2 + L_OTHER_CONDITIONS_3),
         OBJECT_ID = L_OBJECT_ID,
         RECORD_TYPE = L_RECORD_TYPE,
@@ -62,9 +62,12 @@ class KCashLastUpdate(
         OTHER_CONDITIONS_2 = L_OTHER_CONDITIONS_2,
         OTHER_CONDITIONS_3 = L_OTHER_CONDITIONS_3
     ) {
-        if(!CASH_LAST_UPDATE.containsKey(CASH_SUM)){
+    }
+
+    init {
+        if (!CASH_LAST_UPDATE.containsKey(CASH_SUM)) {
             CASH_LAST_UPDATE[CASH_SUM] = this
-        } else{
+        } else {
             throw my_user_exceptions_class(
                 l_class_name = "KCashLastUpdate",
                 l_function_name = "Constructor",
@@ -72,31 +75,28 @@ class KCashLastUpdate(
                 l_additional_text = "Instant already exist"
             )
         }
-    }
-
-    init {
         ensureNeverFrozen()
     }
 
     //val InstanceRef: KCashLastUpdate> = AtomicReference(this)
 
-    fun GET_LAST_SELECT():Long{
+    fun GET_LAST_SELECT(): Long {
         return LAST_SELECT
     }
 
-    fun SET_LAST_SELECT(v:Long){
-        if(v > LAST_SELECT){
+    fun SET_LAST_SELECT(v: Long) {
+        if (v > LAST_SELECT) {
             LAST_SELECT = v
             LAST_USE = DateTime.nowUnixMillisLong()
             Sqlite_service.InsertCashLastUpdate(this)
         }
     }
 
-    fun GET_LAST_USE():Long{
+    fun GET_LAST_USE(): Long {
         return LAST_USE
     }
 
-    fun SET_LAST_USE(){
+    fun SET_LAST_USE() {
         LAST_USE = DateTime.nowUnixMillisLong()
         Sqlite_service.InsertCashLastUpdate(this)
     }
@@ -125,7 +125,6 @@ class KCashLastUpdate(
             return@async false
         }.toPromise(EmptyCoroutineContext)
      */
-
 
 
     companion object {

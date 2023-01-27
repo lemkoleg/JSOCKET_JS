@@ -1141,48 +1141,9 @@ open class JSOCKET() {
                 loopChSum2@ while (record.remaining > 4) {
 
 
-                    /*
-                    println("nswer_type.IDENTIFICATOR_1 ${answer_type.IDENTIFICATOR_1}")
-                    println("nswer_type.IDENTIFICATOR_2 ${answer_type.IDENTIFICATOR_2}")
-                    println("nswer_type.IDENTIFICATOR_3 ${answer_type.IDENTIFICATOR_3}")
-                    println("nswer_type.IDENTIFICATOR_4 ${answer_type.IDENTIFICATOR_4}")
-                    println("nswer_type.IDENTIFICATOR_5 ${answer_type.IDENTIFICATOR_5}")
-                    println("nswer_type.IDENTIFICATOR_6 ${answer_type.IDENTIFICATOR_6}")
-                    println("nswer_type.IDENTIFICATOR_7 ${answer_type.IDENTIFICATOR_7}")
-                    println("nswer_type.IDENTIFICATOR_8 ${answer_type.IDENTIFICATOR_8}")
-                    println("nswer_type.IDENTIFICATOR_9 ${answer_type.IDENTIFICATOR_9}")
-                    println("nswer_type.IDENTIFICATOR_10 ${answer_type.IDENTIFICATOR_10}")
-                    println("nswer_type.INTEGER_1 ${answer_type.INTEGER_1}")
-                    println("nswer_type.INTEGER_2 ${answer_type.INTEGER_2}")
-                    println("nswer_type.INTEGER_3 ${answer_type.INTEGER_3}")
-                    println("nswer_type.INTEGER_4 ${answer_type.INTEGER_4}")
-                    println("nswer_type.INTEGER_5 ${answer_type.INTEGER_5}")
-                    println("nswer_type.INTEGER_6 ${answer_type.INTEGER_6}")
-                    println("nswer_type.INTEGER_7 ${answer_type.INTEGER_7}")
-                    println("nswer_type.INTEGER_8 ${answer_type.INTEGER_8}")
-                    println("nswer_type.INTEGER_9 ${answer_type.INTEGER_9}")
-                    println("nswer_type.INTEGER_10 ${answer_type.INTEGER_10}")
-                    println("nswer_type.LONG_1 ${answer_type.LONG_1}")
-                    println("nswer_type.LONG_2 ${answer_type.LONG_2}")
-                    println("nswer_type.LONG_3 ${answer_type.LONG_3}")
-                    println("nswer_type.LONG_4 ${answer_type.LONG_4}")
-                    println("nswer_type.LONG_5 ${answer_type.LONG_5}")
-                    println("nswer_type.LONG_6 ${answer_type.LONG_6}")
-                    println("nswer_type.LONG_7 ${answer_type.LONG_7}")
-                    println("nswer_type.LONG_8 ${answer_type.LONG_8}")
-                    println("nswer_type.LONG_9 ${answer_type.LONG_9}")
-                    println("nswer_type.LONG_10 ${answer_type.LONG_10}")
-                    println("nswer_type.STRING_1 ${answer_type.STRING_1}")
-                    println("nswer_type.STRING_2 ${answer_type.STRING_2}")
-                    println("nswer_type.STRING_3 ${answer_type.STRING_3}")
-                    println("nswer_type.STRING_4 ${answer_type.STRING_4}")
-                    println("nswer_type.STRING_5 ${answer_type.STRING_5}")
-                    println("nswer_type.STRING_6 ${answer_type.STRING_6}")
-                    println("nswer_type.STRING_7 ${answer_type.STRING_7}")
-                    println("nswer_type.STRING_8 ${answer_type.STRING_8}")
-                    println("nswer_type.STRING_9 ${answer_type.STRING_9}")
-                    println("nswer_type.STRING_10 ${answer_type.STRING_10}")
-                     */
+
+                    answer_type.print()
+
 
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]

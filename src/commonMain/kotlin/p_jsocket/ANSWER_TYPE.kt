@@ -899,18 +899,22 @@ class ANSWER_TYPE {
             -> {
                 j.value_par1 = answerTypeValues.GetMessegeId().toString()
             }
+
             "9" //CHATS_COST_TYPES
             -> {
                 j.value_par1 = answerTypeValues.GetChatsCostTypeId().toString()
             }
+
             "A" //ALBUMS_COMMENTS
             -> {
                 j.value_par2 = answerTypeValues.GetCommentId().toString()
             }
+
             "C" //ALBUMS_LINKS_COMMENTS
             -> {
                 j.value_par2 = answerTypeValues.GetCommentId().toString()
             }
+
             "E" //OBJECTS_LINKS_COMMENTS
             -> {
                 j.value_par2 = answerTypeValues.GetCommentId().toString()
@@ -918,6 +922,251 @@ class ANSWER_TYPE {
         }
         return j
     }
+
+    fun print() {
+        if (this.IDENTIFICATOR_1 != null && this.IDENTIFICATOR_1!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_1 ${this.IDENTIFICATOR_1}")
+        }
+        if (this.IDENTIFICATOR_2 != null && this.IDENTIFICATOR_2!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_2 ${this.IDENTIFICATOR_2}")
+        }
+        if (this.IDENTIFICATOR_3 != null && this.IDENTIFICATOR_3!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_3 ${this.IDENTIFICATOR_3}")
+        }
+        if (this.IDENTIFICATOR_4 != null && this.IDENTIFICATOR_4!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_4 ${this.IDENTIFICATOR_4}")
+        }
+        if (this.IDENTIFICATOR_5 != null && this.IDENTIFICATOR_5!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_5 ${this.IDENTIFICATOR_5}")
+        }
+        if (this.IDENTIFICATOR_6 != null && this.IDENTIFICATOR_6!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_6 ${this.IDENTIFICATOR_6}")
+        }
+        if (this.IDENTIFICATOR_7 != null && this.IDENTIFICATOR_7!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_7 ${this.IDENTIFICATOR_7}")
+        }
+        if (this.IDENTIFICATOR_8 != null && this.IDENTIFICATOR_8!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_8 ${this.IDENTIFICATOR_8}")
+        }
+        if (this.IDENTIFICATOR_9 != null && this.IDENTIFICATOR_9!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_9 ${this.IDENTIFICATOR_9}")
+        }
+        if (this.IDENTIFICATOR_10 != null && this.IDENTIFICATOR_10!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_10 ${this.IDENTIFICATOR_10}")
+        }
+        if (this.IDENTIFICATOR_11 != null && this.IDENTIFICATOR_11!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_11 ${this.IDENTIFICATOR_11}")
+        }
+        if (this.IDENTIFICATOR_12 != null && this.IDENTIFICATOR_12!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_12 ${this.IDENTIFICATOR_12}")
+        }
+        if (this.IDENTIFICATOR_13 != null && this.IDENTIFICATOR_13!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_13 ${this.IDENTIFICATOR_13}")
+        }
+        if (this.IDENTIFICATOR_14 != null && this.IDENTIFICATOR_14!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_14 ${this.IDENTIFICATOR_14}")
+        }
+        if (this.IDENTIFICATOR_15 != null && this.IDENTIFICATOR_15!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_15 ${this.IDENTIFICATOR_15}")
+        }
+        if (this.IDENTIFICATOR_16 != null && this.IDENTIFICATOR_16!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_16 ${this.IDENTIFICATOR_16}")
+        }
+        if (this.IDENTIFICATOR_17 != null && this.IDENTIFICATOR_17!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_17 ${this.IDENTIFICATOR_17}")
+        }
+        if (this.IDENTIFICATOR_18 != null && this.IDENTIFICATOR_18!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_18 ${this.IDENTIFICATOR_18}")
+        }
+        if (this.IDENTIFICATOR_19 != null && this.IDENTIFICATOR_19!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_19 ${this.IDENTIFICATOR_19}")
+        }
+        if (this.IDENTIFICATOR_20 != null && this.IDENTIFICATOR_20!!.isNotEmpty()) {
+            println("nswer_type.IDENTIFICATOR_20 ${this.IDENTIFICATOR_20}")
+        }
+        if (this.INTEGER_1 != null && this.INTEGER_1!! > 0) {
+            println("nswer_type.INTEGER_1 ${this.INTEGER_1}")
+        }
+        if (this.INTEGER_2 != null && this.INTEGER_2!! > 0) {
+            println("nswer_type.INTEGER_2 ${this.INTEGER_2}")
+        }
+        if (this.INTEGER_3 != null && this.INTEGER_3!! > 0) {
+            println("nswer_type.INTEGER_3 ${this.INTEGER_3}")
+        }
+        if (this.INTEGER_4 != null && this.INTEGER_4!! > 0) {
+            println("nswer_type.INTEGER_4 ${this.INTEGER_4}")
+        }
+        if (this.INTEGER_5 != null && this.INTEGER_5!! > 0) {
+            println("nswer_type.INTEGER_5 ${this.INTEGER_5}")
+        }
+        if (this.INTEGER_6 != null && this.INTEGER_6!! > 0) {
+            println("nswer_type.INTEGER_6 ${this.INTEGER_6}")
+        }
+        if (this.INTEGER_7 != null && this.INTEGER_7!! > 0) {
+            println("nswer_type.INTEGER_7 ${this.INTEGER_7}")
+        }
+        if (this.INTEGER_8 != null && this.INTEGER_8!! > 0) {
+            println("nswer_type.INTEGER_8 ${this.INTEGER_8}")
+        }
+        if (this.INTEGER_9 != null && this.INTEGER_9!! > 0) {
+            println("nswer_type.INTEGER_9 ${this.INTEGER_9}")
+        }
+        if (this.INTEGER_10 != null && this.INTEGER_10!! > 0) {
+            println("nswer_type.INTEGER_10 ${this.INTEGER_10}")
+        }
+        if (this.INTEGER_11 != null && this.INTEGER_11!! > 0) {
+            println("nswer_type.INTEGER_11 ${this.INTEGER_11}")
+        }
+        if (this.INTEGER_12 != null && this.INTEGER_12!! > 0) {
+            println("nswer_type.INTEGER_12 ${this.INTEGER_12}")
+        }
+        if (this.INTEGER_13 != null && this.INTEGER_13!! > 0) {
+            println("nswer_type.INTEGER_13 ${this.INTEGER_13}")
+        }
+        if (this.INTEGER_14 != null && this.INTEGER_14!! > 0) {
+            println("nswer_type.INTEGER_14 ${this.INTEGER_14}")
+        }
+        if (this.INTEGER_15 != null && this.INTEGER_15!! > 0) {
+            println("nswer_type.INTEGER_15 ${this.INTEGER_15}")
+        }
+        if (this.INTEGER_16 != null && this.INTEGER_16!! > 0) {
+            println("nswer_type.INTEGER_16 ${this.INTEGER_16}")
+        }
+        if (this.INTEGER_17 != null && this.INTEGER_17!! > 0) {
+            println("nswer_type.INTEGER_17 ${this.INTEGER_17}")
+        }
+        if (this.INTEGER_18 != null && this.INTEGER_18!! > 0) {
+            println("nswer_type.INTEGER_18 ${this.INTEGER_18}")
+        }
+        if (this.INTEGER_19 != null && this.INTEGER_19!! > 0) {
+            println("nswer_type.INTEGER_19 ${this.INTEGER_19}")
+        }
+        if (this.INTEGER_20 > 0) {
+            println("nswer_type.INTEGER_20 ${this.INTEGER_20}")
+        }
+        if (this.STRING_1 != null && this.STRING_1!!.isNotEmpty()) {
+            println("nswer_type.STRING_1 ${this.STRING_1}")
+        }
+        if (this.STRING_2 != null && this.STRING_2!!.isNotEmpty()) {
+            println("nswer_type.STRING_2 ${this.STRING_2}")
+        }
+        if (this.STRING_3 != null && this.STRING_3!!.isNotEmpty()) {
+            println("nswer_type.STRING_3 ${this.STRING_3}")
+        }
+        if (this.STRING_4 != null && this.STRING_4!!.isNotEmpty()) {
+            println("nswer_type.STRING_4 ${this.STRING_4}")
+        }
+        if (this.STRING_5 != null && this.STRING_5!!.isNotEmpty()) {
+            println("nswer_type.STRING_5 ${this.STRING_5}")
+        }
+        if (this.STRING_6 != null && this.STRING_6!!.isNotEmpty()) {
+            println("nswer_type.STRING_6 ${this.STRING_6}")
+        }
+        if (this.STRING_7 != null && this.STRING_7!!.isNotEmpty()) {
+            println("nswer_type.STRING_7 ${this.STRING_7}")
+        }
+        if (this.STRING_8 != null && this.STRING_8!!.isNotEmpty()) {
+            println("nswer_type.STRING_8 ${this.STRING_8}")
+        }
+        if (this.STRING_9 != null && this.STRING_9!!.isNotEmpty()) {
+            println("nswer_type.STRING_9 ${this.STRING_9}")
+        }
+        if (this.STRING_10 != null && this.STRING_10!!.isNotEmpty()) {
+            println("nswer_type.STRING_10 ${this.STRING_10}")
+        }
+        if (this.STRING_11 != null && this.STRING_11!!.isNotEmpty()) {
+            println("nswer_type.STRING_11 ${this.STRING_11}")
+        }
+        if (this.STRING_12 != null && this.STRING_12!!.isNotEmpty()) {
+            println("nswer_type.STRING_12 ${this.STRING_12}")
+        }
+        if (this.STRING_13 != null && this.STRING_13!!.isNotEmpty()) {
+            println("nswer_type.STRING_13 ${this.STRING_13}")
+        }
+        if (this.STRING_14 != null && this.STRING_14!!.isNotEmpty()) {
+            println("nswer_type.STRING_14 ${this.STRING_14}")
+        }
+        if (this.STRING_15 != null && this.STRING_15!!.isNotEmpty()) {
+            println("nswer_type.STRING_15 ${this.STRING_15}")
+        }
+        if (this.STRING_16 != null && this.STRING_16!!.isNotEmpty()) {
+            println("nswer_type.STRING_16 ${this.STRING_16}")
+        }
+        if (this.STRING_17 != null && this.STRING_17!!.isNotEmpty()) {
+            println("nswer_type.STRING_17 ${this.STRING_17}")
+        }
+        if (this.STRING_18 != null && this.STRING_18!!.isNotEmpty()) {
+            println("nswer_type.STRING_18 ${this.STRING_18}")
+        }
+        if (this.STRING_19 != null && this.STRING_19!!.isNotEmpty()) {
+            println("nswer_type.STRING_19 ${this.STRING_19}")
+        }
+        if (this.STRING_20.isNotEmpty()) {
+            println("nswer_type.STRING_20 ${this.STRING_20}")
+        }
+        if (this.LONG_1 != null && this.LONG_1!! > 0L) {
+            println("nswer_type.LONG_1 ${this.LONG_1}")
+        }
+        if (this.LONG_2 != null && this.LONG_2!! > 0L) {
+            println("nswer_type.LONG_2 ${this.LONG_2}")
+        }
+        if (this.LONG_3 != null && this.LONG_3!! > 0L) {
+            println("nswer_type.LONG_3 ${this.LONG_3}")
+        }
+        if (this.LONG_4 != null && this.LONG_4!! > 0L) {
+            println("nswer_type.LONG_4 ${this.LONG_4}")
+        }
+        if (this.LONG_5 != null && this.LONG_5!! > 0L) {
+            println("nswer_type.LONG_5 ${this.LONG_5}")
+        }
+        if (this.LONG_6 != null && this.LONG_6!! > 0L) {
+            println("nswer_type.LONG_6 ${this.LONG_6}")
+        }
+        if (this.LONG_7 != null && this.LONG_7!! > 0L) {
+            println("nswer_type.LONG_7 ${this.LONG_7}")
+        }
+        if (this.LONG_8 != null && this.LONG_8!! > 0L) {
+            println("nswer_type.LONG_8 ${this.LONG_8}")
+        }
+        if (this.LONG_9 != null && this.LONG_9!! > 0L) {
+            println("nswer_type.LONG_9 ${this.LONG_9}")
+        }
+        if (this.LONG_10 != null && this.LONG_10!! > 0L) {
+            println("nswer_type.LONG_10 ${this.LONG_10}")
+        }
+        if (this.LONG_11 != null && this.LONG_11!! > 0L) {
+            println("nswer_type.LONG_11 ${this.LONG_11}")
+        }
+        if (this.LONG_12 != null && this.LONG_12!! > 0L) {
+            println("nswer_type.LONG_12 ${this.LONG_12}")
+        }
+        if (this.LONG_13 != null && this.LONG_13!! > 0L) {
+            println("nswer_type.LONG_13 ${this.LONG_13}")
+        }
+        if (this.LONG_14 != null && this.LONG_14!! > 0L) {
+            println("nswer_type.LONG_14 ${this.LONG_14}")
+        }
+        if (this.LONG_15 != null && this.LONG_15!! > 0L) {
+            println("nswer_type.LONG_15 ${this.LONG_15}")
+        }
+        if (this.LONG_16 != null && this.LONG_16!! > 0L) {
+            println("nswer_type.LONG_16 ${this.LONG_16}")
+        }
+        if (this.LONG_17 != null && this.LONG_17!! > 0L) {
+            println("nswer_type.LONG_17 ${this.LONG_17}")
+        }
+        if (this.LONG_18 != null && this.LONG_18!! > 0L) {
+            println("nswer_type.LONG_18 ${this.LONG_18}")
+        }
+        if (this.LONG_19 != null && this.LONG_19!! > 0L) {
+            println("nswer_type.LONG_19 ${this.LONG_19}")
+        }
+        if (this.LONG_20 > 0L) {
+            println("nswer_type.LONG_20 ${this.LONG_20}")
+        }
+
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////
     companion object {
@@ -979,7 +1228,7 @@ class ANSWER_TYPE {
                                 fillPOOL_IS_RUNNING.value = false
                             }
                         }
-                    }?: throw my_user_exceptions_class(
+                    } ?: throw my_user_exceptions_class(
                         l_class_name = "ANSWER_TYPE",
                         l_function_name = "fillPOOL",
                         name_of_exception = "EXC_SYSTEM_ERROR",
