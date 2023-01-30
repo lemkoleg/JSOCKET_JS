@@ -1234,9 +1234,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             }
             if(chats_messeges_count > 1){
                 if (!arr_messeges.first().answerTypeValues.GetMessegeId().equals(chats_messeges_count)
-                    || !arr_messeges.last().answerTypeValues.GetMessegeId().equals(chats_messeges_count.minus(arr_messeges.size))) {
+                    || !arr_messeges.last().answerTypeValues.GetMessegeId().equals(chats_messeges_count.plus(1).minus(arr_messeges.size))) {
                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        PrintInformation.PRINT_INFO("messegess: ${arr_messeges.size} not equal count of chats mess $chats_messeges_count")
+                        PrintInformation.PRINT_INFO("messegess: ${arr_messeges.size} not equal count of chats mess $chats_messeges_count; first messege_id = ${arr_messeges.first().answerTypeValues.GetMessegeId()} , last messege_id = ${arr_messeges.last().answerTypeValues.GetMessegeId()}")
                     }
                     messeges_KCashData.VerifyFirsBlock()
                     return

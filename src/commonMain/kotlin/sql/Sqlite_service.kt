@@ -1076,6 +1076,20 @@ object Sqlite_service : CoroutineScope {
                 )
             }
 
+            /////////////  META_DATA   ///////////////////////////////
+
+            try {
+                statement.TABLE_METADATA()
+                KMetaData.RE_LOAD_META_DATA().join()
+            } catch (e: Exception) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Sqlite_service",
+                    l_function_name = "Connect.META_DATA",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = e.stackTraceToString()
+                )
+            }
+
             /////////////   BIG_AVATARS   ///////////////////////////////
 
             try {
@@ -1120,19 +1134,7 @@ object Sqlite_service : CoroutineScope {
                 )
             }
 
-            /////////////  META_DATA   ///////////////////////////////
 
-            try {
-                statement.TABLE_METADATA()
-                KMetaData.RE_LOAD_META_DATA().join()
-            } catch (e: Exception) {
-                throw my_user_exceptions_class(
-                    l_class_name = "Sqlite_service",
-                    l_function_name = "Connect.META_DATA",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = e.stackTraceToString()
-                )
-            }
 
             /////////////  REG_DATA   ///////////////////////////////
 

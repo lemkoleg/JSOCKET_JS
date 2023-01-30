@@ -810,6 +810,7 @@ open class JSOCKET() {
             device_id = Constants.myDeviceId
             lang = Constants.myLang
             last_messege_update = CHATS!!.CashLastUpdate.GET_LAST_SELECT()
+            println("last_messege_update = $last_messege_update")
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1140,11 +1141,6 @@ open class JSOCKET() {
                 }
                 loopChSum2@ while (record.remaining > 4) {
 
-
-
-                    answer_type.print()
-
-
                     nameField_number = record.readInt()
                     subJSOCKET = FIELDS_SUBSCRIBE_ANSWER_TYPES[nameField_number]
                     nameField_length = record.readInt()
@@ -1209,6 +1205,8 @@ open class JSOCKET() {
                         l_additional_text = "answer_type.RECORD_TYPE is empty"
                     )
                 }
+
+                answer_type.print()
 
                 if (record_type == "0") {
                     record_type = answer_type.RECORD_TYPE
@@ -1643,7 +1641,7 @@ open class JSOCKET() {
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "exc_user_coocki_not_equal_db_coocki1: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                                l_additional_text = "exc_user_coocki_not_equal_db_coocki1: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it_label"
                             )
                         }
                     } else {
@@ -1651,7 +1649,7 @@ open class JSOCKET() {
                             l_class_name = "JSOCKET",
                             l_function_name = "deserialize",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "exc_user_coocki_not_equal_db_coocki2: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki"
+                            l_additional_text = "exc_user_coocki_not_equal_db_coocki2: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it_label"
                         )
                     }
                 }
@@ -1710,6 +1708,7 @@ open class JSOCKET() {
                 }
             }
         } finally {
+            println("return last_messege_update = $last_messege_update")
             try {
                 bbCONTENT_SIZE?.close()
                 if (!request_profile.equals(Constants.myRequestProfile)) {

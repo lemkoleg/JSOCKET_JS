@@ -924,6 +924,7 @@ class ANSWER_TYPE {
     }
 
     fun print() {
+        println("Print ANSWER_TYPE:  RECORD_TYPE = ${this.RECORD_TYPE}")
         if (this.IDENTIFICATOR_1 != null && this.IDENTIFICATOR_1!!.isNotEmpty()) {
             println("nswer_type.IDENTIFICATOR_1 ${this.IDENTIFICATOR_1}")
         }
