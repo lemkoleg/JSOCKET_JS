@@ -345,6 +345,9 @@ object Connection {
                                     when (jsocketRet.just_do_it) {
 
                                         1011000086 -> {  // new messeges, notices;
+                                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                                PrintInformation.PRINT_INFO("Get command 1011000086")
+                                            }
                                             if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                             }

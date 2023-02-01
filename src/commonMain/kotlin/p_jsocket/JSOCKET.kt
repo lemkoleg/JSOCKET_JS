@@ -810,7 +810,7 @@ open class JSOCKET() {
             device_id = Constants.myDeviceId
             lang = Constants.myLang
             last_messege_update = CHATS!!.CashLastUpdate.GET_LAST_SELECT()
-            println("last_messege_update = $last_messege_update")
+            //println("last_messege_update = $last_messege_update")
             last_metadata_update = meta_data_last_update.value
             db_massage = ""
             just_do_it_successfull = "0"
@@ -1641,7 +1641,7 @@ open class JSOCKET() {
                                 l_class_name = "JSOCKET",
                                 l_function_name = "deserialize",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "exc_user_coocki_not_equal_db_coocki1: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it_label"
+                                l_additional_text = "exc_user_coocki_not_equal_db_coocki1: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it"
                             )
                         }
                     } else {
@@ -1649,7 +1649,7 @@ open class JSOCKET() {
                             l_class_name = "JSOCKET",
                             l_function_name = "deserialize",
                             name_of_exception = "EXC_SYSTEM_ERROR",
-                            l_additional_text = "exc_user_coocki_not_equal_db_coocki2: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it_label"
+                            l_additional_text = "exc_user_coocki_not_equal_db_coocki2: db coocki = $p_original_connection_coocki, user coocki = $connection_coocki, command_id = $just_do_it"
                         )
                     }
                 }
@@ -1708,7 +1708,7 @@ open class JSOCKET() {
                 }
             }
         } finally {
-            println("return last_messege_update = $last_messege_update")
+           // println("return last_messege_update = $last_messege_update")
             try {
                 bbCONTENT_SIZE?.close()
                 if (!request_profile.equals(Constants.myRequestProfile)) {
