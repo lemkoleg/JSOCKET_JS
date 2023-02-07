@@ -278,6 +278,7 @@ actual class SQLStatement actual constructor() {
             Constants.AVATAR_2 = res.getBytes(15)
             Constants.AVATAR_3 = res.getBytes(16)
         }
+        meta_data_last_update.setGreaterValue(Constants.LAST_UPDATE)
     }
 
 /////////////save media///////////////////////////

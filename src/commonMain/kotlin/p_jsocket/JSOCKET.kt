@@ -810,8 +810,9 @@ open class JSOCKET() {
             device_id = Constants.myDeviceId
             lang = Constants.myLang
             last_messege_update = CHATS!!.CashLastUpdate.GET_LAST_SELECT()
-            //println("last_messege_update = $last_messege_update")
+            println("last_messege_update = $last_messege_update ; just_do_it = $just_do_it")
             last_metadata_update = meta_data_last_update.value
+            println("last_metadata_update = $last_metadata_update ; just_do_it = $just_do_it")
             db_massage = ""
             just_do_it_successfull = "0"
             connection_context = Constants.myConnectionContext
@@ -1271,7 +1272,8 @@ open class JSOCKET() {
                                 }
                                 cc = KCashData(kc!!)
                             }
-                            cc.SET_RECORDS(arr, this.last_date_of_update)
+                            // раз это SELECT_ALL_DATA_ON_CHAT, то выствляем дату выборки (но, только для данных чата, не для самого чата);
+                            cc.SET_RECORDS(arr = arr, its_first_block = !answer_type.RECORD_TYPE.equals("4"), last_select = this.last_date_of_update)
 
                             record_type = answer_type.RECORD_TYPE
                             arr = ArrayDeque()
@@ -1306,7 +1308,7 @@ open class JSOCKET() {
                                         l_just_do_it_label = this.just_do_it_label,
                                         l_limit = this.value_par8,
                                         l_count_of_all_records = this.value_par9,
-                                        l_number_of_block = this.value_par7,
+                                        //l_number_of_block = this.value_par7,
                                         l_object_id_from = this.value_id1,
                                         l_mess_id_from = this.value_par4,
                                         l_just_do_succefful = this.just_do_it_successfull
@@ -1420,7 +1422,8 @@ open class JSOCKET() {
                         }
                         cc = KCashData(kc!!)
                     }
-                    cc.SET_RECORDS(arr, this.last_date_of_update)
+                    // раз это SELECT_ALL_DATA_ON_CHAT, то выствляем дату выборки (но, только для данных чата, не для самого чата);
+                    cc.SET_RECORDS(arr = arr, its_first_block = !arr.last().RECORD_TYPE.equals("4"), last_select = this.last_date_of_update)
                 } else {
                     promise = when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
@@ -1445,13 +1448,21 @@ open class JSOCKET() {
                             if (currentCashData == null) {
                                 currentCashData = CASH_DATAS[this.check_sum]
                             }
-                            currentCashData?.ADD_NEW_CASH_DATA(
+                            if(currentCashData == null){
+                                throw my_user_exceptions_class(
+                                    l_class_name = "JSOCKET",
+                                    l_function_name = "deserialize_ANSWERS_TYPES",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "currentCashData == null"
+                                )
+                            }
+                            currentCashData.ADD_NEW_CASH_DATA(
                                 arr = arr,
                                 l_last_select = this.last_date_of_update,
                                 l_just_do_it_label = this.just_do_it_label,
                                 l_limit = this.value_par8,
                                 l_count_of_all_records = this.value_par9,
-                                l_number_of_block = this.value_par7,
+                                //l_number_of_block = this.value_par7,
                                 l_object_id_from = this.value_id1,
                                 l_mess_id_from = this.value_par4,
                                 l_just_do_succefful = this.just_do_it_successfull
@@ -1505,6 +1516,38 @@ open class JSOCKET() {
                 }
             }
              */
+
+            if (currentCommand!!.commands_access == "B") {
+                if (currentCashData == null
+                    && just_do_it_successfull.equals("0")
+                    && value_par7.equals("1")) {  // number of block;
+                    if (currentCommand!!.commands_id != 1011000052) { //SELECTOR.SELECT_ALL_DATA_ON_CHAT;
+                        currentCashData = CASH_DATAS[this.check_sum]
+
+                        if (currentCashData != null) {
+                            val start_record_id: String
+                            when (currentCashData.CashLastUpdate.RECORD_TYPE) {
+                                "4", "M" //MESSEGES
+                                -> {
+                                    start_record_id = this.value_par4
+                                }
+                                "A", "C", "E", "G" //ALBUMS_COMMENTS, ALBUMS_LINKS_COMMENTS, OBJECTS_LINKS_COMMENTS, OBJECTS_COMMENTS
+                                -> {
+                                    start_record_id = this.value_par4
+                                }
+                                else
+                                -> {
+                                    start_record_id = this.value_id1
+                                }
+                            }
+                            // если запрашивался первый блок, и ничего не пришло и нет ошибок, ставим дате полседней выборки;
+                            if(start_record_id.isEmpty()){
+                                currentCashData.CashLastUpdate.SET_LAST_SELECT(this.last_date_of_update)
+                            }
+                        }
+                    }
+                }
+            }
 
             if (currentCommand!!.commands_access == "C") {
                 if (object_info != null) {
@@ -1708,7 +1751,7 @@ open class JSOCKET() {
                 }
             }
         } finally {
-           // println("return last_messege_update = $last_messege_update")
+            println("return last_messege_update = $last_messege_update; just_do_it = $just_do_it")
             try {
                 bbCONTENT_SIZE?.close()
                 if (!request_profile.equals(Constants.myRequestProfile)) {

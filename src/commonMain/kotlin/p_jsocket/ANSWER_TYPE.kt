@@ -1165,6 +1165,15 @@ class ANSWER_TYPE {
         if (this.LONG_20 > 0L) {
             println("nswer_type.LONG_20 ${this.LONG_20}")
         }
+        if (this.BLOB_1 != null) {
+            println("nswer_type.BLOB_1 ${this.BLOB_1!!.size}")
+        }
+        if (this.BLOB_2 != null) {
+            println("nswer_type.BLOB_2 ${this.BLOB_2!!.size}")
+        }
+        if (this.BLOB_3 != null) {
+            println("nswer_type.BLOB_3 ${this.BLOB_3!!.size}")
+        }
 
     }
 

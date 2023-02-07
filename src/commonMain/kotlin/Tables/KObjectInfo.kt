@@ -169,7 +169,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                 answerType.INTEGER_20 = 1
                                 val d = ArrayDeque<ANSWER_TYPE>()
                                 d.add(answerType)
-                                SAVE_OBJECT_INFO!!.SET_RECORDS(d)
+                                SAVE_OBJECT_INFO!!.SET_RECORDS(arr = d, its_first_block = false)
                                 localFileSevice.save_media!!.setIsPerminent()
                             }
                         }

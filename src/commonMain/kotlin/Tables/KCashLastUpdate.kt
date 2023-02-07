@@ -3,12 +3,14 @@ package Tables
 import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
+import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
+import p_client.Jsocket
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.js.JsName
@@ -87,6 +89,14 @@ class KCashLastUpdate(
     fun SET_LAST_SELECT(v: Long) {
         if (v > LAST_SELECT) {
             LAST_SELECT = v
+            // если это данные чата, то отправляем запрос, для доставки последней даты  выборки;
+            if(CHATS!!.CashLastUpdate.CASH_SUM.equals(this.CASH_SUM)){
+                CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately{
+                    val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
+                    socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
+                    socket.send_request(await_answer = false)
+                }
+            }
             LAST_USE = DateTime.nowUnixMillisLong()
             Sqlite_service.InsertCashLastUpdate(this)
         }

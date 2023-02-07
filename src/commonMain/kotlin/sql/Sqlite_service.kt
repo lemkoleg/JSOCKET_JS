@@ -505,6 +505,7 @@ object Sqlite_service : CoroutineScope {
                             PrintInformation.PRINT_INFO("LOAD REG_DATA...")
                         }
                         statREG_DATA.SELECT_REGDATA_ALL()
+
                         Constants.isPRO = if (Constants.myRequestProfile.isNotEmpty()) {
                             Constants.myRequestProfile.substring(0, 1) == "1"
                         } else {

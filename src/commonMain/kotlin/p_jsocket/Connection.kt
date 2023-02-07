@@ -346,7 +346,7 @@ object Connection {
 
                                         1011000086 -> {  // new messeges, notices;
                                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                                PrintInformation.PRINT_INFO("Get command 1011000086")
+                                                PrintInformation.PRINT_INFO("Get1 command 1011000086")
                                             }
                                             if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
@@ -375,6 +375,9 @@ object Connection {
                                                 println("get request: jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
 
                                                 if (jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()) {
+                                                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                                        PrintInformation.PRINT_INFO("Get2 command 1011000086")
+                                                    }
                                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                                 }
 
@@ -428,6 +431,9 @@ object Connection {
                                         )
                                     } else {
                                         if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
+                                            if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                                PrintInformation.PRINT_INFO("Get3 command 1011000086")
+                                            }
                                             KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                         }
                                     }

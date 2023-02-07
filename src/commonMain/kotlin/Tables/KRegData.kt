@@ -124,8 +124,9 @@ class KRegData {
                                         Constants.Account_Access = it.STRING_2!!
                                     }
 
-                                    if (it.LONG_1 != null && it.LONG_1!! > Constants.LAST_UPDATE) {
-                                        Constants.LAST_UPDATE = it.LONG_1!!
+
+                                    if (it.LONG_20 > Constants.LAST_UPDATE) {
+                                        Constants.LAST_UPDATE = it.LONG_20
                                         meta_data_last_update.setGreaterValue(Constants.LAST_UPDATE)
                                     }
 

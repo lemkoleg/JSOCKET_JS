@@ -254,7 +254,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
     @JsName("SET_RECORDS")
-    suspend fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>, last_select: Long = CashLastUpdate.GET_LAST_SELECT()) {
+    suspend fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>,
+                            its_first_block: Boolean,
+                            last_select: Long = CashLastUpdate.GET_LAST_SELECT()) {
         KCashDataLock.withLock {
 
             if(arr.isEmpty()){
@@ -312,6 +314,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                         ORDERED_CASH_DATA.add(it.INTEGER_20.minus(1), it)
                     }
 
+
                     it.IS_UPDATED_BY_MERGE = true
 
                     if (it.INTEGER_20 <= count_of_cashing_records) {
@@ -320,7 +323,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                     if (chenged_records.isNotEmpty()) {
                         Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
-                        CashLastUpdate.SET_LAST_SELECT(last_select)
+                        if(its_first_block){  // если это первый блок, устанавляваем дату последней выборки;
+                            CashLastUpdate.SET_LAST_SELECT(last_select)
+                        }
                     }
                 }
             } catch (e: my_user_exceptions_class) {
@@ -344,7 +349,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         l_just_do_it_label: Long,
         l_limit: String,
         l_count_of_all_records: String,
-        l_number_of_block: String,
         l_object_id_from: String = "",
         l_mess_id_from: String = "",
         l_just_do_succefful: String = "0"
@@ -370,11 +374,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     limit = l_limit.toInt(),
                                     count_of_all_records = l_count_of_all_records.toInt()
                                 )
-                                REQUESTS[l_just_do_it_label] = kCashDataUpdateParameters
-                            }
 
-                            if (l_number_of_block == "1") {
                                 kCashDataUpdateParameters.last_update = l_last_select
+
                                 when (CashLastUpdate.RECORD_TYPE) {
                                     "4", "M" //MESSEGES
                                     -> {
@@ -391,7 +393,10 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         kCashDataUpdateParameters.start_record_id = l_object_id_from
                                     }
                                 }
+
+                                REQUESTS[l_just_do_it_label] = kCashDataUpdateParameters
                             }
+
                             if(!l_just_do_succefful.equals("0")){
                                 kCashDataUpdateParameters.have_errors = true
                             }
@@ -445,7 +450,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                 if (cc == null) {
                                                     cc = KCashData(alien_cash_last_update!!)
                                                 }
-                                                cc.SET_RECORDS(alien_records!!, l_last_select)
+                                                cc.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(), last_select = l_last_select)
                                             }
                                             alien_cash_last_update = CASH_LAST_UPDATE[cash_sum]
                                             if (alien_cash_last_update == null) {
@@ -504,7 +509,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     if (cc2 == null) {
                                         cc2 = KCashData(alien_cash_last_update!!)
                                     }
-                                    cc2.SET_RECORDS(alien_records!!, l_last_select)
+                                    // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
+                                    cc2.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(), last_select = l_last_select)
                                     alien_records = ArrayDeque()
                                 }
 
@@ -569,7 +575,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 if (cc3 == null) {
                                     cc3 = KCashData(alien_cash_last_update!!)
                                 }
-                                cc3.SET_RECORDS(alien_records!!, l_last_select)
+                                // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
+                                cc3.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters!!.start_record_id.isEmpty(), last_select = l_last_select)
                             }
 
                             if (Constants.CALL_UPDATED_CASH_DATA_FOR_EACH_INCOMING_BLOCK == 1) {
@@ -586,7 +593,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 Connection.removeRequest(l_just_do_it_label)
                                 REQUESTS.remove(l_just_do_it_label)
 
-                                if (!kCashDataUpdateParameters.have_errors && kCashDataUpdateParameters.last_update > 0) {
+                                if (!kCashDataUpdateParameters.have_errors
+                                    && kCashDataUpdateParameters.last_update > 0
+                                    && kCashDataUpdateParameters.start_record_id.isEmpty()) {  // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
                                     CashLastUpdate.SET_LAST_SELECT(kCashDataUpdateParameters.last_update)
                                 }
 
@@ -1128,9 +1137,6 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     suspend fun SELECT_ALL_DATA_OF_CHAT(chat_id: String) {
 
-        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-            PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT")
-        }
 
         val chats_cash_sum = GetCashSum(
             L_OBJECT_ID = Account_Id,
