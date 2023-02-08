@@ -809,7 +809,7 @@ open class JSOCKET() {
             connection_coocki = Constants.myConnectionsCoocki
             device_id = Constants.myDeviceId
             lang = Constants.myLang
-            last_messege_update = CHATS!!.CashLastUpdate.GET_LAST_SELECT()
+            last_messege_update = CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L
             println("last_messege_update = $last_messege_update ; just_do_it = $just_do_it")
             last_metadata_update = meta_data_last_update.value
             println("last_metadata_update = $last_metadata_update ; just_do_it = $just_do_it")
@@ -1273,7 +1273,7 @@ open class JSOCKET() {
                                 cc = KCashData(kc!!)
                             }
                             // раз это SELECT_ALL_DATA_ON_CHAT, то выствляем дату выборки (но, только для данных чата, не для самого чата);
-                            cc.SET_RECORDS(arr = arr, its_first_block = !answer_type.RECORD_TYPE.equals("4"), last_select = this.last_date_of_update)
+                            cc.SET_RECORDS(arr = arr, its_first_block = !answer_type.RECORD_TYPE.equals("3"), last_select = this.last_date_of_update)
 
                             record_type = answer_type.RECORD_TYPE
                             arr = ArrayDeque()
@@ -1423,7 +1423,7 @@ open class JSOCKET() {
                         cc = KCashData(kc!!)
                     }
                     // раз это SELECT_ALL_DATA_ON_CHAT, то выствляем дату выборки (но, только для данных чата, не для самого чата);
-                    cc.SET_RECORDS(arr = arr, its_first_block = !arr.last().RECORD_TYPE.equals("4"), last_select = this.last_date_of_update)
+                    cc.SET_RECORDS(arr = arr, its_first_block = !arr.last().RECORD_TYPE.equals("3"), last_select = this.last_date_of_update)
                 } else {
                     promise = when (record_type) {
                         "1" -> KCommands.ADD_NEW_COMMANDS(arr)
@@ -1517,6 +1517,7 @@ open class JSOCKET() {
             }
              */
 
+            /*
             if (currentCommand!!.commands_access == "B") {
                 if (currentCashData == null
                     && just_do_it_successfull.equals("0")
@@ -1548,6 +1549,7 @@ open class JSOCKET() {
                     }
                 }
             }
+             */
 
             if (currentCommand!!.commands_access == "C") {
                 if (object_info != null) {

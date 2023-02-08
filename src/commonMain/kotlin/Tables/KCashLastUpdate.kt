@@ -92,6 +92,7 @@ class KCashLastUpdate(
             // если это данные чата, то отправляем запрос, для доставки последней даты  выборки;
             if(CHATS!!.CashLastUpdate.CASH_SUM.equals(this.CASH_SUM)){
                 CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately{
+                    println("SET_LAST_SELECT for chats; CASH_SUM = $CASH_SUM")
                     val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                     socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
                     socket.send_request(await_answer = false)

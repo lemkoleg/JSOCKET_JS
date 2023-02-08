@@ -49,7 +49,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (!CASH_DATAS.containsKey(CashLastUpdate.CASH_SUM)) {
             CASH_DATAS[CashLastUpdate.CASH_SUM] = this
-        } else{
+        } else {
             throw my_user_exceptions_class(
                 l_class_name = "KCashData",
                 l_function_name = "Constructor",
@@ -254,12 +254,14 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
     @JsName("SET_RECORDS")
-    suspend fun SET_RECORDS(arr: ArrayDeque<ANSWER_TYPE>,
-                            its_first_block: Boolean,
-                            last_select: Long = CashLastUpdate.GET_LAST_SELECT()) {
+    suspend fun SET_RECORDS(
+        arr: ArrayDeque<ANSWER_TYPE>,
+        its_first_block: Boolean,
+        last_select: Long = CashLastUpdate.GET_LAST_SELECT()
+    ) {
         KCashDataLock.withLock {
 
-            if(arr.isEmpty()){
+            if (arr.isEmpty()) {
                 return@withLock
             }
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
@@ -323,7 +325,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                     if (chenged_records.isNotEmpty()) {
                         Sqlite_service.InsertCashData(CashLastUpdate.CASH_SUM, chenged_records)
-                        if(its_first_block){  // если это первый блок, устанавляваем дату последней выборки;
+                        if (its_first_block) {  // если это первый блок, устанавляваем дату последней выборки;
                             CashLastUpdate.SET_LAST_SELECT(last_select)
                         }
                     }
@@ -397,7 +399,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                 REQUESTS[l_just_do_it_label] = kCashDataUpdateParameters
                             }
 
-                            if(!l_just_do_succefful.equals("0")){
+                            if (!l_just_do_succefful.equals("0")) {
                                 kCashDataUpdateParameters.have_errors = true
                             }
                             arr.forEach lit@{
@@ -450,7 +452,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                                 if (cc == null) {
                                                     cc = KCashData(alien_cash_last_update!!)
                                                 }
-                                                cc.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(), last_select = l_last_select)
+                                                cc.SET_RECORDS(
+                                                    arr = alien_records!!,
+                                                    its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(),
+                                                    last_select = l_last_select
+                                                )
                                             }
                                             alien_cash_last_update = CASH_LAST_UPDATE[cash_sum]
                                             if (alien_cash_last_update == null) {
@@ -510,7 +516,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                         cc2 = KCashData(alien_cash_last_update!!)
                                     }
                                     // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
-                                    cc2.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(), last_select = l_last_select)
+                                    cc2.SET_RECORDS(
+                                        arr = alien_records!!,
+                                        its_first_block = kCashDataUpdateParameters.start_record_id.isEmpty(),
+                                        last_select = l_last_select
+                                    )
                                     alien_records = ArrayDeque()
                                 }
 
@@ -576,7 +586,11 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
                                     cc3 = KCashData(alien_cash_last_update!!)
                                 }
                                 // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
-                                cc3.SET_RECORDS(arr = alien_records!!, its_first_block = kCashDataUpdateParameters!!.start_record_id.isEmpty(), last_select = l_last_select)
+                                cc3.SET_RECORDS(
+                                    arr = alien_records!!,
+                                    its_first_block = kCashDataUpdateParameters!!.start_record_id.isEmpty(),
+                                    last_select = l_last_select
+                                )
                             }
 
                             if (Constants.CALL_UPDATED_CASH_DATA_FOR_EACH_INCOMING_BLOCK == 1) {
@@ -595,7 +609,8 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                                 if (!kCashDataUpdateParameters.have_errors
                                     && kCashDataUpdateParameters.last_update > 0
-                                    && kCashDataUpdateParameters.start_record_id.isEmpty()) {  // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
+                                    && kCashDataUpdateParameters.start_record_id.isEmpty()
+                                ) {  // только первый запрос первого блока устанавливает последнюю дату выборки всего пакета.
                                     CashLastUpdate.SET_LAST_SELECT(kCashDataUpdateParameters.last_update)
                                 }
 
@@ -868,7 +883,9 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                     try {
                         socket.value_id4 = CashLastUpdate.OBJECT_ID
+                        println("socket.value_id4 = ${socket.value_id4}")
                         socket.value_id5 = CashLastUpdate.LINK_OWNER
+                        println("socket.value_id5 = ${socket.value_id5}")
                         socket.value_par1 = CashLastUpdate.MESS_COUNT_FROM
                         socket.value_par2 = CashLastUpdate.SORT
                         socket.value_par3 = CashLastUpdate.COURSE
@@ -1169,7 +1186,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr_chats_likes.size != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfAllMembers()) {
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("chats_likes: ${arr_chats_likes.size} not equal count of chats likes ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfAllMembers()}")
+                PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: count of chats_likes (${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfAllMembers()} )  not equal count of chats likes (${arr_chats_likes.size})")
             }
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
             return
@@ -1200,7 +1217,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         if (arr_chats_cost_types.size != CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfConstsType()) {
             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                PrintInformation.PRINT_INFO("chats_cost_types: ${arr_chats_cost_types.size} not equal count of chats cost types ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfConstsType()}")
+                PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: count of chats_cost_types( ${CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsCountOfConstsType()} )  not equal count of chats cost types ( ${arr_chats_cost_types.size} )")
             }
             KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
             return
@@ -1228,24 +1245,43 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             )
         }
 
-        val chats_messeges_count = CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()
+        val chats_messeges_count =
+            CASH_DATAS[chats_cash_sum]!!.CASH_DATA_RECORDS[chat_id]!!.answerTypeValues.GetChatsMessegeCount()
 
         if (chats_messeges_count > 0) {
             if (arr_messeges.isEmpty()) {
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                    PrintInformation.PRINT_INFO("Messeges is empty; chats_messeges_count = $chats_messeges_count")
+                    PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: Messeges is empty; chats_messeges_count = $chats_messeges_count")
                 }
                 KChat.SELECT_ALL_DATA_ON_CHAT(chat_id)
                 return
             }
-            if(chats_messeges_count > 1){
-                if (!arr_messeges.first().answerTypeValues.GetMessegeId().equals(chats_messeges_count)
-                    || !arr_messeges.last().answerTypeValues.GetMessegeId().equals(chats_messeges_count.plus(1).minus(arr_messeges.size))) {
+            if (chats_messeges_count > 1) {
+                if (!arr_messeges.first().answerTypeValues.GetMessegeId().equals(chats_messeges_count)) {
                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        PrintInformation.PRINT_INFO("messegess: ${arr_messeges.size} not equal count of chats mess $chats_messeges_count; first messege_id = ${arr_messeges.first().answerTypeValues.GetMessegeId()} , last messege_id = ${arr_messeges.last().answerTypeValues.GetMessegeId()}")
+                        PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: first massege id ( ${arr_messeges.first().answerTypeValues.GetMessegeId()} ) not equal masseges count ( $chats_messeges_count );")
                     }
                     messeges_KCashData.VerifyFirsBlock()
                     return
+                }
+                if (chats_messeges_count <= Constants.LIMIT_FOR_SELECT) {
+                    if (arr_messeges.size < chats_messeges_count) {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: messeges count ($chats_messeges_count) not equal count of messegess array size ( ${arr_messeges.size} );")
+                        }
+                        messeges_KCashData.VerifyFirsBlock()
+                        return
+                    }
+                } else {
+                    if (!arr_messeges.last().answerTypeValues.GetMessegeId().minus(1).plus(arr_messeges.size)
+                            .equals(chats_messeges_count)
+                    ) {
+                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                            PrintInformation.PRINT_INFO("SELECT_ALL_DATA_OF_CHAT: last  massege id (${arr_messeges.last().answerTypeValues.GetMessegeId()}) not equal count of messegess arrya size ( ${arr_messeges.size} );")
+                        }
+                        messeges_KCashData.VerifyFirsBlock()
+                        return
+                    }
                 }
             }
         }

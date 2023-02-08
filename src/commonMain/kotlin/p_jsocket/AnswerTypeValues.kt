@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
+import p_jsocket.Constants.Account_Id
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
@@ -1582,7 +1583,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     fun setOBJECT_ID_LAST_SELECT(): String {
         var object_id = ""
-        val last_select: String = getLONG_20().toString()
+        var last_select: String = getLONG_20().toString()
         when (answerType.RECORD_TYPE) {
             "1" //COMMANDS
             -> {
@@ -1595,6 +1596,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
             "3" //CHATS
             -> {
                 object_id = GetObjectId()
+                last_select = CASH_DATAS[object_id + "800"]?.CASH_DATA_RECORDS?.get(Account_Id)?.LONG_12.toString()
+                if(last_select.isEmpty()){
+                    last_select = "0"
+                }
             }
             "4", "M" //MESSEGES
             -> {
