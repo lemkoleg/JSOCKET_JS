@@ -459,7 +459,7 @@ object Connection {
 
 
     private val Cleaner = KorosTimerTask.start(
-        delay = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES,
+        delay = Constants.CLIENT_TIMEOUT_FOR_WAIT_ANSWER,
         repeat = Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES
     ) {
         removeOldAll()

@@ -121,7 +121,7 @@ class FileService(
         fIleFullName = jsocket.FileFullPathForSend
         file = CrossPlatformFile(fIleFullName!!, 1)  // read
         SELF_Jsocket.just_do_it = 1011000056 // TAKE_A_NEW_FILE
-        SELF_Jsocket.value_par2 = "1" ; // NUMBER OF CHUNK;
+        SELF_Jsocket.value_par2 = "0" ; // NUMBER OF CHUNK;
     }
 
 

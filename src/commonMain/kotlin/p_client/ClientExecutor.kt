@@ -137,6 +137,7 @@ class ClientExecutor {
                 1011000061 // not execute commands 1011000061 - SELECT_METADATA
                 -> {
                 }
+
                 1011000010, // RESTORE_PASSWORD
                 1011000012, // DELETE_ACCOUNT
                 1011000014, // RESTORE_ACCOUNT
@@ -145,11 +146,14 @@ class ClientExecutor {
                 1011000046, // UPDATE_ACCOUNT
                 1011000072  // UPDATE_ACCOUNTS_MAIL
                 -> update_account()
+
                 1011000038
                 -> quit_account()
+
                 1011000093, // LOAD_NEW_OBJECT
                 1011000094  // INSERT_MESSEGE_WITH_OBJECT
                 -> execute_with_send_file()
+
                 else -> default_execute()
             }
         } catch (e: my_user_exceptions_class) {
@@ -243,6 +247,7 @@ class ClientExecutor {
                         1011000010, 1011000026, 1011000027 -> {
                             Constants.myConnectionsCoocki = l1
                         }
+
                         else -> {
                         }
                     }
@@ -298,16 +303,19 @@ class ClientExecutor {
             1011000025 -> {// CLEAR_SAVE_MEDIA
                 KSaveMedia.ClearSaveMedia()
             }
+
             1011000007 -> { // SAVE SAVE_MEDIA (DOWNLOAD FILE)
                 val f = FileService(jsocket)
                 f.open_file_channel()
                 f.receive_file().await()
             }
+
             else -> {
                 throw my_user_exceptions_class(
                     l_class_name = "ClientExecutor",
                     l_function_name = "self_execute",
-                    name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND")
+                    name_of_exception = "EXC_WRSOCKETTYPE_NOT_FOUND_COMMAND"
+                )
             }
         }
     }
@@ -317,24 +325,17 @@ class ClientExecutor {
 
         if (jsocket.FileFullPathForSend.isNotEmpty()) {
             val f = FileService(jsocket)
-            if (f.open_file_channel() != null && f.send_file().await()) {
-                if (f.send_file().await()) {
-                    jsocket.value_par4 = f.ServerFileName
-                    if (jsocket.value_par4.isEmpty()) {
-                        throw my_user_exceptions_class(
-                            l_class_name = "ClientExecutor",
-                            l_function_name = "execute_with_send_file",
-                            name_of_exception = "EXC_ERROR_SEND_FILE"
-                        )
-                    }
-                    jsocket.send_request()
-                } else {
+            val send = f.open_file_channel()
+            if (send != null && send.await()) {
+                jsocket.value_par4 = f.ServerFileName
+                if (jsocket.value_par4.isEmpty()) {
                     throw my_user_exceptions_class(
                         l_class_name = "ClientExecutor",
                         l_function_name = "execute_with_send_file",
                         name_of_exception = "EXC_ERROR_SEND_FILE"
                     )
                 }
+                jsocket.send_request()
             } else {
                 throw my_user_exceptions_class(
                     l_class_name = "ClientExecutor",
