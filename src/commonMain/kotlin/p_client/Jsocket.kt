@@ -54,7 +54,7 @@ private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-class Jsocket() : JSOCKET(), OnRequestListener{
+class Jsocket() : JSOCKET(), OnRequestListener {
 
     //val InstanceRef:AtomicReference<Jsocket> = AtomicReference(this)
 
@@ -90,7 +90,7 @@ class Jsocket() : JSOCKET(), OnRequestListener{
 
     @JsName("execute")
     fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any> =
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).async{
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
             if (!InitJsocketJob.isCompleted) {
                 InitJsocketJob.join()
@@ -162,9 +162,11 @@ class Jsocket() : JSOCKET(), OnRequestListener{
     ////////////////////////////////////////////////////////////////////////////////
 
 
-    suspend fun send_request(verify_fields: Boolean = true,
-                             await_answer: Boolean = true,
-                             update_just_do_it_label: Boolean = true) {
+    suspend fun send_request(
+        verify_fields: Boolean = true,
+        await_answer: Boolean = true,
+        update_just_do_it_label: Boolean = true
+    ) {
 
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
@@ -172,12 +174,18 @@ class Jsocket() : JSOCKET(), OnRequestListener{
 
 
         if (!command.isDont_answer && await_answer) {
-            if (!condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                if (command.commands_access != "B") {
+            if (!condition.cAwait(Constants.CLIENT_TIMEOUT_FOR_WAIT_ANSWER)) {
+                throw my_user_exceptions_class(
+                    l_class_name = "Jsocket",
+                    l_function_name = "send_request",
+                    name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
+                )
+            } else{
+                if(just_do_it_successfull.equals("9")){ // Connection interrupted;
                     throw my_user_exceptions_class(
                         l_class_name = "Jsocket",
                         l_function_name = "send_request",
-                        name_of_exception = "EXC_SERVER_IS_NOT_RESPONDING",
+                        name_of_exception = "EXC_CONNECTION_IS_INTERRUPTED",
                     )
                 }
             }

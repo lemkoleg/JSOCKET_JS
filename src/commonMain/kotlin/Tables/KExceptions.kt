@@ -227,6 +227,16 @@ fun init(): Boolean {
         )
     )
 
+    USERS_EXCEPTIONS["EXC_CONNECTION_IS_INTERRUPTED"] = KExceptions(
+        KExceptions.KException(
+            "EXC_CONNECTION_IS_INTERRUPTED",
+            "ENG",
+            "Connection interrupted.",
+            "3",
+            0
+        )
+    )
+
     return true
 }
 

@@ -72,7 +72,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                     try {
                         try {
                             LocalLock.withLock {
-                                if (answerTypeConstants.IsDBObject) {
+                                if (answerTypeConstants.IsDBObject || answerTypeConstants.IsAccount) {
                                     if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
                                         if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
                                             if (answerType.BLOB_4 == null) {
@@ -115,7 +115,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                                     RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
                                             }
                                         } else if (answerType.BLOB_2 == null) {
-                                            answerType.BLOB_4 =
+                                            answerType.BLOB_2 =
                                                 RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
                                         }
                                     }
@@ -246,7 +246,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
             jsocket.value_par1 = "1"
         }
         jsocket.value_par3 = what_avatar_select
-        jsocket.send_request()
+        jsocket.send_request(await_answer = true)
     }
 
     fun merge(v: ANSWER_TYPE) {

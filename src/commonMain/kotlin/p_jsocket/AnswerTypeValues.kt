@@ -1015,7 +1015,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     suspend fun getACCOUNT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
-            if (answerType.answerTypeValues.GetMainAccountId().isEmpty()) {
+            if (GetMainAccountId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "getALBUM_INFO",
@@ -1023,11 +1023,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     l_additional_text = "Account Id is empty"
                 )
             }
-            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetMainAccountId())
+            var v = OBJECTS_INFO.lockedGet(GetMainAccountId())
             if (v == null) {
 
                 val c = KCashData.GET_CASH_DATA(
-                    L_OBJECT_ID = answerType.answerTypeValues.GetMainAccountId(),
+                    L_OBJECT_ID = GetMainAccountId(),
                     L_RECORD_TYPE = "J",
                     L_COURSE = "0",
                     l_request_updates = false,
@@ -1155,7 +1155,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     suspend fun getALBUM_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
-            if (answerType.answerTypeValues.GetAlbumId().isEmpty()) {
+            if (GetAlbumId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "getALBUM_INFO",
@@ -1163,10 +1163,10 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     l_additional_text = "Album Id is empty"
                 )
             }
-            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetAlbumId())
+            var v = OBJECTS_INFO.lockedGet(GetAlbumId())
             if (v == null) {
                 val c = KCashData.GET_CASH_DATA(
-                    L_OBJECT_ID = answerType.answerTypeValues.GetAlbumId(),
+                    L_OBJECT_ID = GetAlbumId(),
                     L_RECORD_TYPE = "K",
                     L_COURSE = "0",
                     l_request_updates = false,
@@ -1345,7 +1345,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     fun getOBJECT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
-            if (answerType.answerTypeValues.GetObjectId().isEmpty()) {
+            if (GetObjectId().isEmpty()) {
                 throw my_user_exceptions_class(
                     l_class_name = "AnswerTypeValues",
                     l_function_name = "getOBJECT_INFO",
@@ -1353,11 +1353,11 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                     l_additional_text = "Object Id is empty"
                 )
             }
-            var v = OBJECTS_INFO.lockedGet(answerType.answerTypeValues.GetObjectId())
+            var v = OBJECTS_INFO.lockedGet(GetObjectId())
             if (v == null) {
-                if (answerType.answerTypeValues.GetMessegeFileType().isEmpty()) {
+                if (answerTypeConstants.IsDBObject) {
                     val c = KCashData.GET_CASH_DATA(
-                        L_OBJECT_ID = answerType.answerTypeValues.GetObjectId(),
+                        L_OBJECT_ID = GetObjectId(),
                         L_RECORD_TYPE = "L",
                         L_COURSE = "0",
                         l_request_updates = false,
@@ -1386,7 +1386,9 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 v.SetCallBackUpdate(l_updatedCashData)
                 OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetObjectId(), v)
             }
-            v.VerifyUpdates()
+            if(answerTypeConstants.IsDBObject){
+                v.VerifyUpdates()
+            }
             return@async v
         }.toPromise(EmptyCoroutineContext)
 

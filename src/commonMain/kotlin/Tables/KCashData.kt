@@ -883,9 +883,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
                     try {
                         socket.value_id4 = CashLastUpdate.OBJECT_ID
-                        println("socket.value_id4 = ${socket.value_id4}")
                         socket.value_id5 = CashLastUpdate.LINK_OWNER
-                        println("socket.value_id5 = ${socket.value_id5}")
                         socket.value_par1 = CashLastUpdate.MESS_COUNT_FROM
                         socket.value_par2 = CashLastUpdate.SORT
                         socket.value_par3 = CashLastUpdate.COURSE

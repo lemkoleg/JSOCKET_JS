@@ -18,6 +18,8 @@ class AnswerTypeConstants(answerType: ANSWER_TYPE) {
             answerType.RECORD_TYPE == "E" ||
             answerType.RECORD_TYPE == "G"
 
+    val IsAccount: Boolean = answerType.RECORD_TYPE == "J"
+
 
     val IsFile = if (IsMessege) {
         when (answerType.answerTypeValues.GetMessegeObjectType()) {

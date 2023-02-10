@@ -121,6 +121,7 @@ class FileService(
         fIleFullName = jsocket.FileFullPathForSend
         file = CrossPlatformFile(fIleFullName!!, 1)  // read
         SELF_Jsocket.just_do_it = 1011000056 // TAKE_A_NEW_FILE
+        SELF_Jsocket.value_par2 = "1" ; // NUMBER OF CHUNK;
     }
 
 
@@ -218,6 +219,15 @@ class FileService(
 
                 SELF_Jsocket.send_request()
 
+                if(!SELF_Jsocket.just_do_it_successfull.equals("0")){
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "open_file_channel",
+                        name_of_exception = "DB Error",
+                        l_additional_text = SELF_Jsocket.db_massage
+                    )
+                }
+
                 CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
 
                 file!!.create(ExpectedFIleSize) // create full size file
@@ -274,7 +284,16 @@ class FileService(
 
             ExpectedFIleSize = file!!.size()
             SELF_Jsocket.object_size = ExpectedFIleSize
+            SELF_Jsocket.object_extension = file!!.getFileExtension()
             SELF_Jsocket.send_request()
+            if(!SELF_Jsocket.just_do_it_successfull.equals("0")){
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "open_file_channel",
+                    name_of_exception = "DB Error",
+                    l_additional_text = SELF_Jsocket.db_massage
+                )
+            }
             ServerFileName = SELF_Jsocket.value_par4
             CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
             return send_file()
@@ -370,10 +389,26 @@ class FileService(
                             }
                             SELF_Jsocket.value_par4 = ServerFileName
                             SELF_Jsocket.send_request()
+                            if(!SELF_Jsocket.just_do_it_successfull.equals("0")){
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "send file",
+                                    name_of_exception = "DB Error",
+                                    l_additional_text = SELF_Jsocket.db_massage
+                                )
+                            }
                             SELF_Jsocket.content = null
                         }
                     } else {
                         SELF_Jsocket.send_request()
+                        if(!SELF_Jsocket.just_do_it_successfull.equals("0")){
+                            throw my_user_exceptions_class(
+                                l_class_name = "FileService",
+                                l_function_name = "send file",
+                                name_of_exception = "DB Error",
+                                l_additional_text = SELF_Jsocket.db_massage
+                            )
+                        }
                         ServerFileName = SELF_Jsocket.value_par4
                         CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par1.toInt()
                     }
@@ -420,6 +455,15 @@ class FileService(
                 }
 
                 SELF_Jsocket.send_request()
+
+                if(!SELF_Jsocket.just_do_it_successfull.equals("0")){
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "receive file",
+                        name_of_exception = "DB Error",
+                        l_additional_text = SELF_Jsocket.db_massage
+                    )
+                }
 
                 if (SELF_Jsocket.value_par2.equals("A")) {
                     throw my_user_exceptions_class(

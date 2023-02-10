@@ -21,14 +21,14 @@ class AnswerTypeCashDatas(l_answerType: ANSWER_TYPE) {
 
     val answerType = l_answerType
 
-    fun GetChatMesseges (l_startLoading: (() -> Any?)? = null): Promise<KCashData?> =
+    fun GetChatMesseges (l_updated: (() -> Any?)? = null): Promise<KCashData?> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         if(answerType.RECORD_TYPE.equals("3")){
             return@async KCashData.GET_CASH_DATA(
                 L_OBJECT_ID = answerType.answerTypeValues.GetChatId(),
                 L_RECORD_TYPE = "4",
                 L_COURSE = "1",
-                l_updatedCashData = l_startLoading,
+                l_updatedCashData = l_updated,
                 l_request_updates = true,
                 l_select_all_records = false,
                 l_is_SetLastBlock = true,
@@ -38,14 +38,14 @@ class AnswerTypeCashDatas(l_answerType: ANSWER_TYPE) {
             return@async null
     }.toPromise(EmptyCoroutineContext)
 
-    fun GetChatMembers (l_startLoading: (() -> Any?)? = null): Promise<KCashData?> =
+    fun GetChatMembers (l_updated: (() -> Any?)? = null): Promise<KCashData?> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if(answerType.RECORD_TYPE.equals("3")){
                 return@async KCashData.GET_CASH_DATA(
                     L_OBJECT_ID = answerType.answerTypeValues.GetChatId(),
                     L_RECORD_TYPE = "8",
                     L_COURSE = "0",
-                    l_updatedCashData = l_startLoading,
+                    l_updatedCashData = l_updated,
                     l_request_updates = true,
                     l_select_all_records = false,
                     l_is_SetLastBlock = true,

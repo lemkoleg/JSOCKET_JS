@@ -9,10 +9,7 @@ package p_jsocket
 import CrossPlatforms.GC
 import CrossPlatforms.PrintInformation
 import Tables.*
-import atomic.lockedGet
-import atomic.lockedPut
-import atomic.lockedRemove
-import atomic.AtomicLong
+import atomic.*
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.*
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -147,11 +144,19 @@ object Connection {
                     signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
                     signalonStringMessage = MyWebSocketChannel!!.onStringMessage
                     signalonClose = MyWebSocketChannel!!.onClose
-                    signalonClose?.add {
+                    signalonClose?.addSuspend {
                         isConnect = false
                         isClosed = true
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                             PrintInformation.PRINT_INFO("WebSocket disconnect")
+                        }
+                        BetweenJSOCKETs.lock.withLock {
+                            BetweenJSOCKETs.forEach {
+                                it.value.just_do_it_successfull = "9"
+                                it.value.db_massage = "Connection interrupted"
+                                it.value.condition.cSignal()
+                            }
+                            BetweenJSOCKETs.clear()
                         }
                     }
                     signalonError = MyWebSocketChannel!!.onError
@@ -384,12 +389,7 @@ object Connection {
                                                 if(!jsocketRet.just_do_it_successfull.equals("0")){
                                                     jsocket.db_massage = jsocketRet.db_massage
                                                     jsocket.just_do_it_successfull = jsocketRet.just_do_it_successfull
-                                                    throw my_user_exceptions_class(
-                                                        l_class_name = "Connection",
-                                                        l_function_name = "decode",
-                                                        name_of_exception = "DB_ERROR",
-                                                        l_additional_text = jsocketRet.db_massage
-                                                    )
+                                                    return@launchImmediately
                                                 }
 
                                                 if (c.commands_access == "B") {
@@ -482,7 +482,7 @@ object Connection {
                     }
                 }
 
-                LastTimeCleanOutJSOCKETs = nowNano() - Constants.TIME_OUT_FOR_CLIENT_JSOCKETS
+                LastTimeCleanOutJSOCKETs = nowNano() - Constants.CLIENT_TIMEOUT_FOR_WAIT_ANSWER
 
                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                     val d: DateTime = DateTime.now()

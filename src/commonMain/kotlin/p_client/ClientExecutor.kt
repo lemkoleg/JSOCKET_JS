@@ -73,9 +73,10 @@ class ClientExecutor {
                     }
                 } else {
                     if (!curCommand!!.commands_id.equals(1011000093) // LOAD_NEW_OBJECT
-                        || !curCommand!!.commands_id.equals(1011000078) // INSERT_MESSEGE
-                        || !curCommand!!.commands_id.equals(1011000094) // INSERT_MESSEGE_WITH_OBJECT
+                        && !curCommand!!.commands_id.equals(1011000078) // INSERT_MESSEGE
+                        && !curCommand!!.commands_id.equals(1011000094) // INSERT_MESSEGE_WITH_OBJECT
                     ) {
+                        println("curCommand!!.commands_id = ${curCommand!!.commands_id}")
                         throw my_user_exceptions_class(
                             l_class_name = "ClientExecutor",
                             l_function_name = "executer",
