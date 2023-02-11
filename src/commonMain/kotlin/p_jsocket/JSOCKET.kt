@@ -1480,7 +1480,7 @@ open class JSOCKET() {
                 l_class_name = "JSOCKET",
                 l_function_name = "deserialize_ANSWERS_TYPES",
                 name_of_exception = "EXC_SYSTEM_ERROR",
-                l_additional_text = n.toString()
+                l_additional_text = n.stackTraceToString()
             )
         } finally {
             /*

@@ -18,6 +18,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
+@Suppress("UNREACHABLE_CODE")
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
@@ -557,6 +558,13 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
                     }
                     "4" -> { // VOICE
+
+                        throw my_user_exceptions_class(
+                            l_class_name = "AnswerTypeValues",
+                            l_function_name = "initValues",
+                            name_of_exception = "Messege can't be a VOICE. Must be a file;"
+                        )
+
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
                         GetLengthSeconds = { getINTEGER_5() }
@@ -577,6 +585,13 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
                     }
                     "6" -> { // GIF
+
+                        throw my_user_exceptions_class(
+                            l_class_name = "AnswerTypeValues",
+                            l_function_name = "initValues",
+                            name_of_exception = "Messege can't be a GIF. Must be a file;"
+                        )
+
                         GetObjectId = { getIDENTIFICATOR_5() }
                         GetObjectSize = { getINTEGER_4() }
                         GetObjectServer = { getSTRING_6() }
