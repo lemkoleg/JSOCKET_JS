@@ -82,7 +82,7 @@ actual class SQLStatement actual constructor() {
         val res = bigAvatars.select_BigAvatars_all_id().execute()
         val arr: ArrayList<String> = ArrayList()
         while (res.next()) {
-            val s = res.getString(1)
+            val s = res.getString(0)
             arr.add(s!!)
         }
         return arr

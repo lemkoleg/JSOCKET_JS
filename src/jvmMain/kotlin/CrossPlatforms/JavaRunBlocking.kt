@@ -9,11 +9,13 @@ import kotlinx.coroutines.runBlocking
 @KorioExperimentalApi
 class JavaRunBlocking {
 
-    fun <T> RunBlocking(pr: Promise<T>) = runBlocking {
+    fun <T> RunBlocking(pr: Promise<T>):T = runBlocking {
         return@runBlocking pr.await()
     }
 
-    fun <T> RunBlocking(f: (() -> T)) = runBlocking {
+
+    fun <T> RunBlocking(f: (() -> T)): T = runBlocking {
         return@runBlocking f()
     }
+
 }

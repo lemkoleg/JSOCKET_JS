@@ -90,7 +90,7 @@ class ClientExecutor {
                     if (!w.equals(3)) {
                         jsocket.just_do_it = 1011000094 // INSERT_MESSEGE_WITH_OBJECT
                         curCommand = COMMANDS[jsocket.just_do_it]
-                        jsocket.AvatarFullPathForSend = ""
+                        jsocket.AvatarFullPathForSend = ""  // object in messege not allow have user avatar;
                     }
                 }
 

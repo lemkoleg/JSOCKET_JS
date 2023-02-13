@@ -11,7 +11,6 @@ import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.await
 import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -134,8 +133,8 @@ class KBigAvatar {
         return AVATAR
     }
 
-    @JsName("PROMISE_SELECT_BIG_AVATAR")
-    fun PROMISE_SELECT_BIG_AVATAR(answerType: ANSWER_TYPE): Promise<Unit>  = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+    @JsName("PROMISE_SELECT_BIG_AVATAR1")
+    fun PROMISE_SELECT_BIG_AVATAR1(answerType: ANSWER_TYPE): Promise<Unit>  = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             KBigAvatarLock.withLock {
                 if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
@@ -162,6 +161,7 @@ class KBigAvatar {
                     }
                 }
 
+                jsocket.just_do_it = 1011000028 // SELECT_ORIGINAL_AVATAR;
                 jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
                 jsocket.value_id3 = answerType.answerTypeValues.GetMainAvatarId()
                 jsocket.value_id5 = answerType.answerTypeValues.GetChatId()
@@ -170,8 +170,10 @@ class KBigAvatar {
                 jsocket.value_par5 = answerType.answerTypeValues.GetAvatarLink()
                 jsocket.value_par6 = answerType.answerTypeValues.GetAvatarServer()
 
-                jsocket.execute().await()
+                jsocket.send_request()
+
                 if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
+
                     AVATAR = jsocket.content
                     INSERT_BIG_AVATAR_INTO_MAP(this@KBigAvatar)
                     val arr: ArrayList<KBigAvatar> = ArrayList()
@@ -229,7 +231,7 @@ class KBigAvatar {
             }.toPromise(EmptyCoroutineContext)
 
         @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
-        suspend fun RETURN_PROMISE_SELECT_BIG_AVATAR(
+        fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             P_ANSWER_TYPE: ANSWER_TYPE
         ): Promise<KBigAvatar?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -284,7 +286,7 @@ class KBigAvatar {
                 jsocket.value_par4 = P_ANSWER_TYPE.answerTypeValues.GetObjectLink()
                 jsocket.value_par5 = P_ANSWER_TYPE.answerTypeValues.GetAvatarLink()
                 jsocket.value_par6 = P_ANSWER_TYPE.answerTypeValues.GetAvatarServer()
-                jsocket.execute().await()
+                jsocket.send_request()
                 if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
                     val bigAvatar = KBigAvatar(L_AVATAR_ID = jsocket.value_id3, L_AVATAR = jsocket.content!!)
                     ADD_NEW_BIG_AVATAR(bigAvatar)
@@ -296,7 +298,7 @@ class KBigAvatar {
                 name_of_exception = "EXC_SYSTEM_ERROR",
                 l_additional_text = "Time out is up"
             )
-        }.toPromise()
+        }.toPromise(EmptyCoroutineContext)
 
 
         @JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
