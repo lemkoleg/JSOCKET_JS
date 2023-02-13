@@ -121,7 +121,6 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                     }
                                     updateObjectInfo()
                                 }
-
                                 promiseDowloadFile = localFileSevice?.open_file_channel()
 
                             }

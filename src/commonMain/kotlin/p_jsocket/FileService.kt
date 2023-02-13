@@ -91,7 +91,7 @@ class FileService(
             SELF_Jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
             SELF_Jsocket.value_id5 = answerType.answerTypeValues.GetLinkOwner()
             SELF_Jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
-            SELF_Jsocket.value_par3 = "0"
+            SELF_Jsocket.value_par2 = "0"
             SELF_Jsocket.value_par4 = answerType.answerTypeValues.GetObjectLink()
 
             var s: KSaveMedia? = SAVE_MEDIA[answerType.answerTypeValues.GetObjectId()]
@@ -104,9 +104,12 @@ class FileService(
                     L_AVATAR_ID = answerType.answerTypeValues.GetMainAvatarId()
                 )
 
+                fIleFullName = s.FILE_FULL_NAME
+
                 file = CrossPlatformFile(fIleFullName!!, 2) // re_write
             } else {
                 s.setLAST_USED()
+                fIleFullName = s.FILE_FULL_NAME
                 file = CrossPlatformFile(fIleFullName!!, 1) // read
             }
             save_media = s
@@ -204,6 +207,7 @@ class FileService(
     // 1-read, 2-re-write 3-random write, 4 - write-append
     @JsName("open_file_channel")
     suspend fun open_file_channel(): Promise<Boolean>? {
+
 
         SELF_Jsocket.FileFullPathForSend = ""
 

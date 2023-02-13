@@ -1028,7 +1028,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         }
     }
 
-    suspend fun getACCOUNT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
+    fun getACCOUNT_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (GetMainAccountId().isEmpty()) {
                 throw my_user_exceptions_class(
@@ -1168,7 +1168,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    suspend fun getALBUM_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
+    fun getALBUM_INFO(l_updatedCashData: (() -> Any?)? = null): Promise<KObjectInfo> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             if (GetAlbumId().isEmpty()) {
                 throw my_user_exceptions_class(
@@ -1401,9 +1401,12 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
                 v.SetCallBackUpdate(l_updatedCashData)
                 OBJECTS_INFO.lockedPut(v.answerType.answerTypeValues.GetObjectId(), v)
             }
+            /*
             if(answerTypeConstants.IsDBObject){
                 v.VerifyUpdates()
             }
+             */
+            v.VerifyUpdates()
             return@async v
         }.toPromise(EmptyCoroutineContext)
 
