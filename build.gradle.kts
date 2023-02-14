@@ -1,14 +1,14 @@
 @file:Suppress("UNUSED_VARIABLE")
 
-val kotlinVersion = "1.7.22"
+val kotlinVersion = "1.8.0"
 val kotlinCorotinesVersion = "1.6.4"
-val ktorVersion = "2.1.3"
-val reactiveVersion = "1.2.2"
+val ktorVersion = "2.2.3"
+val reactiveVersion = "1.2.3"
 val KlockVersion = "3.4.0"
 val KorimVersion = "3.4.0"
 val KorioVersion = "3.4.0"
 val KryptoVersion = "3.4.0"
-val SQLDelightVersion = "1.5.4"
+val SQLDelightVersion = "1.5.5"
 val SQLDelightDialect = "sqlite:3.25"  //sqlite:3.25
 val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
@@ -16,8 +16,8 @@ val Fingerprintjs2Version = "2.1.4"
 val StatelyVersion = "1.2.2"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.7.22"
-    id("com.squareup.sqldelight")  version "1.5.4"
+    id("org.jetbrains.kotlin.multiplatform") version "1.8.0"
+    id("com.squareup.sqldelight")  version "1.5.5"
     java
 }
 
@@ -31,7 +31,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.4")
+        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.5")
     }
 }
 
@@ -76,7 +76,7 @@ kotlin {
 
     jvm("jvm") {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "1.8" // "11"
         }
         //compilations["main"].kotlinOptions.jvmTarget = "11"
         withJava()

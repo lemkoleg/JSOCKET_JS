@@ -41,6 +41,9 @@ object Sqlite_service : CoroutineScope {
 
     val Connection: MySQLConnection = MySQLConnection("AvaClubDB")
 
+    private val GlobalStatement= Connection.createStatement()
+    private val GlobalLock = Mutex()
+
 
     ///////////////////////////////////big avatars///////////////////////////
 
@@ -53,6 +56,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         kBigAvatars.forEach { statBIG_AVATARS.INSERT_BIG_AVATAR(it) }
                     }
                 } ?: throw my_user_exceptions_class(
@@ -84,6 +88,7 @@ object Sqlite_service : CoroutineScope {
                 var res: KBigAvatar? = null
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         if (IS_UPDATE_LAST_USE) {
                             statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixMillisLong())
                         }
@@ -120,6 +125,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<String> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL_ID()
                         KBigAvatar.LOAD_BIG_AVATARS_IDS(arr)
                     }
@@ -150,6 +156,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KBigAvatar> = statBIG_AVATARS.SELECT_BIGAVATARS_ALL()
                         KBigAvatar.LOAD_BIG_AVATARS(arr)
                     }
@@ -180,6 +187,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         statBIG_AVATARS.UPDATE_BIG_AVATAR_LAST_USE(OBJECTS_ID, DateTime.nowUnixMillisLong())
                     }
                 } ?: throw my_user_exceptions_class(
@@ -209,6 +217,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         statBIG_AVATARS.DELETE_BIG_AVATAR(OBJECTS_ID)
                     }
                 } ?: throw my_user_exceptions_class(
@@ -238,6 +247,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockBIG_AVATARS.withLock {
+                    //GlobalLock.withLock {
                         statBIG_AVATARS.CLEAR_BIG_AVATARS()
                     }
                 } ?: throw my_user_exceptions_class(
@@ -272,6 +282,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCOMMANDS.withLock {
+                    //GlobalLock.withLock {
                         arr.forEach { statCOMMANDS.INSERT_COMMAND(it) }
                     }
                 } ?: throw my_user_exceptions_class(
@@ -301,6 +312,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCOMMANDS.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KCommands> = statCOMMANDS.SELECT_COMMANDS_ALL()
                         KCommands.LOAD_COMMANDS(arr)
                     }
@@ -336,7 +348,8 @@ object Sqlite_service : CoroutineScope {
         try {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
-                    lockEXCEPTIONS.withLock {
+                   lockEXCEPTIONS.withLock {
+                    //GlobalLock.withLock {
                         ans.forEach {
                             statEXCEPTIONS.INSERT_EXCEPTION(it)
                         }
@@ -369,6 +382,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockEXCEPTIONS.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KExceptions.KException> = statEXCEPTIONS.SELECT_EXCEPTION_ALL()
                         KExceptions.LOAD_EXCEPTIONS(arr)
                     }
@@ -405,6 +419,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockMETA_DATA.withLock {
+                    //GlobalLock.withLock {
                         ans.forEach {
                             statMETA_DATA.INSERT_METADATA(it)
                         }
@@ -436,6 +451,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockMETA_DATA.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KMetaData> = statMETA_DATA.SELECT_ALL_METADATA()
                         KMetaData.LOAD_META_DATA(arr)
                     }
@@ -472,6 +488,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.withLock {
+                    //GlobalLock.withLock {
                         statREG_DATA.INSERT_REGDATA()
                     }
                 } ?: throw my_user_exceptions_class(
@@ -501,6 +518,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.withLock {
+                    //GlobalLock.withLock {
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                             PrintInformation.PRINT_INFO("LOAD REG_DATA...")
                         }
@@ -545,6 +563,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockREG_DATA.withLock {
+                    //GlobalLock.withLock {
                         statREG_DATA.CLEAR_REGDATA()
                     }
                 } ?: throw my_user_exceptions_class(
@@ -580,6 +599,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.withLock {
+                    //GlobalLock.withLock {
                         ans.forEach {
                             statSAVE_MEDIA.INSERT_SAVEMEDIA(it)
                         }
@@ -611,6 +631,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KSaveMedia> = statSAVE_MEDIA.SELECT_SAVEMEDIA_ALL(Constants.myConnectionsID)
                         KSaveMedia.LOAD_SAVE_MEDIA(arr)
                     }
@@ -641,6 +662,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockSAVE_MEDIA.withLock {
+                    //GlobalLock.withLock {
                         ans.forEach {
                             statSAVE_MEDIA.DELETE_SAVEMEDIA(it.L_OBJECT_LINK)
                         }
@@ -678,6 +700,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         statCASHLASTUPDATE.INSERT_CASHLASTUPDATE(cash)
                     }
                 } ?: throw my_user_exceptions_class(
@@ -707,6 +730,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<KCashLastUpdate> = statCASHLASTUPDATE.SELECT_CASHLASTUPDATE_ALL()
                         KCashLastUpdate.LOAD_CASH_LAST_UPDATE(arr)
                     }
@@ -740,6 +764,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         arr.forEach {
                             statCASHLASTUPDATE.INSERT_CASHDATA(cash_sum, it)
                         }
@@ -775,6 +800,7 @@ object Sqlite_service : CoroutineScope {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         arr = statCASHLASTUPDATE.SELECT_CASHDATA_ALL_ON_CASH_SUM(cash)
                         return@withTimeoutOrNull arr
                     }
@@ -808,6 +834,7 @@ object Sqlite_service : CoroutineScope {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         arr = statCASHLASTUPDATE.SELECT_CASHDATA_CHUNK_ON_CASH_SUM(
                             cash,
                             record_id_from
@@ -844,6 +871,7 @@ object Sqlite_service : CoroutineScope {
                 var res: ANSWER_TYPE? = null
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         res = statCASHLASTUPDATE.SELECT_CASHDATA(cash, record_id)
                         return@withTimeoutOrNull res
                     }
@@ -876,6 +904,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         if (Constants.IS_DOWNLOAD_TO_MEMORY_ALL_CASH_ON_CLIENT == 1) {
                             val arr: ArrayDeque<ANSWER_TYPE> = statCASHLASTUPDATE.SELECT_CASHDATA_ALL()
                             KCashData.LOAD_CASH_DATA(arr)
@@ -910,6 +939,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         val arr: ArrayList<String> = statCASHLASTUPDATE.SELECT_CASHDATA_ALL_RECORDS_ID_ON_CASH_SUM(cash)
                         KObjectInfo.LOAD_SAVE_OBJECT_INFO_IDS(arr)
                     }
@@ -941,6 +971,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         //statCASHDATA.UPDATE_CASHDATA_CONTROL_COUNT(CASH_SUM)
                         statCASHLASTUPDATE.CASHDATA_SORT_NEW_NUMBER_POSITIONS(CASH_SUM)
                     }
@@ -1020,6 +1051,7 @@ object Sqlite_service : CoroutineScope {
             try {
                 withTimeoutOrNull(CLIENT_TIMEOUT) {
                     lockCASHLASTUPDATE.withLock {
+                    //GlobalLock.withLock {
                         if (object_id != null) {
                             statCASHLASTUPDATE.DELETE_CASHDATA_RECORD(cash_sum, object_id)
                         } else {

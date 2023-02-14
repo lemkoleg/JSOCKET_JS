@@ -16,6 +16,7 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
     var chnnel: AsyncStream? = null
     val mod = mode
     actual var isInit = false
+
     actual suspend fun create(size: Long){
         chnnel = file.open(when(mod){
             1 -> VfsOpenMode.READ

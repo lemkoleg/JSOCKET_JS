@@ -32,7 +32,7 @@ DELETE FROM BigAvatars WHERE AVATAR_ID IN
 END;
 
 insert_BigAvatar:
-INSERT OR REPLACE INTO BigAvatars
+REPLACE INTO BigAvatars
 (AVATAR_ID, LAST_USE,  AVATAR)
 VALUES
 (?, ?,  ?);

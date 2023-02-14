@@ -208,7 +208,7 @@ class KCommands {
                                     l_additional_text = ex.stackTraceToString()
                                 )
                             } finally {
-                                if (!arr.isEmpty()) {
+                                if (!com.isEmpty()) {
                                     Sqlite_service.InsertCommands(com)
                                 }
                             }

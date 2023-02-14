@@ -236,6 +236,8 @@ class FileService(
 
                 file!!.create(ExpectedFIleSize) // create full size file
 
+                println("file created")
+
                 val i = (ExpectedFIleSize / CURRENT_CHUNK_SIZE).toInt()
                 EndFIleBytes = ExpectedFIleSize % CURRENT_CHUNK_SIZE
                 Chunks = if (EndFIleBytes > 0L) {
