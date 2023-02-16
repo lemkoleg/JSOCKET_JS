@@ -13,14 +13,14 @@ import com.soywiz.korio.stream.writeString
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
     val file: VfsFile = localVfs(fullName)
-    var chnnel: AsyncStream? = null
+    var channel: AsyncStream? = null
     val mod = mode
     actual var isInit = false
 
     actual suspend fun create(size: Long){
-        chnnel = file.open(when(mod){
+        channel = file.open(when(mod){
             1 -> VfsOpenMode.READ
-            2, 3 -> {VfsOpenMode.CREATE_NEW
+            2, 3 -> {VfsOpenMode.WRITE //{VfsOpenMode.CREATE_NEW
             }
             4 -> VfsOpenMode.WRITE
             else -> VfsOpenMode.CREATE
@@ -84,7 +84,11 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
     }
 
     actual suspend fun writeLines(s: String) {
-        chnnel!!.setPosition(file.size())
-        chnnel!!.writeString(s + lineSeparator)
+        channel!!.setPosition(file.size())
+        channel!!.writeString(s + lineSeparator)
+    }
+
+    actual suspend fun CreateDirectory() {
+        file.mkdir()
     }
 }

@@ -121,7 +121,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                     }
                                     updateObjectInfo()
                                 }
-                                promiseDowloadFile = localFileSevice?.open_file_channel()
+                                promiseDowloadFile = localFileSevice?.open_file_channel()?.await()
 
                             }
                         } catch (e: my_user_exceptions_class) {

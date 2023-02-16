@@ -325,7 +325,7 @@ class ClientExecutor {
 
         if (jsocket.FileFullPathForSend.isNotEmpty()) {
             val f = FileService(jsocket)
-            val send = f.open_file_channel()
+            val send = f.open_file_channel().await()
             if (send != null && send.await()) {
                 jsocket.value_par4 = f.ServerFileName
                 if (jsocket.value_par4.isEmpty()) {

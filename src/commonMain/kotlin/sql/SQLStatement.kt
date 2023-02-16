@@ -1,11 +1,10 @@
 package sql
 
 import Tables.*
-import com.squareup.sqldelight.db.SqlDriver
-import io.ktor.util.InternalAPI
-import p_jsocket.ANSWER_TYPE
-import Tables.KCommands
 import com.soywiz.korio.experimental.KorioExperimentalApi
+import com.squareup.sqldelight.db.SqlDriver
+import io.ktor.util.*
+import p_jsocket.ANSWER_TYPE
 import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
@@ -25,7 +24,7 @@ expect class SQLStatement() {
 
     suspend fun TRIGGER_BIG_AVATARS_CONTROL_COUNT()
 
-    suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar)
+    suspend fun INSERT_BIG_AVATAR(kBigAvatars: ArrayList<KBigAvatar>)
 
     suspend fun SELECT_BIG_AVATAR(OBJECTS_ID: String):KBigAvatar?
 
@@ -43,7 +42,7 @@ expect class SQLStatement() {
 
     suspend fun TABLE_COMMANDS()
 
-    suspend fun INSERT_COMMAND(kCommand: KCommands)
+    suspend fun INSERT_COMMAND(arr: ArrayList<KCommands>)
 
     suspend fun SELECT_COMMANDS_ALL():ArrayList<KCommands>
 
@@ -53,7 +52,7 @@ expect class SQLStatement() {
 
     suspend fun TABLE_EXCEPTION()
 
-    suspend fun INSERT_EXCEPTION(kException: KExceptions.KException)
+    suspend fun INSERT_EXCEPTION(ans: ArrayList<KExceptions.KException>)
 
     suspend fun SELECT_EXCEPTION_ALL():ArrayList<KExceptions.KException>
 
@@ -63,7 +62,7 @@ expect class SQLStatement() {
 
     suspend fun TABLE_METADATA()
 
-    suspend fun INSERT_METADATA(kMetaData: KMetaData)
+    suspend fun INSERT_METADATA(ans: ArrayList<KMetaData>)
 
     suspend fun CLEAR_METADATA()
 
@@ -95,11 +94,11 @@ expect class SQLStatement() {
 
     suspend fun TRIGGER_SAVEMEDIA_CONTROL_COUNT()
 
-    suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia)
+    suspend fun INSERT_SAVEMEDIA(ans: ArrayList<KSaveMedia>)
 
-    suspend fun SELECT_SAVEMEDIA_ALL(conn_id: Long):ArrayList<KSaveMedia>
+    suspend fun SELECT_SAVEMEDIA_ALL():ArrayList<KSaveMedia>
 
-    suspend fun DELETE_SAVEMEDIA(v: String)
+    suspend fun DELETE_SAVEMEDIA(vans: ArrayList<KSaveMedia>)
 
     /////////////last update///////////////////////////
 
@@ -139,7 +138,7 @@ expect class SQLStatement() {
 
     suspend fun TRIGGER_CASHDATA_AFTER_UPDATE()
 
-    suspend fun INSERT_CASHDATA(cash_sum: String, lANSWER_TYPE: ANSWER_TYPE)
+    suspend fun INSERT_CASHDATA(cash_sum: String, arr: MutableList<ANSWER_TYPE>)
 
     suspend fun SELECT_CASHDATA_ALL():ArrayDeque<ANSWER_TYPE>
 

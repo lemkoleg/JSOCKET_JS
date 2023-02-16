@@ -353,7 +353,7 @@ object Connection {
                                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                 PrintInformation.PRINT_INFO("Get1 command 1011000086")
                                             }
-                                            if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
+                                            if(jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L){
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                             }
                                         }
@@ -379,7 +379,7 @@ object Connection {
 
                                                 println("get request: jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
 
-                                                if (jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()) {
+                                                if (jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L) {
                                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                         PrintInformation.PRINT_INFO("Get2 command 1011000086")
                                                     }
@@ -430,7 +430,7 @@ object Connection {
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                         )
                                     } else {
-                                        if(jsocketRet.last_messege_update > CHATS!!.CashLastUpdate.GET_LAST_SELECT()){
+                                        if(jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L){
                                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                 PrintInformation.PRINT_INFO("Get3 command 1011000086")
                                             }

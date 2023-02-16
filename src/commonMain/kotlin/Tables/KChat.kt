@@ -61,7 +61,6 @@ private val KChatsSelectAllDataOnChatLock = Mutex()
 private val KChatsVerifyUpdatesLock = Mutex()
 
 
-
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -91,7 +90,13 @@ object KChat {
                             if (sendedlSelectAllDataOfChat.containsKey(cats_id)) {
                                 if (sendedlSelectAllDataOfChat[cats_id]!! > DateTime.nowUnixMillisLong()) {
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat ID: $cats_id; Chat name: ${CHATS?.CASH_DATA_RECORDS?.get(cats_id)?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                        PrintInformation.PRINT_INFO(
+                                            "KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is not ended; Chat ID: $cats_id; Chat name: ${
+                                                CHATS?.CASH_DATA_RECORDS?.get(
+                                                    cats_id
+                                                )?.answerTypeValues?.GetObjectName?.let { it() }
+                                            }"
+                                        )
                                     }
                                     return@withTimeoutOrNull
 
@@ -99,18 +104,37 @@ object KChat {
                                     sendedlSelectAllDataOfChat[cats_id] =
                                         DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                        PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat ID: $cats_id; Chat name: ${CHATS?.CASH_DATA_RECORDS?.get(cats_id)?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                        PrintInformation.PRINT_INFO(
+                                            "KChat.SELECT_ALL_DATA_ON_CHAT: time out of sended SELECT_ALL_DATA_ON_CHAT is ended. Update new timeout; Chat ID: $cats_id; Chat name: ${
+                                                CHATS?.CASH_DATA_RECORDS?.get(
+                                                    cats_id
+                                                )?.answerTypeValues?.GetObjectName?.let { it() }
+                                            }"
+                                        )
                                     }
                                 }
                             } else {
-                                sendedlSelectAllDataOfChat[cats_id] = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
+                                sendedlSelectAllDataOfChat[cats_id] =
+                                    DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
 
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                    PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat ID: $cats_id; Chat name: ${CHATS?.CASH_DATA_RECORDS?.get(cats_id)?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                    PrintInformation.PRINT_INFO(
+                                        "KChat.SELECT_ALL_DATA_ON_CHAT: Set new request; Chat ID: $cats_id; Chat name: ${
+                                            CHATS?.CASH_DATA_RECORDS?.get(
+                                                cats_id
+                                            )?.answerTypeValues?.GetObjectName?.let { it() }
+                                        }"
+                                    )
                                 }
                             }
                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                                PrintInformation.PRINT_INFO("KChat.SELECT_ALL_DATA_ON_CHAT: Start new request; Chat ID: $cats_id; Chat name: ${CHATS?.CASH_DATA_RECORDS?.get(cats_id)?.answerTypeValues?.GetObjectName?.let { it() }}")
+                                PrintInformation.PRINT_INFO(
+                                    "KChat.SELECT_ALL_DATA_ON_CHAT: Start new request; Chat ID: $cats_id; Chat name: ${
+                                        CHATS?.CASH_DATA_RECORDS?.get(
+                                            cats_id
+                                        )?.answerTypeValues?.GetObjectName?.let { it() }
+                                    }"
+                                )
                             }
                             val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                             socket.value_id5 = cats_id
@@ -162,7 +186,8 @@ object KChat {
                                         }
                                         return@withTimeoutOrNull
                                     } else {
-                                        TimeOutendedVerifyUpdates = DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
+                                        TimeOutendedVerifyUpdates =
+                                            DateTime.nowUnixMillisLong() + Constants.CLIENT_TIMEOUT
                                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                             PrintInformation.PRINT_INFO("KChat.VERIFY_UPDATES: Time out of sended updates is ended; Set new timeout;")
                                         }
@@ -216,39 +241,41 @@ object KChat {
 
 
     @JsName("GET_CHATS")
-    fun GET_CHATS(l_updatedCashData: (() -> Any?)?= null): Promise<ArrayDeque<ANSWER_TYPE>> =
+    fun GET_CHATS(l_updatedCashData: (() -> Any?)? = null): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
                     try {
                         KChatsGlobalLock.withLock {
-                            if (CHATS == null) {
-                                CHATS = KCashData.GET_CASH_DATA(
-                                    L_OBJECT_ID = Constants.Account_Id,
-                                    L_RECORD_TYPE = "3",
-                                    l_updatedCashData = l_updatedCashData,
-                                    l_request_updates = false,
-                                    l_select_all_records = false,
-                                    l_is_SetLastBlock = true,
-                                    l_reset_cash_data = false,
-                                    l_ignore_timeout = true
-                                ).await()
+                            if (Constants.Account_Id.isNotEmpty()) {
+                                if (CHATS == null) {
+                                    CHATS = KCashData.GET_CASH_DATA(
+                                        L_OBJECT_ID = Constants.Account_Id,
+                                        L_RECORD_TYPE = "3",
+                                        l_updatedCashData = l_updatedCashData,
+                                        l_request_updates = false,
+                                        l_select_all_records = false,
+                                        l_is_SetLastBlock = true,
+                                        l_reset_cash_data = false,
+                                        l_ignore_timeout = true
+                                    ).await()
 
-                            } else{
-                                CHATS = KCashData.GET_CASH_DATA(
-                                    L_OBJECT_ID = Constants.Account_Id,
-                                    L_RECORD_TYPE = "3",
-                                    l_updatedCashData = l_updatedCashData,
-                                    l_request_updates = false,
-                                    l_select_all_records = false,
-                                    l_is_SetLastBlock = true,
-                                    l_reset_cash_data = true,
-                                    l_ignore_timeout = true
-                                ).await()
+                                } else {
+                                    CHATS = KCashData.GET_CASH_DATA(
+                                        L_OBJECT_ID = Constants.Account_Id,
+                                        L_RECORD_TYPE = "3",
+                                        l_updatedCashData = l_updatedCashData,
+                                        l_request_updates = false,
+                                        l_select_all_records = false,
+                                        l_is_SetLastBlock = true,
+                                        l_reset_cash_data = true,
+                                        l_ignore_timeout = true
+                                    ).await()
+                                }
+                                arr = CHATS!!.currentViewCashData
+                                return@withTimeoutOrNull arr
                             }
-                            arr = CHATS!!.currentViewCashData
-                            return@withTimeoutOrNull arr
                         }
                     } catch (ex: Exception) {
                         throw my_user_exceptions_class(

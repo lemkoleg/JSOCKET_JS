@@ -7,6 +7,7 @@
 
 package p_jsocket
 
+import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.getMyOS
 import CrossPlatforms.slash
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -82,6 +83,14 @@ object JSOCKET_Instance {
     var pathTempPicture18: String = ""
         private set
 
+    @JsName("pathFile50")
+    var pathFile50: String = ""
+        private set
+
+    @JsName("pathTempFile50")
+    var pathTempFile50: String = ""
+        private set
+
     @JsName("pathTempPicture19")
     var pathTempPicture19: String = ""
         private set
@@ -89,149 +98,117 @@ object JSOCKET_Instance {
 
 
     @JsName("initDirectories")
-    fun initDirectories(
+    suspend fun initDirectories(
         L_RootPath: String
     ) {
+        var file = CrossPlatformFile(L_RootPath)
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         RootPath = L_RootPath.trim().plus(slash)
-        println("RootPath: " + RootPath)
+
+        file = CrossPlatformFile(RootPath.plus("Errors"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathErrors = RootPath.plus("Errors").plus(slash)
-        println("pathErrors: " + pathErrors)
+
+        file = CrossPlatformFile(RootPath.plus("Logs"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathLogs = RootPath.plus("Logs").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("Temp"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathTemp = RootPath.plus("Temp").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("14"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathMusic14 = RootPath.plus("14").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("15"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathMusic15 = RootPath.plus("15").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("16"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathVideo16 = RootPath.plus("16").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("17"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathVideo17 = RootPath.plus("17").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("18"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathPicture18 = RootPath.plus("18").plus(slash)
+
+        file = CrossPlatformFile(RootPath.plus("19"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
+        }
         pathPicture19 = RootPath.plus("19").plus(slash)
 
-        /*
-        var file = CrossPlatformFile(RootPath)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("14"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempMusic14 = pathTemp.plus("14").plus(slash)
 
-        file = CrossPlatformFile(pathErrors)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("15"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempMusic15 = pathTemp.plus("15").plus(slash)
 
-        file = CrossPlatformFile(pathLogs)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("16"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempVideo16 = pathTemp.plus("16").plus(slash)
 
-        file = CrossPlatformFile(pathTemp)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("17"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
-        */
+        pathTempVideo17 = pathTemp.plus("17").plus(slash)
 
-        pathTemp =
-            pathTemp.plus(slash)
-        pathTempMusic14 =
-            pathTemp.plus("14").plus(slash)
-        pathTempMusic15 =
-            pathTemp.plus("15").plus(slash)
-        pathTempVideo16 =
-            pathTemp.plus("16").plus(slash)
-        pathTempVideo17 =
-            pathTemp.plus("17").plus(slash)
-        pathTempPicture18 =
-            pathTemp.plus("18").plus(slash)
-        pathTempPicture19 =
-            pathTemp.plus("19").plus(slash)
-
-        /*
-        file = CrossPlatformFile(pathMusic14)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("18"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempPicture18 = pathTemp.plus("18").plus(slash)
 
-        file = CrossPlatformFile(pathMusic15)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("19"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempPicture19 = pathTemp.plus("19").plus(slash)
 
-        file = CrossPlatformFile(pathVideo16)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(RootPath.plus("50"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathFile50 = RootPath.plus("50").plus(slash)
 
-        file = CrossPlatformFile(pathVideo17)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
+        file = CrossPlatformFile(pathTemp.plus("50"))
+        if(!file.exists() || file.isFile()){
+            file.CreateDirectory()
         }
-        file.close()
+        pathTempFile50 = pathTemp.plus("50").plus(slash)
 
-        file = CrossPlatformFile(pathPicture18)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathPicture19)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempMusic14)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempMusic15)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempVideo16)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempVideo17)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempPicture18)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-
-        file = CrossPlatformFile(pathTempPicture19)
-        if (!file.isExists() || !file.isPath()) {
-            file.createPath()
-        }
-        file.close()
-     */
-
-        pathTempMusic14 =
-            pathTempMusic14.plus(slash)
-        pathTempMusic15 =
-            pathTempMusic15.plus(slash)
-        pathTempVideo16 =
-            pathTempVideo16.plus(slash)
-        pathTempVideo17 =
-            pathTempVideo17.plus(slash)
-        pathTempPicture18 =
-            pathTempPicture18.plus(slash)
-        pathTempPicture19 =
-            pathTempPicture19.plus(slash)
 
         Constants.myConnectionContext = getMyOS()
     }

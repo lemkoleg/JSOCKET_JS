@@ -56,6 +56,7 @@ expect class CrossPlatformFile(fullName: String = "", mode : Int = 2) {
     @JsName("writeLines")
     suspend fun writeLines(s: String)
 
-
+    @JsName("CreateDirectory")
+    suspend fun CreateDirectory()
 
 }

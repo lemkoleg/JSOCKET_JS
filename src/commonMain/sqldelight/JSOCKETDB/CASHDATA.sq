@@ -488,20 +488,20 @@ VALUES
  select_CashData_All:
   SELECT  *
   FROM CashData
-  WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+  WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
   ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
 
  select_CashData_All_ON_CASH_SUM:
   SELECT  *
   FROM CashData
-  WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+  WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
   AND    CASH_SUM = ?
   ORDER BY CASH_SUM, INTEGER_20 ASC, INTEGER_20_LEVEL ASC;
 
  select_CashData_CHUNK_ON_CASH_SUM:
    SELECT  *
    FROM CashData AS c
-   WHERE c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+   WHERE c.CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
    AND   c.CASH_SUM = ?
    ORDER BY c.CONNECTION_ID,
             c.CASH_SUM,
@@ -523,14 +523,14 @@ VALUES
  select_CashData:
    SELECT  *
    FROM CashData
-   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+   WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
    AND   CASH_SUM = ?
    AND   RECORD_TABLE_ID = ?;
 
  select_CashDataAllRecordsIdOnCashSum:
    SELECT RECORD_TABLE_ID
    FROM CashData
-   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+   WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
    AND   CASH_SUM = ?;
 
  clear_CashData:
@@ -538,12 +538,12 @@ VALUES
 
  delete_CashData:
    DELETE FROM CashData
-   WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+   WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
    AND   CASH_SUM = ?;
 
   delete_CashDataRecord:
     DELETE FROM CashData
-    WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+    WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
     AND   CASH_SUM = ?
     AND   RECORD_TABLE_ID = ?;
 
@@ -553,7 +553,7 @@ VALUES
                           ORDER BY INTEGER_20 ASC, INTEGER_20_LEVEL ASC
                       ) AS INTEGER_19
                FROM      CashData AS c
-               WHERE     c.CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+               WHERE     c.CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
                AND       c.CASH_SUM = ?
                ORDER BY  record_id)
 
@@ -561,7 +561,7 @@ VALUES
     SET   INTEGER_20_TECHNICAL_FIELD = (SELECT t.INTEGER_19
                                         FROM tab AS t
                                         WHERE t.record_id = RECORD_TABLE_ID)
-    WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+    WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
     AND   CASH_SUM = ?;
 
   update_CashData_SortNewNumbersPositionsFinish:
@@ -570,7 +570,7 @@ VALUES
            INTEGER_20_TECHNICAL_FIELD = 0,
            NEXT_RECORD_TABLE_ID = "",
            INTEGER_20_LEVEL = 100000
-     WHERE CONNECTION_ID =(SELECT CONNECTION_ID FROM RegData)
+     WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
      AND   CASH_SUM = ?;
 
  update_CashData_NEW_LAST_SELECT:

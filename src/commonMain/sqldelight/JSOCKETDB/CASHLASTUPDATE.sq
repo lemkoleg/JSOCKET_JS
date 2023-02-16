@@ -239,7 +239,7 @@ VALUES
 select_CashLastUpdateAll:
 SELECT *
 FROM CashLastUpdate
-WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData);
+WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0);
 
 clear_CashLastUpdate:
 DELETE FROM CashLastUpdate;
@@ -247,7 +247,7 @@ DELETE FROM CashLastUpdate;
 
 delete_CashLastUpdate:
 DELETE FROM CashLastUpdate
-WHERE CONNECTION_ID = (SELECT CONNECTION_ID FROM RegData)
+WHERE CONNECTION_ID = ifnull((SELECT ifnull(CONNECTION_ID, 0) FROM RegData),0)
 AND   CASH_SUM = ?;
 
 

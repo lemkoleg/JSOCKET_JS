@@ -76,11 +76,13 @@ class KSaveMedia(
 
 
     fun createFullFileName(LFileName: String, LFileExtencion: String): String {
-        return JSOCKET_Instance.RootPath.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+        return JSOCKET_Instance.RootPath.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".")
+            .plus(LFileExtencion)
     }
 
     private fun createTempFullFileName(LFileName: String, LFileExtencion: String): String {
-        return JSOCKET_Instance.pathTemp.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".").plus(LFileExtencion)
+        return JSOCKET_Instance.pathTemp.plus(LFileName.substring(0, 2)).plus(slash).plus(LFileName).plus(".")
+            .plus(LFileExtencion)
     }
 
     fun ReturnDownloadedFullFileName(): String {
@@ -180,6 +182,7 @@ class KSaveMedia(
             try {
                 try {
                     KSaveMediaLock.withLock {
+                        val deleted: ArrayList<KSaveMedia> = ArrayList()
                         irr.forEach {
 
                             if (Constants.IS_VERIFY_FILES_DOWNLOADED_FOR_SAVE_MEDIA == 1) {
@@ -187,10 +190,15 @@ class KSaveMedia(
                                     SAVE_MEDIA[it.L_OBJECT_LINK] = it
                                 } else {
                                     it.deleteFile()
+                                    deleted.add(it)
+
                                 }
                             } else {
                                 SAVE_MEDIA[it.L_OBJECT_LINK] = it
                             }
+                        }
+                        if (deleted.isNotEmpty()) {
+                            Sqlite_service.DeleteSaveMedia(deleted)
                         }
                     }
                 } catch (e: my_user_exceptions_class) {

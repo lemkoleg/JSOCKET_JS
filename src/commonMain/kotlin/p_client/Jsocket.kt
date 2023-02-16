@@ -168,6 +168,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
         update_just_do_it_label: Boolean = true
     ) {
 
+        println("just_do_it = $just_do_it")
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
         this.serialize(verify_fields, update_just_do_it_label).let { Connection.sendData(it, this) }
