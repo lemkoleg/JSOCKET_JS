@@ -7,7 +7,6 @@
  */
 package Tables
 
-import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
@@ -133,62 +132,6 @@ class KBigAvatar {
         return AVATAR
     }
 
-    @JsName("PROMISE_SELECT_BIG_AVATAR1")
-    fun PROMISE_SELECT_BIG_AVATAR1(answerType: ANSWER_TYPE): Promise<Unit>  = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
-        withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-            KBigAvatarLock.withLock {
-                if (BIG_AVATARS_IDS.containsKey(AVATAR_ID)) {
-                    AVATAR = BIG_AVATARS[AVATAR_ID]?.AVATAR
-                    if (AVATAR != null) {
-                        Sqlite_service.UpdateBigAvatarsLastUse(AVATAR_ID)
-                    } else {
-                        AVATAR = Sqlite_service.SelectBigAvatar(AVATAR_ID, true)?.AVATAR
-                    }
-                }
-            }
-            if (AVATAR != null) {
-                IS_HAVE = true
-                IS_INIT = true
-            } else {
-
-                var jsocket: Jsocket? = Jsocket.GetJsocket()
-
-                if (jsocket == null) {
-                    jsocket = Jsocket()
-                    Jsocket.fill()
-                    if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                        PrintInformation.PRINT_INFO("CLIENT_JSOCKET_POOL is empty")
-                    }
-                }
-
-                jsocket.just_do_it = 1011000028 // SELECT_ORIGINAL_AVATAR;
-                jsocket.value_id4 = answerType.answerTypeValues.GetObjectId()
-                jsocket.value_id3 = answerType.answerTypeValues.GetMainAvatarId()
-                jsocket.value_id5 = answerType.answerTypeValues.GetChatId()
-                jsocket.value_par1 = answerType.answerTypeValues.GetMessegeId().toString()
-                jsocket.value_par3 = if (answerType.answerTypeValues.GetAvatarOriginalSize() == 0) "1" else "2"
-                jsocket.value_par5 = answerType.answerTypeValues.GetAvatarLink()
-                jsocket.value_par6 = answerType.answerTypeValues.GetAvatarServer()
-
-                jsocket.send_request()
-
-                if (jsocket.content != null && jsocket.content!!.isNotEmpty()) {
-
-                    AVATAR = jsocket.content
-                    INSERT_BIG_AVATAR_INTO_MAP(this@KBigAvatar)
-                    val arr: ArrayList<KBigAvatar> = ArrayList()
-                    arr.add(this@KBigAvatar)
-                    Sqlite_service.InsertBigAvatars(arr)
-                }
-            }
-        } ?: throw my_user_exceptions_class(
-            l_class_name = "KCashData",
-            l_function_name = "SET_RECORDS",
-            name_of_exception = "EXC_SYSTEM_ERROR",
-            l_additional_text = "Time out is up"
-        )
-    }.toPromise(EmptyCoroutineContext)
-
     companion object {
 
         @JsName("ADD_NEW_BIG_AVATAR")
@@ -273,6 +216,7 @@ class KBigAvatar {
                 }
 
                 val jsocket = P_ANSWER_TYPE.GetJsocket()
+                println("P_ANSWER_TYPE = ${P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize()}")
                 jsocket.just_do_it = 1011000028 // SELECT_ORIGINAL_AVATAR;
                 jsocket.object_server = P_ANSWER_TYPE.answerTypeValues.GetObjectServer()
                 jsocket.object_extension = P_ANSWER_TYPE.answerTypeValues.GetObjectExtension()
@@ -282,7 +226,7 @@ class KBigAvatar {
                 jsocket.value_id4 = P_ANSWER_TYPE.answerTypeValues.GetObjectId()
                 jsocket.value_id5 = P_ANSWER_TYPE.answerTypeValues.GetLinkOwner()
                 jsocket.value_par1 = P_ANSWER_TYPE.answerTypeValues.GetMessegeId().toString()
-                jsocket.value_par3 = if (P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 0) "1" else "2"
+                jsocket.value_par3 = if (P_ANSWER_TYPE.answerTypeValues.GetAvatarOriginalSize() > 1) "1" else "2"
                 jsocket.value_par4 = P_ANSWER_TYPE.answerTypeValues.GetObjectLink()
                 jsocket.value_par5 = P_ANSWER_TYPE.answerTypeValues.GetAvatarLink()
                 jsocket.value_par6 = P_ANSWER_TYPE.answerTypeValues.GetAvatarServer()

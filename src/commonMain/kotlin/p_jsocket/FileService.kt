@@ -94,7 +94,6 @@ class FileService(
             SELF_Jsocket.value_par2 = "0"
             SELF_Jsocket.value_par4 = answerType.answerTypeValues.GetObjectLink()
 
-            println("SAVE_MEDIA.size = ${SAVE_MEDIA.size}")
             var s: KSaveMedia? = SAVE_MEDIA[answerType.answerTypeValues.GetObjectLink()]
             if (s == null) {
                 s = KSaveMedia(
@@ -109,7 +108,6 @@ class FileService(
 
                 file = CrossPlatformFile(fIleFullName!!, 2) // re_write
             } else {
-                println("save nedia not null = ${s.IS_DOWNLOAD}")
                 s.setLAST_USED()
                 fIleFullName = s.FILE_FULL_NAME
                 file = CrossPlatformFile(fIleFullName!!, 1) // read
@@ -237,6 +235,7 @@ class FileService(
                             }
 
                             CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
+                            println("Getting CURRENT_CHUNK_SIZE = $CURRENT_CHUNK_SIZE")
 
                             file!!.create(ExpectedFIleSize) // create full size file
 
@@ -285,7 +284,6 @@ class FileService(
                             }
                             return@async receive_file()
                         } else {
-                            println("file is dowloaded")
                             return@async null
                         }
 
@@ -529,16 +527,18 @@ class FileService(
 
                         val i = SELF_Jsocket.value_par2.toInt()
 
+                        println("i = $i")
+
                         if (Chunks!![i] == 0) {
 
                             if (SELF_Jsocket.content != null && SELF_Jsocket.content!!.isNotEmpty()) {
 
-                                if (Chunks!!.size >= i) {
+                                if (Chunks!!.size <= i) {
                                     throw my_user_exceptions_class(
                                         l_class_name = "FileService",
                                         l_function_name = "receive_file",
                                         name_of_exception = "EXC_SYSTEM_ERROR",
-                                        l_additional_text = "The request recevived a larger file size."
+                                        l_additional_text = "The request recevived a larger file size; Chunks.size = ${Chunks!!.size} ; i = $i"
                                     )
                                 } else {
 
@@ -610,6 +610,10 @@ class FileService(
                                     }
                                 }
                             }
+                        } else {
+                            val c = ReturnNextNotDownloadedChankNumber()
+                            CurrentChunkReceiveFile.set(c)
+                            SELF_Jsocket.value_par2 = c.toString()
                         }
                     }
                 }
@@ -637,6 +641,8 @@ class FileService(
     ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         var arr: ByteArray? = null
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
+            var localOffset = offset
+            var localOffsetInt = localOffset.toInt()
             if (IsInterrupted.get() == 1 && !IsDownloaded) {
                 throw my_user_exceptions_class(
                     l_class_name = "FileService",
@@ -645,25 +651,51 @@ class FileService(
                     l_additional_text = "File not downloaded but allready closed."
                 )
             }
+            if (localOffset < 0 || localOffsetInt < 0) {
+                throw my_user_exceptions_class(
+                    l_class_name = "FileService",
+                    l_function_name = "receive_file",
+                    name_of_exception = "EXC_SYSTEM_ERROR",
+                    l_additional_text = "Ofsset have negative meaning."
+                )
+            }
+            if (localOffsetInt > 0 && localOffsetInt > CURRENT_CHUNK_SIZE) {
+                println("CURRENT_CHUNK_SIZE = $CURRENT_CHUNK_SIZE")
+                if ((localOffsetInt.mod(CURRENT_CHUNK_SIZE)).equals(0)) {
+                    localOffset++
+                    localOffsetInt++
+                }
+            }
+
             try {
+                val chunk_size: Int = (localOffsetInt / CURRENT_CHUNK_SIZE)
+                val finish_label: Int = ((chunk_size.plus(1) * CURRENT_CHUNK_SIZE)).minus(localOffsetInt)
+                if (finish_label < 0) {
+                    throw my_user_exceptions_class(
+                        l_class_name = "FileService",
+                        l_function_name = "receive_file",
+                        name_of_exception = "EXC_SYSTEM_ERROR",
+                        l_additional_text = "Finish label have negative meaning: start label = $localOffsetInt , finish label = $finish_label"
+                    )
+                }
+
                 if (IsDownloaded) {
-                    arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                    arr = file!!.read(localOffset, finish_label)
                     return@withTimeoutOrNull arr
                 } else {
                     if (startLoading != null) {
                         startLoading()
                     }
-                    val chunk_size: Int = (offset / CURRENT_CHUNK_SIZE).toInt()
 
                     val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
                     if (is_download) {
-                        arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                        arr = file!!.read(localOffset, finish_label)
                     } else {
 
                         FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
 
                         if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                            arr = file!!.read(offset, CURRENT_CHUNK_SIZE)
+                            arr = file!!.read(localOffset, finish_label)
                         } else {
                             throw my_user_exceptions_class(
                                 l_class_name = "FileService",

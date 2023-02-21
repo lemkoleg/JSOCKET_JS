@@ -74,7 +74,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                             LocalLock.withLock {
                                 if (answerTypeConstants.IsDBObject || answerTypeConstants.IsAccount) {
                                     if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
-                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 1) {
                                             if (answerType.BLOB_4 == null) {
                                                 if (!KBigAvatar.IS_HAVE_LOCAL_AVATAR_AND_RESERVE(answerType.answerTypeValues.GetMainAvatarId())) {
                                                     SendRequestForUpdate("1")
@@ -109,7 +109,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
                                     }
                                 } else if (answerTypeConstants.IsMessege) {
                                     if (answerType.answerTypeValues.GetMainAvatarId().isNotEmpty()) {
-                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 0) {
+                                        if (answerType.answerTypeValues.GetAvatarOriginalSize() > 1) {
                                             if (answerType.BLOB_4 == null) {
                                                 answerType.BLOB_4 =
                                                     RETURN_PROMISE_SELECT_BIG_AVATAR(answerType).await()?.getAVATAR()
