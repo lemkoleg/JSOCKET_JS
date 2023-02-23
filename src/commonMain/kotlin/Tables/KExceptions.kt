@@ -237,6 +237,16 @@ fun init(): Boolean {
         )
     )
 
+    USERS_EXCEPTIONS["EXC_MAXIMUM_ALLOWED_FILE_SIZE_HAS_BEEN_EXCEEDED"] = KExceptions(
+        KExceptions.KException(
+            "EXC_MAXIMUM_ALLOWED_FILE_SIZE_HAS_BEEN_EXCEEDED",
+            "ENG",
+            "The maximum allowed file size has been exceeded.",
+            "3",
+            0
+        )
+    )
+
     return true
 }
 

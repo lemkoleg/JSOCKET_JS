@@ -64,10 +64,9 @@ class FileService(
     private val IsInterrupted = AtomicInt(0)
 
     val condition: MyCondition = MyCondition()
+    private val CurrentChunkReceiveFile = AtomicInt(0)
 
     private val FileServiceLock = Mutex()
-
-    private val CurrentChunkReceiveFile = AtomicInt(0)
 
     var avatar: ByteArray? = null
 
@@ -236,6 +235,15 @@ class FileService(
 
                             CURRENT_CHUNK_SIZE = SELF_Jsocket.value_par3.toInt()
                             println("Getting CURRENT_CHUNK_SIZE = $CURRENT_CHUNK_SIZE")
+
+                            if (ExpectedFIleSize > Constants.MAX_MEDIA_FILES_SIZE_B_FOR_PLAY) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "open_file_channel",
+                                    name_of_exception = "EXC_MAXIMUM_ALLOWED_FILE_SIZE_HAS_BEEN_EXCEEDED",
+                                    l_additional_text = SELF_Jsocket.db_massage
+                                )
+                            }
 
                             file!!.create(ExpectedFIleSize) // create full size file
 
@@ -481,6 +489,8 @@ class FileService(
                     PrintInformation.PRINT_INFO("FileService: start receive_file: ${save_media!!.FILE_FULL_NAME}")
                 }
 
+                var isStarted = false
+
                 while (IsInterrupted.get() == 0) {
 
                     if (IsDownloaded) break
@@ -505,6 +515,10 @@ class FileService(
                         )
                     }
 
+                    if(!isStarted){
+                        isStarted = true
+                        SELF_Jsocket.value_par2 = ReturnNextNotDownloadedChankNumber().toString()
+                    }
                     SELF_Jsocket.send_request()
 
                     if (!SELF_Jsocket.just_do_it_successfull.equals("0")) {
@@ -526,8 +540,7 @@ class FileService(
                     } else {
 
                         val i = SELF_Jsocket.value_par2.toInt()
-
-                        println("i = $i")
+                        
 
                         if (Chunks!![i] == 0) {
 
@@ -635,93 +648,172 @@ class FileService(
 
     @JsName("get_file_chunk")
     fun get_file_chunk(
-        offset: Long,
+        position: Long,
+        buffer: ByteArray,
+        offset: Int,
+        size: Int,
+        isSyncronized: Boolean = false,
         startLoading: (() -> Any?)? = null,
         finishLoading: ((v: Any?) -> Any?)? = null
-    ): Promise<ByteArray?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
+    ): Promise<Int> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         var arr: ByteArray? = null
+        var res = 0
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
-            var localOffset = offset
-            var localOffsetInt = localOffset.toInt()
-            if (IsInterrupted.get() == 1 && !IsDownloaded) {
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "receive_file",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "File not downloaded but allready closed."
-                )
-            }
-            if (localOffset < 0 || localOffsetInt < 0) {
-                throw my_user_exceptions_class(
-                    l_class_name = "FileService",
-                    l_function_name = "receive_file",
-                    name_of_exception = "EXC_SYSTEM_ERROR",
-                    l_additional_text = "Ofsset have negative meaning."
-                )
-            }
-            if (localOffsetInt > 0 && localOffsetInt > CURRENT_CHUNK_SIZE) {
-                println("CURRENT_CHUNK_SIZE = $CURRENT_CHUNK_SIZE")
-                if ((localOffsetInt.mod(CURRENT_CHUNK_SIZE)).equals(0)) {
-                    localOffset++
-                    localOffsetInt++
-                }
-            }
-
             try {
-                val chunk_size: Int = (localOffsetInt / CURRENT_CHUNK_SIZE)
-                val finish_label: Int = ((chunk_size.plus(1) * CURRENT_CHUNK_SIZE)).minus(localOffsetInt)
-                if (finish_label < 0) {
+                try {
+
+                    val file_size = file!!.size()
+
+                    if (position >= file_size) {
+                        res = -1
+                        return@withTimeoutOrNull -1 // -1 indicates EOF
+                    }
+
+                    val positionInt = position.toInt()
+
+                    val sizeFinishInt: Int =
+                        if (positionInt.plus(size) > file_size) file_size.toInt().minus(positionInt) else size
+
+                    val finish_chunk: Int =
+                        if (positionInt.plus(size) >= file_size) Chunks!!.size.minus(1) else (positionInt.plus(size) / CURRENT_CHUNK_SIZE)
+
+                    val start_chunk: Int = (positionInt / CURRENT_CHUNK_SIZE)
+
+                    var readed_bytes = 0
+
+                    if (finish_chunk < start_chunk) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "receive_file",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "finish_chunk < start_chunk"
+                        )
+                    }
+
+                    println("sizeFinishInt = $sizeFinishInt ; finish_chunk = $finish_chunk")
+
+                    if (IsDownloaded) {
+                        readed_bytes = sizeFinishInt
+                    } else {
+                        for (j in start_chunk..finish_chunk) {
+
+                            if (IsInterrupted.get() == 1 && !IsDownloaded) {
+                                throw my_user_exceptions_class(
+                                    l_class_name = "FileService",
+                                    l_function_name = "receive_file",
+                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                    l_additional_text = "File not downloaded but allready closed."
+                                )
+                            }
+
+                            var is_download: Boolean = FileServiceLock.withLock { Chunks!![j] == 1 }
+
+                            if (is_download) {
+                                println("Chunk # $j is dowloaded;")
+                                val rb = (j * CURRENT_CHUNK_SIZE).plus(1)
+                                if (rb < positionInt) {
+                                    throw my_user_exceptions_class(
+                                        l_class_name = "FileService",
+                                        l_function_name = "receive_file",
+                                        name_of_exception = "EXC_SYSTEM_ERROR",
+                                        l_additional_text = "rb < positionInt"
+                                    )
+                                }
+                                readed_bytes += (rb - positionInt)
+                            } else {
+
+                                println("Chunk # $j is NOT dowloaded;")
+                                if (startLoading != null) {
+                                    startLoading()
+                                }
+
+                                FileServiceLock.withLock { CurrentChunkReceiveFile.set(j) }
+
+                                if (isSyncronized) {
+                                    if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
+                                        is_download = FileServiceLock.withLock { Chunks!![j] == 1 }
+                                        if (is_download) {
+                                            val rb = (j * CURRENT_CHUNK_SIZE).plus(1)
+                                            if (rb < positionInt) {
+                                                throw my_user_exceptions_class(
+                                                    l_class_name = "FileService",
+                                                    l_function_name = "receive_file",
+                                                    name_of_exception = "EXC_SYSTEM_ERROR",
+                                                    l_additional_text = "rb < positionInt"
+                                                )
+                                            }
+                                            readed_bytes += (rb - positionInt)
+                                        } else {
+                                            throw my_user_exceptions_class(
+                                                l_class_name = "FileService",
+                                                l_function_name = "receive_file",
+                                                name_of_exception = "EXC_SYSTEM_ERROR",
+                                                l_additional_text = "The stream is unblocked, but the frame is not uploaded."
+                                            )
+                                        }
+                                    } else {
+                                        throw my_user_exceptions_class(
+                                            l_class_name = "FileService",
+                                            l_function_name = "receive_file",
+                                            name_of_exception = "EXC_SYSTEM_ERROR",
+                                            l_additional_text = "Error receive file."
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (readed_bytes <= 0) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "receive_file",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "readed_bytes <= 0"
+                        )
+                    }
+
+                    arr = file!!.read(position, sizeFinishInt)
+
+                    if (arr == null || !arr!!.size.equals(readed_bytes)) {
+                        throw my_user_exceptions_class(
+                            l_class_name = "FileService",
+                            l_function_name = "receive_file",
+                            name_of_exception = "EXC_SYSTEM_ERROR",
+                            l_additional_text = "arr.size (${arr?.size?:0}) not equals readed_bytes ($readed_bytes)"
+                        )
+                    }
+                    for(j in 0..readed_bytes.minus(1)){
+                        buffer[j.plus(offset)] = arr!![j]
+                    }
+
+                    res = readed_bytes
+                    return@withTimeoutOrNull res
+
+                } catch (e: my_user_exceptions_class) {
+                    res = 0
+                    return@withTimeoutOrNull 0
+                    throw e
+                } catch(ex: Exception){
                     throw my_user_exceptions_class(
                         l_class_name = "FileService",
                         l_function_name = "receive_file",
                         name_of_exception = "EXC_SYSTEM_ERROR",
-                        l_additional_text = "Finish label have negative meaning: start label = $localOffsetInt , finish label = $finish_label"
+                        l_additional_text = ex.stackTraceToString()
                     )
                 }
-
-                if (IsDownloaded) {
-                    arr = file!!.read(localOffset, finish_label)
-                    return@withTimeoutOrNull arr
-                } else {
-                    if (startLoading != null) {
-                        startLoading()
-                    }
-
-                    val is_download: Boolean = FileServiceLock.withLock { Chunks!![chunk_size] == 1 }
-                    if (is_download) {
-                        arr = file!!.read(localOffset, finish_label)
-                    } else {
-
-                        FileServiceLock.withLock { CurrentChunkReceiveFile.set(chunk_size) }
-
-                        if (condition.cAwait(Constants.CLIENT_TIMEOUT)) {
-                            arr = file!!.read(localOffset, finish_label)
-                        } else {
-                            throw my_user_exceptions_class(
-                                l_class_name = "FileService",
-                                l_function_name = "receive_file",
-                                name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "Error receive file."
-                            )
-                        }
-                    }
-                }
             } catch (e: my_user_exceptions_class) {
+                res = 0
+                return@withTimeoutOrNull 0
                 e.ExceptionHand(null)
             } finally {
                 if (finishLoading != null) {
                     finishLoading(arr)
                 }
-                return@withTimeoutOrNull arr
+                return@withTimeoutOrNull res
             }
-            return@withTimeoutOrNull arr
-        } ?: throw my_user_exceptions_class(
-            l_class_name = "FileService",
-            l_function_name = "get_file_chunk",
-            name_of_exception = "EXC_SYSTEM_ERROR",
-            l_additional_text = "Time out is up"
-        )
-        return@async arr
+            return@withTimeoutOrNull res
+        } ?: 0
+        return@async res
     }.toPromise(EmptyCoroutineContext)
 
     /////////////////////////////////////////////////////////////////////////////////////
