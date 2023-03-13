@@ -2,13 +2,6 @@
 
 package CrossPlatforms
 
-import oshi.SystemInfo
-import oshi.hardware.CentralProcessor
-import oshi.hardware.HardwareAbstractionLayer
-import java.io.*
-import java.util.*
-
-actual val PLATFORM: String = "JVM"
 
 var result = ""
 
@@ -21,6 +14,7 @@ actual val slash: String = System.getProperty("file.separator")
 
 actual suspend fun getMyDeviceId(): String {
 
+    /*
     if (result.trim().isEmpty()) {
         when (System.getProperty("os.name").trim().uppercase(Locale.getDefault()).substring(0, 3)) {
                 "WIN" -> serialNumberWindows
@@ -32,9 +26,11 @@ actual suspend fun getMyDeviceId(): String {
         if (result.trim().isEmpty()) {
             generateLicenseKeyOSHI()
         }
+     */
         return result
     }
 
+/*
     ////////////////////////////////////////////////////////////////////////////////
     private fun generateLicenseKeyOSHI() {
         try {
@@ -219,5 +215,6 @@ actual suspend fun getMyDeviceId(): String {
             ""
         }
     }
+ */
 
 actual val lineSeparator: String = " \n"

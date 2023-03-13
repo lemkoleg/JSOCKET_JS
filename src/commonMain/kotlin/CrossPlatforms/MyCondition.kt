@@ -16,7 +16,7 @@ import com.soywiz.kmem.isJs
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import p_jsocket.Constants
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -37,7 +37,7 @@ expect class MyCondition()  {
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("MyCondition")
+//@JsName("MyCondition")
 class MyCondition {
 
     init {
@@ -62,7 +62,7 @@ class MyCondition {
     } else null
 
 
-    @JsName("cAwait")
+    //@JsName("cAwait")
     suspend fun cAwait(t: Long): Boolean{
         isAwaited.value = false
         if(Platform.isJs) {
@@ -78,7 +78,7 @@ class MyCondition {
     }
 
 
-    @JsName("cSignal")
+    //@JsName("cSignal")
     fun cSignal(){
         isAwaited.value = true
         if(!Platform.isJs){
@@ -87,7 +87,7 @@ class MyCondition {
         }
     }
 
-    @JsName("cDestroy")
+    //@JsName("cDestroy")
     fun cDestroy(){
         if(Platform.isJs){
             time = DateTime.nowUnixMillisLong()

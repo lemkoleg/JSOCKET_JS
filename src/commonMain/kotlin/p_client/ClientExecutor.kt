@@ -15,7 +15,7 @@ import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import sql.Sqlite_service
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -24,7 +24,7 @@ import kotlin.time.ExperimentalTime
  */
 
 
-@JsName("ClientExecutor")
+//@JsName("ClientExecutor")
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
@@ -260,38 +260,13 @@ class ClientExecutor {
 
             jsocket.send_request(update_just_do_it_label = false)
 
-            /*
-            if (jsocket.connection_id == 0L) {
-                if (!curCommand!!.isCrypt) {
-                    myConnectionsCoocki.setNewValue(0L)
-                }
-                return
-            }
-            if (!curCommand!!.isCrypt
-                || jsocket.just_do_it == 1011000046
+            if (jsocket.just_do_it == 1011000010  // RESTORE_PASSWORD
+                || jsocket.just_do_it == 1011000026 // INSERT_ACCOUNT
+                || jsocket.just_do_it == 1011000027 // CONNECT_ACCOUNT
             ) {
-                if (jsocket.connection_id != 0L) {
-                    myConnectionsID.setNewValue(jsocket.connection_id)
-                    if (jsocket.value_id1.trim().isNotEmpty()) {
-                        Jsocket.setMyDataBaseID(jsocket.value_id1)
-                    }
-                    if (jsocket.request_profile.trim().isNotEmpty()) {
-                        myRequestProfile(jsocket.request_profile)
-                    }
-                    if (jsocket.value_par2.isNotEmpty()) {
-                        myAccountProfile.setNewValue(jsocket.value_par2.trim())
-                    }
-                    Sqlite_service.InsertRegData()
-                    try {
-                        Sqlite_service.Connect().join()
-                    } catch (ex: Exception) {
-                    }
-                    if (jsocket.ANSWER_TYPEs != null && jsocket.ANSWER_TYPEs!!.isNotEmpty()) {
-                        Sqlite_service.InitializeCommands(jsocket)
-                    }
-                }
+                Connection.RE_SEND_REQUEST_PROFILE(await_answer = false)
             }
-             */
+
         } finally {
             newConnectionCoocki.setNewValue(0L)
         }

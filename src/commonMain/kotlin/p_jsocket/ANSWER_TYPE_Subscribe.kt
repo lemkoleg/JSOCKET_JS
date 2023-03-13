@@ -8,7 +8,7 @@ package p_jsocket
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -18,25 +18,25 @@ import kotlin.time.ExperimentalTime
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("ANSWER_TYPE_Subscribe")
+//@JsName("ANSWER_TYPE_Subscribe")
 class ANSWER_TYPE_Subscribe(
 
     fields_number: Int,
 
-    @JsName("fields_name")
+    //@JsName("fields_name")
     val fields_name: String,
 
-    @JsName("fields_size")
+    //@JsName("fields_size")
     val fields_size: Int,
 
-    @JsName("fields_size_is_perminent")
+    //@JsName("fields_size_is_perminent")
     val fields_size_is_perminent: Boolean,
 
     //0 - string, 1 - int, 2 - long, 3 - date, 4 - blob
-    @JsName("fields_type")
+    //@JsName("fields_type")
     val fields_type: Int,
 
-    @JsName("getANSWER_TYPE_FieldsValue")
+    //@JsName("getANSWER_TYPE_FieldsValue")
     val getANSWER_TYPE_FieldsValue: (ANSWER_TYPE) -> Any? = when (fields_number) {
         1 -> { j: ANSWER_TYPE -> j.IDENTIFICATOR_1 }
         2 -> { j: ANSWER_TYPE -> j.IDENTIFICATOR_2 }
@@ -132,7 +132,7 @@ class ANSWER_TYPE_Subscribe(
         }
     },
 
-    @JsName("setANSWER_TYPE_FieldsValue")
+    //@JsName("setANSWER_TYPE_FieldsValue")
     val setANSWER_TYPE_FieldsValue: (ANSWER_TYPE, Any?) -> Unit = when (fields_number) {
         1 -> { j: ANSWER_TYPE, v: Any? -> j.IDENTIFICATOR_1 = (v as String?) ?: "" }
         2 -> { j: ANSWER_TYPE, v: Any? -> j.IDENTIFICATOR_2 = (v as String?) ?: "" }

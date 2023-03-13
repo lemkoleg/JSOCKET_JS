@@ -23,7 +23,7 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -53,7 +53,7 @@ val NEW_BIG_AVATARS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("BigAvatar")
+//@JsName("BigAvatar")
 class KBigAvatar {
 
     init {
@@ -117,24 +117,24 @@ class KBigAvatar {
     }
 
 
-    @JsName("getAVATAR_ID")
+    //@JsName("getAVATAR_ID")
     fun getAVATAR_ID(): String {
         return AVATAR_ID
     }
 
-    @JsName("getLAST_USE")
+    //@JsName("getLAST_USE")
     fun getLAST_USE(): Long {
         return LAST_USE
     }
 
-    @JsName("getAVATAR")
+    //@JsName("getAVATAR")
     fun getAVATAR(): ByteArray? {
         return AVATAR
     }
 
     companion object {
 
-        @JsName("ADD_NEW_BIG_AVATAR")
+        //@JsName("ADD_NEW_BIG_AVATAR")
         fun ADD_NEW_BIG_AVATAR(avatar: KBigAvatar): Promise<Boolean> =
                 CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -173,7 +173,7 @@ class KBigAvatar {
                 )
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
+        //@JsName("RETURN_PROMISE_SELECT_BIG_AVATAR")
         fun RETURN_PROMISE_SELECT_BIG_AVATAR(
             P_ANSWER_TYPE: ANSWER_TYPE
         ): Promise<KBigAvatar?> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
@@ -245,7 +245,7 @@ class KBigAvatar {
         }.toPromise(EmptyCoroutineContext)
 
 
-        @JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
+        //@JsName("IS_HAVE_LOCAL_AVATAR_AND_RESERVE")
         suspend fun IS_HAVE_LOCAL_AVATAR_AND_RESERVE(L_AVATAR_ID: String): Boolean {
             return withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
@@ -277,7 +277,7 @@ class KBigAvatar {
         }
 
 
-        @JsName("LOAD_BIG_AVATARS_IDS")
+        //@JsName("LOAD_BIG_AVATARS_IDS")
         suspend fun LOAD_BIG_AVATARS_IDS(ids: ArrayList<String>) {
             try {
                 try {
@@ -308,7 +308,7 @@ class KBigAvatar {
         }
 
 
-        @JsName("LOAD_BIG_AVATARS")
+        //@JsName("LOAD_BIG_AVATARS")
         suspend fun LOAD_BIG_AVATARS(irr: ArrayList<KBigAvatar>) {
             try {
                 try {
@@ -332,7 +332,7 @@ class KBigAvatar {
         }
 
 
-        @JsName("INSERT_BIG_AVATAR_INTO_MAP")
+        //@JsName("INSERT_BIG_AVATAR_INTO_MAP")
         fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
             CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -362,12 +362,12 @@ class KBigAvatar {
             }
         }
 
-        @JsName("RE_LOAD_BIG_AVATAR_IDS")
+        //@JsName("RE_LOAD_BIG_AVATAR_IDS")
         fun RE_LOAD_BIG_AVATAR_IDS(): Job {
             return Sqlite_service.LoadBigAvatarsIds()
         }
 
-        @JsName("RE_LOAD_BIG_AVATAR")
+        //@JsName("RE_LOAD_BIG_AVATAR")
         fun RE_LOAD_BIG_AVATAR(): Job {
             return Sqlite_service.LoadBigAvatars()
         }

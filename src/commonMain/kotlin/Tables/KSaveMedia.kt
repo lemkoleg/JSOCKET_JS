@@ -25,7 +25,7 @@ import p_jsocket.Constants
 import p_jsocket.JSOCKET_Instance
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -48,7 +48,7 @@ private val KSaveMediaLock = Mutex()
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("KSaveMedia")
+//@JsName("KSaveMedia")
 class KSaveMedia(
     val L_OBJECT_LINK: String,
     val L_OBJECT_SIZE: Long,
@@ -105,18 +105,18 @@ class KSaveMedia(
         AddNewSaveMedia(this)
     }
 
-    @JsName("getIS_TEMP")
+    //@JsName("getIS_TEMP")
     fun getIS_TEMP(): Boolean {
         return L_IS_TEMP == 1
 
     }
 
-    @JsName("setLAST_USED")
+    //@JsName("setLAST_USED")
     fun setLAST_USED() {
         AddNewSaveMedia(this)
     }
 
-    @JsName("verifysDownLoaded")
+    //@JsName("verifysDownLoaded")
     private suspend fun verifysDownLoaded(): Boolean {
         val f = CrossPlatformFile(FILE_FULL_NAME)
         if (!f.exists() || f.isDirectory()) {
@@ -125,7 +125,7 @@ class KSaveMedia(
         return true
     }
 
-    @JsName("deleteFile")
+    //@JsName("deleteFile")
     private fun deleteFile() {
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             val f = CrossPlatformFile(FILE_FULL_NAME)
@@ -177,7 +177,7 @@ class KSaveMedia(
             }.toPromise(EmptyCoroutineContext)
 
 
-        @JsName("LOAD_SAVE_MEDIA")
+        //@JsName("LOAD_SAVE_MEDIA")
         suspend fun LOAD_SAVE_MEDIA(irr: ArrayList<KSaveMedia>) {
             try {
                 try {
@@ -292,7 +292,7 @@ class KSaveMedia(
                 )
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("RE_LOAD_SAVE_MEDIA")
+        //@JsName("RE_LOAD_SAVE_MEDIA")
         fun RE_LOAD_SAVE_MEDIA(): Job {
             return Sqlite_service.LoadSaveMedia()
         }

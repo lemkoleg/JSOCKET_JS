@@ -21,7 +21,7 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import p_jsocket.Constants.CLIENT_TIMEOUT
 import kotlin.coroutines.CoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -32,7 +32,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("Sqlite_service")
+//@JsName("Sqlite_service")
 object Sqlite_service : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()
@@ -50,7 +50,7 @@ object Sqlite_service : CoroutineScope {
     //private val statBIG_AVATARS = Connection.createStatement()
     //private val lockBIG_AVATARS = Mutex()
 
-    @JsName("InsertBigAvatars")
+    //@JsName("InsertBigAvatars")
     fun InsertBigAvatars(kBigAvatars: ArrayList<KBigAvatar>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -81,7 +81,7 @@ object Sqlite_service : CoroutineScope {
     }
 
 
-    @JsName("SelectBigAvatar")
+    //@JsName("SelectBigAvatar")
     suspend fun SelectBigAvatar(OBJECTS_ID: String, IS_UPDATE_LAST_USE: Boolean): KBigAvatar? {
         try {
             try {
@@ -119,7 +119,7 @@ object Sqlite_service : CoroutineScope {
     }
 
 
-    @JsName("LoadBigAvatarsIds")
+    //@JsName("LoadBigAvatarsIds")
     fun LoadBigAvatarsIds() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -150,7 +150,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadBigAvatars")
+    //@JsName("LoadBigAvatars")
     fun LoadBigAvatars() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -181,7 +181,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("UpdateBigAvatarsLastUse")
+    //@JsName("UpdateBigAvatarsLastUse")
     fun UpdateBigAvatarsLastUse(OBJECTS_ID: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -211,7 +211,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("DeleteBigAvatars")
+    //@JsName("DeleteBigAvatars")
     fun DeleteBigAvatars(OBJECTS_ID: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -241,7 +241,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("ClearBigAvatars")
+    //@JsName("ClearBigAvatars")
     fun ClearBigAvatars() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -276,7 +276,7 @@ object Sqlite_service : CoroutineScope {
     //private val statCOMMANDS = Connection.createStatement()
     //private val lockCOMMANDS = Mutex()
 
-    @JsName("InsertCommands")
+    //@JsName("InsertCommands")
     fun InsertCommands(arr: ArrayList<KCommands>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -306,7 +306,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadCommands")
+    //@JsName("LoadCommands")
     fun LoadCommands() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -343,7 +343,7 @@ object Sqlite_service : CoroutineScope {
     //private val lockEXCEPTIONS = Mutex()
 
 
-    @JsName("InsertExceptions")
+    //@JsName("InsertExceptions")
     fun InsertExceptions(ans: ArrayList<KExceptions.KException>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -374,7 +374,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadExceptions")
+    //@JsName("LoadExceptions")
     fun LoadExceptions() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -411,7 +411,7 @@ object Sqlite_service : CoroutineScope {
     //private val lockMETA_DATA = Mutex()
 
 
-    @JsName("InsertMetaData")
+    //@JsName("InsertMetaData")
     fun InsertMetaData(ans: ArrayList<KMetaData>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -441,7 +441,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadMetaData")
+    //@JsName("LoadMetaData")
     fun LoadMetaData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -478,7 +478,7 @@ object Sqlite_service : CoroutineScope {
     //private val lockREG_DATA = Mutex()
 
 
-    @JsName("InsertRegData")
+    //@JsName("InsertRegData")
     fun InsertRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -508,7 +508,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadRegData")
+    //@JsName("LoadRegData")
     fun LoadRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -553,7 +553,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("ClearRegData")
+    //@JsName("ClearRegData")
     fun ClearRegData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -589,7 +589,7 @@ object Sqlite_service : CoroutineScope {
     //private val lockSAVE_MEDIA = Mutex()
 
 
-    @JsName("InsertSaveMedia")
+    //@JsName("InsertSaveMedia")
     fun InsertSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -619,7 +619,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadSaveMedia")
+    //@JsName("LoadSaveMedia")
     fun LoadSaveMedia() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -650,7 +650,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("DeleteSaveMedia")
+    //@JsName("DeleteSaveMedia")
     fun DeleteSaveMedia(ans: ArrayList<KSaveMedia>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -686,7 +686,7 @@ object Sqlite_service : CoroutineScope {
     //private val lockCASHLASTUPDATE = Mutex()
 
 
-    @JsName("InsertCashLastUpdate")
+    //@JsName("InsertCashLastUpdate")
     fun InsertCashLastUpdate(cash: KCashLastUpdate) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -716,7 +716,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadCashLastUpdate")
+    //@JsName("LoadCashLastUpdate")
     fun LoadCashLastUpdate() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -750,7 +750,7 @@ object Sqlite_service : CoroutineScope {
 
     /////////////cash data///////////////////////////
 
-    @JsName("InsertCashData")
+    //@JsName("InsertCashData")
     fun InsertCashData(cash_sum: String, arr: MutableList<ANSWER_TYPE>) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -783,7 +783,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("SelectCashDataAllOnCashSum")
+    //@JsName("SelectCashDataAllOnCashSum")
     suspend fun SelectCashDataAllOnCashSum(cash: String): ArrayDeque<ANSWER_TYPE> {
         try {
             try {
@@ -817,7 +817,7 @@ object Sqlite_service : CoroutineScope {
         return ArrayDeque()
     }
 
-    @JsName("SelectCashDataChunkOnCashSum")
+    //@JsName("SelectCashDataChunkOnCashSum")
     suspend fun SelectCashDataChunkOnCashSum(cash: String, record_id_from: String = ""): ArrayDeque<ANSWER_TYPE> {
         try {
             try {
@@ -857,7 +857,7 @@ object Sqlite_service : CoroutineScope {
         return ArrayDeque()
     }
 
-    @JsName("SelectCashData")
+    //@JsName("SelectCashData")
     suspend fun SelectCashData(cash: String, record_id: String): ANSWER_TYPE? {
         try {
             try {
@@ -891,7 +891,7 @@ object Sqlite_service : CoroutineScope {
         return null
     }
 
-    @JsName("LoadCashData")
+    //@JsName("LoadCashData")
     fun LoadCashData() = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -926,7 +926,7 @@ object Sqlite_service : CoroutineScope {
         }
     }
 
-    @JsName("LoadCashDataAllObjectsIdOnCasSum")
+    //@JsName("LoadCashDataAllObjectsIdOnCasSum")
     fun LoadCashDataAllObjectsIdOnCasSum(cash: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -958,7 +958,7 @@ object Sqlite_service : CoroutineScope {
     }
 
 
-    @JsName("OrederCashData")
+    //@JsName("OrederCashData")
     private fun OrederCashData(CASH_SUM: String) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -990,7 +990,7 @@ object Sqlite_service : CoroutineScope {
     }
 
     /*
-    @JsName("UpdateCashDataNewLastSelect")
+    //@JsName("UpdateCashDataNewLastSelect")
     fun UpdateCashDataNewLastSelect(
         last_select: Long,
         cash_sum: String,
@@ -1038,7 +1038,7 @@ object Sqlite_service : CoroutineScope {
     }
      */
 
-    @JsName("DeleteCash")
+    //@JsName("DeleteCash")
     fun DeleteCash(cash_sum: String, object_id: String? = null) = Sqlite_serviceScope.launchImmediately {
         try {
             try {
@@ -1082,7 +1082,7 @@ object Sqlite_service : CoroutineScope {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("Connect")
+    //@JsName("Connect")
     internal fun Connect() = Sqlite_serviceScope.launchImmediately {
         /*Connection = if (InitJsocket.connection == null) {
             org.sqlite.JDBC.createConnection(CON_STR, properties)

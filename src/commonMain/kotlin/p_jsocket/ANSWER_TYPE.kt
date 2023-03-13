@@ -19,14 +19,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("FIELDS_SUBSCRIBE_ANSWER_TYPES")
+//@JsName("FIELDS_SUBSCRIBE_ANSWER_TYPES")
 val FIELDS_SUBSCRIBE_ANSWER_TYPES: MutableMap<Int, ANSWER_TYPE_Subscribe> = mutableMapOf(
     1 to ANSWER_TYPE_Subscribe(1, "IDENTIFICATOR_1", 18, true, 0),
     2 to ANSWER_TYPE_Subscribe(2, "IDENTIFICATOR_2", 18, true, 0),
@@ -140,7 +140,7 @@ private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-@JsName("ANSWER_TYPE")
+//@JsName("ANSWER_TYPE")
 class ANSWER_TYPE {
 
     //var SELF_Jsockt: Jsocket? = CLIENT_JSOCKET_POOL.removeFirstOrNull()
@@ -158,246 +158,246 @@ class ANSWER_TYPE {
         ensureNeverFrozen()
     }
 
-    @JsName("answerTypeValues")
+    //@JsName("answerTypeValues")
     val answerTypeValues = AnswerTypeValues(this)
 
 
-    @JsName("IDENTIFICATORS")
+    //@JsName("IDENTIFICATORS")
     var IDENTIFICATORS: String? = null
 
-    @JsName("IDENTIFICATOR_1")
+    //@JsName("IDENTIFICATOR_1")
     var IDENTIFICATOR_1: String? = null
 
-    @JsName("IDENTIFICATOR_2")
+    //@JsName("IDENTIFICATOR_2")
     var IDENTIFICATOR_2: String? = null
 
-    @JsName("IDENTIFICATOR_3")
+    //@JsName("IDENTIFICATOR_3")
     var IDENTIFICATOR_3: String? = null
 
 
-    @JsName("IDENTIFICATOR_4")
+    //@JsName("IDENTIFICATOR_4")
     var IDENTIFICATOR_4: String? = null
 
 
-    @JsName("IDENTIFICATOR_5")
+    //@JsName("IDENTIFICATOR_5")
     var IDENTIFICATOR_5: String? = null
 
 
-    @JsName("IDENTIFICATOR_6")
+    //@JsName("IDENTIFICATOR_6")
     var IDENTIFICATOR_6: String? = null
 
 
-    @JsName("IDENTIFICATOR_7")
+    //@JsName("IDENTIFICATOR_7")
     var IDENTIFICATOR_7: String? = null
 
 
-    @JsName("IDENTIFICATOR_8")
+    //@JsName("IDENTIFICATOR_8")
     var IDENTIFICATOR_8: String? = null
 
 
-    @JsName("IDENTIFICATOR_9")
+    //@JsName("IDENTIFICATOR_9")
     var IDENTIFICATOR_9: String? = null
 
 
-    @JsName("IDENTIFICATOR_10")
+    //@JsName("IDENTIFICATOR_10")
     var IDENTIFICATOR_10: String? = null
 
-    @JsName("IDENTIFICATOR_11")
+    //@JsName("IDENTIFICATOR_11")
     var IDENTIFICATOR_11: String? = null
 
 
-    @JsName("IDENTIFICATOR_12")
+    //@JsName("IDENTIFICATOR_12")
     var IDENTIFICATOR_12: String? = null
 
 
-    @JsName("IDENTIFICATOR_13")
+    //@JsName("IDENTIFICATOR_13")
     var IDENTIFICATOR_13: String? = null
 
 
-    @JsName("IDENTIFICATOR_14")
+    //@JsName("IDENTIFICATOR_14")
     var IDENTIFICATOR_14: String? = null
 
 
-    @JsName("IDENTIFICATOR_15")
+    //@JsName("IDENTIFICATOR_15")
     var IDENTIFICATOR_15: String? = null
 
 
-    @JsName("IDENTIFICATOR_16")
+    //@JsName("IDENTIFICATOR_16")
     var IDENTIFICATOR_16: String? = null
 
 
-    @JsName("IDENTIFICATOR_17")
+    //@JsName("IDENTIFICATOR_17")
     var IDENTIFICATOR_17: String? = null
 
 
-    @JsName("IDENTIFICATOR_18")
+    //@JsName("IDENTIFICATOR_18")
     var IDENTIFICATOR_18: String? = null
 
 
-    @JsName("IDENTIFICATOR_19")
+    //@JsName("IDENTIFICATOR_19")
     var IDENTIFICATOR_19: String? = null
 
 
-    @JsName("IDENTIFICATOR_20")
+    //@JsName("IDENTIFICATOR_20")
     var IDENTIFICATOR_20: String? = null
 
 
-    @JsName("INTEGER_1")
+    //@JsName("INTEGER_1")
     var INTEGER_1: Int? = null
 
 
-    @JsName("INTEGER_2")
+    //@JsName("INTEGER_2")
     var INTEGER_2: Int? = null
 
 
-    @JsName("INTEGER_3")
+    //@JsName("INTEGER_3")
     var INTEGER_3: Int? = null
 
 
-    @JsName("INTEGER_4")
+    //@JsName("INTEGER_4")
     var INTEGER_4: Int? = null
 
 
-    @JsName("INTEGER_5")
+    //@JsName("INTEGER_5")
     var INTEGER_5: Int? = null
 
 
-    @JsName("INTEGER_6")
+    //@JsName("INTEGER_6")
     var INTEGER_6: Int? = null
 
 
-    @JsName("INTEGER_7")
+    //@JsName("INTEGER_7")
     var INTEGER_7: Int? = null
 
 
-    @JsName("INTEGER_8")
+    //@JsName("INTEGER_8")
     var INTEGER_8: Int? = null
 
 
-    @JsName("INTEGER_9")
+    //@JsName("INTEGER_9")
     var INTEGER_9: Int? = null
 
 
-    @JsName("INTEGER_10")
+    //@JsName("INTEGER_10")
     var INTEGER_10: Int? = null
 
 
-    @JsName("INTEGER_11")
+    //@JsName("INTEGER_11")
     var INTEGER_11: Int? = null
 
 
-    @JsName("INTEGER_12")
+    //@JsName("INTEGER_12")
     var INTEGER_12: Int? = null
 
 
-    @JsName("INTEGER_13")
+    //@JsName("INTEGER_13")
     var INTEGER_13: Int? = null
 
 
-    @JsName("INTEGER_14")
+    //@JsName("INTEGER_14")
     var INTEGER_14: Int? = null
 
 
-    @JsName("INTEGER_15")
+    //@JsName("INTEGER_15")
     var INTEGER_15: Int? = null
 
 
-    @JsName("INTEGER_16")
+    //@JsName("INTEGER_16")
     var INTEGER_16: Int? = null
 
 
-    @JsName("INTEGER_17")
+    //@JsName("INTEGER_17")
     var INTEGER_17: Int? = null
 
 
-    @JsName("INTEGER_18")
+    //@JsName("INTEGER_18")
     var INTEGER_18: Int? = null
 
 
-    @JsName("INTEGER_19")
+    //@JsName("INTEGER_19")
     var INTEGER_19: Int? = null
 
 
-    @JsName("INTEGER_20")
+    //@JsName("INTEGER_20")
     var INTEGER_20: Int = 0
 
 
-    @JsName("LONG_1")
+    //@JsName("LONG_1")
     var LONG_1: Long? = null
 
 
-    @JsName("LONG_2")
+    //@JsName("LONG_2")
     var LONG_2: Long? = null
 
 
-    @JsName("LONG_3")
+    //@JsName("LONG_3")
     var LONG_3: Long? = null
 
 
-    @JsName("LONG_4")
+    //@JsName("LONG_4")
     var LONG_4: Long? = null
 
 
-    @JsName("LONG_5")
+    //@JsName("LONG_5")
     var LONG_5: Long? = null
 
 
-    @JsName("LONG_6")
+    //@JsName("LONG_6")
     var LONG_6: Long? = null
 
 
-    @JsName("LONG_7")
+    //@JsName("LONG_7")
     var LONG_7: Long? = null
 
 
-    @JsName("LONG_8")
+    //@JsName("LONG_8")
     var LONG_8: Long? = null
 
 
-    @JsName("LONG_9")
+    //@JsName("LONG_9")
     var LONG_9: Long? = null
 
 
-    @JsName("LONG_10")
+    //@JsName("LONG_10")
     var LONG_10: Long? = null
 
-    @JsName("LONG_11")
+    //@JsName("LONG_11")
     var LONG_11: Long? = null
 
 
-    @JsName("LONG_12")
+    //@JsName("LONG_12")
     var LONG_12: Long? = null
 
 
-    @JsName("LONG_13")
+    //@JsName("LONG_13")
     var LONG_13: Long? = null
 
 
-    @JsName("LONG_14")
+    //@JsName("LONG_14")
     var LONG_14: Long? = null
 
 
-    @JsName("LONG_15")
+    //@JsName("LONG_15")
     var LONG_15: Long? = null
 
 
-    @JsName("LONG_16")
+    //@JsName("LONG_16")
     var LONG_16: Long? = null
 
 
-    @JsName("LONG_17")
+    //@JsName("LONG_17")
     var LONG_17: Long? = null
 
 
-    @JsName("LONG_18")
+    //@JsName("LONG_18")
     var LONG_18: Long? = null
 
 
-    @JsName("LONG_19")
+    //@JsName("LONG_19")
     var LONG_19: Long? = null
 
 
-    @JsName("LONG_20")
+    //@JsName("LONG_20")
     var LONG_20: Long = 0L
     /*
     set(v) {
@@ -410,81 +410,81 @@ class ANSWER_TYPE {
      */
 
 
-    @JsName("STRING_1")
+    //@JsName("STRING_1")
     var STRING_1: String? = null
 
 
-    @JsName("STRING_2")
+    //@JsName("STRING_2")
     var STRING_2: String? = null
 
 
-    @JsName("STRING_3")
+    //@JsName("STRING_3")
     var STRING_3: String? = null
 
 
-    @JsName("STRING_4")
+    //@JsName("STRING_4")
     var STRING_4: String? = null
 
 
-    @JsName("STRING_5")
+    //@JsName("STRING_5")
     var STRING_5: String? = null
 
 
-    @JsName("STRING_6")
+    //@JsName("STRING_6")
     var STRING_6: String? = null
 
 
-    @JsName("STRING_7")
+    //@JsName("STRING_7")
     var STRING_7: String? = null
 
 
-    @JsName("STRING_8")
+    //@JsName("STRING_8")
     var STRING_8: String? = null
 
 
-    @JsName("STRING_9")
+    //@JsName("STRING_9")
     var STRING_9: String? = null
 
 
-    @JsName("STRING_10")
+    //@JsName("STRING_10")
     var STRING_10: String? = null
 
-    @JsName("STRING_11")
+    //@JsName("STRING_11")
     var STRING_11: String? = null
 
 
-    @JsName("STRING_12")
+    //@JsName("STRING_12")
     var STRING_12: String? = null
 
 
-    @JsName("STRING_13")
+    //@JsName("STRING_13")
     var STRING_13: String? = null
 
 
-    @JsName("STRING_14")
+    //@JsName("STRING_14")
     var STRING_14: String? = null
 
 
-    @JsName("STRING_15")
+    //@JsName("STRING_15")
     var STRING_15: String? = null
 
 
-    @JsName("STRING_16")
+    //@JsName("STRING_16")
     var STRING_16: String? = null
 
 
-    @JsName("STRING_17")
+    //@JsName("STRING_17")
     var STRING_17: String? = null
 
 
-    @JsName("STRING_18")
+    //@JsName("STRING_18")
     var STRING_18: String? = null
 
 
-    @JsName("STRING_19")
+    //@JsName("STRING_19")
     var STRING_19: String? = null
 
-    @JsName("STRING_20")
+    //@JsName("STRING_20")
     var STRING_20: String = ""
         set(v) {
             if (v.isNotEmpty() && !v.equals(field)) {
@@ -493,19 +493,19 @@ class ANSWER_TYPE {
             }
         }
 
-    @JsName("BLOB_1")
+    //@JsName("BLOB_1")
     var BLOB_1: ByteArray? = null
 
-    @JsName("BLOB_2")
+    //@JsName("BLOB_2")
     var BLOB_2: ByteArray? = null
 
-    @JsName("BLOB_3")
+    //@JsName("BLOB_3")
     var BLOB_3: ByteArray? = null
 
-    @JsName("BLOB_4")
+    //@JsName("BLOB_4")
     var BLOB_4: ByteArray? = null
 
-    @JsName("RECORD_TYPE")
+    //@JsName("RECORD_TYPE")
     var RECORD_TYPE: String = ""
         set(v) {
             if (!v.equals(field)) {
@@ -514,20 +514,20 @@ class ANSWER_TYPE {
             }
         }
 
-    @JsName("RECORD_TABLE_ID")
+    //@JsName("RECORD_TABLE_ID")
     var RECORD_TABLE_ID: String = ""
 
-    @JsName("CASH_SUM")
+    //@JsName("CASH_SUM")
     var CASH_SUM: String = ""
 
-    @JsName("IS_UPDATED_BY_MERGE")
+    //@JsName("IS_UPDATED_BY_MERGE")
     var IS_UPDATED_BY_MERGE: Boolean = false
 
-    @JsName("OBJECT_ID_LAST_SELECT")
+    //@JsName("OBJECT_ID_LAST_SELECT")
     var OBJECT_ID_LAST_SELECT = ""
 
 
-    @JsName("merge")
+    //@JsName("merge")
     fun merge(v: ANSWER_TYPE) {
 
         callBackUpdatedData = v.callBackUpdatedData
@@ -848,27 +848,27 @@ class ANSWER_TYPE {
         //callBackUpdatedData(null)
     }
 
-    @JsName("get_BLOB_1_size")
+    //@JsName("get_BLOB_1_size")
     fun get_BLOB_1_size(): Int {
         return BLOB_1?.size ?: 0
     }
 
-    @JsName("get_BLOB_2_size")
+    //@JsName("get_BLOB_2_size")
     fun get_BLOB_2_size(): Int {
         return BLOB_2?.size ?: 0
     }
 
-    @JsName("get_BLOB_3_size")
+    //@JsName("get_BLOB_3_size")
     fun get_BLOB_3_size(): Int {
         return BLOB_3?.size ?: 0
     }
 
-    @JsName("get_BLOB_4_size")
+    //@JsName("get_BLOB_4_size")
     fun get_BLOB_4_size(): Int {
         return BLOB_4?.size ?: 0
     }
 
-    @JsName("callBackUpdatedData")
+    //@JsName("callBackUpdatedData")
     var callBackUpdatedData: ((v: Any?) -> Any?) = {}
 
 
@@ -1220,7 +1220,7 @@ class ANSWER_TYPE {
         }
 
 
-        @JsName("fillPOOL")
+        //@JsName("fillPOOL")
         fun fillPOOL() {
             if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
                 CoroutineScope(NonCancellable).launchImmediately {
@@ -1248,7 +1248,7 @@ class ANSWER_TYPE {
             }
         }
 
-        @JsName("fillPOOLS")
+        //@JsName("fillPOOLS")
         fun fillPOOLS() {
             if (fillPOOLS_IS_RUNNING.compareAndSet(expected = false, new = true)) {
                 CoroutineScope(NonCancellable).launchImmediately {

@@ -10,7 +10,7 @@ package p_jsocket
 import Tables.KCommands
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.properties.Delegates
 import kotlin.time.ExperimentalTime
 
@@ -22,79 +22,79 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("Command")
+//@JsName("Command")
 class Command {
-    @JsName("commands_id")
+    //@JsName("commands_id")
     var commands_id by Delegates.notNull<Int>()
 
-    @JsName("commands_access")
+    //@JsName("commands_access")
     var commands_access by Delegates.notNull<String>()
 
-    @JsName("commands_profile")
+    //@JsName("commands_profile")
     var commands_profile by Delegates.notNull<String>()
 
-    @JsName("commands_necessarily_fields")
+    //@JsName("commands_necessarily_fields")
     var commands_necessarily_fields by Delegates.notNull<String>()
 
-    @JsName("isForAcceptedMAIL")
+    //@JsName("isForAcceptedMAIL")
     var isForAcceptedMAIL by Delegates.notNull<Boolean>()
 
-    @JsName("isForPRO")
+    //@JsName("isForPRO")
     var isForPRO by Delegates.notNull<Boolean>()
 
-    @JsName("canEdit")
+    //@JsName("canEdit")
     var canEdit by Delegates.notNull<String>()
 
-    @JsName("whichBlobDataReturned")
+    //@JsName("whichBlobDataReturned")
     var whichBlobDataReturned by Delegates.notNull<String>()
 
-    @JsName("whichSmallAvatarCreate")
+    //@JsName("whichSmallAvatarCreate")
     var whichSmallAvatarCreate by Delegates.notNull<String>()
 
-    @JsName("isDont_answer")
+    //@JsName("isDont_answer")
     var isDont_answer by Delegates.notNull<Boolean>()
 
-    @JsName("whichBlobDataSended")
+    //@JsName("whichBlobDataSended")
     var whichBlobDataSended by Delegates.notNull<String>()
 
-    @JsName("canChangeCoocki")
+    //@JsName("canChangeCoocki")
     var canChangeCoocki by Delegates.notNull<Boolean>()
 
-    @JsName("isCrypt")
+    //@JsName("isCrypt")
     var isCrypt by Delegates.notNull<Boolean>()
 
-    @JsName("cryptContent")
+    //@JsName("cryptContent")
     var cryptContent by Delegates.notNull<Boolean>()
 
-    @JsName("isUpdateMesseges")
+    //@JsName("isUpdateMesseges")
     var isUpdateMesseges by Delegates.notNull<Boolean>()
 
-    @JsName("isDontWaitTimeOut")
+    //@JsName("isDontWaitTimeOut")
     var isDontWaitTimeOut by Delegates.notNull<Boolean>()
 
-    @JsName("isSeparateThread")
+    //@JsName("isSeparateThread")
     var isSeparateThread by Delegates.notNull<Boolean>()
 
-    @JsName("isSDontSaveONServerConnections")
+    //@JsName("isSDontSaveONServerConnections")
     var isSDontSaveONServerConnections by Delegates.notNull<Boolean>()
 
-    @JsName("saveOnClientRequestsQueue")
+    //@JsName("saveOnClientRequestsQueue")
     var saveOnClientRequestsQueue by Delegates.notNull<Boolean>()
 
-    @JsName("allowFileByLink")
+    //@JsName("allowFileByLink")
     var allowFileByLink by Delegates.notNull<Boolean>()
 
-    @JsName("cryptMediaContent")
+    //@JsName("cryptMediaContent")
     var cryptMediaContent by Delegates.notNull<Boolean>()
 
-    @JsName("saveOrirginalAvatar")
+    //@JsName("saveOrirginalAvatar")
     var saveOrirginalAvatar by Delegates.notNull<Boolean>()
 
 
-    @JsName("SendBlobSize")
+    //@JsName("SendBlobSize")
     var SendBlobSize by Delegates.notNull<Int>()
 
-    @JsName("ReturnBlobSize")
+    //@JsName("ReturnBlobSize")
     var ReturnBlobSize by Delegates.notNull<Int>()
 
 

@@ -22,7 +22,7 @@ import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -64,23 +64,23 @@ private val KChatsVerifyUpdatesLock = Mutex()
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("sendedVerifyUpdates")
+//@JsName("sendedVerifyUpdates")
 private var sendedVerifyUpdates: Long = 0L
 private var TimeOutendedVerifyUpdates: Long = 0L
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("sendedlSelectAllDataOfChat")
+//@JsName("sendedlSelectAllDataOfChat")
 private val sendedlSelectAllDataOfChat: MutableMap<String, Long> = mutableMapOf()
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("KChat")
+//@JsName("KChat")
 object KChat {
 
-    @JsName("SELECT_ALL_DATA_ON_CHAT")
+    //@JsName("SELECT_ALL_DATA_ON_CHAT")
     fun SELECT_ALL_DATA_ON_CHAT(cats_id: String): Promise<Unit?> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -164,7 +164,7 @@ object KChat {
             )
         }.toPromise(EmptyCoroutineContext)
 
-    @JsName("VERIFY_UPDATES")
+    //@JsName("VERIFY_UPDATES")
     fun VERIFY_UPDATES(new_updates: Long): Promise<Unit?> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -240,7 +240,7 @@ object KChat {
         }.toPromise(EmptyCoroutineContext)
 
 
-    @JsName("GET_CHATS")
+    //@JsName("GET_CHATS")
     fun GET_CHATS(l_updatedCashData: (() -> Any?)? = null): Promise<ArrayDeque<ANSWER_TYPE>> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
@@ -297,7 +297,7 @@ object KChat {
             return@async arr
         }.toPromise(EmptyCoroutineContext)
 
-    @JsName("DELETE_CHATS")
+    //@JsName("DELETE_CHATS")
     suspend fun DELETE_CHATS(l_chat_id: String) {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {

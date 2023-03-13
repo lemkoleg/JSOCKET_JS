@@ -7,14 +7,14 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("AtomicBoolean")
+//@JsName("AtomicBoolean")
 class AtomicBoolean(v: Boolean){
 
 
@@ -28,21 +28,21 @@ class AtomicBoolean(v: Boolean){
     }
 
 
-    @JsName("setNewValue")
+    //@JsName("setNewValue")
     suspend fun setNewValue(v: Boolean){
         lock.withLock {
             value = v
         }
     }
 
-    @JsName("getValue")
+    //@JsName("getValue")
     suspend fun getValue(): Boolean{
         lock.withLock {
             return value
         }
     }
 
-    @JsName("getAndSet")
+    //@JsName("getAndSet")
     suspend fun getAndSet(v: Boolean):Boolean{
         return lock.withLock {
             val old = value

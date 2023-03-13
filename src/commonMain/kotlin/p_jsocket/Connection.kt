@@ -24,7 +24,7 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_client.*
 import sql.Sqlite_service
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -35,7 +35,7 @@ private const val MIN_SIZE_OF_REQUEST: Int = 17
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("BetweenJSOCKETs")
+//@JsName("BetweenJSOCKETs")
 private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 
 @InternalAPI
@@ -47,7 +47,7 @@ private val LastReSendRequestProfile: AtomicLong = AtomicLong(DateTime.nowUnixMi
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("Connection")
+//@JsName("Connection")
 object Connection {
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
@@ -56,7 +56,7 @@ object Connection {
 
     private lateinit var SetConnJob: Job
 
-    @JsName("MyWebSocketChannel")
+    //@JsName("MyWebSocketChannel")
     private var MyWebSocketChannel: WebSocketClient? = null
 
     public var addressByteArray: ByteArray? = null
@@ -107,7 +107,7 @@ object Connection {
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
     @ExperimentalTime
-    @JsName("setConn")
+    //@JsName("setConn")
     private fun setConn() {
         SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
 
@@ -246,7 +246,7 @@ object Connection {
     }
 
     @InternalAPI
-    @JsName("close")
+    //@JsName("close")
     fun close() {
         isConnect = false
         isClosed = true
@@ -476,9 +476,7 @@ object Connection {
 
                 if(Constants.RE_SEND_REQUEST_PROFILE_BY_TIMEOUT == 1){
                     if(LastReSendRequestProfile.value < (DateTime.nowUnixMillisLong() - Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES)){
-                        val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
-                        socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
-                        socket.send_request(await_answer = false)
+                        RE_SEND_REQUEST_PROFILE(await_answer = false)
                     }
                 }
 
@@ -519,5 +517,11 @@ object Connection {
             CoroutineScope(NonCancellable).launchImmediately { GC.collect() }
         }
 
+    }
+
+    suspend fun RE_SEND_REQUEST_PROFILE(await_answer: Boolean){
+        val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
+        socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
+        socket.send_request(await_answer = await_answer)
     }
 }

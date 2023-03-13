@@ -22,18 +22,18 @@ import p_jsocket.Constants
 import p_jsocket.Constants.Account_Id
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("CASH_DATAS")
+//@JsName("CASH_DATAS")
 val CASH_DATAS: MutableMap<String, KCashData> = mutableMapOf()
 
 
-@JsName("KCashData")
+//@JsName("KCashData")
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -192,13 +192,13 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     val KCashDataLock = Mutex()
 
-    @JsName("ORDERED_CASH_DATA")
+    //@JsName("ORDERED_CASH_DATA")
     val ORDERED_CASH_DATA: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
-    @JsName("CASH_DATA_RECORDS")
+    //@JsName("CASH_DATA_RECORDS")
     val CASH_DATA_RECORDS: MutableMap<String, ANSWER_TYPE> = mutableMapOf()
 
-    @JsName("REQUESTS")
+    //@JsName("REQUESTS")
     val REQUESTS: MutableMap<Long, KCashDataUpdateParameters> = mutableMapOf()
 
     var currentViewCashData: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
@@ -217,7 +217,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         ensureNeverFrozen()
     }
 
-    @JsName("GET_RECORDS")
+    //@JsName("GET_RECORDS")
     suspend fun GET_RECORD(id: String): ANSWER_TYPE? {
         var res: ANSWER_TYPE? = null
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -253,7 +253,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
         return res
     }
 
-    @JsName("SET_RECORDS")
+    //@JsName("SET_RECORDS")
     suspend fun SET_RECORDS(
         arr: ArrayDeque<ANSWER_TYPE>,
         its_first_block: Boolean,
@@ -344,7 +344,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
     }
 
 
-    @JsName("ADD_NEW_CASH_DATA")
+    //@JsName("ADD_NEW_CASH_DATA")
     fun ADD_NEW_CASH_DATA(
         arr: ArrayDeque<ANSWER_TYPE>,
         l_last_select: Long,
@@ -646,7 +646,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
 
     /*
-    @JsName("UPDATE_LAST_SELECT")
+    //@JsName("UPDATE_LAST_SELECT")
     fun UPDATE_LAST_SELECT(
         lastSelect: Long,
         object_recod_id_from: String,
@@ -770,7 +770,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
      */
 
 
-    @JsName("DELETE")
+    //@JsName("DELETE")
     suspend fun DELETE(object_id: String) {
         withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
             try {
@@ -1306,7 +1306,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         private val KCashDatasLock = Mutex()
 
-        @JsName("GET_CASH_DATA")
+        //@JsName("GET_CASH_DATA")
         fun GET_CASH_DATA(
             L_OBJECT_ID: String,
             L_RECORD_TYPE: String,
@@ -1553,7 +1553,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
         }
 
-        @JsName("LOAD_CASH_DATA")
+        //@JsName("LOAD_CASH_DATA")
         suspend fun LOAD_CASH_DATA(arr: ArrayDeque<ANSWER_TYPE>) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
@@ -1610,7 +1610,7 @@ class KCashData(lCashLastUpdate: KCashLastUpdate) {
             )
         }
 
-        @JsName("RE_LOAD_CASH_DATA")
+        //@JsName("RE_LOAD_CASH_DATA")
         fun RE_LOAD_CASH_DATA(): Job {
             return Sqlite_service.LoadCashData()
         }

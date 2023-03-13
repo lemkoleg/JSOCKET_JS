@@ -24,7 +24,7 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -50,7 +50,7 @@ private val JsocketLock = Mutex()
 private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 
 
-@JsName("Jsocket")
+//@JsName("Jsocket")
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
@@ -61,7 +61,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
     override var startLoading: (() -> Any?) = {}
     override var finishLoading: ((v: Any?) -> Any?) = {}
 
-    @JsName("clientExecutor")
+    //@JsName("clientExecutor")
     private var clientExecutor: ClientExecutor = ClientExecutor()
 
     var FileFullPathForSend: String = ""
@@ -88,7 +88,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("execute")
+    //@JsName("execute")
     fun execute(l_startLoading: (() -> Any?)? = null, l_finishLoading: ((v: Any?) -> Any?)? = null): Promise<Any> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
 
@@ -196,7 +196,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("isHaveAnswer")
+    //@JsName("isHaveAnswer")
     fun isHaveAnswer(): Boolean {
         return condition.isAwaited.value
     }
@@ -268,7 +268,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
             //////////////////////////////////////////////////////////////////
 
 
-            @JsName("setLang")
+            //@JsName("setLang")
             suspend fun setLang(lLang: String) {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {

@@ -1,3 +1,5 @@
+@file:Suppress("USELESS_ELVIS")
+
 package JPEG
 
 import com.soywiz.kmem.*

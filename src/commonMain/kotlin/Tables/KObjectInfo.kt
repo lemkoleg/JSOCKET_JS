@@ -18,7 +18,7 @@ import p_jsocket.Constants
 import p_jsocket.FileService
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @InternalAPI
@@ -259,7 +259,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
     companion object {
         private val GlobalLock = Mutex()
 
-        @JsName("GET_SAVE_OBJECT_INFO")
+        //@JsName("GET_SAVE_OBJECT_INFO")
         fun GET_SAVE_OBJECT_INFO(l_updatedCashData: (() -> Any?)): Promise<ArrayDeque<ANSWER_TYPE>> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
@@ -302,7 +302,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
             }.toPromise(EmptyCoroutineContext)
 
 
-        @JsName("LOAD_SAVE_OBJECT_INFO_IDS")
+        //@JsName("LOAD_SAVE_OBJECT_INFO_IDS")
         suspend fun LOAD_SAVE_OBJECT_INFO_IDS(ids: ArrayList<String>) {
             try {
                 try {
@@ -332,7 +332,7 @@ class KObjectInfo(l_answerType: ANSWER_TYPE) {
             }
         }
 
-        @JsName("RE_LOAD_SAVE_OBJECT_INFO_IDS")
+        //@JsName("RE_LOAD_SAVE_OBJECT_INFO_IDS")
         fun RE_LOAD_SAVE_OBJECT_INFO_IDS(): Job {
             return Sqlite_service.LoadCashDataAllObjectsIdOnCasSum(GetCashSum(Constants.Account_Id, "O"))
         }

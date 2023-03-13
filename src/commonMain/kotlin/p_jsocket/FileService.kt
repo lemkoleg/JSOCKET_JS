@@ -31,7 +31,7 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -42,18 +42,18 @@ import kotlin.time.ExperimentalTime
 
 val colorFormat = RGB_555
 
-@JsName("FileServiceGlobalLock")
+//@JsName("FileServiceGlobalLock")
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
 private val FileServiceGlobalLock = Mutex()
 
 
-@JsName("FileService")
+//@JsName("FileService")
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-class FileService(
+open class FileService(
     val answerType: ANSWER_TYPE? = null
 
 ) {
@@ -204,8 +204,8 @@ class FileService(
 /////////////////////////////////////////////////////////////////////////////////////
 
     // 1-read, 2-re-write 3-random write, 4 - write-append
-    @JsName("open_file_channel")
-    suspend fun open_file_channel(): Promise<Promise<Boolean>?> =
+    //@JsName("open_file_channel")
+    fun open_file_channel(): Promise<Promise<Boolean>?> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             try {
                 try {
@@ -353,7 +353,7 @@ class FileService(
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("send_file")
+    //@JsName("send_file")
     fun send_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         try {
             try {
@@ -480,7 +480,7 @@ class FileService(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("receive_file")
+    //@JsName("receive_file")
     fun receive_file(): Promise<Boolean> = CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
         try {
             try {
@@ -540,7 +540,7 @@ class FileService(
                     } else {
 
                         val i = SELF_Jsocket.value_par2.toInt()
-                        
+
 
                         if (Chunks!![i] == 0) {
 
@@ -646,7 +646,7 @@ class FileService(
         return@async IsDownloaded
     }.toPromise(EmptyCoroutineContext)
 
-    @JsName("get_file_chunk")
+    //@JsName("get_file_chunk")
     fun get_file_chunk(
         position: Long,
         buffer: ByteArray,
@@ -817,8 +817,8 @@ class FileService(
     }.toPromise(EmptyCoroutineContext)
 
     /////////////////////////////////////////////////////////////////////////////////////
-    @JsName("SaveDownloadedFile")
-    suspend fun FinishDownloadedFile(): Boolean {
+    //@JsName("SaveDownloadedFile")
+    private suspend fun FinishDownloadedFile(): Boolean {
         return if (IsDownloaded) {
             if (file!!.renameTo(save_media!!.ReturnDownloadedFullFileName())) {
                 KSaveMedia.AddNewSaveMedia(save_media!!).await()
@@ -830,8 +830,8 @@ class FileService(
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    @JsName("ReturnNextNotDownloadedChankNumber")
-    fun ReturnNextNotDownloadedChankNumber(): Int {
+    //@JsName("ReturnNextNotDownloadedChankNumber")
+    private fun ReturnNextNotDownloadedChankNumber(): Int {
         if (IsDownloaded) {
             return -1
         }
@@ -868,7 +868,7 @@ class FileService(
 
     companion object {
 
-        @JsName("getImmageAvatarFromFileName")
+        //@JsName("getImmageAvatarFromFileName")
         fun getImmageAvatarFromFileName(lFullFileName: String): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ByteArray? = null
@@ -936,7 +936,7 @@ class FileService(
                 return@async arr
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("getImmageAvatarFromByteArray")
+        //@JsName("getImmageAvatarFromByteArray")
         suspend fun getImmageAvatarFromByteArray(imageData: ByteArray): Promise<ByteArray?> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 var arr: ByteArray? = null
@@ -982,7 +982,7 @@ class FileService(
                 return@async arr
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("getImmageAvatarFromByteArrayWithKoord")
+        //@JsName("getImmageAvatarFromByteArrayWithKoord")
         private suspend fun getImmageAvatarFromByteArrayWithKoord(
             imageData: ByteArray,
             x: Int,
@@ -1016,7 +1016,7 @@ class FileService(
                 return@async arr
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("getImmageAvatarFormBitmap32")
+        //@JsName("getImmageAvatarFormBitmap32")
         private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
             var bb: ByteArray? = null
             var image32 = imageData
@@ -1040,7 +1040,7 @@ class FileService(
         }
 
         /*
-        @JsName("getImmageAvatarFormBitmap32")
+        //@JsName("getImmageAvatarFormBitmap32")
         private suspend fun getImmageAvatarFromBitmap32(imageData: Bitmap32): ByteArray? {
             var bb: ByteArray? = null
             var image32 = imageData

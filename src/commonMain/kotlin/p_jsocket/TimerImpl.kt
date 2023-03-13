@@ -9,7 +9,7 @@ package p_jsocket
 import com.soywiz.klock.DateTime
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource.Monotonic
@@ -29,7 +29,7 @@ private val lock = Mutex()
 @InternalAPI
 @ExperimentalTime
 
-@JsName("nowNano")
+//@JsName("nowNano")
 fun nowNano(): Long {
 
         return time_now + clock.elapsedNow().inWholeNanoseconds

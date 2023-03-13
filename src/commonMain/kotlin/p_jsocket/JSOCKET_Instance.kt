@@ -12,7 +12,7 @@ import CrossPlatforms.getMyOS
 import CrossPlatforms.slash
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -27,77 +27,77 @@ import kotlin.time.ExperimentalTime
 object JSOCKET_Instance {
     lateinit var RootPath: String
 
-    @JsName("pathErrors")
+    //@JsName("pathErrors")
     var pathErrors: String = ""
         private set
 
-    @JsName("pathLogs")
+    //@JsName("pathLogs")
     var pathLogs: String = ""
         private set
 
-    @JsName("pathTemp")
+    //@JsName("pathTemp")
     var pathTemp: String = ""
         private set
 
-    @JsName("pathMusic14")
+    //@JsName("pathMusic14")
     var pathMusic14: String = ""
         private set
 
-    @JsName("pathMusic15")
+    //@JsName("pathMusic15")
     var pathMusic15: String = ""
         private set
 
-    @JsName("pathVideo16")
+    //@JsName("pathVideo16")
     var pathVideo16: String = ""
         private set
 
-    @JsName("pathVideo17")
+    //@JsName("pathVideo17")
     var pathVideo17: String = ""
         private set
 
-    @JsName("pathPicture18")
+    //@JsName("pathPicture18")
     var pathPicture18: String = ""
         private set
 
-    @JsName("pathPicture19")
+    //@JsName("pathPicture19")
     var pathPicture19: String = ""
         private set
 
-    @JsName("pathTempMusic14")
+    //@JsName("pathTempMusic14")
     var pathTempMusic14: String = ""
         private set
 
-    @JsName("pathTempMusic15")
+    //@JsName("pathTempMusic15")
     var pathTempMusic15: String = ""
         private set
 
-    @JsName("pathTempVideo16")
+    //@JsName("pathTempVideo16")
     var pathTempVideo16: String = ""
         private set
 
-    @JsName("pathTempVideo17")
+    //@JsName("pathTempVideo17")
     var pathTempVideo17: String = ""
         private set
 
-    @JsName("pathTempPicture18")
+    //@JsName("pathTempPicture18")
     var pathTempPicture18: String = ""
         private set
 
-    @JsName("pathFile50")
+    //@JsName("pathFile50")
     var pathFile50: String = ""
         private set
 
-    @JsName("pathTempFile50")
+    //@JsName("pathTempFile50")
     var pathTempFile50: String = ""
         private set
 
-    @JsName("pathTempPicture19")
+    //@JsName("pathTempPicture19")
     var pathTempPicture19: String = ""
         private set
     private const val time_wait = 10000L
 
 
-    @JsName("initDirectories")
+    //@JsName("initDirectories")
     suspend fun initDirectories(
         L_RootPath: String
     ) {

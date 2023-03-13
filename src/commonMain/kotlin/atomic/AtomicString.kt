@@ -5,13 +5,13 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("AtomicString")
+//@JsName("AtomicString")
 class AtomicString(v: String){
 
     private val lock = Mutex()
@@ -23,14 +23,14 @@ class AtomicString(v: String){
         ensureNeverFrozen()
     }
 
-    @JsName("setNewValue")
+    //@JsName("setNewValue")
     suspend fun setNewValue(v: String) {
         lock.withLock {
             value = v
         }
     }
 
-    @JsName("getAndSet")
+    //@JsName("getAndSet")
     suspend fun getAndSet(v: String): String {
         return lock.withLock {
             val old = value

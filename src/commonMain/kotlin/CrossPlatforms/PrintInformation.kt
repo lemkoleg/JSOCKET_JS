@@ -10,19 +10,19 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("PrintInformation")
+//@JsName("PrintInformation")
 object PrintInformation {
 
     private val PrintInformationLock = Mutex()
     private val PrintExceptionnLock = Mutex()
 
-    @JsName("PRINT_INFO")
+    //@JsName("PRINT_INFO")
     fun PRINT_INFO(text: String): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -54,7 +54,7 @@ object PrintInformation {
         }.toPromise(EmptyCoroutineContext)
 
 
-    @JsName("PRINT_EXCEPTION")
+    //@JsName("PRINT_EXCEPTION")
     fun PRINT_EXCEPTION(text: String): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {

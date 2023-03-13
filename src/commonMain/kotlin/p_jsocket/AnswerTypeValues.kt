@@ -15,7 +15,7 @@ import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants.Account_Id
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @Suppress("UNREACHABLE_CODE")
@@ -42,7 +42,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
     val answerTypeCashDatas: AnswerTypeCashDatas by lazy { AnswerTypeCashDatas(answerType) }
 
 
-    @JsName("DefineRECORD_TYPE")
+    //@JsName("DefineRECORD_TYPE")
     fun DefineRECORD_TYPE() {
         if (answerType.STRING_20.length < 8) {
             throw my_user_exceptions_class(
@@ -70,7 +70,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         //initValues()
     }
 
-    @JsName("setRECORD_TYPE")
+    //@JsName("setRECORD_TYPE")
     fun setRECORD_TYPE(v: String?) {
         if (answerType.STRING_20.length < 8) {
             throw my_user_exceptions_class(
@@ -97,308 +97,308 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     //////////////////////// common ////////////////////////////////////
 
-    @JsName("GetMainAccountId")
+    //@JsName("GetMainAccountId")
     var GetMainAccountId: () -> String = { getIDENTIFICATOR_1() }
 
-    @JsName("GetSecondAccountId")
+    //@JsName("GetSecondAccountId")
     var GetSecondAccountId: () -> String = { getIDENTIFICATOR_3() }
 
-    @JsName("GetMainAvatarId")
+    //@JsName("GetMainAvatarId")
     var GetMainAvatarId: () -> String = { getIDENTIFICATOR_2() }
 
-    @JsName("GetSecondAvatarId")
+    //@JsName("GetSecondAvatarId")
     var GetSecondAvatarId: () -> String = { getIDENTIFICATOR_4() }
 
-    @JsName("GetMainAccountName")
+    //@JsName("GetMainAccountName")
     var GetMainAccountName: () -> String = { getSTRING_1() }
 
-    @JsName("GetSecondAccountName")
+    //@JsName("GetSecondAccountName")
     var GetSecondAccountName: () -> String = { getSTRING_4() }
 
-    @JsName("GetAvatarServer")
+    //@JsName("GetAvatarServer")
     var GetAvatarServer: () -> String = { getSTRING_17() }
 
-    @JsName("GetAvatarLink")
+    //@JsName("GetAvatarLink")
     var GetAvatarLink: () -> String = { getSTRING_18() }
 
-    @JsName("GetAvatarType")
+    //@JsName("GetAvatarType")
     var GetAvatarType: () -> String = { getSTRING_19() }
 
-    @JsName("GetAvatarOriginalSize")
+    //@JsName("GetAvatarOriginalSize")
     var GetAvatarOriginalSize: () -> Int = { getINTEGER_17() }
 
-    @JsName("GetObjectId")
+    //@JsName("GetObjectId")
     var GetObjectId: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetSubscribe")
+    //@JsName("GetSubscribe")
     var GetSubscribe: () -> String = { getSTRING_14() }
 
-    @JsName("GetMainAccountAccess")
+    //@JsName("GetMainAccountAccess")
     var GetMainAccountAccess: () -> String = { getSTRING_2() }
 
-    @JsName("GetSecondAccountAccess")
+    //@JsName("GetSecondAccountAccess")
     var GetSecondAccountAccess: () -> String = { getSTRING_4() }
 
-    @JsName("GetObjectProfile")
+    //@JsName("GetObjectProfile")
     var GetObjectProfile: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectType")
+    //@JsName("GetObjectType")
     var GetObjectType: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectAccess")
+    //@JsName("GetObjectAccess")
     var GetObjectAccess: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectStatus")
+    //@JsName("GetObjectStatus")
     var GetObjectStatus: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectLikes")
+    //@JsName("GetObjectLikes")
     var GetObjectLikes: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetObjectDisLikes")
+    //@JsName("GetObjectDisLikes")
     var GetObjectDisLikes: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetObjectComments")
+    //@JsName("GetObjectComments")
     var GetObjectComments: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetLinkProfile")
+    //@JsName("GetLinkProfile")
     var GetLinkProfile: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetLinkType")
+    //@JsName("GetLinkType")
     var GetLinkType: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetLinkAccess")
+    //@JsName("GetLinkAccess")
     var GetLinkAccess: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetLinkStatus")
+    //@JsName("GetLinkStatus")
     var GetLinkStatus: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetLinkLikes")
+    //@JsName("GetLinkLikes")
     var GetLinkLikes: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetLinkDisLikes")
+    //@JsName("GetLinkDisLikes")
     var GetLinkDisLikes: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetLinkComments")
+    //@JsName("GetLinkComments")
     var GetLinkComments: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetAddingDate")
+    //@JsName("GetAddingDate")
     var GetAddingDate: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetDateDelete")
+    //@JsName("GetDateDelete")
     var GetDateDelete: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetLinkAddingDate")
+    //@JsName("GetLinkAddingDate")
     var GetLinkAddingDate: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetObjectLastUpdate")
+    //@JsName("GetObjectLastUpdate")
     var GetRecordLastUpdate: () -> Long = { getLONG_20() }
 
-    @JsName("GetSmallAvatar")
+    //@JsName("GetSmallAvatar")
     var GetSmallAvatar: () -> ByteArray? = { getBLOB_1() }
 
-    @JsName("GetBigAvatar")
+    //@JsName("GetBigAvatar")
     var GetBigAvatar: () -> ByteArray? = { getBLOB_2() }
 
     //////////////////// albums /////////////////////////////
 
-    @JsName("GetAlbumId")
+    //@JsName("GetAlbumId")
     var GetAlbumId: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetAlbumName")
+    //@JsName("GetAlbumName")
     var GetAlbumName: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetAlbumsSubscibeStartText")
+    //@JsName("GetAlbumsSubscibeStartText")
     var GetAlbumsDescribeStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetAlbumsTypeContent")
+    //@JsName("GetAlbumsTypeContent")
     var GetAlbumsTypeContent: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetAlbumsCountOfContents")
+    //@JsName("GetAlbumsCountOfContents")
     var GetAlbumsCountOfContents: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetAlbumsMembers")
+    //@JsName("GetAlbumsMembers")
     var GetAlbumsMembers: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetAlbumsListeners")
+    //@JsName("GetAlbumsListeners")
     var GetAlbumsListeners: () -> Int = { getEMPTY_INTEGER() }
 
     /////////////////////// comments ////////////////////////
 
-    @JsName("GetCommentId")
+    //@JsName("GetCommentId")
     var GetCommentId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetRootCommentId")
+    //@JsName("GetRootCommentId")
     var GetRootCommentId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetAnswerCommentId")
+    //@JsName("GetAnswerCommentId")
     var GetAnswerCommentId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetCommentsStartText")
+    //@JsName("GetCommentsStartText")
     var GetCommentsStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("HaveFullText")
+    //@JsName("HaveFullText")
     var HaveFullText: () -> Boolean = { false }
 
-    @JsName("GetCommentsCountsAnswers")
+    //@JsName("GetCommentsCountsAnswers")
     var GetCommentsCountsAnswers: () -> Int = { getEMPTY_INTEGER() }
 
     /////////////////////// objects /////////////////////
 
-    @JsName("GetObjectSize")
+    //@JsName("GetObjectSize")
     var GetObjectSize: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetLengthSeconds")
+    //@JsName("GetLengthSeconds")
     var GetLengthSeconds: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetObjectName")
+    //@JsName("GetObjectName")
     var GetObjectName: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectServer")
+    //@JsName("GetObjectServer")
     var GetObjectServer: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectLink")
+    //@JsName("GetObjectLink")
     var GetObjectLink: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectExtension")
+    //@JsName("GetObjectExtension")
     var GetObjectExtension: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetObjectListens")
+    //@JsName("GetObjectListens")
     var GetObjectListens: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetObjectDescriptors")
+    //@JsName("GetObjectDescriptors")
     var GetObjectDescriptors: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetObjectListensPeriod")
+    //@JsName("GetObjectListensPeriod")
     var GetObjectListensPeriod: () -> Int = { getEMPTY_INTEGER() }
 
     /////////////////////// links ///////////////////////////
 
-    @JsName("GetLinkOwner")
+    //@JsName("GetLinkOwner")
     var GetLinkOwner: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetAlbumsLinkCountOfNewContent")
+    //@JsName("GetAlbumsLinkCountOfNewContent")
     var GetAlbumsLinkCountOfNewContent: () -> Int = { getEMPTY_INTEGER() }
 
     ///////////////////// messegess //////////////////////////
 
-    @JsName("GetChatId")
+    //@JsName("GetChatId")
     var GetChatId: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeId")
+    //@JsName("GetMessegeId")
     var GetMessegeId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsCostTypeId")
+    //@JsName("GetChatsCostTypeId")
     var GetChatsCostTypeId: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetMessegeStartText")
+    //@JsName("GetMessegeStartText")
     var GetMessegeStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeType")
+    //@JsName("GetMessegeType")
     var GetMessegeType: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeAccess")
+    //@JsName("GetMessegeAccess")
     var GetMessegeAccess: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeStatus")
+    //@JsName("GetMessegeStatus")
     var GetMessegeStatus: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeHaveFullText")
+    //@JsName("GetMessegeHaveFullText")
     var GetMessegeHaveFullText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeHaveAnswer")
+    //@JsName("GetMessegeHaveAnswer")
     var GetMessegeHaveAnswer: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeObjectType")
+    //@JsName("GetMessegeObjectType")
     var GetMessegeObjectType: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeFileType")
+    //@JsName("GetMessegeFileType")
     var GetMessegeFileType: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegePeriodFor")
+    //@JsName("GetMessegePeriodFor")
     var GetMessegePeriodFor: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetAnswerMessegeId")
+    //@JsName("GetAnswerMessegeId")
     var GetAnswerMessegeId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetAnswerMessegeStartText")
+    //@JsName("GetAnswerMessegeStartText")
     var GetAnswerMessegeStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetMessegeCost")
+    //@JsName("GetMessegeCost")
     var GetMessegeCost: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetAccountSmallAvatar")
+    //@JsName("GetAccountSmallAvatar")
     var GetAccountSmallAvatar: () -> ByteArray? = { getBLOB_1() }
 
-    @JsName("GetAccountBigAvatar")
+    //@JsName("GetAccountBigAvatar")
     var GetAccountBigAvatar: () -> ByteArray? = { getBLOB_3() }
 
     ///////////////////// chats //////////////////////////
 
-    @JsName("GetChatsMessegeCount")
+    //@JsName("GetChatsMessegeCount")
     var GetChatsMessegeCount: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsDateClosed")
+    //@JsName("GetChatsDateClosed")
     var GetChatsDateClosed: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLastMessegeAdding")
+    //@JsName("GetChatsLastMessegeAdding")
     var GetChatsLastMessegeAdding: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsCountOfMembers")
+    //@JsName("GetChatsCountOfMembers")
     var GetChatsCountOfMembers: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetChatsCountOfAllMembers")
+    //@JsName("GetChatsCountOfAllMembers")
     var GetChatsCountOfAllMembers: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetChatsCountOfConstsTypes")
+    //@JsName("GetChatsCountOfConstsTypes")
     var GetChatsCountOfConstsType: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetChatsBalance")
+    //@JsName("GetChatsBalance")
     var GetChatsBalance: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetFirstMessegeStartText")
+    //@JsName("GetFirstMessegeStartText")
     var GetFirstMessegeStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetChatsCountNotReadedMess")
+    //@JsName("GetChatsCountNotReadedMess")
     var GetChatsCountNotReadedMess: () -> Long = { getEMPTY_LONG() }
 
     ///////////////////// chats likes //////////////////////////
 
-    @JsName("GetChatsLikesRelations")
+    //@JsName("GetChatsLikesRelations")
     var GetChatsLikesRelations: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetChatsLikesLastConnect")
+    //@JsName("GetChatsLikesLastConnect")
     var GetChatsLikesLastConnect: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesFirstMessegeCount")
+    //@JsName("GetChatsLikesFirstMessegeCount")
     var GetChatsLikesFirstMessegeCount: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesLastMessegeCount")
+    //@JsName("GetChatsLikesLastMessegeCount")
     var GetChatsLikesLastMessegeCount: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesLastDateDilivered")
+    //@JsName("GetChatsLikesLastDateDilivered")
     var GetChatsLikesLastDateDilivered: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesLastReadedMessegeId")
+    //@JsName("GetChatsLikesLastReadedMessegeId")
     var GetChatsLikesLastReadedMessegeId: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesLastMessegeAdding")
+    //@JsName("GetChatsLikesLastMessegeAdding")
     var GetChatsLikesLastMessegeAdding: () -> Long = { getEMPTY_LONG() }
 
-    @JsName("GetChatsLikesBalance")
+    //@JsName("GetChatsLikesBalance")
     var GetChatsLikesBalance: () -> Int = { getEMPTY_INTEGER() }
 
-    @JsName("GetLastUpdatest")
+    //@JsName("GetLastUpdatest")
     var GetLastUpdatest: () -> Long = { getEMPTY_LONG() }
 
     ////////////////////////// chats_cost_types ////////////////////
 
-    @JsName("GetChatsCostTypesStartText")
+    //@JsName("GetChatsCostTypesStartText")
     var GetChatsCostTypesStartText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetChatsCostTypesHaveFullText")
+    //@JsName("GetChatsCostTypesHaveFullText")
     var GetChatsCostTypesHaveFullText: () -> String = { getEMPTY_STRING() }
 
-    @JsName("GetChatsCostTypesHaveMesseges")
+    //@JsName("GetChatsCostTypesHaveMesseges")
     var GetChatsCostTypesHaveMesseges: () -> String = { getEMPTY_STRING() }
 
 
@@ -1561,7 +1561,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return ans
     }
 
-    @JsName("getIS_UPDATE_BLOB")
+    //@JsName("getIS_UPDATE_BLOB")
     fun getIS_UPDATE_BLOB(): String {
 
         if (answerType.STRING_20.length < 2) {
@@ -1575,7 +1575,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return answerType.STRING_20.substring(1, 2)
     }
 
-    @JsName("getIS_UPDATE_SUBSCRIBE")
+    //@JsName("getIS_UPDATE_SUBSCRIBE")
     fun getIS_UPDATE_SUBSCRIBE(): String {
         if (answerType.STRING_20.length < 3) {
             throw my_user_exceptions_class(
@@ -1588,7 +1588,7 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
         return answerType.STRING_20.substring(2, 3)
     }
 
-    @JsName("getIS_DELETE_RECORD")
+    //@JsName("getIS_DELETE_RECORD")
     fun getIS_DELETE_RECORD(): Boolean {
         if (answerType.STRING_20.length < 7) {
             throw my_user_exceptions_class(
@@ -1712,842 +1712,842 @@ class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     /////////////////////////////////////////////////////////////////////////
 
-    @JsName("getIDENTIFICATOR_1")
+    //@JsName("getIDENTIFICATOR_1")
     private fun getIDENTIFICATOR_1(): String {
         return answerType.IDENTIFICATOR_1 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_1")
+    //@JsName("setIDENTIFICATOR_1")
     private fun setIDENTIFICATOR_1(v: String) {
         answerType.IDENTIFICATOR_1 = v
     }
 
-    @JsName("getIDENTIFICATOR_2")
+    //@JsName("getIDENTIFICATOR_2")
     private fun getIDENTIFICATOR_2(): String {
         return answerType.IDENTIFICATOR_2 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_2")
+    //@JsName("setIDENTIFICATOR_2")
     private fun setIDENTIFICATOR_2(v: String) {
         answerType.IDENTIFICATOR_2 = v
     }
 
-    @JsName("getIDENTIFICATOR_3")
+    //@JsName("getIDENTIFICATOR_3")
     private fun getIDENTIFICATOR_3(): String {
         return answerType.IDENTIFICATOR_3 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_3")
+    //@JsName("setIDENTIFICATOR_3")
     private fun setIDENTIFICATOR_3(v: String) {
         answerType.IDENTIFICATOR_3 = v
     }
 
-    @JsName("getIDENTIFICATOR_4")
+    //@JsName("getIDENTIFICATOR_4")
     private fun getIDENTIFICATOR_4(): String {
         return answerType.IDENTIFICATOR_4 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_4")
+    //@JsName("setIDENTIFICATOR_4")
     private fun setIDENTIFICATOR_4(v: String) {
         answerType.IDENTIFICATOR_4 = v
     }
 
-    @JsName("getIDENTIFICATOR_5")
+    //@JsName("getIDENTIFICATOR_5")
     private fun getIDENTIFICATOR_5(): String {
         return answerType.IDENTIFICATOR_5 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_5")
+    //@JsName("setIDENTIFICATOR_5")
     private fun setIDENTIFICATOR_5(v: String) {
         answerType.IDENTIFICATOR_5 = v
     }
 
-    @JsName("getIDENTIFICATOR_6")
+    //@JsName("getIDENTIFICATOR_6")
     private fun getIDENTIFICATOR_6(): String {
         return answerType.IDENTIFICATOR_6 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_6")
+    //@JsName("setIDENTIFICATOR_6")
     private fun setIDENTIFICATOR_6(v: String) {
         answerType.IDENTIFICATOR_6 = v
     }
 
-    @JsName("getIDENTIFICATOR_7")
+    //@JsName("getIDENTIFICATOR_7")
     private fun getIDENTIFICATOR_7(): String {
         return answerType.IDENTIFICATOR_7 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_7")
+    //@JsName("setIDENTIFICATOR_7")
     private fun setIDENTIFICATOR_7(v: String) {
         answerType.IDENTIFICATOR_7 = v
     }
 
-    @JsName("getIDENTIFICATOR_8")
+    //@JsName("getIDENTIFICATOR_8")
     private fun getIDENTIFICATOR_8(): String {
         return answerType.IDENTIFICATOR_8 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_8")
+    //@JsName("setIDENTIFICATOR_8")
     private fun setIDENTIFICATOR_8(v: String) {
         answerType.IDENTIFICATOR_8 = v
     }
 
-    @JsName("getIDENTIFICATOR_9")
+    //@JsName("getIDENTIFICATOR_9")
     private fun getIDENTIFICATOR_9(): String {
         return answerType.IDENTIFICATOR_9 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_9")
+    //@JsName("setIDENTIFICATOR_9")
     private fun setIDENTIFICATOR_9(v: String) {
         answerType.IDENTIFICATOR_9 = v
     }
 
-    @JsName("getIDENTIFICATOR_10")
+    //@JsName("getIDENTIFICATOR_10")
     private fun getIDENTIFICATOR_10(): String {
         return answerType.IDENTIFICATOR_10 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_10")
+    //@JsName("setIDENTIFICATOR_10")
     private fun setIDENTIFICATOR_10(v: String) {
         answerType.IDENTIFICATOR_10 = v
     }
 
-    @JsName("getIDENTIFICATOR_11")
+    //@JsName("getIDENTIFICATOR_11")
     private fun getIDENTIFICATOR_11(): String {
         return answerType.IDENTIFICATOR_11 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_11")
+    //@JsName("setIDENTIFICATOR_11")
     private fun setIDENTIFICATOR_11(v: String) {
         answerType.IDENTIFICATOR_11 = v
     }
 
-    @JsName("getIDENTIFICATOR_12")
+    //@JsName("getIDENTIFICATOR_12")
     private fun getIDENTIFICATOR_12(): String {
         return answerType.IDENTIFICATOR_12 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_12")
+    //@JsName("setIDENTIFICATOR_12")
     private fun setIDENTIFICATOR_12(v: String) {
         answerType.IDENTIFICATOR_12 = v
     }
 
-    @JsName("getIDENTIFICATOR_13")
+    //@JsName("getIDENTIFICATOR_13")
     private fun getIDENTIFICATOR_13(): String {
         return answerType.IDENTIFICATOR_13 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_13")
+    //@JsName("setIDENTIFICATOR_13")
     private fun setIDENTIFICATOR_13(v: String) {
         answerType.IDENTIFICATOR_13 = v
     }
 
-    @JsName("getIDENTIFICATOR_14")
+    //@JsName("getIDENTIFICATOR_14")
     private fun getIDENTIFICATOR_14(): String {
         return answerType.IDENTIFICATOR_14 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_14")
+    //@JsName("setIDENTIFICATOR_14")
     private fun setIDENTIFICATOR_14(v: String) {
         answerType.IDENTIFICATOR_14 = v
     }
 
-    @JsName("getIDENTIFICATOR_15")
+    //@JsName("getIDENTIFICATOR_15")
     private fun getIDENTIFICATOR_15(): String {
         return answerType.IDENTIFICATOR_15 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_15")
+    //@JsName("setIDENTIFICATOR_15")
     private fun setIDENTIFICATOR_15(v: String) {
         answerType.IDENTIFICATOR_15 = v
     }
 
-    @JsName("getIDENTIFICATOR_16")
+    //@JsName("getIDENTIFICATOR_16")
     private fun getIDENTIFICATOR_16(): String {
         return answerType.IDENTIFICATOR_16 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_16")
+    //@JsName("setIDENTIFICATOR_16")
     private fun setIDENTIFICATOR_16(v: String) {
         answerType.IDENTIFICATOR_16 = v
     }
 
-    @JsName("getIDENTIFICATOR_17")
+    //@JsName("getIDENTIFICATOR_17")
     private fun getIDENTIFICATOR_17(): String {
         return answerType.IDENTIFICATOR_17 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_17")
+    //@JsName("setIDENTIFICATOR_17")
     private fun setIDENTIFICATOR_17(v: String) {
         answerType.IDENTIFICATOR_17 = v
     }
 
-    @JsName("getIDENTIFICATOR_18")
+    //@JsName("getIDENTIFICATOR_18")
     private fun getIDENTIFICATOR_18(): String {
         return answerType.IDENTIFICATOR_18 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_18")
+    //@JsName("setIDENTIFICATOR_18")
     private fun setIDENTIFICATOR_18(v: String) {
         answerType.IDENTIFICATOR_18 = v
     }
 
-    @JsName("getIDENTIFICATOR_19")
+    //@JsName("getIDENTIFICATOR_19")
     private fun getIDENTIFICATOR_19(): String {
         return answerType.IDENTIFICATOR_19 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_19")
+    //@JsName("setIDENTIFICATOR_19")
     private fun setIDENTIFICATOR_19(v: String) {
         answerType.IDENTIFICATOR_19 = v
     }
 
-    @JsName("getIDENTIFICATOR_20")
+    //@JsName("getIDENTIFICATOR_20")
     private fun getIDENTIFICATOR_20(): String {
         return answerType.IDENTIFICATOR_20 ?: ""
     }
 
-    @JsName("setIDENTIFICATOR_20")
+    //@JsName("setIDENTIFICATOR_20")
     private fun setIDENTIFICATOR_20(v: String) {
         answerType.IDENTIFICATOR_20 = v
     }
 
-    @JsName("getINTEGER_1")
+    //@JsName("getINTEGER_1")
     private fun getINTEGER_1(): Int {
         return answerType.INTEGER_1 ?: 0
     }
 
-    @JsName("setINTEGER_1")
+    //@JsName("setINTEGER_1")
     private fun setINTEGER_1(v: Int?) {
         answerType.INTEGER_1 = v ?: 0
     }
 
-    @JsName("getLONG_1")
+    //@JsName("getLONG_1")
     private fun getLONG_1(): Long {
         return answerType.LONG_1 ?: 0
     }
 
-    @JsName("setLONG_1")
+    //@JsName("setLONG_1")
     private fun setLONG_1(v: Long?) {
         answerType.LONG_1 = v ?: 0L
     }
 
-    @JsName("getSTRING_1")
+    //@JsName("getSTRING_1")
     private fun getSTRING_1(): String {
         return answerType.STRING_1 ?: ""
     }
 
-    @JsName("setSTRING_1")
+    //@JsName("setSTRING_1")
     private fun setSTRING_1(v: String?) {
         answerType.STRING_1 = v ?: ""
     }
 
-    @JsName("getINTEGER_2")
+    //@JsName("getINTEGER_2")
     private fun getINTEGER_2(): Int {
         return answerType.INTEGER_2 ?: 0
     }
 
-    @JsName("setINTEGER_2")
+    //@JsName("setINTEGER_2")
     private fun setINTEGER_2(v: Int?) {
         answerType.INTEGER_2 = v ?: 0
     }
 
-    @JsName("getLONG_2")
+    //@JsName("getLONG_2")
     private fun getLONG_2(): Long {
         return answerType.LONG_2 ?: 0
     }
 
-    @JsName("setLONG_2")
+    //@JsName("setLONG_2")
     private fun setLONG_2(v: Long?) {
         answerType.LONG_2 = v ?: 0L
     }
 
-    @JsName("getSTRING_2")
+    //@JsName("getSTRING_2")
     private fun getSTRING_2(): String {
         return answerType.STRING_2 ?: ""
     }
 
-    @JsName("setSTRING_2")
+    //@JsName("setSTRING_2")
     private fun setSTRING_2(v: String?) {
         answerType.STRING_2 = v ?: ""
     }
 
-    @JsName("getINTEGER_3")
+    //@JsName("getINTEGER_3")
     private fun getINTEGER_3(): Int {
         return answerType.INTEGER_3 ?: 0
     }
 
-    @JsName("setINTEGER_3")
+    //@JsName("setINTEGER_3")
     private fun setINTEGER_3(v: Int?) {
         answerType.INTEGER_3 = v ?: 0
     }
 
-    @JsName("getLONG_3")
+    //@JsName("getLONG_3")
     private fun getLONG_3(): Long {
         return answerType.LONG_3 ?: 0
     }
 
-    @JsName("setLONG_3")
+    //@JsName("setLONG_3")
     private fun setLONG_3(v: Long?) {
         answerType.LONG_3 = v ?: 0L
     }
 
-    @JsName("getSTRING_3")
+    //@JsName("getSTRING_3")
     private fun getSTRING_3(): String {
         return answerType.STRING_3 ?: ""
     }
 
-    @JsName("setSTRING_3")
+    //@JsName("setSTRING_3")
     private fun setSTRING_3(v: String?) {
         answerType.STRING_3 = v ?: ""
     }
 
-    @JsName("getINTEGER_4")
+    //@JsName("getINTEGER_4")
     private fun getINTEGER_4(): Int {
         return answerType.INTEGER_4 ?: 0
     }
 
-    @JsName("setINTEGER_4")
+    //@JsName("setINTEGER_4")
     private fun setINTEGER_4(v: Int?) {
         answerType.INTEGER_4 = v ?: 0
     }
 
-    @JsName("getLONG_4")
+    //@JsName("getLONG_4")
     private fun getLONG_4(): Long {
         return answerType.LONG_4 ?: 0
     }
 
-    @JsName("setLONG_4")
+    //@JsName("setLONG_4")
     private fun setLONG_4(v: Long?) {
         answerType.LONG_4 = v ?: 0L
     }
 
-    @JsName("getSTRING_4")
+    //@JsName("getSTRING_4")
     private fun getSTRING_4(): String {
         return answerType.STRING_4 ?: ""
     }
 
-    @JsName("setSTRING_4")
+    //@JsName("setSTRING_4")
     private fun setSTRING_4(v: String?) {
         answerType.STRING_4 = v ?: ""
     }
 
-    @JsName("getINTEGER_5")
+    //@JsName("getINTEGER_5")
     private fun getINTEGER_5(): Int {
         return answerType.INTEGER_5 ?: 0
     }
 
-    @JsName("setINTEGER_5")
+    //@JsName("setINTEGER_5")
     private fun setINTEGER_5(v: Int?) {
         answerType.INTEGER_5 = v ?: 0
     }
 
-    @JsName("getLONG_5")
+    //@JsName("getLONG_5")
     private fun getLONG_5(): Long {
         return answerType.LONG_5 ?: 0
     }
 
-    @JsName("setLONG_5")
+    //@JsName("setLONG_5")
     private fun setLONG_5(v: Long?) {
         answerType.LONG_5 = v ?: 0L
     }
 
-    @JsName("getSTRING_5")
+    //@JsName("getSTRING_5")
     private fun getSTRING_5(): String {
         return answerType.STRING_5 ?: ""
     }
 
-    @JsName("setSTRING_5")
+    //@JsName("setSTRING_5")
     private fun setSTRING_5(v: String?) {
         answerType.STRING_5 = v ?: ""
     }
 
-    @JsName("getINTEGER_6")
+    //@JsName("getINTEGER_6")
     private fun getINTEGER_6(): Int {
         return answerType.INTEGER_6 ?: 0
     }
 
-    @JsName("setINTEGER_6")
+    //@JsName("setINTEGER_6")
     private fun setINTEGER_6(v: Int?) {
         answerType.INTEGER_6 = v ?: 0
     }
 
-    @JsName("getLONG_6")
+    //@JsName("getLONG_6")
     private fun getLONG_6(): Long {
         return answerType.LONG_6 ?: 0
     }
 
-    @JsName("setLONG_6")
+    //@JsName("setLONG_6")
     private fun setLONG_6(v: Long?) {
         answerType.LONG_6 = v ?: 0L
     }
 
-    @JsName("getSTRING_6")
+    //@JsName("getSTRING_6")
     private fun getSTRING_6(): String {
         return answerType.STRING_6 ?: ""
     }
 
-    @JsName("setSTRING_6")
+    //@JsName("setSTRING_6")
     private fun setSTRING_6(v: String?) {
         answerType.STRING_6 = v ?: ""
     }
 
-    @JsName("getINTEGER_7")
+    //@JsName("getINTEGER_7")
     private fun getINTEGER_7(): Int {
         return answerType.INTEGER_7 ?: 0
     }
 
-    @JsName("setINTEGER_7")
+    //@JsName("setINTEGER_7")
     private fun setINTEGER_7(v: Int?) {
         answerType.INTEGER_7 = v ?: 0
     }
 
-    @JsName("getLONG_7")
+    //@JsName("getLONG_7")
     private fun getLONG_7(): Long {
         return answerType.LONG_7 ?: 0
     }
 
-    @JsName("setLONG_7")
+    //@JsName("setLONG_7")
     private fun setLONG_7(v: Long?) {
         answerType.LONG_7 = v ?: 0L
     }
 
-    @JsName("getSTRING_7")
+    //@JsName("getSTRING_7")
     private fun getSTRING_7(): String {
         return answerType.STRING_7 ?: ""
     }
 
-    @JsName("setSTRING_7")
+    //@JsName("setSTRING_7")
     private fun setSTRING_7(v: String?) {
         answerType.STRING_7 = v ?: ""
     }
 
-    @JsName("getINTEGER_8")
+    //@JsName("getINTEGER_8")
     private fun getINTEGER_8(): Int {
         return answerType.INTEGER_8 ?: 0
     }
 
-    @JsName("setINTEGER_8")
+    //@JsName("setINTEGER_8")
     private fun setINTEGER_8(v: Int?) {
         answerType.INTEGER_8 = v ?: 0
     }
 
-    @JsName("getLONG_8")
+    //@JsName("getLONG_8")
     private fun getLONG_8(): Long {
         return answerType.LONG_8 ?: 0
     }
 
-    @JsName("setLONG_8")
+    //@JsName("setLONG_8")
     private fun setLONG_8(v: Long?) {
         answerType.LONG_8 = v ?: 0L
     }
 
-    @JsName("getSTRING_8")
+    //@JsName("getSTRING_8")
     private fun getSTRING_8(): String {
         return answerType.STRING_8 ?: ""
     }
 
-    @JsName("setSTRING_8")
+    //@JsName("setSTRING_8")
     private fun setSTRING_8(v: String?) {
         answerType.STRING_8 = v ?: ""
     }
 
-    @JsName("getINTEGER_9")
+    //@JsName("getINTEGER_9")
     private fun getINTEGER_9(): Int {
         return answerType.INTEGER_9 ?: 0
     }
 
-    @JsName("setINTEGER_9")
+    //@JsName("setINTEGER_9")
     private fun setINTEGER_9(v: Int?) {
         answerType.INTEGER_9 = v ?: 0
     }
 
-    @JsName("getLONG_9")
+    //@JsName("getLONG_9")
     private fun getLONG_9(): Long {
         return answerType.LONG_9 ?: 0
     }
 
-    @JsName("setLONG_9")
+    //@JsName("setLONG_9")
     private fun setLONG_9(v: Long?) {
         answerType.LONG_9 = v ?: 0L
     }
 
-    @JsName("getSTRING_9")
+    //@JsName("getSTRING_9")
     private fun getSTRING_9(): String {
         return answerType.STRING_9 ?: ""
     }
 
-    @JsName("setSTRING_9")
+    //@JsName("setSTRING_9")
     private fun setSTRING_9(v: String?) {
         answerType.STRING_9 = v ?: ""
     }
 
-    @JsName("getINTEGER_10")
+    //@JsName("getINTEGER_10")
     private fun getINTEGER_10(): Int {
         return answerType.INTEGER_10 ?: 0
     }
 
-    @JsName("setINTEGER_10")
+    //@JsName("setINTEGER_10")
     private fun setINTEGER_10(v: Int?) {
         answerType.INTEGER_10 = v ?: 0
     }
 
-    @JsName("getLONG_10")
+    //@JsName("getLONG_10")
     private fun getLONG_10(): Long {
         return answerType.LONG_10 ?: 0
     }
 
-    @JsName("setLONG_10")
+    //@JsName("setLONG_10")
     private fun setLONG_10(v: Long?) {
         answerType.LONG_10 = v ?: 0L
     }
 
-    @JsName("getSTRING_10")
+    //@JsName("getSTRING_10")
     private fun getSTRING_10(): String {
         return answerType.STRING_10 ?: ""
     }
 
-    @JsName("setSTRING_10")
+    //@JsName("setSTRING_10")
     private fun setSTRING_10(v: String?) {
         answerType.STRING_10 = v ?: ""
     }
 
-    @JsName("getINTEGER_11")
+    //@JsName("getINTEGER_11")
     private fun getINTEGER_11(): Int {
         return answerType.INTEGER_11 ?: 0
     }
 
-    @JsName("setINTEGER_11")
+    //@JsName("setINTEGER_11")
     private fun setINTEGER_11(v: Int?) {
         answerType.INTEGER_11 = v ?: 0
     }
 
-    @JsName("getLONG_11")
+    //@JsName("getLONG_11")
     private fun getLONG_11(): Long {
         return answerType.LONG_11 ?: 0
     }
 
-    @JsName("setLONG_11")
+    //@JsName("setLONG_11")
     private fun setLONG_11(v: Long?) {
         answerType.LONG_11 = v ?: 0L
     }
 
-    @JsName("getSTRING_11")
+    //@JsName("getSTRING_11")
     private fun getSTRING_11(): String {
         return answerType.STRING_11 ?: ""
     }
 
-    @JsName("setSTRING_11")
+    //@JsName("setSTRING_11")
     private fun setSTRING_11(v: String?) {
         answerType.STRING_11 = v ?: ""
     }
 
-    @JsName("getINTEGER_12")
+    //@JsName("getINTEGER_12")
     private fun getINTEGER_12(): Int {
         return answerType.INTEGER_12 ?: 0
     }
 
-    @JsName("setINTEGER_12")
+    //@JsName("setINTEGER_12")
     private fun setINTEGER_12(v: Int?) {
         answerType.INTEGER_12 = v ?: 0
     }
 
-    @JsName("getLONG_12")
+    //@JsName("getLONG_12")
     private fun getLONG_12(): Long {
         return answerType.LONG_12 ?: 0
     }
 
-    @JsName("setLONG_12")
+    //@JsName("setLONG_12")
     private fun setLONG_12(v: Long?) {
         answerType.LONG_12 = v ?: 0L
     }
 
-    @JsName("getSTRING_12")
+    //@JsName("getSTRING_12")
     private fun getSTRING_12(): String {
         return answerType.STRING_12 ?: ""
     }
 
-    @JsName("setSTRING_12")
+    //@JsName("setSTRING_12")
     private fun setSTRING_12(v: String?) {
         answerType.STRING_12 = v ?: ""
     }
 
-    @JsName("getINTEGER_13")
+    //@JsName("getINTEGER_13")
     private fun getINTEGER_13(): Int {
         return answerType.INTEGER_13 ?: 0
     }
 
-    @JsName("setINTEGER_13")
+    //@JsName("setINTEGER_13")
     private fun setINTEGER_13(v: Int?) {
         answerType.INTEGER_13 = v ?: 0
     }
 
-    @JsName("getLONG_13")
+    //@JsName("getLONG_13")
     private fun getLONG_13(): Long {
         return answerType.LONG_13 ?: 0
     }
 
-    @JsName("setLONG_13")
+    //@JsName("setLONG_13")
     private fun setLONG_13(v: Long?) {
         answerType.LONG_13 = v ?: 0L
     }
 
-    @JsName("getSTRING_13")
+    //@JsName("getSTRING_13")
     private fun getSTRING_13(): String {
         return answerType.STRING_13 ?: ""
     }
 
-    @JsName("setSTRING_13")
+    //@JsName("setSTRING_13")
     private fun setSTRING_13(v: String?) {
         answerType.STRING_13 = v ?: ""
     }
 
-    @JsName("getINTEGER_14")
+    //@JsName("getINTEGER_14")
     private fun getINTEGER_14(): Int {
         return answerType.INTEGER_14 ?: 0
     }
 
-    @JsName("setINTEGER_14")
+    //@JsName("setINTEGER_14")
     private fun setINTEGER_14(v: Int?) {
         answerType.INTEGER_14 = v ?: 0
     }
 
-    @JsName("getLONG_14")
+    //@JsName("getLONG_14")
     private fun getLONG_14(): Long {
         return answerType.LONG_14 ?: 0
     }
 
-    @JsName("setLONG_14")
+    //@JsName("setLONG_14")
     private fun setLONG_14(v: Long?) {
         answerType.LONG_14 = v ?: 0L
     }
 
-    @JsName("getSTRING_14")
+    //@JsName("getSTRING_14")
     private fun getSTRING_14(): String {
         return answerType.STRING_14 ?: ""
     }
 
-    @JsName("setSTRING_14")
+    //@JsName("setSTRING_14")
     private fun setSTRING_14(v: String?) {
         answerType.STRING_14 = v ?: ""
     }
 
-    @JsName("getINTEGER_15")
+    //@JsName("getINTEGER_15")
     private fun getINTEGER_15(): Int {
         return answerType.INTEGER_15 ?: 0
     }
 
-    @JsName("setINTEGER_15")
+    //@JsName("setINTEGER_15")
     private fun setINTEGER_15(v: Int?) {
         answerType.INTEGER_15 = v ?: 0
     }
 
-    @JsName("getLONG_15")
+    //@JsName("getLONG_15")
     private fun getLONG_15(): Long {
         return answerType.LONG_15 ?: 0
     }
 
-    @JsName("setLONG_15")
+    //@JsName("setLONG_15")
     private fun setLONG_15(v: Long?) {
         answerType.LONG_15 = v ?: 0L
     }
 
-    @JsName("getSTRING_15")
+    //@JsName("getSTRING_15")
     private fun getSTRING_15(): String {
         return answerType.STRING_15 ?: ""
     }
 
-    @JsName("setSTRING_15")
+    //@JsName("setSTRING_15")
     private fun setSTRING_15(v: String?) {
         answerType.STRING_15 = v ?: ""
     }
 
-    @JsName("getINTEGER_16")
+    //@JsName("getINTEGER_16")
     private fun getINTEGER_16(): Int {
         return answerType.INTEGER_16 ?: 0
     }
 
-    @JsName("setINTEGER_16")
+    //@JsName("setINTEGER_16")
     private fun setINTEGER_16(v: Int?) {
         answerType.INTEGER_16 = v ?: 0
     }
 
-    @JsName("getLONG_16")
+    //@JsName("getLONG_16")
     private fun getLONG_16(): Long {
         return answerType.LONG_16 ?: 0
     }
 
-    @JsName("setLONG_16")
+    //@JsName("setLONG_16")
     private fun setLONG_16(v: Long?) {
         answerType.LONG_16 = v ?: 0L
     }
 
-    @JsName("getSTRING_16")
+    //@JsName("getSTRING_16")
     private fun getSTRING_16(): String {
         return answerType.STRING_16 ?: ""
     }
 
-    @JsName("setSTRING_16")
+    //@JsName("setSTRING_16")
     private fun setSTRING_16(v: String?) {
         answerType.STRING_16 = v ?: ""
     }
 
-    @JsName("getINTEGER_17")
+    //@JsName("getINTEGER_17")
     private fun getINTEGER_17(): Int {
         return answerType.INTEGER_17 ?: 0
     }
 
-    @JsName("setINTEGER_17")
+    //@JsName("setINTEGER_17")
     private fun setINTEGER_17(v: Int?) {
         answerType.INTEGER_17 = v ?: 0
     }
 
-    @JsName("getLONG_17")
+    //@JsName("getLONG_17")
     private fun getLONG_17(): Long {
         return answerType.LONG_17 ?: 0
     }
 
-    @JsName("setLONG_17")
+    //@JsName("setLONG_17")
     private fun setLONG_17(v: Long?) {
         answerType.LONG_17 = v ?: 0L
     }
 
-    @JsName("getSTRING_17")
+    //@JsName("getSTRING_17")
     private fun getSTRING_17(): String {
         return answerType.STRING_17 ?: ""
     }
 
-    @JsName("setSTRING_17")
+    //@JsName("setSTRING_17")
     private fun setSTRING_17(v: String?) {
         answerType.STRING_17 = v ?: ""
     }
 
-    @JsName("getINTEGER_18")
+    //@JsName("getINTEGER_18")
     private fun getINTEGER_18(): Int {
         return answerType.INTEGER_1 ?: 0
     }
 
-    @JsName("setINTEGER_18")
+    //@JsName("setINTEGER_18")
     private fun setINTEGER_18(v: Int?) {
         answerType.INTEGER_18 = v ?: 0
     }
 
-    @JsName("getLONG_18")
+    //@JsName("getLONG_18")
     private fun getLONG_18(): Long {
         return answerType.LONG_18 ?: 0
     }
 
-    @JsName("setLONG_18")
+    //@JsName("setLONG_18")
     private fun setLONG_18(v: Long?) {
         answerType.LONG_18 = v ?: 0L
     }
 
-    @JsName("getSTRING_18")
+    //@JsName("getSTRING_18")
     private fun getSTRING_18(): String {
         return answerType.STRING_18 ?: ""
     }
 
-    @JsName("setSTRING_18")
+    //@JsName("setSTRING_18")
     private fun setSTRING_18(v: String?) {
         answerType.STRING_18 = v ?: ""
     }
 
-    @JsName("getINTEGER_19")
+    //@JsName("getINTEGER_19")
     private fun getINTEGER_19(): Int {
         return answerType.INTEGER_19 ?: 0
     }
 
-    @JsName("setINTEGER_19")
+    //@JsName("setINTEGER_19")
     private fun setINTEGER_19(v: Int?) {
         answerType.INTEGER_19 = v ?: 0
     }
 
-    @JsName("getLONG_19")
+    //@JsName("getLONG_19")
     private fun getLONG_19(): Long {
         return answerType.LONG_19 ?: 0
     }
 
-    @JsName("setLONG_19")
+    //@JsName("setLONG_19")
     private fun setLONG_19(v: Long?) {
         answerType.LONG_19 = v ?: 0L
     }
 
-    @JsName("getSTRING_19")
+    //@JsName("getSTRING_19")
     private fun getSTRING_19(): String {
         return answerType.STRING_19 ?: ""
     }
 
-    @JsName("setSTRING_19")
+    //@JsName("setSTRING_19")
     private fun setSTRING_19(v: String?) {
         answerType.STRING_19 = v ?: ""
     }
 
-    @JsName("getINTEGER_20")
+    //@JsName("getINTEGER_20")
     private fun getINTEGER_20(): Int {
         return answerType.INTEGER_20
     }
 
-    @JsName("setINTEGER_20")
+    //@JsName("setINTEGER_20")
     private fun setINTEGER_20(v: Int?) {
         answerType.INTEGER_20 = v ?: 0
     }
 
-    @JsName("getLONG_20")
+    //@JsName("getLONG_20")
     private fun getLONG_20(): Long {
         return answerType.LONG_20
     }
 
-    @JsName("setLONG_20")
+    //@JsName("setLONG_20")
     private fun setLONG_20(v: Long?) {
         answerType.LONG_20 = v ?: 0L
     }
 
-    @JsName("getSTRING_20")
+    //@JsName("getSTRING_20")
     private fun getSTRING_20(): String {
         return answerType.STRING_20
     }
 
-    @JsName("setSTRING_20")
+    //@JsName("setSTRING_20")
     private fun setSTRING_20(v: String?) {
         answerType.STRING_20 = v ?: ""
     }
 
-    @JsName("getBLOB_1")
+    //@JsName("getBLOB_1")
     private fun getBLOB_1(): ByteArray? {
         return answerType.BLOB_1
     }
 
-    @JsName("getBLOB_2")
+    //@JsName("getBLOB_2")
     private fun getBLOB_2(): ByteArray? {
         return answerType.BLOB_2
     }
 
-    @JsName("getBLOB_3")
+    //@JsName("getBLOB_3")
     private fun getBLOB_3(): ByteArray? {
         return answerType.BLOB_3
     }
 
-    @JsName("getBLOB_4")
+    //@JsName("getBLOB_4")
     private fun getBLOB_4(): ByteArray? {
         return answerType.BLOB_4
     }
 
-    @JsName("getEMPTY_STRING")
+    //@JsName("getEMPTY_STRING")
     private fun getEMPTY_STRING(): String {
         return ""
     }
 
-    @JsName("getEMPTY_INTEGER")
+    //@JsName("getEMPTY_INTEGER")
     private fun getEMPTY_INTEGER(): Int {
         return 0
     }
 
-    @JsName("getEMPTY_LONG")
+    //@JsName("getEMPTY_LONG")
     private fun getEMPTY_LONG(): Long {
         return 0L
     }
 
-    @JsName("getEMPTY_BLOB")
+    //@JsName("getEMPTY_BLOB")
     private fun getEMPTY_BLOB(): ByteArray? {
         return null
     }

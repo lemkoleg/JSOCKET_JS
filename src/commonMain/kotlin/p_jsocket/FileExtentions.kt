@@ -7,13 +7,13 @@
 
 package p_jsocket
 
-import kotlin.js.JsName
+//import kotlin.js.JsName
 
 /**
  *
  * @author User
  */
-@JsName("PictureSet")
+//@JsName("PictureSet")
 val PictureSet: List<String> by lazy {
     listOf(
         "bmp",
@@ -25,7 +25,7 @@ val PictureSet: List<String> by lazy {
     ).sorted()
 }
 
-@JsName("VideoSet")
+//@JsName("VideoSet")
 val VideoSet: List<String> by lazy {
     listOf(
         "mp4",
@@ -36,21 +36,21 @@ val VideoSet: List<String> by lazy {
     ).sorted()
 }
 
-@JsName("MusicSet")
+//@JsName("MusicSet")
 val MusicSet: List<String> by lazy {
     listOf(
         "mp3"
         ).sorted()
 }
 
-@JsName("GifSet")
+//@JsName("GifSet")
 val GifSet: List<String> by lazy {
     listOf(
         "gif"
     ).sorted()
 }
 
-@JsName("VoiceSet")
+//@JsName("VoiceSet")
 val VoiceSet: List<String> by lazy {
     listOf(
         "m4a",

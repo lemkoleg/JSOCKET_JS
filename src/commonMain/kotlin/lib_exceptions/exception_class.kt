@@ -5,14 +5,14 @@
  */
 package lib_exceptions
 
-import kotlin.js.JsName
+//import kotlin.js.JsName
 
 /**
  *
  * @author Oleg
  */
 
-@JsName("exception_class")
+//@JsName("exception_class")
 class exception_class(eng_text: String, rus_text: String, ukr_text: String) {
     private val Exception_text: Map<String, String> = mapOf("ENG" to eng_text, "RUS" to rus_text, "UKR" to ukr_text)
     fun return_exceptions_text(lang: String): String? {

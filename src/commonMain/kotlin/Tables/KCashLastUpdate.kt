@@ -13,7 +13,7 @@ import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import p_jsocket.Constants
 import sql.Sqlite_service
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @KorioExperimentalApi
@@ -114,7 +114,7 @@ class KCashLastUpdate(
 
 
     /*
-    @JsName("INSERT_CASH_LASTUPDATE")
+    //@JsName("INSERT_CASH_LASTUPDATE")
     fun INSERT_CASH_LASTUPDATE(value: KCashLastUpdate = this): Promise<Boolean> =
         CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
             try {
@@ -142,7 +142,7 @@ class KCashLastUpdate(
 
         private val KCashLastUpdate_Companion_Lock = Mutex()
 
-        @JsName("LOAD_CASH_LAST_UPDATE")
+        //@JsName("LOAD_CASH_LAST_UPDATE")
         suspend fun LOAD_CASH_LAST_UPDATE(@Suppress("UNUSED_PARAMETER") arr: ArrayList<KCashLastUpdate>) {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 try {
@@ -178,7 +178,7 @@ class KCashLastUpdate(
             )
         }
 
-        @JsName("RE_LOAD_CASH_LAST_UPDATE")
+        //@JsName("RE_LOAD_CASH_LAST_UPDATE")
         fun RE_LOAD_CASH_LAST_UPDATE(): Job {
             return Sqlite_service.LoadCashLastUpdate()
         }

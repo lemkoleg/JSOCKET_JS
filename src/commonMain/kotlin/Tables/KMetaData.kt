@@ -15,7 +15,7 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -37,7 +37,7 @@ var meta_data_last_update: AtomicLong = AtomicLong(0L)
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("KMetaData")
+//@JsName("KMetaData")
 class KMetaData {
 
     init {
@@ -58,44 +58,44 @@ class KMetaData {
 
     constructor(ans: ANSWER_TYPE) : this(ans.STRING_1!!, ans.LONG_1!!, ans.LONG_2!!)
 
-    @JsName("getVALUE_NAME")
+    //@JsName("getVALUE_NAME")
     fun getVALUE_NAME(): String {
         return VALUE_NAME
     }
 
-    @JsName("setVALUE_NAME")
+    //@JsName("setVALUE_NAME")
     fun setVALUE_NAME(v: String) {
         VALUE_NAME = v.trim()
     }
 
-    @JsName("getVALUE_VALUE")
+    //@JsName("getVALUE_VALUE")
     fun getVALUE_VALUE(): Long {
         return VALUE_VALUE
     }
 
-    @JsName("setVALUE_VALUE")
+    //@JsName("setVALUE_VALUE")
     fun setVALUE_VALUE(v: Long?) {
         VALUE_VALUE = v ?: 0L
     }
 
-    @JsName("getLATS_UPDATE")
+    //@JsName("getLATS_UPDATE")
     fun getLATS_UPDATE(): Long {
         return LAST_UPDATE
     }
 
-    @JsName("setLATS_UPDATE")
+    //@JsName("setLATS_UPDATE")
     fun setLATS_UPDATE(v: Long?) {
         LAST_UPDATE = v ?: 0L
     }
 
-    @JsName("UPDATE_METADATA")
+    //@JsName("UPDATE_METADATA")
     fun UPDATE_METADATA(L_VALUE_NAME: String, L_VALUE_VALUE: Long, L_LAST_UPDATE: Long) {
         VALUE_NAME = L_VALUE_NAME
         VALUE_VALUE = L_VALUE_VALUE
         LAST_UPDATE = L_LAST_UPDATE
     }
 
-    @JsName("UPDATE_METADATAS")
+    //@JsName("UPDATE_METADATAS")
     fun UPDATE_METADATAS(ans: ANSWER_TYPE) {
         UPDATE_METADATA(ans.STRING_1!!, ans.LONG_1!!, ans.LONG_2!!)
     }
@@ -103,7 +103,7 @@ class KMetaData {
     companion object {
 
         @InternalAPI
-        @JsName("LOAD_META_DATA")
+        //@JsName("LOAD_META_DATA")
         suspend fun LOAD_META_DATA(kMetaDatas: ArrayList<KMetaData>) {
             try {
                 KMetaDataLock.withLock {
@@ -141,7 +141,7 @@ class KMetaData {
 
 
         @KorioExperimentalApi
-        @JsName("ADD_NEW_META_DATA")
+        //@JsName("ADD_NEW_META_DATA")
         fun ADD_NEW_META_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -205,7 +205,7 @@ class KMetaData {
                 )
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("RE_LOAD_META_DATA")
+        //@JsName("RE_LOAD_META_DATA")
         fun RE_LOAD_META_DATA(): Job {
             return Sqlite_service.LoadMetaData()
         }

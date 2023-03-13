@@ -7,13 +7,13 @@ import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("AtomicInt")
+//@JsName("AtomicInt")
 class AtomicInt(v: Int) {
 
 
@@ -26,14 +26,14 @@ class AtomicInt(v: Int) {
         ensureNeverFrozen()
     }
 
-    @JsName("setNewValue")
+    //@JsName("setNewValue")
     suspend fun setNewValue(v: Int) {
         lock.withLock {
             value = v
         }
     }
 
-    @JsName("setGreaterValue")
+    //@JsName("setGreaterValue")
     suspend fun setGreaterValue(v: Int) {
         lock.withLock {
             if (v > value) {
@@ -42,7 +42,7 @@ class AtomicInt(v: Int) {
         }
     }
 
-    @JsName("setLowerValue")
+    //@JsName("setLowerValue")
     suspend fun setLowerValue(v: Int) {
         lock.withLock {
             if (v < value) {
@@ -52,7 +52,7 @@ class AtomicInt(v: Int) {
     }
 
 
-    @JsName("getAndSet")
+    //@JsName("getAndSet")
     suspend fun getAndSet(v: Int): Int {
         return lock.withLock {
             val old = value

@@ -21,6 +21,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
+import p_jsocket.Connection
 import p_jsocket.Constants
 import p_jsocket.Constants.myConnectionsID
 import p_jsocket.JSOCKET_Instance
@@ -28,7 +29,6 @@ import sql.Sqlite_service
 import sql.db
 import sql.sqlDriver
 import kotlin.coroutines.CoroutineContext
-import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -37,7 +37,7 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
-@JsName("InitJsocketJob")
+//@JsName("InitJsocketJob")
 var InitJsocketJob: Job = Job()
 
 @InternalAPI
@@ -49,15 +49,16 @@ val isInitialised: AtomicBoolean = AtomicBoolean(false)
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("InitJsocket")
-class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver? = null) : CoroutineScope {
+//@JsName("InitJsocket")
+class InitJsocket(_lFileDir: String, _lDeviceId: String, _OSName: String, _sqlDriver: SqlDriver? = null) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob() + SupervisorJob()
 
     private val InitJsocketScope = CoroutineScope(coroutineContext)
 
     private val FileDir = _lFileDir.trim()
-    private val DeviceId = _lDeviceId?.trim() ?: ""
+    private val DeviceId = _lDeviceId.trim()
+    private val OSName = _OSName.trim().substr(0, 30)
     private val SqlDriver = _sqlDriver
 
 
@@ -65,6 +66,10 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
 
         if (DeviceId.isNotEmpty()) Constants.myDeviceId = (DeviceId.replace(":", "").replace(";", "")
             .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
+
+        if (OSName.isNotEmpty()) {
+            Constants.myConnectionContext = OSName
+        }
 
         if (SqlDriver != null) {
             sqlDriver = SqlDriver
@@ -91,9 +96,7 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String?, _sqlDriver: SqlDriver?
                     KChat.GET_CHATS(null).await()
 
                     if(myConnectionsID > 0L){
-                        val j = Jsocket()
-                        j.just_do_it = 1011000068 // RE_SEND_REQUEST_PROFILE;
-                        j.send_request(await_answer = true)
+                        Connection.RE_SEND_REQUEST_PROFILE(await_answer = true)
                     }
 
                     isInitialised.setNewValue(true)

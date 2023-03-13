@@ -7,7 +7,6 @@ import kotlin.js.Promise
 //@JsModule("fingerprintjs2")
 //@JsNonModule
 
-actual val PLATFORM: String = "JS"
 
 external fun require(module: String): dynamic
 

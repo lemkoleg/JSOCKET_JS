@@ -10,7 +10,7 @@ import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.*
 import lib_exceptions.my_user_exceptions_class
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -40,7 +40,7 @@ private fun returnRequestPostfix(): ByteArray {
 }
 
 
-@JsName("FIELDS_SUBSCRIBE")
+//@JsName("FIELDS_SUBSCRIBE")
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
@@ -388,7 +388,7 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
 )
 
 
-@JsName("JSOCKET")
+//@JsName("JSOCKET")
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
@@ -436,141 +436,141 @@ open class JSOCKET() {
         this.check_sum = myJsocketClass.check_sum
     }
 
-    @JsName("setLongValueFromString")
+    //@JsName("setLongValueFromString")
     fun setLongValueFromString(s: String): Long {
         return s.toLong()
     }
 
-    @JsName("getLongValueAsString")
+    //@JsName("getLongValueAsString")
     fun getLongValueAsString(s: Long): String {
         return s.toString()
     }
 
-    @JsName("condition")
+    //@JsName("condition")
     val condition: MyCondition = MyCondition()
 
-    @JsName("ANSWER_TYPEs")
+    //@JsName("ANSWER_TYPEs")
     var ANSWER_TYPEs: ArrayDeque<ANSWER_TYPE>? = null
 
-    @JsName("jserver_connection_id")
+    //@JsName("jserver_connection_id")
     var jserver_connection_id: Long = 0L
 
-    @JsName("connection_id")
+    //@JsName("connection_id")
     var connection_id: Long = 0L
 
-    @JsName("connection_coocki")
+    //@JsName("connection_coocki")
     var connection_coocki: Long = 0L
 
-    @JsName("connection_context")
+    //@JsName("connection_context")
     var connection_context: String = ""
 
-    @JsName("object_size")
+    //@JsName("object_size")
     var object_size: Long = 0L
 
-    @JsName("object_extension")
+    //@JsName("object_extension")
     var object_extension: String = ""
 
-    @JsName("object_server")
+    //@JsName("object_server")
     var object_server: String = ""
 
-    @JsName("ip_address")
+    //@JsName("ip_address")
     var ip_address: String = ""
 
-    @JsName("ip_port")
+    //@JsName("ip_port")
     var ip_port: Int = 0
 
-    @JsName("device_id")
+    //@JsName("device_id")
     var device_id: String = ""
 
-    @JsName("just_do_it")
+    //@JsName("just_do_it")
     var just_do_it: Int = 0
 
-    @JsName("just_do_it_label")
+    //@JsName("just_do_it_label")
     var just_do_it_label: Long = 0L
 
-    @JsName("just_do_it_successfull")
+    //@JsName("just_do_it_successfull")
     var just_do_it_successfull: String = "0"
 
-    @JsName("lang")
+    //@JsName("lang")
     var lang: String = "ENG"
 
-    @JsName("value_id1")
+    //@JsName("value_id1")
     var value_id1: String = ""
 
-    @JsName("value_id2")
+    //@JsName("value_id2")
     var value_id2: String = ""
 
-    @JsName("value_id3")
+    //@JsName("value_id3")
     var value_id3: String = ""
 
-    @JsName("value_id4")
+    //@JsName("value_id4")
     var value_id4: String = ""
 
-    @JsName("value_id5")
+    //@JsName("value_id5")
     var value_id5: String = ""
 
-    @JsName("value_par1")
+    //@JsName("value_par1")
     var value_par1: String = ""
 
-    @JsName("value_par2")
+    //@JsName("value_par2")
     var value_par2: String = ""
 
-    @JsName("value_par3")
+    //@JsName("value_par3")
     var value_par3: String = ""
 
-    @JsName("value_par4")
+    //@JsName("value_par4")
     var value_par4: String = ""
 
-    @JsName("value_par5")
+    //@JsName("value_par5")
     var value_par5: String = ""
 
-    @JsName("value_par6")
+    //@JsName("value_par6")
     var value_par6: String = ""
 
-    @JsName("value_par7")
+    //@JsName("value_par7")
     var value_par7: String = ""
 
-    @JsName("value_par8")
+    //@JsName("value_par8")
     var value_par8: String = ""
 
-    @JsName("value_par9")
+    //@JsName("value_par9")
     var value_par9: String = ""
 
-    @JsName("last_messege_update")
+    //@JsName("last_messege_update")
     var last_messege_update: Long = 0L
 
-    @JsName("last_notice_update")
+    //@JsName("last_notice_update")
     var last_notice_update: Long = 0L
 
-    @JsName("last_metadata_updatee")
+    //@JsName("last_metadata_updatee")
     var last_metadata_update: Long = 0L
 
-    @JsName("request_profile")
+    //@JsName("request_profile")
     var request_profile: String = ""
 
-    @JsName("request_size")
+    //@JsName("request_size")
     var request_size: Long = 0
 
-    @JsName("version")
+    //@JsName("version")
     var version: String? = "00001"
 
-    @JsName("last_date_of_update")
+    //@JsName("last_date_of_update")
     var last_date_of_update: Long = 0L
 
-    @JsName("db_massage")
+    //@JsName("db_massage")
     var db_massage: String = ""
 
-    @JsName("content")
+    //@JsName("content")
     var content: ByteArray? = null
 
-    @JsName("bb")
+    //@JsName("bb")
     var bb: ByteReadPacket? = null
 
-    @JsName("is_new_reg_data")
+    //@JsName("is_new_reg_data")
     var is_new_reg_data: Boolean = false
 
 
-    @JsName("local_answer_type")
+    //@JsName("local_answer_type")
     var local_answer_type: ANSWER_TYPE? = null
 
 
@@ -583,7 +583,7 @@ open class JSOCKET() {
 
     private var h: HASH? = null
 
-    @JsName("check_sum")
+    //@JsName("check_sum")
     var check_sum: String = ""
     private var long_value: Long = 0
     private var nature_connection_coocki: Long = 0L
@@ -619,7 +619,7 @@ open class JSOCKET() {
     }
 
 
-    @JsName("set_value")
+    //@JsName("set_value")
     @InternalAPI
     fun set_value(myJsocketClass: JSOCKET) {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
@@ -662,7 +662,7 @@ open class JSOCKET() {
         //this.ANSWER_TYPEs = myJsocketClass.ANSWER_TYPEs
     }
 
-    @JsName("merge")
+    //@JsName("merge")
     @InternalAPI
     fun merge(myJsocketClass: JSOCKET) {
         this.just_do_it = myJsocketClass.just_do_it
@@ -732,7 +732,7 @@ open class JSOCKET() {
         this.content = myJsocketClass.content
     }
 
-    @JsName("contrMerge")
+    //@JsName("contrMerge")
     @InternalAPI
     fun contrMerge(myJsocketClass: JSOCKET) {
         this.just_do_it = myJsocketClass.just_do_it
@@ -799,7 +799,7 @@ open class JSOCKET() {
     }
 
 
-    @JsName("serialize")
+    //@JsName("serialize")
     fun serialize(verify_fields: Boolean, update_just_do_it_label: Boolean = true): ByteArray {
 
         try {
@@ -1105,7 +1105,7 @@ open class JSOCKET() {
     /////////////////////////////////////////////////////////////////////////////////
 
     @KorioExperimentalApi
-    @JsName("desend_datad_ANSWERS_TYPES")
+    //@JsName("desend_datad_ANSWERS_TYPES")
     suspend fun deserialize_ANSWERS_TYPES() {
         var promise: Promise<Boolean>? = null
         var currentCashData: KCashData? = null
@@ -1565,7 +1565,7 @@ open class JSOCKET() {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    @JsName("deserialize")
+    //@JsName("deserialize")
     @InternalAPI
     fun deserialize(
         lbb: ByteReadPacket,

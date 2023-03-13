@@ -10,7 +10,7 @@ package p_jsocket
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -20,7 +20,7 @@ import kotlin.time.ExperimentalTime
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("JSOCKET_Subscribe")
+//@JsName("JSOCKET_Subscribe")
 class JSOCKET_Subscribe(
     fields_number: Int,
     val fields_name: String,
@@ -33,7 +33,7 @@ class JSOCKET_Subscribe(
     val serialied: Boolean,
     val check_suming: Boolean,
 
-    @JsName("getJSOCKET_FieldsValue")
+    //@JsName("getJSOCKET_FieldsValue")
     val getJSOCKET_FieldsValue: (JSOCKET) -> Any? = when (fields_number) {
         1 -> { j: JSOCKET -> j.connection_id }
         2 -> { j: JSOCKET -> j.connection_coocki }
@@ -80,7 +80,7 @@ class JSOCKET_Subscribe(
     },
 
 
-    @JsName("setJSOCKET_FieldsValue")
+    //@JsName("setJSOCKET_FieldsValue")
     val setJSOCKET_FieldsValue: (JSOCKET, Any?) -> Unit = when (fields_number) {
         1 -> { j: JSOCKET, v: Any? -> j.connection_id = (v as Long?) ?: 0L }
         2 -> { j: JSOCKET, v: Any? -> j.connection_coocki = (v as Long?) ?: 0L }

@@ -16,7 +16,7 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -258,7 +258,7 @@ private var is_init: Boolean = init()
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-@JsName("KExceptions")
+//@JsName("KExceptions")
 class KExceptions {
 
     init {
@@ -329,7 +329,7 @@ class KExceptions {
 
     companion object {
 
-        @JsName("ADD_NEW_EXCEPTIONS")
+        //@JsName("ADD_NEW_EXCEPTIONS")
         fun ADD_NEW_EXCEPTIONS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -431,7 +431,7 @@ class KExceptions {
             }
         }
 
-        @JsName("RE_LOAD_EXCEPTIONS")
+        //@JsName("RE_LOAD_EXCEPTIONS")
         fun RE_LOAD_EXCEPTIONS(): Job {
             return Sqlite_service.LoadExceptions()
         }

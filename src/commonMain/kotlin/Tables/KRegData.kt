@@ -16,14 +16,14 @@ import p_jsocket.Constants
 import p_jsocket.JSOCKET
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("KRegData")
+//@JsName("KRegData")
 class KRegData {
 
     companion object {
@@ -74,7 +74,7 @@ class KRegData {
             )
         }
 
-        @JsName("ADD_NEW_REG_DATA")
+        //@JsName("ADD_NEW_REG_DATA")
         fun ADD_NEW_REG_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -167,7 +167,7 @@ class KRegData {
             }.toPromise(EmptyCoroutineContext)
 
 
-        @JsName("RE_LOAD_REG_DATA")
+        //@JsName("RE_LOAD_REG_DATA")
         fun RE_LOAD_REG_DATA(): Job {
             return Sqlite_service.LoadRegData()
         }

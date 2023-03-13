@@ -1,17 +1,16 @@
 package p_jsocket
 
 import CrossPlatforms.PrintInformation
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import kotlin.time.ExperimentalTime
 
-@InternalAPI
 @ExperimentalTime
-@KorioExperimentalApi
+@InternalAPI
 class SampleTestsJS {
 
     fun testMe()  = run < Unit > {
+
         val l = JSOCKET()
         val t = JSOCKET()
         val h = HASH()

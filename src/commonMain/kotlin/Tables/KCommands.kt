@@ -18,7 +18,7 @@ import p_jsocket.Command
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -29,7 +29,7 @@ private val KCommandsLock = Mutex()
 @InternalAPI
 @ExperimentalTime
 @KorioExperimentalApi
-@JsName("COMMANDS")
+//@JsName("COMMANDS")
 val COMMANDS: MutableMap<Int, Command> = mutableMapOf(
     1011000010 to Command(
         1011000010, "9", "1111000000001001000001100000000000000000",
@@ -68,7 +68,7 @@ val COMMANDS: MutableMap<Int, Command> = mutableMapOf(
 @KorioExperimentalApi
 @ExperimentalTime
 @InternalAPI
-@JsName("KCommands")
+//@JsName("KCommands")
 class KCommands {
 
     init {
@@ -112,62 +112,62 @@ class KCommands {
         ans.LONG_3!!.toInt()
     )
 
-    @JsName("getCOMMANDS_ID")
+    //@JsName("getCOMMANDS_ID")
     fun getCOMMANDS_ID(): Int {
         return COMMANDS_ID
     }
 
-    @JsName("setCOMMANDS_ID")
+    //@JsName("setCOMMANDS_ID")
     fun setCOMMANDS_ID(v: Int) {
         COMMANDS_ID = v
     }
 
-    @JsName("getCOMMANDS_ACCESS")
+    //@JsName("getCOMMANDS_ACCESS")
     fun getCOMMANDS_ACCESS(): String {
         return COMMANDS_ACCESS
     }
 
-    @JsName("setCOMMANDS_ACCESS")
+    //@JsName("setCOMMANDS_ACCESS")
     fun setCOMMANDS_ACCESS(v: String) {
         COMMANDS_ACCESS = v
     }
 
-    @JsName("getCOMMANDS_PROFILE")
+    //@JsName("getCOMMANDS_PROFILE")
     fun getCOMMANDS_PROFILE(): String {
         return COMMANDS_PROFILE
     }
 
-    @JsName("setCOMMANDS_PROFILE")
+    //@JsName("setCOMMANDS_PROFILE")
     fun setCOMMANDS_PROFILE(v: String) {
         COMMANDS_PROFILE = v
     }
 
-    @JsName("getCOMMANDS_NECESSARILY_FIELDS")
+    //@JsName("getCOMMANDS_NECESSARILY_FIELDS")
     fun getCOMMANDS_NECESSARILY_FIELDS(): String {
         return COMMANDS_NECESSARILY_FIELDS
     }
 
-    @JsName("setCOMMANDS_NECESSARILY_FIELDS")
+    //@JsName("setCOMMANDS_NECESSARILY_FIELDS")
     fun setCOMMANDS_NECESSARILY_FIELDS(v: String) {
         COMMANDS_NECESSARILY_FIELDS = v
     }
 
-    @JsName("getLAST_UPDATE")
+    //@JsName("getLAST_UPDATE")
     fun getLAST_UPDATE(): Long {
         return LAST_UPDATE
     }
 
-    @JsName("setLAST_UPDATE")
+    //@JsName("setLAST_UPDATE")
     fun setLAST_UPDATE(v: Long) {
         LAST_UPDATE = v
     }
 
-    @JsName("getCOUNT_OF_EXECUTE")
+    //@JsName("getCOUNT_OF_EXECUTE")
     fun getCOUNT_OF_EXECUTE(): Int {
         return COUNT_OF_EXECUTE
     }
 
-    @JsName("setCOUNT_OF_EXECUTE")
+    //@JsName("setCOUNT_OF_EXECUTE")
     fun setCOUNT_OF_EXECUTE(v: Int) {
         COUNT_OF_EXECUTE = v
     }
@@ -175,7 +175,7 @@ class KCommands {
 
     companion object {
 
-        @JsName("ADD_NEW_COMMANDS")
+        //@JsName("ADD_NEW_COMMANDS")
         fun ADD_NEW_COMMANDS(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -237,7 +237,7 @@ class KCommands {
                 )
             }.toPromise(EmptyCoroutineContext)
 
-        @JsName("LOAD_COMMANDS")
+        //@JsName("LOAD_COMMANDS")
         suspend fun LOAD_COMMANDS(ids: ArrayList<KCommands>) {
             try {
                 try {
@@ -263,7 +263,7 @@ class KCommands {
             }
         }
 
-        @JsName("RE_LOAD_COMMANDS")
+        //@JsName("RE_LOAD_COMMANDS")
         fun RE_LOAD_COMMANDS(): Job {
             return Sqlite_service.LoadCommands()
         }

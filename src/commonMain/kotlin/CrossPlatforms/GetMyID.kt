@@ -7,12 +7,11 @@
 
 package CrossPlatforms
 
-import kotlin.js.JsName
+//import kotlin.js.JsName
 
 
-@JsName("getMyDeviceId")
+//@JsName("getMyDeviceId")
 expect suspend fun getMyDeviceId(): String
-@JsName("getMyOS")
+//@JsName("getMyOS")
 expect fun getMyOS(): String
-@JsName("PLATFORM")
-expect val PLATFORM:String
+

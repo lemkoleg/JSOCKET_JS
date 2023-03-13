@@ -10,7 +10,7 @@ import com.soywiz.krypto.md5
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import lib_exceptions.my_user_exceptions_class
-import kotlin.js.JsName
+//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -300,7 +300,7 @@ private val LOOKUPTABLE2 = Array(0x100) { i -> r(i) }
 @ExperimentalTime
 @InternalAPI
 @KorioExperimentalApi
-@JsName("HASH")
+//@JsName("HASH")
 class HASH {
 
     private val md5: MD5 = MD5()
@@ -327,7 +327,7 @@ class HASH {
     ////////////////////////////////////////////////////////////////////////////////
 
     @InternalAPI
-    @JsName("getNewTokenLong")
+    //@JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
         var newStringMD5: String
         val md5Hex: String = getMD5String(user_name.trim().plus(pass).trim().plus(time.toString()))
@@ -358,7 +358,7 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("getNewCoockiLong")
+    //@JsName("getNewCoockiLong")
     fun getNewCoockiLong(stringMD5: String): Long {
         val stringMD5String1: Long = stringMD5.substring(0, 15).toLong(16)
         val stringMD5String2: Long = stringMD5.substring(15, 30).toLong(16)
@@ -386,13 +386,13 @@ class HASH {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @JsName("getNewMD5String")
+    //@JsName("getNewMD5String")
     fun getNewMD5String(l_token: Long, time: Long): String {
         return getMD5String(l_token.toString().plus(other = time.toString()))
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @JsName("getNewMD5LongArray")
+    //@JsName("getNewMD5LongArray")
     fun getNewMD5LongArray(MD5String: String): LongArray {
         val l = LongArray(size = 16) { 0L }
         for (x in 0..15) {
@@ -403,19 +403,19 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @JsName("getMD5String")
+    //@JsName("getMD5String")
     fun getMD5String(input_string: String): String {
         return input_string.encodeToByteArray().md5().hexUpper
     }
 
-    @JsName("getReverseMD5String")
+    //@JsName("getReverseMD5String")
     fun getReverseMD5String(input_string: String): String {
         return input_string.reversed()
 
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
-    @JsName("getNewMD5longArray")
+    //@JsName("getNewMD5longArray")
     fun getNewMD5longArray(MD5String: String): LongArray {
         val l = LongArray(16)
         for (x in 0..15) {
@@ -424,7 +424,7 @@ class HASH {
         return l
     }
 
-    @JsName("getReverseMD5longArray")
+    //@JsName("getReverseMD5longArray")
     fun getReverseMD5longArray(reverseMD5String: String): LongArray {
         val l = LongArray(16)
         for (x in 0..15) {
@@ -434,7 +434,7 @@ class HASH {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @JsName("getCheckSumFromByteArray")
+    //@JsName("getCheckSumFromByteArray")
     fun getCheckSumFromByteArray(data: ByteArray, checksum: Long): Long {
         var l: Long = checksum
         for (element in data) {
@@ -445,7 +445,7 @@ class HASH {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    @JsName("getCheckSumFromLong")
+    //@JsName("getCheckSumFromLong")
     fun getCheckSumFromLong(data: Long, checksum: Long): Long {
         var l: Long = checksum
         for (i in 0..7) {
@@ -458,7 +458,7 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
     @InternalAPI
-    @JsName("cryptPass")
+    //@JsName("cryptPass")
     fun cryptPass(pass: String, mail_code: String, isCrypt: Boolean): String {
         val mail_codeMD5 = getMD5String(mail_code).substring(0, 16).toByteArray()
         val passCode = pass.decodeBase64Bytes()
