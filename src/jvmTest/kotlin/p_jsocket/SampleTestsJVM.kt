@@ -29,7 +29,7 @@ class SampleTestsJVM {
     fun testMe() = run<Unit> {
 
         println(DEFAULT_WSKEY)
-        val initJsocket = InitJsocket("D:${slash}DebugAUF", null, null)
+        val initJsocket = InitJsocket("D:${slash}DebugAUF", "5555555", "Win")
 
         val lock = Mutex()
 

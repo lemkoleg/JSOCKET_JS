@@ -85,9 +85,9 @@ kotlin {
 
     }
 
-    js(BOTH) {
+    js(IR) {
         browser {
-
+            binaries.executable()
         }
     }
 
@@ -250,7 +250,7 @@ kotlin {
 
 tasks.register<Jar>("uberJar") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archiveClassifier.set("uber")
+    //archiveClassifier.set("uber")
 
     from(sourceSets.main.get().output)
 

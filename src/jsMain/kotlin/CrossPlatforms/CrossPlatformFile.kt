@@ -4,22 +4,24 @@ import com.soywiz.korio.file.VfsFile
 import com.soywiz.korio.file.VfsOpenMode
 import com.soywiz.korio.file.extension
 import com.soywiz.korio.file.fullName
-import com.soywiz.korio.file.std.resourcesVfs
+import com.soywiz.korio.file.std.localVfs
+import com.soywiz.korio.stream.AsyncStream
+import com.soywiz.korio.stream.writeString
 
 
 actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
 
-    val file: VfsFile = resourcesVfs[fullName]
+    val file: VfsFile = localVfs(fullName)
+    var channel: AsyncStream? = null
     val mod = mode
     actual var isInit = false
 
     actual suspend fun create(size: Long){
-        val is_exist = file.exists() && file.isFile()
-        file.open(when(mod){
+        channel = file.open(when(mod){
             1 -> VfsOpenMode.READ
-            2, 3 -> {VfsOpenMode.CREATE_OR_TRUNCATE
+            2, 3 -> {VfsOpenMode.WRITE //{VfsOpenMode.CREATE_NEW
             }
-            4 -> if(is_exist) VfsOpenMode.CREATE else VfsOpenMode.APPEND
+            4 -> VfsOpenMode.WRITE
             else -> VfsOpenMode.CREATE
         })
         when(mod){
@@ -29,6 +31,7 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
             }
         }
         isInit = true
+
     }
 
     actual suspend fun size():Long {
@@ -80,7 +83,11 @@ actual class CrossPlatformFile actual constructor(fullName: String, mode: Int) {
     }
 
     actual suspend fun writeLines(s: String) {
-        file.writeString(s)
+        channel!!.setPosition(file.size())
+        channel!!.writeString(s + lineSeparator)
     }
 
+    actual suspend fun CreateDirectory() {
+        file.mkdir()
+    }
 }
