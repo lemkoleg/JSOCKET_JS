@@ -11,9 +11,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.time.ExperimentalTime
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("AtomicBoolean")
 class AtomicBoolean(v: Boolean){
 

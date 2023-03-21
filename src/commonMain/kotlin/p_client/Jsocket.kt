@@ -8,6 +8,7 @@
 package p_client
 
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import Tables.*
 import atomic.AtomicLong
@@ -24,7 +25,6 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -33,27 +33,24 @@ import kotlin.time.ExperimentalTime
  */
 
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+
 var newConnectionCoocki = AtomicLong(0L)
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
 private val CLIENT_JSOCKET_POOL: ArrayDeque<Jsocket> = ArrayDeque()
 
 
-@InternalAPI
+
 private val JsocketLock = Mutex()
 
 private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
 
 
 //@JsName("Jsocket")
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class Jsocket() : JSOCKET(), OnRequestListener {
 
     //val InstanceRef:AtomicReference<Jsocket> = AtomicReference(this)

@@ -26,17 +26,13 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.ExperimentalTime
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("CASH_DATAS")
 val CASH_DATAS: MutableMap<String, KCashData> = mutableMapOf()
 
 
 //@JsName("KCashData")
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KCashData(lCashLastUpdate: KCashLastUpdate) {
 
     val CashLastUpdate = lCashLastUpdate

@@ -6,9 +6,8 @@ import io.ktor.util.*
 import p_jsocket.Constants
 import kotlin.time.ExperimentalTime
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 class KCashDataUpdateParameters(
     val limit: Int,
     var count_of_all_records: Int

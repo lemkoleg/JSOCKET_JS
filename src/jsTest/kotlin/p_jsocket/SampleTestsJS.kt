@@ -5,8 +5,8 @@ import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
-@InternalAPI
+
+
 class SampleTestsJS {
 
     fun testMe()  = run < Unit > {

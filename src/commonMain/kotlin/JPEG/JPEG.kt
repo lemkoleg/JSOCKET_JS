@@ -18,6 +18,7 @@ object JPEG : ImageFormat("jpg", "jpeg") {
     }
 
     override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData {
+        @Suppress("DEPRECATION")
         return ImageData(listOf(ImageFrame(JPEGDecoder.decode(s.readAll()))))
     }
 

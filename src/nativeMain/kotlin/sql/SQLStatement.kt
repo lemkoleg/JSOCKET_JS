@@ -647,7 +647,7 @@ actual class SQLStatement actual constructor() {
         return ret
     }
 
-    @InternalAPI
+    
     @ExperimentalStdlibApi
     actual fun SELECT_ALL_CHATS(): ArrayDeque<KChat> {
         val res = chats.select_all_chats().execute()

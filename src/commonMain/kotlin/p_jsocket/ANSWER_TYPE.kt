@@ -23,9 +23,8 @@ import p_client.Jsocket
 import kotlin.time.ExperimentalTime
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 //@JsName("FIELDS_SUBSCRIBE_ANSWER_TYPES")
 val FIELDS_SUBSCRIBE_ANSWER_TYPES: MutableMap<Int, ANSWER_TYPE_Subscribe> = mutableMapOf(
     1 to ANSWER_TYPE_Subscribe(1, "IDENTIFICATOR_1", 18, true, 0),
@@ -114,19 +113,11 @@ val FIELDS_SUBSCRIBE_ANSWER_TYPES: MutableMap<Int, ANSWER_TYPE_Subscribe> = muta
     84 to ANSWER_TYPE_Subscribe(83, "BLOB_3", Constants.AVATARSIZE, false, 4)
 )
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 private val CLIENT_ANSWER_TYPE_POOL: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
-
-
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 private val CLIENT_ANSWER_TYPE_POOLS: ArrayDeque<ArrayDeque<ANSWER_TYPE>> = ArrayDeque()
 
 
-@InternalAPI
+
 private val CLIENT_ANSWER_TYPE_POOL_Lock = Mutex()
 private val CLIENT_ANSWER_TYPE_POOLS_Lock = Mutex()
 private var fillPOOL_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
@@ -137,9 +128,9 @@ private var fillPOOLS_IS_RUNNING: AtomicBoolean = AtomicBoolean(false)
  * @author Oleg
  */
 @Suppress("SetterBackingFieldAssignment")
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+
+@OptIn(KorioExperimentalApi::class)
 //@JsName("ANSWER_TYPE")
 class ANSWER_TYPE {
 
@@ -1278,7 +1269,7 @@ class ANSWER_TYPE {
             }
         }
 
-        @InternalAPI
+        
         fun close() {
             CLIENT_ANSWER_TYPE_POOL.clear()
             CLIENT_ANSWER_TYPE_POOLS.clear()

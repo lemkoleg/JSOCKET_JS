@@ -1,19 +1,12 @@
 package p_jsocket
 
+//import kotlin.js.JsName
 import CrossPlatforms.getMyOS
 import Tables.META_DATA
 import atomic.AtomicBoolean
 import com.soywiz.klock.TimeSpan
-import com.soywiz.korio.experimental.KorioExperimentalApi
-import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
-//import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 object Constants {
     
     private val lock = Mutex()

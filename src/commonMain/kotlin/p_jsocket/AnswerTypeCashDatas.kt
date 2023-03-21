@@ -11,12 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.time.ExperimentalTime
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@OptIn(KorioExperimentalApi::class)
 class AnswerTypeCashDatas(l_answerType: ANSWER_TYPE) {
 
     val answerType = l_answerType

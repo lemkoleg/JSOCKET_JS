@@ -7,6 +7,7 @@
 
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
@@ -22,7 +23,6 @@ import p_client.Jsocket
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -32,52 +32,39 @@ import kotlin.time.ExperimentalTime
  */
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 var CHATS: KCashData? = null
 
 /*
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 val MESSEGES: MutableMap<String, KCashData>  = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
+
 val CHATS_LIKES: MutableMap<String, KCashData>  = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val CHATS_COST_TYPES: MutableMap<String, KCashData>  = mutableMapOf()
  */
 
 
-@InternalAPI
+
 private val KChatsGlobalLock = Mutex()
 private val KChatsSelectAllDataOnChatLock = Mutex()
 private val KChatsVerifyUpdatesLock = Mutex()
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("sendedVerifyUpdates")
 private var sendedVerifyUpdates: Long = 0L
 private var TimeOutendedVerifyUpdates: Long = 0L
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("sendedlSelectAllDataOfChat")
 private val sendedlSelectAllDataOfChat: MutableMap<String, Long> = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("KChat")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 object KChat {
 
     //@JsName("SELECT_ALL_DATA_ON_CHAT")

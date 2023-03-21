@@ -7,9 +7,8 @@ import kotlin.time.ExperimentalTime
 
 var db: AUFDB? = null
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class MySQLConnection(DBName:String){
 
     val dbName = DBName

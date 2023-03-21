@@ -1,5 +1,6 @@
 package p_jsocket
 
+//import kotlin.js.JsName
 import Tables.*
 import atomic.lockedGet
 import atomic.lockedPut
@@ -15,13 +16,11 @@ import kotlinx.coroutines.async
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants.Account_Id
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@Suppress("UNREACHABLE_CODE")
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+@Suppress("UnnecessaryOptInAnnotation", "UNREACHABLE_CODE")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class AnswerTypeValues(l_answerType: ANSWER_TYPE) {
 
     private var answerType: ANSWER_TYPE = l_answerType

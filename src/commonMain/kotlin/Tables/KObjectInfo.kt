@@ -1,5 +1,6 @@
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import Tables.KBigAvatar.Companion.RETURN_PROMISE_SELECT_BIG_AVATAR
 import com.soywiz.klock.DateTime
@@ -18,31 +19,22 @@ import p_jsocket.Constants
 import p_jsocket.FileService
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@InternalAPI
+
 private val KObjectInfoLock = Mutex()
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 val OBJECTS_INFO: MutableMap<String, KObjectInfo> = mutableMapOf()
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 val SAVE_OBJECT_INFO_IDS: MutableMap<String, String> = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 var SAVE_OBJECT_INFO: KCashData? = null
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KObjectInfo(l_answerType: ANSWER_TYPE) {
 
     private val LocalLock = Mutex()

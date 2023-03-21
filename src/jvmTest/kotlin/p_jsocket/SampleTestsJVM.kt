@@ -17,11 +17,11 @@ import p_client.InitJsocket
 import p_client.Jsocket
 import java.lang.Thread.sleep
 import kotlin.test.Test
-import kotlin.time.ExperimentalTime
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@Suppress("UNUSED_VARIABLE", "CanBeVal")
+@OptIn( KorioExperimentalApi::class)
 
 class SampleTestsJVM {
 

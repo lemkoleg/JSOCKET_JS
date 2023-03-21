@@ -7,6 +7,7 @@
 
 package p_client
 
+//import kotlin.js.JsName
 import CrossPlatforms.CrossPlatformFile
 import Tables.*
 import com.soywiz.korio.async.await
@@ -15,7 +16,6 @@ import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.*
 import sql.Sqlite_service
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -25,9 +25,10 @@ import kotlin.time.ExperimentalTime
 
 
 //@JsName("ClientExecutor")
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class ClientExecutor {
 
     private lateinit var jsocket: Jsocket

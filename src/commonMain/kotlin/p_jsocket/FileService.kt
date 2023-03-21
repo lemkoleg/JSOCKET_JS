@@ -43,16 +43,15 @@ import kotlin.time.ExperimentalTime
 val colorFormat = RGB_555
 
 //@JsName("FileServiceGlobalLock")
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
 private val FileServiceGlobalLock = Mutex()
 
 
 //@JsName("FileService")
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 open class FileService(
     val answerType: ANSWER_TYPE? = null
 

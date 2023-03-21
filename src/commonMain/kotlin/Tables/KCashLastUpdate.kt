@@ -16,15 +16,13 @@ import sql.Sqlite_service
 //import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
+
 val CASH_LAST_UPDATE: MutableMap<String, KCashLastUpdate> = mutableMapOf()
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KCashLastUpdate(
     val CASH_SUM: String,
     val OBJECT_ID: String,

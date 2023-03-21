@@ -4,12 +4,10 @@ package p_client
 
 import atomic.AtomicBoolean
 import com.soywiz.korio.async.launchImmediately
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.ExperimentalTime
 
 /**
  * Immediately stops the timer task, even if the job is currently running,
@@ -20,9 +18,9 @@ import kotlin.time.ExperimentalTime
  * we will let it finish, but not run it again.
  * Invocation has no additional effect if already shut down.
  */
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+
 class KorosTimerTask(
     _delay: Long = 0,
     _repeat: Long = 0,
@@ -100,8 +98,8 @@ class KorosTimerTask(
          *
          * if action() throws an exception, it will be swallowed and a warning will be logged.
          */
-        @InternalAPI
-        @ExperimentalTime
+        
+        
         fun start(
             delay: Long = 0L,
             repeat: Long = 0L,

@@ -21,15 +21,17 @@ import kotlin.time.TimeSource.Monotonic
  */
 private val time_now = DateTime.nowUnixMillisLong() * 1_000_000
 
-@ExperimentalTime
+
+@OptIn(ExperimentalTime::class)
 private val clock : TimeMark = Monotonic.markNow()
 
-@InternalAPI
+
 private val lock = Mutex()
-@InternalAPI
-@ExperimentalTime
+
+
 
 //@JsName("nowNano")
+@OptIn(ExperimentalTime::class)
 fun nowNano(): Long {
 
         return time_now + clock.elapsedNow().inWholeNanoseconds

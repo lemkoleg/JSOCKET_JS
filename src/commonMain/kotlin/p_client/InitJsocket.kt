@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-@file:Suppress("unused")
+@file:Suppress("unused", "UnnecessaryOptInAnnotation")
 
 package p_client
 
@@ -19,7 +19,10 @@ import com.soywiz.korio.lang.substr
 import com.soywiz.krypto.md5
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Connection
 import p_jsocket.Constants
@@ -40,16 +43,16 @@ import kotlin.time.ExperimentalTime
 //@JsName("InitJsocketJob")
 var InitJsocketJob: Job = Job()
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 val isInitialised: AtomicBoolean = AtomicBoolean(false)
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 //@JsName("InitJsocket")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class InitJsocket(_lFileDir: String, _lDeviceId: String, _OSName: String, _sqlDriver: SqlDriver? = null) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob() + SupervisorJob()

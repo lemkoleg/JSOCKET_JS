@@ -1,5 +1,6 @@
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
@@ -15,29 +16,21 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val META_DATA: MutableMap<String, Long> = mutableMapOf()
 
 
-@InternalAPI
+
 private val KMetaDataLock = Mutex()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 var meta_data_last_update: AtomicLong = AtomicLong(0L)
 
-@Suppress("unused")
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("KMetaData")
+@Suppress("UnnecessaryOptInAnnotation", "unused")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KMetaData {
 
     init {
@@ -102,7 +95,7 @@ class KMetaData {
 
     companion object {
 
-        @InternalAPI
+        
         //@JsName("LOAD_META_DATA")
         suspend fun LOAD_META_DATA(kMetaDatas: ArrayList<KMetaData>) {
             try {
@@ -140,7 +133,6 @@ class KMetaData {
         }
 
 
-        @KorioExperimentalApi
         //@JsName("ADD_NEW_META_DATA")
         fun ADD_NEW_META_DATA(arr: ArrayDeque<ANSWER_TYPE>): Promise<Boolean> =
             CoroutineScope(Dispatchers.Default + SupervisorJob()).async {

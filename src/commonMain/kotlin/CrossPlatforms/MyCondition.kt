@@ -3,21 +3,18 @@
 package CrossPlatforms
 
 
+//import kotlin.js.JsName
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
 import com.badoo.reaktive.utils.lock.Condition
 import com.badoo.reaktive.utils.lock.Lock
 import com.badoo.reaktive.utils.lock.synchronized
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.delay
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.kmem.Platform
 import com.soywiz.kmem.isJs
-import io.ktor.util.*
+import com.soywiz.korio.async.delay
 import kotlinx.coroutines.sync.Mutex
 import p_jsocket.Constants
-//import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
 
 /*
@@ -34,9 +31,6 @@ expect class MyCondition()  {
 
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("MyCondition")
 class MyCondition {
 

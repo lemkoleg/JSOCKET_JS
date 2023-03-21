@@ -2,6 +2,7 @@
 
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
@@ -16,14 +17,12 @@ import p_jsocket.Constants
 import p_jsocket.JSOCKET
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("KRegData")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KRegData {
 
     companion object {

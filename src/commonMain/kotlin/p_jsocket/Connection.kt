@@ -32,22 +32,18 @@ private const val COUNT_OF_0_BYTES = 9
 private const val MIN_SIZE_OF_REQUEST: Int = 17
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
 //@JsName("BetweenJSOCKETs")
 private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 private val LastReSendRequestProfile: AtomicLong = AtomicLong(DateTime.nowUnixMillisLong())
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 //@JsName("Connection")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 object Connection {
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
@@ -99,14 +95,14 @@ object Connection {
     private var stringExceptionHandler = ""
     private var globalBuf: ByteArray? = null
 
-    @InternalAPI
+    
     private val ConnectionLock = Mutex()
 
     private var time: Long = 0L
 
     ////////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
-    @ExperimentalTime
+    
+    
     //@JsName("setConn")
     private fun setConn() {
         SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
@@ -197,7 +193,7 @@ object Connection {
         }
     }
 
-    @InternalAPI
+    
     public fun sendData(b: ByteArray, j: Jsocket) {
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -245,7 +241,7 @@ object Connection {
         }
     }
 
-    @InternalAPI
+    
     //@JsName("close")
     fun close() {
         isConnect = false
@@ -465,7 +461,7 @@ object Connection {
         removeOldAll()
     }
 
-    @InternalAPI
+    
     public suspend fun removeRequest(just_do_it_label: Long) {
         BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition?.cSignal()
     }

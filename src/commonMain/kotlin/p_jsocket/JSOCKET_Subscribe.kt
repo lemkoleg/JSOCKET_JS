@@ -7,20 +7,20 @@
 
 package p_jsocket
 
+//import kotlin.js.JsName
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import lib_exceptions.my_user_exceptions_class
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
  *
  * @author Oleg
  */
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("JSOCKET_Subscribe")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class JSOCKET_Subscribe(
     fields_number: Int,
     val fields_name: String,

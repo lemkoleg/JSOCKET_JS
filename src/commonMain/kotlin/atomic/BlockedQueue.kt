@@ -5,14 +5,12 @@ package atomic
 import CrossPlatforms.MyCondition
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.kds.Deque
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
-import kotlin.time.ExperimentalTime
 
 
 //val <T> Deque<T>.InstanceRef: AtomicReference<Deque<T>>
@@ -67,16 +65,14 @@ private val <T> ArrayDeque<T>.lockOut
 private val <T> ArrayDeque<T>.lockIn
     get() = Mutex()
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 private val <T> ArrayDeque<T>.condition: MyCondition
     get() = MyCondition()
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 suspend fun <T> ArrayDeque<T>.dequeue(timOut: Long): T? {
     var t: T? = removeFirst()
     if(t == null && timOut > 0){
@@ -86,9 +82,8 @@ suspend fun <T> ArrayDeque<T>.dequeue(timOut: Long): T? {
     return t
 }
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 suspend fun <T> ArrayDeque<T>.lockedDequeue(timOut: Long): T? {
     return withTimeoutOrNull(if (Constants.CLIENT_TIMEOUT > timOut) timOut else Constants.CLIENT_TIMEOUT) {
         lockOut.withLock {
@@ -108,9 +103,8 @@ suspend fun <T> ArrayDeque<T>.lockedDequeue(timOut: Long): T? {
 }
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 fun <T> ArrayDeque<T>.enqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
     if (this.size > size) {
         condition.cSignal()
@@ -126,9 +120,8 @@ fun <T> ArrayDeque<T>.enqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, w
     }
 }
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
 suspend fun <T> ArrayDeque<T>.lockedEnqueue(v: T, size: Int = Constants.STANDART_QUEUE_SIZE, whatQueue: String) {
     try {
         val q: ArrayDeque<T> = this

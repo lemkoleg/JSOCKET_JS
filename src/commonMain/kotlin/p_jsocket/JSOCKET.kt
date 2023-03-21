@@ -1,6 +1,7 @@
 
 package p_jsocket
 
+//import kotlin.js.JsName
 import CrossPlatforms.MyCondition
 import Tables.*
 import com.soywiz.korio.async.Promise
@@ -10,7 +11,6 @@ import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.core.internal.*
 import lib_exceptions.my_user_exceptions_class
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -41,9 +41,8 @@ private fun returnRequestPostfix(): ByteArray {
 
 
 //@JsName("FIELDS_SUBSCRIBE")
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
+
 val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
     1 to JSOCKET_Subscribe(
         fields_number = 1,
@@ -389,9 +388,9 @@ val FIELDS_SUBSCRIBE: Map<Int, JSOCKET_Subscribe> = mapOf(
 
 
 //@JsName("JSOCKET")
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 open class JSOCKET() {
 
     constructor(myJsocketClass: JSOCKET) : this() {
@@ -620,7 +619,7 @@ open class JSOCKET() {
 
 
     //@JsName("set_value")
-    @InternalAPI
+    
     fun set_value(myJsocketClass: JSOCKET) {
         this.jserver_connection_id = myJsocketClass.jserver_connection_id
         this.connection_id = myJsocketClass.connection_id
@@ -663,7 +662,7 @@ open class JSOCKET() {
     }
 
     //@JsName("merge")
-    @InternalAPI
+    
     fun merge(myJsocketClass: JSOCKET) {
         this.just_do_it = myJsocketClass.just_do_it
         this.just_do_it_label = myJsocketClass.just_do_it_label
@@ -733,7 +732,7 @@ open class JSOCKET() {
     }
 
     //@JsName("contrMerge")
-    @InternalAPI
+    
     fun contrMerge(myJsocketClass: JSOCKET) {
         this.just_do_it = myJsocketClass.just_do_it
         this.just_do_it_label = myJsocketClass.just_do_it_label
@@ -1104,7 +1103,6 @@ open class JSOCKET() {
     
     /////////////////////////////////////////////////////////////////////////////////
 
-    @KorioExperimentalApi
     //@JsName("desend_datad_ANSWERS_TYPES")
     suspend fun deserialize_ANSWERS_TYPES() {
         var promise: Promise<Boolean>? = null
@@ -1566,7 +1564,7 @@ open class JSOCKET() {
 
     //////////////////////////////////////////////////////////////////////////////////
     //@JsName("deserialize")
-    @InternalAPI
+    
     fun deserialize(
         lbb: ByteReadPacket,
         p_original_connection_coocki: Long = 0L,
@@ -1835,7 +1833,7 @@ open class JSOCKET() {
     }
 
     /////////////////////get Bytes from Channel////////////////////////////////////
-    @InternalAPI
+    
 
     private fun getStringField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
@@ -1845,7 +1843,7 @@ open class JSOCKET() {
         }
     }
 
-    @InternalAPI
+    
     private fun getBytesField(field: JSOCKET_Subscribe, size: Int, crypt: Boolean) {
         if (crypt) {
             field.setJSOCKET_FieldsValue(this, getCryptBytes(size))
@@ -1855,7 +1853,7 @@ open class JSOCKET() {
     }
 
 
-    @InternalAPI
+    
     private fun getLongField(field: JSOCKET_Subscribe, crypt: Boolean) {
         if (crypt) {
             field.setJSOCKET_FieldsValue(

@@ -1,19 +1,19 @@
 package sql
 
+//import kotlin.js.JsName
 import Tables.*
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.util.*
 import p_jsocket.ANSWER_TYPE
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 expect var sqlDriver: SqlDriver?
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("SQLStatement")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 expect class SQLStatement() {
 
     ///////////////////////////////////big avatars///////////////////////////

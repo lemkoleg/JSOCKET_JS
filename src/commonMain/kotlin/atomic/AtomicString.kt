@@ -8,9 +8,6 @@ import kotlinx.coroutines.sync.withLock
 //import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("AtomicString")
 class AtomicString(v: String){
 

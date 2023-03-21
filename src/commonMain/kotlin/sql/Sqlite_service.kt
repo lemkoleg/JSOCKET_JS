@@ -7,6 +7,7 @@
 
 package sql
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import Tables.*
 import com.soywiz.klock.DateTime
@@ -21,7 +22,6 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import p_jsocket.Constants.CLIENT_TIMEOUT
 import kotlin.coroutines.CoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -29,10 +29,12 @@ import kotlin.time.ExperimentalTime
  * @author Oleg
  */
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
+
+
 //@JsName("Sqlite_service")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 object Sqlite_service : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default + SupervisorJob()

@@ -2,6 +2,7 @@
 
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
@@ -18,17 +19,11 @@ import p_jsocket.Command
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
-@InternalAPI
 private val KCommandsLock = Mutex()
 
-
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
 //@JsName("COMMANDS")
 val COMMANDS: MutableMap<Int, Command> = mutableMapOf(
     1011000010 to Command(
@@ -65,10 +60,9 @@ val COMMANDS: MutableMap<Int, Command> = mutableMapOf(
     )// RE_SEND_REQUEST_PROFILE
 )
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("KCommands")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KCommands {
 
     init {

@@ -19,9 +19,6 @@ import kotlin.time.ExperimentalTime
  * @author Oleg
  */
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("Command")
 class Command {
     //@JsName("commands_id")

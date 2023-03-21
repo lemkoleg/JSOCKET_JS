@@ -7,6 +7,7 @@
 
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.PrintInformation
 import CrossPlatforms.slash
@@ -25,7 +26,6 @@ import p_jsocket.Constants
 import p_jsocket.JSOCKET_Instance
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -34,21 +34,15 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 val SAVE_MEDIA: MutableMap<String, KSaveMedia> = mutableMapOf()
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 private val KSaveMediaLock = Mutex()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 //@JsName("KSaveMedia")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KSaveMedia(
     val L_OBJECT_LINK: String,
     val L_OBJECT_SIZE: Long,

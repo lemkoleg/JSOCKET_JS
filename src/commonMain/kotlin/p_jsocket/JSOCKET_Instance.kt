@@ -7,12 +7,12 @@
 
 package p_jsocket
 
+//import kotlin.js.JsName
 import CrossPlatforms.CrossPlatformFile
 import CrossPlatforms.getMyOS
 import CrossPlatforms.slash
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -20,10 +20,8 @@ import kotlin.time.ExperimentalTime
  *
  * @author Oleg
  */
-
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 object JSOCKET_Instance {
     lateinit var RootPath: String
 

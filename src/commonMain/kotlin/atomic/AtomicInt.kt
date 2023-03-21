@@ -10,9 +10,7 @@ import kotlinx.coroutines.sync.withLock
 //import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 //@JsName("AtomicInt")
 class AtomicInt(v: Int) {
 

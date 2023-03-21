@@ -8,14 +8,11 @@ import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.squareup.sqldelight.db.SqlDriver
-import io.ktor.util.InternalAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import p_jsocket.ANSWER_TYPE
-import Tables.KCommands
 import p_jsocket.Constants.dbLocalName
-import kotlin.time.ExperimentalTime
 
 actual var sqlDriver: SqlDriver? = null
 
@@ -27,12 +24,11 @@ val scope = CoroutineScope(Dispatchers.Default + SupervisorJob() + SupervisorJob
 //val sql = require("MyAlaSQL")
 //js("debugger;")
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@OptIn(KorioExperimentalApi::class)
+
+
 actual class SQLStatement actual constructor() {
 
-    @KorioExperimentalApi
     actual suspend fun connect() {
 
         /*val createDB = arrayOf("""CREATE INDEXEDDB DATABASE IF NOT EXISTS $dbLocalName;""",
@@ -109,7 +105,7 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_BIG_AVATAR(kBigAvatar: KBigAvatar) {
+    actual suspend fun INSERT_BIG_AVATAR(kBigAvatars: ArrayList<KBigAvatar>) {
         // TODO()
     }
 
@@ -146,7 +142,7 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_COMMAND(kCommand: KCommands) {
+    actual suspend fun INSERT_COMMAND(arr: ArrayList<KCommands>) {
         // TODO()
     }
 
@@ -165,7 +161,7 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_EXCEPTION(kException: KExceptions.KException) {
+    actual suspend fun INSERT_EXCEPTION(ans: ArrayList<KExceptions.KException>) {
         // TODO()
     }
 
@@ -184,7 +180,7 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_METADATA(kMetaData: KMetaData) {
+    actual suspend fun INSERT_METADATA(ans: ArrayList<KMetaData>) {
         // TODO()
     }
 
@@ -245,16 +241,16 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_SAVEMEDIA(kSaveMedia: KSaveMedia) {
+    actual suspend fun INSERT_SAVEMEDIA(ans: ArrayList<KSaveMedia>) {
         // TODO()
     }
 
-    actual suspend fun SELECT_SAVEMEDIA_ALL(conn_id: Long): ArrayList<KSaveMedia> {
+    actual suspend fun SELECT_SAVEMEDIA_ALL(): ArrayList<KSaveMedia> {
         // TODO()
         return ArrayList()
     }
 
-    actual suspend fun DELETE_SAVEMEDIA(v: String) {
+    actual suspend fun DELETE_SAVEMEDIA(vans: ArrayList<KSaveMedia>) {
         // TODO()
     }
 
@@ -331,7 +327,7 @@ actual class SQLStatement actual constructor() {
         // TODO()
     }
 
-    actual suspend fun INSERT_CASHDATA(cash_sum: String, lANSWER_TYPE: ANSWER_TYPE) {
+    actual suspend fun INSERT_CASHDATA(cash_sum: String, arr: MutableList<ANSWER_TYPE>) {
         // TODO()
     }
 

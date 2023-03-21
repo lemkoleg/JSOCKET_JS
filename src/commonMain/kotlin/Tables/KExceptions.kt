@@ -1,5 +1,6 @@
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import atomic.AtomicLong
 import co.touchlab.stately.ensureNeverFrozen
@@ -16,26 +17,17 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
 val USERS_EXCEPTIONS: MutableMap<String, KExceptions> = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val EXCEPTION_LAST_UPDATE = AtomicLong(0L)
 
-@InternalAPI
+
 private val KExceptionsLock = Mutex()
 
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
 fun init(): Boolean {
 
     USERS_EXCEPTIONS["EXC_SYSTEM_ERROR"] = KExceptions(
@@ -250,15 +242,13 @@ fun init(): Boolean {
     return true
 }
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+
 private var is_init: Boolean = init()
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
 //@JsName("KExceptions")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KExceptions {
 
     init {

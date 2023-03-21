@@ -2,7 +2,7 @@
 
 package p_jsocket
 
-import com.soywiz.korio.experimental.KorioExperimentalApi
+//import kotlin.js.JsName
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.MD5
 import com.soywiz.krypto.Padding
@@ -10,8 +10,6 @@ import com.soywiz.krypto.md5
 import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import lib_exceptions.my_user_exceptions_class
-//import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
 
 /*
@@ -297,9 +295,8 @@ private val LOOKUPTABLE2 = Array(0x100) { i -> r(i) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-@ExperimentalTime
-@InternalAPI
-@KorioExperimentalApi
+
+
 //@JsName("HASH")
 class HASH {
 
@@ -326,7 +323,7 @@ class HASH {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    @InternalAPI
+    
     //@JsName("getNewTokenLong")
     fun getNewTokenLong(user_name: String, pass: String, time: Long): Long {
         var newStringMD5: String
@@ -457,7 +454,7 @@ class HASH {
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    @InternalAPI
+    
     //@JsName("cryptPass")
     fun cryptPass(pass: String, mail_code: String, isCrypt: Boolean): String {
         val mail_codeMD5 = getMD5String(mail_code).substring(0, 16).toByteArray()

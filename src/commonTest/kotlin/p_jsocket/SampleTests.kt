@@ -12,14 +12,13 @@ import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import p_client.Jsocket
-import kotlin.time.ExperimentalTime
 
 
 const val maxTimeSpanForWaitOutPut = 2000L
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@OptIn(KorioExperimentalApi::class)
 class SampleTests {
     fun testMe() = run < Unit > {
 

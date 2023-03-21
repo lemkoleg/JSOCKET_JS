@@ -7,6 +7,7 @@
  */
 package Tables
 
+//import kotlin.js.JsName
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
@@ -23,7 +24,6 @@ import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import sql.Sqlite_service
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 /**
@@ -31,29 +31,21 @@ import kotlin.time.ExperimentalTime
  * @author User
  */
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val BIG_AVATARS: MutableMap<String, KBigAvatar> = mutableMapOf()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val BIG_AVATARS_IDS: MutableMap<String, String> = mutableMapOf()
 
-@InternalAPI
+
 private val KBigAvatarLock = Mutex()
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 val NEW_BIG_AVATARS: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
+
 //@JsName("BigAvatar")
+@Suppress("UnnecessaryOptInAnnotation")
+@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
 class KBigAvatar {
 
     init {

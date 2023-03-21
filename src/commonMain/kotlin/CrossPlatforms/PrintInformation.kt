@@ -1,5 +1,6 @@
 package CrossPlatforms
 
+//import kotlin.js.JsName
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
@@ -10,12 +11,10 @@ import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_jsocket.Constants
 import kotlin.coroutines.EmptyCoroutineContext
-//import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+@OptIn(KorioExperimentalApi::class)
+
+
 //@JsName("PrintInformation")
 object PrintInformation {
 

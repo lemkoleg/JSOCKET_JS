@@ -6,7 +6,7 @@ import com.soywiz.korio.async.await
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import kotlinx.coroutines.runBlocking
 
-@KorioExperimentalApi
+@OptIn(KorioExperimentalApi::class)
 class JavaRunBlocking {
 
     fun <T> RunBlocking(pr: Promise<T>):T = runBlocking {

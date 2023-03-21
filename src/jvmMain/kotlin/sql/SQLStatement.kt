@@ -3,26 +3,18 @@
 package sql
 
 import Tables.*
-import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.squareup.sqldelight.db.SqlCursor
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
-import io.ktor.util.*
 import p_jsocket.ANSWER_TYPE
 import p_jsocket.Constants
 import p_jsocket.JSOCKET_Instance
-import kotlin.time.ExperimentalTime
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
+
 actual var sqlDriver: SqlDriver? =
     JdbcSqliteDriver("""jdbc:sqlite:${JSOCKET_Instance.RootPath}${Constants.dbLocalName}.db""")
 
 
-@KorioExperimentalApi
-@ExperimentalTime
-@InternalAPI
 actual class SQLStatement actual constructor() {
 
 

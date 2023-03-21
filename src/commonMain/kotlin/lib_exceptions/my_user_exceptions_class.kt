@@ -23,9 +23,9 @@ import p_jsocket.JSOCKET_Instance
 import kotlin.time.ExperimentalTime
 
 
-@InternalAPI
-@ExperimentalTime
-@KorioExperimentalApi
+
+
+@OptIn(KorioExperimentalApi::class)
 class my_user_exceptions_class : exception_names, Exception {
 
     override var class_name: String
