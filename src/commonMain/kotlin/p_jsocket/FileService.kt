@@ -19,7 +19,7 @@ import com.soywiz.korim.color.RGB_555
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.Promise
 import com.soywiz.korio.async.await
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.stream.asVfsFile
@@ -600,7 +600,7 @@ open class FileService(
                                             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                                                 FileServiceLock.withLock {
                                                     println("enter to lock2")
-                                                    CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+                                                    CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
                                                         SELF_Jsocket.value_par2 = "B"
                                                         SELF_Jsocket.send_request()
                                                     }

@@ -8,7 +8,7 @@ import Tables.KExceptions
 import Tables.USERS_EXCEPTIONS
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +20,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import p_jsocket.Constants
 import p_jsocket.JSOCKET
 import p_jsocket.JSOCKET_Instance
-import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.*
 
 
 
@@ -140,7 +140,7 @@ class my_user_exceptions_class : exception_names, Exception {
         private val WriteExceptionIntoFileLock = Mutex()
         private val file: CrossPlatformFile by lazy { CrossPlatformFile(fullName = "${JSOCKET_Instance.pathErrors}Errors.log", mode = 4) }
         fun WriteExceptionIntoFile(date_of_exception: String, exception: String) {
-            CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     WriteExceptionIntoFileLock.withLock {
                         if(!file.isInit){

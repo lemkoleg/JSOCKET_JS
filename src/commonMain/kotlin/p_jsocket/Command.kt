@@ -8,11 +8,8 @@
 package p_jsocket
 
 import Tables.KCommands
-import com.soywiz.korio.experimental.KorioExperimentalApi
-import io.ktor.util.*
 //import kotlin.js.JsName
 import kotlin.properties.Delegates
-import kotlin.time.ExperimentalTime
 
 /**
  *

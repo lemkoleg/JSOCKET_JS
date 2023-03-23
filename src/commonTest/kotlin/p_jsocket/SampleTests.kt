@@ -4,7 +4,7 @@ package p_jsocket
 
 import CrossPlatforms.PrintInformation
 import com.soywiz.korio.async.await
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korio.lang.Thread_sleep
@@ -12,6 +12,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import p_client.Jsocket
+import kotlinx.coroutines.*
 
 
 const val maxTimeSpanForWaitOutPut = 2000L
@@ -32,7 +33,7 @@ class SampleTests {
         PrintInformation.PRINT_INFO(g.toString())
 
 
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launch {
 
             val fileName = "ppppp"
             val k = FileService.getImmageAvatarFromFileName("F:\\Foto\\$fileName.JPG").await()
@@ -54,7 +55,7 @@ class SampleTests {
 
         val res1: String = h1.cryptPass(res, mailCode, false)
         PrintInformation.PRINT_INFO(res1)*/
-        //GlobalScope.launchImmediately {
+        //GlobalScope.launch {
         //    val MyWebSocketChannel = WebSocketClient("ws://mini:22237", null, null, "", false)
        // }
 
@@ -62,7 +63,7 @@ class SampleTests {
         val l = Jsocket()
         //Thread_sleep(2000)
         //c.close()
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launch {
           /*  Thread_sleep(4000)
 
             CHATS.forEach { v ->

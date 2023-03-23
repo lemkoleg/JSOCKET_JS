@@ -1,17 +1,14 @@
 package p_jsocket
 
-import CrossPlatforms.slash
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.await
-import com.soywiz.korio.async.launchImmediately
+import com.soywiz.klock.TimeSpan
+import com.soywiz.korio.async.delay
 import com.soywiz.korio.experimental.KorioExperimentalApi
-import com.soywiz.korio.file.std.localVfs
-import com.soywiz.korio.net.ws.DEFAULT_WSKEY
-import com.soywiz.korio.net.ws.WebSocketClient
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import p_client.InitJsocket
 import p_client.Jsocket
@@ -28,16 +25,23 @@ class SampleTestsJVM {
     @Test
     fun testMe() = run<Unit> {
 
-        println(DEFAULT_WSKEY)
-        val initJsocket = InitJsocket("D:${slash}DebugAUF", "5555555", "Win")
-
         val lock = Mutex()
 
 
-        CoroutineScope(Dispatchers.Default).launchImmediately {
+        CoroutineScope(Dispatchers.Default).launch {
 
-            var time = DateTime.nowUnixMillisLong()
+            val rr = CrossPlatforms.JavaRunBlocking()
 
+
+            InitJsocket("", "AAAAAAAAAAA", "IOS",null)
+
+
+
+
+
+            val time = DateTime.nowUnixMillisLong()
+
+            /*
             var bb = FileService.getImmageAvatarFromFileName("F:\\FotoDebug\\001 (1).jpg").await()
             var file = localVfs("F:\\FotoDebug\\001_kotlin.jpg")
             if(bb != null){
@@ -45,43 +49,10 @@ class SampleTestsJVM {
                 }
 
 
-
-
-            var myWebSocketChannel: WebSocketClient? = null
-            var signalonOpen: Signal<Unit>?
-            /*
-                        CoroutineScope(Dispatchers.Default + SupervisorJob()).async {
-                            withContext(EmptyCoroutineContext){
-                            myWebSocketChannel = WebSocketClient(url = "ws://mini:22237", protocols = null, origin = null, wskey = DEFAULT_WSKEY, debug = false)
-
-                            signalonOpen = myWebSocketChannel!!.onOpen
-                            signalonOpen!!.add {
-                                PrintInformation.PRINT_INFO("WebSocket connect 1111")
-                            }
-
-                            PrintInformation.PRINT_INFO("end connect 1111")}.toDeferred()
-
-                        }.toPromise(EmptyCoroutineContext).await()
-
-
-                        System.out.println("time wait join: " + (System.currentTimeMillis() - time))
+             */
 
 
 
-
-                         */
-
-
-
-
-            println("time: " + time)
-            val constants = Constants
-            //constants.setMyConnectionsID(102000111220000003l);
-            //constants.setMyConnectionsCoocki(102000111225633533l);
-            //constants.setMyDeviceId("AAAAAAAAAAAAAAAA");
-            //constants.setMyConnectionsID(102000111220000003l);
-            //constants.setMyConnectionsCoocki(102000111225633533l);
-            //constants.setMyDeviceId("AAAAAAAAAAAAAAAA");
             val l = Jsocket()
             //l.setConnection_id(100000987605445435l);
             //l.setConnection_id(100000987605445435l);
@@ -93,12 +64,19 @@ class SampleTestsJVM {
             l.value_par8 = "80951113395"
             //val b = l.serialize(false)
             //System.out.println("b.size: " + b.size)
-            //l.execute(null, null).await()
+            rr.RunBlocking(l.execute(null, null))
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 
             println("Db_massage: " + l.db_massage)
         }
         sleep(200000)
+        for(x in 1..100){
+            runBlocking {
+                println("Wait for 5sec")
+                delay(TimeSpan(5000.0))
+                println("Done waiting for 5sec")
+            }
+        }
     }
 }

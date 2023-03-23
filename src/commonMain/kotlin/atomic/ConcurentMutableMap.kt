@@ -2,7 +2,6 @@ package atomic
 
 
 import co.touchlab.stately.ensureNeverFrozen
-import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

@@ -1,12 +1,9 @@
 package atomic
 
 import co.touchlab.stately.ensureNeverFrozen
-import com.soywiz.korio.experimental.KorioExperimentalApi
-import io.ktor.util.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 //import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
 //@JsName("AtomicString")
 class AtomicString(v: String){

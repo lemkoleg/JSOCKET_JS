@@ -3,7 +3,7 @@
 package p_client
 
 import atomic.AtomicBoolean
-import com.soywiz.korio.async.launchImmediately
+
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib_exceptions.my_user_exceptions_class
@@ -49,7 +49,7 @@ class KorosTimerTask(
 
 
     fun start() {
-        job = KorosTimerTask.launchImmediately {
+        job = KorosTimerTask.launch {
             delay(delay)
             if (repeat > 0L) {
                 while (keepRunning.value) {
@@ -75,7 +75,7 @@ class KorosTimerTask(
      */
 
     fun shutdown() {
-        KorosTimerTask.launchImmediately {
+        KorosTimerTask.launch {
             keepRunning.setNewValue(true)
         }
     }

@@ -11,7 +11,7 @@ package Tables
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -326,7 +326,7 @@ class KBigAvatar {
 
         //@JsName("INSERT_BIG_AVATAR_INTO_MAP")
         fun INSERT_BIG_AVATAR_INTO_MAP(kBigAvatar: KBigAvatar) {
-            CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
                 withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                     try {
                         try {

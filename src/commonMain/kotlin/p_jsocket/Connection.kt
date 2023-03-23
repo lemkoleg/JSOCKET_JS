@@ -6,25 +6,27 @@
  */
 package p_jsocket
 
+//import kotlin.js.JsName
 import CrossPlatforms.GC
 import CrossPlatforms.PrintInformation
 import Tables.*
 import atomic.*
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.*
+import com.soywiz.korio.async.Signal
+import com.soywiz.korio.async.addSuspend
+import com.soywiz.korio.async.delay
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.net.ws.DEFAULT_WSKEY
 import com.soywiz.korio.net.ws.WebSocketClient
-import io.ktor.util.InternalAPI
+import io.ktor.util.*
 import io.ktor.utils.io.core.*
-import io.ktor.utils.io.core.internal.ChunkBuffer
+import io.ktor.utils.io.core.internal.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import lib_exceptions.my_user_exceptions_class
 import p_client.*
 import sql.Sqlite_service
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -48,14 +50,14 @@ object Connection {
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
 
-    private val ServerConnPort = 22237
+    private const val ServerConnPort = 22237
 
     private lateinit var SetConnJob: Job
 
     //@JsName("MyWebSocketChannel")
     private var MyWebSocketChannel: WebSocketClient? = null
 
-    public var addressByteArray: ByteArray? = null
+    var addressByteArray: ByteArray? = null
     private var connectionIpAddress: String = ""
     private var signalonBinaryMessage: Signal<ByteArray>? = null
     private var signalonAnyMessage: Signal<Any>? = null
@@ -105,7 +107,7 @@ object Connection {
     
     //@JsName("setConn")
     private fun setConn() {
-        SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
 
             isRun = true
 
@@ -127,7 +129,7 @@ object Connection {
                         isConnect = true
                         isClosed = false
                         if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("WebSocket connect. Port: ${MyWebSocketChannel!!.url.toString()}")
+                            PrintInformation.PRINT_INFO("WebSocket connect. Port: ${MyWebSocketChannel!!.url}")
                         }
                     }
                     signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
@@ -194,8 +196,8 @@ object Connection {
     }
 
     
-    public fun sendData(b: ByteArray, j: Jsocket) {
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+    fun sendData(b: ByteArray, j: Jsocket) {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                 ConnectionLock.withLock {
                     BetweenJSOCKETs.lockedPut(j.just_do_it_label, j)
@@ -259,17 +261,17 @@ object Connection {
 
 
     fun decode(buffer: ByteArray) =
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
             try {
                 try {
-                    val buf: ByteReadPacket = ByteReadPacket(buffer)
-                    var Request_size: Int
+                    val buf = ByteReadPacket(buffer)
+                    val Request_size: Int
                     var x = 0
-                    var b: ByteReadPacket?
+                    val b: ByteReadPacket?
 
                     if (!buf.isEmpty) {
                         if (buf.remaining < MIN_SIZE_OF_REQUEST) {
-                            return@launchImmediately
+                            return@launch
                         }
                         FirstLoop@
                         while (x < COUNT_OF_0_BYTES && buf.isNotEmpty) {
@@ -287,7 +289,7 @@ object Connection {
                             }
                         }
                         if (x < COUNT_OF_0_BYTES || buf.remaining < 4) {
-                            return@launchImmediately
+                            return@launch
                         }
                         Request_size = buf.readInt()
                         if (Request_size > Constants.MAX_REQUEST_SIZE_B) {
@@ -295,7 +297,7 @@ object Connection {
                                 l_class_name = "Connection",
                                 l_function_name = "decode",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                                l_additional_text = "Request size is to big: $Request_size"
                             )
                         }
 
@@ -304,7 +306,7 @@ object Connection {
                                 l_class_name = "Connection",
                                 l_function_name = "decode",
                                 name_of_exception = "EXC_SYSTEM_ERROR",
-                                l_additional_text = "Request size is to big: ${Request_size.toString()}"
+                                l_additional_text = "Request size is to big: $Request_size"
                             )
                         }
 
@@ -335,10 +337,10 @@ object Connection {
 
                                 val c = COMMANDS.lockedGet(jsocketRet.just_do_it)!!
 
-                                if (c.commands_access != "B") {
-                                    jsocket = BetweenJSOCKETs.lockedRemove(jsocketRet.just_do_it_label)
+                                jsocket = if (c.commands_access != "B") {
+                                    BetweenJSOCKETs.lockedRemove(jsocketRet.just_do_it_label)
                                 } else {
-                                    jsocket = BetweenJSOCKETs.lockedGet(jsocketRet.just_do_it_label)
+                                    BetweenJSOCKETs.lockedGet(jsocketRet.just_do_it_label)
                                 }
 
                                 if (jsocket != null) {
@@ -385,7 +387,7 @@ object Connection {
                                                 if(!jsocketRet.just_do_it_successfull.equals("0")){
                                                     jsocket.db_massage = jsocketRet.db_massage
                                                     jsocket.just_do_it_successfull = jsocketRet.just_do_it_successfull
-                                                    return@launchImmediately
+                                                    return@launch
                                                 }
 
                                                 if (c.commands_access == "B") {
@@ -462,7 +464,7 @@ object Connection {
     }
 
     
-    public suspend fun removeRequest(just_do_it_label: Long) {
+    suspend fun removeRequest(just_do_it_label: Long) {
         BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition?.cSignal()
     }
 
@@ -510,7 +512,7 @@ object Connection {
         } catch (e: my_user_exceptions_class) {
             e.ExceptionHand(null)
         } finally {
-            CoroutineScope(NonCancellable).launchImmediately { GC.collect() }
+            CoroutineScope(NonCancellable).launch { GC.collect() }
         }
 
     }

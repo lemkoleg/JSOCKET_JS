@@ -13,7 +13,7 @@ import JSOCKETDB.AUFDB
 import Tables.KChat
 import atomic.AtomicBoolean
 import com.soywiz.korio.async.await
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import com.soywiz.korio.lang.substr
 import com.soywiz.krypto.md5
@@ -33,6 +33,7 @@ import sql.db
 import sql.sqlDriver
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.*
 
 
 /**
@@ -77,12 +78,12 @@ class InitJsocket(_lFileDir: String, _lDeviceId: String, _OSName: String, _sqlDr
         if (SqlDriver != null) {
             sqlDriver = SqlDriver
         }
-        InitJsocketJob = InitJsocketScope.launchImmediately {
+        InitJsocketJob = InitJsocketScope.launch {
             try {
                 try {
                     JSOCKET_Instance.initDirectories(FileDir)
                     if (Constants.myDeviceId.isEmpty()) {
-                        launchImmediately {
+                        launch {
                             Constants.myDeviceId = (getMyDeviceId().replace(":", "").replace(";", "")
                                 .encodeToByteArray().md5().hex.substr(0, 16).uppercase())
                         }.join()

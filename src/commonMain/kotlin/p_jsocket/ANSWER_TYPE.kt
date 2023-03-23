@@ -6,21 +6,20 @@
  */
 package p_jsocket
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
-import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
-//import kotlin.js.JsName
-import kotlin.time.ExperimentalTime
 
 
 
@@ -1214,7 +1213,7 @@ class ANSWER_TYPE {
         //@JsName("fillPOOL")
         fun fillPOOL() {
             if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
-                CoroutineScope(NonCancellable).launchImmediately {
+                CoroutineScope(NonCancellable).launch {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         CLIENT_ANSWER_TYPE_POOL_Lock.withLock {
                             try {
@@ -1242,7 +1241,7 @@ class ANSWER_TYPE {
         //@JsName("fillPOOLS")
         fun fillPOOLS() {
             if (fillPOOLS_IS_RUNNING.compareAndSet(expected = false, new = true)) {
-                CoroutineScope(NonCancellable).launchImmediately {
+                CoroutineScope(NonCancellable).launch {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         CLIENT_ANSWER_TYPE_POOLS_Lock.withLock {
                             try {

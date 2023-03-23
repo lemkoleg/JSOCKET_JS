@@ -14,7 +14,7 @@ import CrossPlatforms.slash
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
 import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -121,7 +121,7 @@ class KSaveMedia(
 
     //@JsName("deleteFile")
     private fun deleteFile() {
-        CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately {
+        CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
             val f = CrossPlatformFile(FILE_FULL_NAME)
             f.delete()
         }

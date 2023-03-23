@@ -1,9 +1,9 @@
 package Tables
 
+//import kotlin.js.JsName
 import CrossPlatforms.PrintInformation
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.klock.DateTime
-import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
 import kotlinx.coroutines.*
@@ -13,7 +13,6 @@ import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 import p_jsocket.Constants
 import sql.Sqlite_service
-//import kotlin.js.JsName
 import kotlin.time.ExperimentalTime
 
 
@@ -89,7 +88,7 @@ class KCashLastUpdate(
             LAST_SELECT = v
             // если это данные чата, то отправляем запрос, для доставки последней даты  выборки;
             if(CHATS!!.CashLastUpdate.CASH_SUM.equals(this.CASH_SUM)){
-                CoroutineScope(Dispatchers.Default + SupervisorJob()).launchImmediately{
+                CoroutineScope(Dispatchers.Default + SupervisorJob()).launch{
                     println("SET_LAST_SELECT for chats; CASH_SUM = $CASH_SUM")
                     val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
                     socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;

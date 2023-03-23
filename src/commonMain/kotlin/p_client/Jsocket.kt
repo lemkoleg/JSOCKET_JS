@@ -15,7 +15,7 @@ import atomic.AtomicLong
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.launchImmediately
+
 import com.soywiz.korio.async.toPromise
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
@@ -165,10 +165,9 @@ class Jsocket() : JSOCKET(), OnRequestListener {
         update_just_do_it_label: Boolean = true
     ) {
 
-        println("just_do_it = $just_do_it")
         is_new_reg_data = false
         val command: Command = COMMANDS[just_do_it]!!
-        this.serialize(verify_fields, update_just_do_it_label).let { Connection.sendData(it, this) }
+        Connection.sendData(this.serialize(verify_fields, update_just_do_it_label), this)
 
 
         if (!command.isDont_answer && await_answer) {
@@ -224,7 +223,7 @@ class Jsocket() : JSOCKET(), OnRequestListener {
 
         fun fill() {
             if (fillPOOL_IS_RUNNING.compareAndSet(expected = false, new = true)) {
-                CoroutineScope(NonCancellable).launchImmediately {
+                CoroutineScope(NonCancellable).launch {
                     withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
                         try {
                             JsocketLock.withLock {
