@@ -208,6 +208,6 @@ object JSOCKET_Instance {
         pathTempFile50 = pathTemp.plus("50").plus(slash)
 
 
-        Constants.myConnectionContext = getMyOS()
+        //Constants.myConnectionContext = getMyOS()
     }
 }

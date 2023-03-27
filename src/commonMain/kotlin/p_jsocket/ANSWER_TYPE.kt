@@ -12,12 +12,9 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.ensureNeverFrozen
 import com.soywiz.korio.experimental.KorioExperimentalApi
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 import lib_exceptions.my_user_exceptions_class
 import p_client.Jsocket
 
@@ -1174,13 +1171,10 @@ class ANSWER_TYPE {
         fun GetAnswerType(): ANSWER_TYPE? {
             if (CLIENT_ANSWER_TYPE_POOL_Lock.tryLock()) {
                 try {
-                    val l: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
+                    var l: ANSWER_TYPE? = CLIENT_ANSWER_TYPE_POOL.removeFirstOrNull()
                     if (l == null) {
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOL is empty")
-                        }
                         fillPOOL()
-                        return null
+                        l = ANSWER_TYPE()
                     }
                     return l
                 } finally {
@@ -1195,11 +1189,7 @@ class ANSWER_TYPE {
                 try {
                     val l: ArrayDeque<ANSWER_TYPE>? = CLIENT_ANSWER_TYPE_POOLS.removeFirstOrNull()
                     if (l == null) {
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("CLIENT_ANSWER_TYPE_POOLS is empty")
-                        }
                         fillPOOLS()
-                        return null
                     }
                     return l
                 } finally {
@@ -1221,10 +1211,16 @@ class ANSWER_TYPE {
                                 if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                     PrintInformation.PRINT_INFO("ANSEWR_TYPE's fill pool is run...")
                                 }
-                                while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE && !Constants.isInterrupted.value) {
+                                while (CLIENT_ANSWER_TYPE_POOL.size < Constants.CLIENT_ANSWER_TYPE_POOL_SIZE) {
                                     CLIENT_ANSWER_TYPE_POOL.addLast(ANSWER_TYPE())
+                                    if(Constants.isInterrupted.value){
+                                        break
+                                    }
                                 }
                             } finally {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ANSEWR_TYPE's fill pool finished")
+                                }
                                 fillPOOL_IS_RUNNING.value = false
                             }
                         }
@@ -1246,7 +1242,11 @@ class ANSWER_TYPE {
                         CLIENT_ANSWER_TYPE_POOLS_Lock.withLock {
                             try {
                                 fillPOOLS_IS_RUNNING.value = true
-                                while (CLIENT_ANSWER_TYPE_POOLS.size < Constants.CLIENT_ANSWER_TYPE_POOLS_SIZE && !Constants.isInterrupted.value) {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ANSEWR_TYPE's fill pools is run...")
+                                }
+                                while (CLIENT_ANSWER_TYPE_POOLS.size < Constants.CLIENT_ANSWER_TYPE_POOLS_SIZE) {
+                                    if(Constants.isInterrupted.value) break
                                     val ar: ArrayDeque<ANSWER_TYPE> = ArrayDeque()
 
                                     while (ar.size < Constants.CLIENT_ANSWER_TYPE_POOLS_CHUNK_SIZE) {
@@ -1255,6 +1255,9 @@ class ANSWER_TYPE {
                                     CLIENT_ANSWER_TYPE_POOLS.addLast(ar)
                                 }
                             } finally {
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("ANSEWR_TYPE's fill pools finished")
+                                }
                                 fillPOOLS_IS_RUNNING.value = false
                             }
                         }

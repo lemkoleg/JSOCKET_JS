@@ -1323,7 +1323,7 @@ open class JSOCKET() {
                             answer_type.answerTypeValues.GetChatsLikesLastMessegeAdding().equals(0L)
                         ){  // if deleted chat
                              KChat.DELETE_CHATS(answer_type.answerTypeValues.GetChatId())
-                            continue
+                            continue@loopChSum
                         }
                     }
                 }

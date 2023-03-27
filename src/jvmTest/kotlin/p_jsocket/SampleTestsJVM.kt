@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
-import p_client.InitJsocket
 import p_client.Jsocket
 import java.lang.Thread.sleep
 import kotlin.test.Test
@@ -32,8 +31,16 @@ class SampleTestsJVM {
 
             val rr = CrossPlatforms.JavaRunBlocking()
 
+            for (i in 1..100){
+                val a = ANSWER_TYPE.GetAnswerTypes()
+                println(a?.size)
+                runBlocking {
+                    delay(TimeSpan(10.0))
+                }
+            }
 
-            InitJsocket("", "AAAAAAAAAAA", "IOS",null)
+
+            //InitJsocket("", "AAAAAAAAAAA", "IOS",null)
 
 
 
@@ -64,11 +71,12 @@ class SampleTestsJVM {
             l.value_par8 = "80951113395"
             //val b = l.serialize(false)
             //System.out.println("b.size: " + b.size)
-            rr.RunBlocking(l.execute(null, null))
+            //rr.RunBlocking(l.execute(null, null))
 
             System.out.println("time execute procedure: " + (System.currentTimeMillis() - time))
 
             println("Db_massage: " + l.db_massage)
+            sleep(20000)
         }
         sleep(200000)
         for(x in 1..100){
