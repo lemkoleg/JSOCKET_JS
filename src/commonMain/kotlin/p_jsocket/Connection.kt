@@ -34,18 +34,15 @@ private const val COUNT_OF_0_BYTES = 9
 private const val MIN_SIZE_OF_REQUEST: Int = 17
 
 
-
 //@JsName("BetweenJSOCKETs")
 private val BetweenJSOCKETs: HashMap<Long, Jsocket> = hashMapOf()
 
 private val LastReSendRequestProfile: AtomicLong = AtomicLong(DateTime.nowUnixMillisLong())
 
 
-
-
 //@JsName("Connection")
 @Suppress("UnnecessaryOptInAnnotation")
-@OptIn(ExperimentalTime::class, InternalAPI::class,  KorioExperimentalApi::class)
+@OptIn(ExperimentalTime::class, InternalAPI::class, KorioExperimentalApi::class)
 object Connection {
 
     private var connectionDNSName = Constants.SERVER_DNS_NAME
@@ -97,105 +94,112 @@ object Connection {
     private var stringExceptionHandler = ""
     private var globalBuf: ByteArray? = null
 
-    
+
     private val ConnectionLock = Mutex()
 
     private var time: Long = 0L
 
     ////////////////////////////////////////////////////////////////////////////////
-    
-    
+
+
     //@JsName("setConn")
     private fun setConn() {
-        SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
-
-            isRun = true
-
-            var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
-
-            while (count_of_try > 0 && !isConnect) {
-                count_of_try--
+        if (!isRun) {
+            SetConnJob = CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
 
                 try {
-                    MyWebSocketChannel = WebSocketClient(
-                        url = url,
-                        protocols = null,
-                        origin = null,
-                        wskey = DEFAULT_WSKEY,
-                        debug = false
-                    )
-                    signalonOpen = MyWebSocketChannel!!.onOpen
-                    signalonOpen?.add {
-                        isConnect = true
-                        isClosed = false
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("WebSocket connect. Port: ${MyWebSocketChannel!!.url}")
-                        }
-                    }
-                    signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
-                    signalonBinaryMessage?.invoke { v ->
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("Get paccket: ${v.size}")
-                        }
-                        decode(v)
-                    }
-                    signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
-                    signalonStringMessage = MyWebSocketChannel!!.onStringMessage
-                    signalonClose = MyWebSocketChannel!!.onClose
-                    signalonClose?.addSuspend {
-                        isConnect = false
-                        isClosed = true
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("WebSocket disconnect")
-                        }
-                        BetweenJSOCKETs.lock.withLock {
-                            BetweenJSOCKETs.forEach {
-                                it.value.just_do_it_successfull = "9"
-                                it.value.db_massage = "Connection interrupted"
-                                it.value.condition.cSignal()
+
+                    isRun = true
+
+                    var count_of_try = Constants.MAX_COUNT_TRYING_SET_CONNECTION
+
+                    while (count_of_try > 0 && !isConnect) {
+                        count_of_try--
+
+                        try {
+                            MyWebSocketChannel = WebSocketClient(
+                                url = url,
+                                protocols = null,
+                                origin = null,
+                                wskey = DEFAULT_WSKEY,
+                                debug = false
+                            )
+                            signalonOpen = MyWebSocketChannel!!.onOpen
+                            signalonOpen?.add {
+                                isConnect = true
+                                isClosed = false
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("WebSocket connect. Port: ${MyWebSocketChannel!!.url}")
+                                }
                             }
-                            BetweenJSOCKETs.clear()
-                        }
-                    }
-                    signalonError = MyWebSocketChannel!!.onError
-                    signalonError?.add { v ->
-                        if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
-                            PrintInformation.PRINT_INFO("WebSocket error on connection: $v\n")
-                        }
-                        isConnect = false
-                        isClosed = true
-                        isRun = false
-                        MyWebSocketChannel?.close()
-                    }
-                    connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
+                            signalonBinaryMessage = MyWebSocketChannel!!.onBinaryMessage
+                            signalonBinaryMessage?.invoke { v ->
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("Get paccket: ${v.size}")
+                                }
+                                decode(v)
+                            }
+                            signalonAnyMessage = MyWebSocketChannel!!.onAnyMessage
+                            signalonStringMessage = MyWebSocketChannel!!.onStringMessage
+                            signalonClose = MyWebSocketChannel!!.onClose
+                            signalonClose?.addSuspend {
+                                isConnect = false
+                                isClosed = true
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("WebSocket disconnect")
+                                }
+                                BetweenJSOCKETs.lock.withLock {
+                                    BetweenJSOCKETs.forEach {
+                                        it.value.just_do_it_successfull = "9"
+                                        it.value.db_massage = "Connection interrupted"
+                                        it.value.condition.cSignal()
+                                    }
+                                    BetweenJSOCKETs.clear()
+                                }
+                            }
+                            signalonError = MyWebSocketChannel!!.onError
+                            signalonError?.add { v ->
+                                if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
+                                    PrintInformation.PRINT_INFO("WebSocket error on connection: $v\n")
+                                }
+                                isConnect = false
+                                isClosed = true
+                                isRun = false
+                                MyWebSocketChannel?.close()
+                            }
+                            connectionIpAddress = MyWebSocketChannel!!.url.replace("ws://", "").substringBefore(':')
 
 
-                    if (connectionIpAddress.isNotEmpty()) {
-                        if (connectionIpAddress.length > 23) {
-                            connectionIpAddress = connectionIpAddress.substring(0, 23)
-                        }
-                        addressByteArray = returnConnAddress().readBytes()
-                    }
-                    delay(Constants.TIME_SPAN_FOR_LOOP * 10)
-                } catch (e: Exception) {
+                            if (connectionIpAddress.isNotEmpty()) {
+                                if (connectionIpAddress.length > 23) {
+                                    connectionIpAddress = connectionIpAddress.substring(0, 23)
+                                }
+                                addressByteArray = returnConnAddress().readBytes()
+                            }
+                            delay(Constants.TIME_SPAN_FOR_LOOP * 10)
+                        } catch (e: Exception) {
 
-                    isConnect = false
-                    isClosed = true
+                            isConnect = false
+                            isClosed = true
+                            isRun = false
+                            if (count_of_try < 1) {
+                                throw my_user_exceptions_class(
+                                    "Connection",
+                                    "setConn",
+                                    "EXC_SOCKET_NOT_ALLOWED",
+                                    e.stackTraceToString()
+                                )
+                            }
+                        }
+                    }
+                } finally {
                     isRun = false
-                    if (count_of_try < 1) {
-                        throw my_user_exceptions_class(
-                            "Connection",
-                            "setConn",
-                            "EXC_SOCKET_NOT_ALLOWED",
-                            e.stackTraceToString()
-                        )
-                    }
                 }
             }
         }
     }
 
-    
+
     fun sendData(b: ByteArray, j: Jsocket) {
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
             withTimeoutOrNull(Constants.CLIENT_TIMEOUT) {
@@ -209,9 +213,9 @@ object Connection {
                         delay(Constants.TIME_SPAN_FOR_LOOP)
                     }
 
-                    if(j.just_do_it == 1011000068  // RE_SEND_REQUEST_PROFILE;
+                    if (j.just_do_it == 1011000068  // RE_SEND_REQUEST_PROFILE;
                         || j.just_do_it == 1011000053 // SELECTOR.SELECT_CHATS;
-                        ){
+                    ) {
                         LastReSendRequestProfile.setGreaterValue(DateTime.nowUnixMillisLong())
                     }
 
@@ -243,7 +247,7 @@ object Connection {
         }
     }
 
-    
+
     //@JsName("close")
     fun close() {
         isConnect = false
@@ -351,7 +355,7 @@ object Connection {
                                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                 PrintInformation.PRINT_INFO("Get1 command 1011000086")
                                             }
-                                            if(jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L){
+                                            if (jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT() ?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT() ?: 0L) {
                                                 KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                             }
                                         }
@@ -377,14 +381,14 @@ object Connection {
 
                                                 println("get request: jsocketRet.just_do_it: ${jsocketRet.just_do_it}; jsocket.check_sum = ${jsocket.check_sum}")
 
-                                                if (jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L) {
+                                                if (jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT() ?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT() ?: 0L) {
                                                     if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                         PrintInformation.PRINT_INFO("Get2 command 1011000086")
                                                     }
                                                     KChat.VERIFY_UPDATES(jsocketRet.last_messege_update)
                                                 }
 
-                                                if(!jsocketRet.just_do_it_successfull.equals("0")){
+                                                if (!jsocketRet.just_do_it_successfull.equals("0")) {
                                                     jsocket.db_massage = jsocketRet.db_massage
                                                     jsocket.just_do_it_successfull = jsocketRet.just_do_it_successfull
                                                     return@launch
@@ -428,7 +432,7 @@ object Connection {
                                             l_additional_text = "Answer not have request and command is not SET_NEW_MESSEGES"
                                         )
                                     } else {
-                                        if(jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT()?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT()?:0L){
+                                        if (jsocketRet.last_messege_update > CHATS?.CashLastUpdate?.GET_LAST_SELECT() ?: CASH_DATAS[Constants.Account_Id + "300"]?.CashLastUpdate?.GET_LAST_SELECT() ?: 0L) {
                                             if (Constants.PRINT_INTO_SCREEN_DEBUG_INFORMATION == 1) {
                                                 PrintInformation.PRINT_INFO("Get3 command 1011000086")
                                             }
@@ -463,7 +467,7 @@ object Connection {
         removeOldAll()
     }
 
-    
+
     suspend fun removeRequest(just_do_it_label: Long) {
         BetweenJSOCKETs.lockedRemove(just_do_it_label)?.condition?.cSignal()
     }
@@ -472,8 +476,8 @@ object Connection {
         try {
             try {
 
-                if(Constants.RE_SEND_REQUEST_PROFILE_BY_TIMEOUT == 1){
-                    if(LastReSendRequestProfile.value < (DateTime.nowUnixMillisLong() - Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES)){
+                if (Constants.RE_SEND_REQUEST_PROFILE_BY_TIMEOUT == 1) {
+                    if (LastReSendRequestProfile.value < (DateTime.nowUnixMillisLong() - Constants.TIME_OUT_FOR_CLEAR_CLIENT_JSOCKETS_QUEUES)) {
                         RE_SEND_REQUEST_PROFILE(await_answer = false)
                     }
                 }
@@ -517,7 +521,7 @@ object Connection {
 
     }
 
-    suspend fun RE_SEND_REQUEST_PROFILE(await_answer: Boolean){
+    suspend fun RE_SEND_REQUEST_PROFILE(await_answer: Boolean) {
         val socket: Jsocket = Jsocket.GetJsocket() ?: Jsocket()
         socket.just_do_it = 1011000068  // RE_SEND_REQUEST_PROFILE;
         socket.send_request(await_answer = await_answer)

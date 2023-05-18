@@ -514,13 +514,18 @@ class ANSWER_TYPE {
     var OBJECT_ID_LAST_SELECT = ""
 
 
+    var IS_CHANGED = false
+
     //@JsName("merge")
     fun merge(v: ANSWER_TYPE) {
 
+        IS_CHANGED = false
+
         callBackUpdatedData = v.callBackUpdatedData
 
-        if (v.IDENTIFICATOR_1 != null) {
+        if (v.IDENTIFICATOR_1 != null && v.IDENTIFICATOR_1 != this.IDENTIFICATOR_1) {
             this.IDENTIFICATOR_1 = v.IDENTIFICATOR_1
+            IS_CHANGED = true
         }
 
         if (v.IDENTIFICATOR_2 != null) {

@@ -108,6 +108,7 @@ kotlin {
             packageName = "JSOCKETDB"
             //sourceFolders = listOf("sqldelight")
             schemaOutputDirectory = file("sqldelight/databases")
+            linkSqlite = true
         }
         //linkSqlite = true
     }
@@ -115,18 +116,26 @@ kotlin {
 
 
 
-    /*iosX64("iosX64") {
-        binaries {
-            staticLib {
-                    baseName = "JSOCKET"
-            }
-        }
-    }*/
     /*
-    sourceSets {
-        all {
-            languageSettings.optIn("JSOCKET")
+    iosX64("iosX64") {
+        binaries {
+            /*
+            staticLib{ //staticLib { //framework, sharedLib, staticLib
+                //baseName = "JSOCKET"
+                //export(project(":dependency"))
+            }
+             */
+
+            framework {
+                baseName = "JSOCKET"
+                isStatic = true
+                transitiveExport = true
+                linkerOpts.add("-lsqlite3")
+                embedBitcode(org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode.BITCODE)
+            }
+
         }
+
     }
      */
 
