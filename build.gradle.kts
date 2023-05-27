@@ -1,22 +1,22 @@
 @file:Suppress("UNUSED_VARIABLE")
 
-val kotlinVersion = "1.8.0"
-val kotlinCorotinesVersion = "1.6.4"
-val ktorVersion = "2.2.3"
+val kotlinVersion = "1.8.2"
+val kotlinCorotinesVersion = "1.7.1"
+val ktorVersion = "2.3.0"
 val reactiveVersion = "1.2.3"
-val KlockVersion = "3.4.0"
-val KorimVersion = "3.4.0"
-val KorioVersion = "3.4.0"
-val KryptoVersion = "3.4.0"
-val SQLDelightVersion = "1.5.5"
+val KlockVersion = "4.0.0"
+val KorimVersion = "4.0.0"
+val KorioVersion = "4.0.0"
+val KryptoVersion = "4.0.0"
+val SQLDelightVersion = "2.0.0-alpha05"
 val SQLDelightDialect = "sqlite:3.25"  //sqlite:3.25
 val AlaSQLVersion = "1.7.2"
 val TextEncodingVersion = "0.7.0"
 val Fingerprintjs2Version = "2.1.4"
-val StatelyVersion = "1.2.2"
+val StatelyVersion = "2.0.0-rc1"
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.8.0"
+    id("org.jetbrains.kotlin.multiplatform") version "1.9.0-Beta"
     id("com.squareup.sqldelight")  version "1.5.5"
     java
 }
@@ -31,7 +31,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath ("com.squareup.sqldelight:gradle-plugin:1.5.5")
+        classpath ("com.squareup.sqldelight:gradle-plugin:2.0.0-alpha05")
     }
 }
 
@@ -54,6 +54,7 @@ allprojects {
         maven { url = uri("https://dl.bintray.com/icerockdev/plugins")}
         maven { url = uri("https://plugins.gradle.org/m2/")}
         maven { url = uri("https://dl.bintray.com/korlibs/korlibs/")}
+        maven { url = uri("https://plugins.gradle.org/m2/")}
     }
 
 
@@ -80,16 +81,15 @@ kotlin {
         }
         //compilations["main"].kotlinOptions.jvmTarget = "11"
         withJava()
-
-
-
     }
+
 
     js(IR) {
         browser {
             binaries.executable()
         }
     }
+
 
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")
@@ -218,6 +218,7 @@ kotlin {
     }
 
 
+    /*
     sourceSets["jsMain"].dependencies {
         //implementation(kotlin("stdlib-js", kotlinVersion))
         implementation("io.ktor:ktor-utils-js:$ktorVersion")
@@ -254,6 +255,7 @@ kotlin {
     sourceSets["jsTest"].dependencies {
         implementation ( kotlin("test-js", kotlinVersion))
     }
+     */
 
 }
 
